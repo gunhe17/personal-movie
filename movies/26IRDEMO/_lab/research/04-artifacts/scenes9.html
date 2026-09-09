@@ -1,0 +1,302 @@
+<title>아홉 장면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488;
+  --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --before:#3F5B66; --before-bg:#DCE4E7;
+  --after:#A9702F;  --after-bg:#F2E5D2;
+  --f-d:'Hahmlet','Nanum Myeongjo',serif;
+  --f-b:'Gothic A1',system-ui,-apple-system,sans-serif;
+  --f-m:'IBM Plex Mono','Nanum Gothic Coding',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-b);line-height:1.72;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
+.slate{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.slate b{color:var(--before);font-weight:500}.slate s{color:var(--after);text-decoration:none;font-weight:500}
+.mast h1{font-family:var(--f-d);font-weight:800;font-size:clamp(40px,6.6vw,74px);line-height:1.04;letter-spacing:-.03em;margin:14px 0 8px;text-wrap:balance}
+.mast .lede{font-size:16.5px;font-weight:300;color:var(--ink-2);max-width:60ch;margin:0 0 28px}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));border-top:1px solid var(--rule)}
+.toc a{display:block;padding:11px 14px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);text-decoration:none;color:var(--ink);font-size:13px;line-height:1.4}
+.toc a b{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:2px;font-weight:400}
+.toc a:hover{background:var(--band)}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:40px 0 0;font-family:var(--f-m);font-size:10.5px;letter-spacing:.12em;color:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;vertical-align:-1px;margin-right:6px}
+.legend .b i{background:var(--before)}.legend .a i{background:var(--after)}
+
+.scene{margin-top:28px;background:var(--surface);border:1px solid var(--rule)}
+.scene-head{padding:24px 26px 18px;border-bottom:1px solid var(--rule)}
+.scene-head .n{font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.scene-head .n b{color:var(--before);font-weight:500}
+.scene-head h2{font-family:var(--f-d);font-weight:700;font-size:clamp(24px,3.2vw,31px);line-height:1.28;margin:6px 0 0;letter-spacing:-.02em;text-wrap:balance}
+.scene-head .sub{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+
+.cols{display:grid;grid-template-columns:1fr 1fr}
+.col{padding:20px 26px 24px}
+.col.b{border-right:1px solid var(--rule)}
+.col .lab{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.col.b .lab{color:var(--before)}.col.a .lab{color:var(--after)}
+.col .lab::after{content:"";flex:1;height:0;border-top:1px solid currentColor;opacity:.35}
+.col p{margin:0;font-size:14px;line-height:1.72}
+.col p+p{margin-top:9px}
+.col .scope{margin-top:12px;padding:9px 12px;background:var(--band);border-radius:2px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.col .scope b{font-family:var(--f-m);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3);font-weight:500;display:block;margin-bottom:2px}
+.col em{font-style:normal;background:linear-gradient(transparent 64%,var(--before-bg) 64%);padding:0 1px}
+.col.a em{background:linear-gradient(transparent 64%,var(--after-bg) 64%)}
+.col .fx{font-family:var(--f-m);font-size:11.5px;color:var(--ink-2);background:var(--band);padding:1px 5px;border-radius:2px;white-space:nowrap}
+.col ol{margin:8px 0 0;padding-left:20px;font-size:13.5px;line-height:1.7}
+.col ol li+li{margin-top:3px}
+
+footer{margin:66px 0 0;border-top:2px solid var(--ink);padding:20px 0 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
+footer h4{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 7px;font-weight:400}
+footer p{font-size:12px;color:var(--ink-2);line-height:1.68;margin:0}
+footer code{font-family:var(--f-m);font-size:11px}
+
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  .cols{grid-template-columns:1fr}.col.b{border-right:0;border-bottom:1px solid var(--rule)}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="slate"><span>MOEUM · 마인드스코프</span><span>／</span><b>아날로그 흐름</b><span>→</span><s>우리가 푼 방식</s><span>／</span><span>2026-09-09 확정</span></p>
+  <h1>아홉 장면</h1>
+  <p class="lede">심리상담센터의 하루를 순서대로 따라간다. 장면마다 왼쪽에 기존 흐름의 문제를, 오른쪽에 우리 서비스가 그것을 기능으로 어떻게 끊었는지를 적었다. 기능은 전부 현재 코드에서 확인한 것만이고, 범위가 부분이면 부분이라고 썼다.</p>
+  <nav class="toc">
+    <a href="#s1"><b>01 · 접수</b>통화 한 건이 다섯 곳으로 흩어진다</a>
+    <a href="#s2"><b>02 · 검사 실시</b>검사는 207분</a>
+    <a href="#s3"><b>03 · 채점·보고서</b>서류는 257분</a>
+    <a href="#s4"><b>04 · 바로링크</b>검사받으러 한 번, 결과 들으러 한 번</a>
+    <a href="#s5"><b>05 · 일정</b>빈 시간을 맞추려면 한 명 한 명 연락한다</a>
+    <a href="#s6"><b>06 · 필드노트</b>기억으로 쓰는 일지</a>
+    <a href="#s7"><b>07 · 자동 상담 일지</b>10분, 그리고 가방 속 녹음기</a>
+    <a href="#s8"><b>08 · 케어보드</b>한 아이의 기록이 네 곳에 흩어져 있다</a>
+    <a href="#s9"><b>09 · 회기·정산</b>수를 세서 낸다, 그 숫자로 급여가 정해진다</a>
+  </nav>
+</header>
+
+<p class="legend"><span class="b"><i></i>아날로그 흐름의 문제</span><span class="a"><i></i>우리 서비스의 기능적 해결</span></p>
+
+<!-- 1 -->
+<article class="scene" id="s1">
+  <div class="scene-head">
+    <p class="n"><b>01</b> 문의 · 접수</p>
+    <h2>통화 한 건이 다섯 곳으로 흩어진다</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>문의는 홈페이지 · 카톡 · 전화 세 곳에서 온다. 실장은 통화하면서 손으로 적는다. 녹음과 이력은 데스크 PC가 켜져 있을 때만 남고, CID가 꺼져 있으면 누가 전화했는지 알 수 없다.</p>
+      <p>받아 적은 것은 메모지에서 장부로, 장부에서 엑셀로, 엑셀에서 캘린더로, 다시 담당 상담사 카톡으로 <em>같은 내용을 네 번 옮겨 적는다</em>. 단체 유입이면 카톡으로 명단을 받아 엑셀로 옮기고 한 명씩 등록한다. 아이와 어머니와 아버지는 각각 다른 내담자로 등록되어 가족으로 묶이지 않는다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>접수 스테퍼</em> — 내담자 → 담당자 → 상담실 → 일정(여러 날짜) → 메모가 한 흐름이다. 저장하면 내담자 레코드 · 캘린더 · 담당자 일정에 동시에 반영되어 옮겨 적을 곳이 없다.</p>
+      <p><em>통합 내담자 DB</em> — 1인 1레코드. 보호자를 복수로, 형제를 관계로 등록해 한 가족이 한 화면에 모인다. 이후 상담 · 검사 · 바우처 · 청구가 전부 이 레코드에 쌓인다.</p>
+      <p><em>단체 접수</em> — 검사 접수는 엑셀 파일을 올리면 미리보기 후 한 번에 등록된다. <em>AI 에이전트</em>에게 "이 내용으로 접수 잡아줘"라고 말하면 폼이 미리 채워지고, 저장은 사람이 누른다.</p>
+      <div class="scope"><b>범위</b>전화 통화 자체를 받아 적는 일은 그대로다. 사라지는 것은 그 뒤의 옮겨 적기다.</div>
+    </div>
+  </div>
+</article>
+
+<!-- 2 -->
+<article class="scene" id="s2">
+  <div class="scene-head">
+    <p class="n"><b>02</b> 검사 실시</p>
+    <h2>검사는 207분</h2>
+    <p class="sub">성인 종합심리평가 한 건에서 실시가 차지하는 시간. 검사를 받아야 할 사람은 많은데, 실시할 수 있는 사람이 부족하다.</p>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>검사는 센터에 와서 대면으로 한다. 자가보고식 설문조차 <em>임상심리사가 실시에 붙어 있어야</em> 한다. 분리가 어려운 어린 아이는 일주일 전에 한 번 더 와서 보호자 설문을 미리 쓴다. 보호자는 아이가 검사받는 동안 대기실에서 종이 설문을 채우는데, 문항 의도를 몰라 중간에 포기하거나 잘못 답한다.</p>
+      <p>검사 오더지는 종이로 제출되어 검색이 안 되고, 센터 안에 지금 어떤 검사가 몇 건 진행 중인지 한눈에 보는 화면이 없다. 사전 · 사후 검사는 지원단 별도 사이트에서 센터 계정으로만 된다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>검사 유형 분리</em> — 자가보고식(온라인) · 투사 · 외부검사. 자가보고식 18종은 온라인 응시라 임상심리사가 실시에 붙지 않는다. 실시 인력은 대면이 필요한 검사에만 쓴다.</p>
+      <p><em>검사 접수 스테퍼</em> — 검사 항목 → 내담자 → 담당자 → 일정 → 장소. 개인 접수와 단체 접수(엑셀), 의뢰 기관 등록.</p>
+      <p><em>검사 현황</em> — 센터 전체 검사가 상태 탭(예약 · 진행 · 완료) · 담당자 필터 · 케이스별 진행률(완료 n / 총 m)로 한 화면에 보인다. 상태는 "온라인 검사 진행 중입니다"처럼 문장으로 서술된다. 태블릿 화면에 최적화되어 센터 안에서도 종이 없이 응시한다.</p>
+    </div>
+  </div>
+</article>
+
+<!-- 3 -->
+<article class="scene" id="s3">
+  <div class="scene-head">
+    <p class="n"><b>03</b> 채점 · 보고서</p>
+    <h2>서류는 257분</h2>
+    <p class="sub">같은 검사 한 건에서 채점과 보고서가 차지하는 시간. 검사보다 서류가 길다.</p>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>로샤를 엑셀로 채점한다. 반응을 워드로 다시 옮기고 지침서와 대조한다 — 3시간이 넘는다. 종합보고서는 과거 파일의 틀을 복사해 내용을 지우고 새로 채우고, 그래프는 한글에 스크린샷으로 붙인다. 표현을 찾으려 이전 보고서와 책을 다시 뒤진다. 한 건에 8시간에서 이틀.</p>
+      <p>완성본은 암호를 걸어 메일로 실장에게, 실장은 원장에게 보낸다. <em>보고서가 메일함에 흩어져 나중에 찾을 수 없고</em>, 상담사마다 수준이 달라 원장이 전수 검토한다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>자동 채점 · 자동 보고서</em> — 자가보고식은 제출 즉시 채점되고 결과 보고서(PDF)가 만들어진다. 채점표를 열 일도, 틀을 복사할 일도 없다.</p>
+      <p><em>검사별 소견</em> — 검사 상세에서 검사마다 소견을 쓴다. 외부검사는 보고서 PDF를 케이스에 올린다. 결과 · 소견 · 보고서가 <em>검사 케이스 한 곳에 모여</em> 메일 왕복이 사라지고, 나중에 검사 이력에서 찾는다.</p>
+      <div class="scope"><b>범위</b>자가보고식. 투사검사 채점과 풀배터리 종합보고서 작성은 아직 사람의 일이다 — 이 장면은 그것을 대체한다고 말하지 않는다.</div>
+    </div>
+  </div>
+</article>
+
+<!-- 4 -->
+<article class="scene" id="s4">
+  <div class="scene-head">
+    <p class="n"><b>04</b> 바로링크</p>
+    <h2>검사받으러 한 번, 결과 들으러 한 번</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>검사 날 센터에 온다. 채점을 기다린다. 1~2주 뒤 결과를 들으러 <em>다시 온다</em>. 어린 아이는 사전 방문까지 세 번이다. 오가는 일이 두 번인 이유는 결과가 늦어서가 아니라 채점이 사람 손에 있어서다.</p>
+      <p>결과 보고서는 종이 한 부와 50분의 설명으로 끝난다. 보호자는 집에 돌아가 궁금한 것을 물을 곳이 없다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <ol>
+        <li>검사 카드에서 <em>바로링크</em> → 수신자 · 마감일 → 문자(알림톡)로 링크 전송.</li>
+        <li>내담자는 링크를 열고 <em>4자리 인증번호</em>로 들어가 휴대폰에서 응시한다. 센터 계정도 앱 설치도 필요 없다.</li>
+        <li>제출 즉시 자동 채점 · 보고서 생성. 케이스가 완료로 바뀐다.</li>
+        <li><em>결과 전송</em> → 보호자가 인증 후 PDF를 본다. 검사마다 앱 공개 여부를 토글하면 보호자 앱 활동 탭에도 도착한다.</li>
+      </ol>
+      <p><em>전송 내역</em>에 수신인 · 전송 방식 · 상태(대기 · 완료 · 만료) · 바로링크가 남아 보냈는지, 열었는지를 추적한다.</p>
+      <div class="scope"><b>두 가지 쓰임</b>재택 검사(응시 링크)와 결과 전송(보고서 링크). 둘 다 같은 인증 흐름을 탄다.</div>
+    </div>
+  </div>
+</article>
+
+<!-- 5 -->
+<article class="scene" id="s5">
+  <div class="scene-head">
+    <p class="n"><b>05</b> 회기 일정</p>
+    <h2>빈 시간을 맞추려면 한 명 한 명 연락한다</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>보호자가 시간을 바꾸고 싶다고 전화한다. 상담사는 빈 시간을 찾아 다른 보호자들에게 <em>개별로 물어본다</em>. 휴가와 브레이크타임은 상담사가 따로 알려줘야 데스크가 알고, 놓치면 중복 예약이 난다.</p>
+      <p>12회기 · 24회기 묶음인데 달력은 열두 번 눌러야 한다. 변경 조율은 회기 사이 10분에, 바우처 결제와 보호자 응대와 함께 처리된다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <ol>
+        <li><em>내담자 앱</em> 일정 탭 → 일정 상세 → "변경 요청". 앱이 <em>센터의 가능한 시간</em>을 불러와 보여주고, 보호자가 그중에서 고른다. 취소 요청도 같은 자리에서.</li>
+        <li><em>웹 예약 화면</em>에 요청이 쌓인다. 상담사는 스케줄을 확인하고 <em>승인 또는 거절</em>한다. 누가 언제 결정했는지 남는다.</li>
+        <li>승인 사이에 그 시간이 차면 서버가 막고 요청을 반려로 넘긴다. 승인되면 캘린더에 바로 반영되고 알림이 간다.</li>
+      </ol>
+      <p><em>일괄 회기 등록</em> — 달력에서 여러 날짜를 고르고 담당자를 복수로(대표 + 보조) 붙여 한 번에 만든다. 겹치면 경고하고, 강행은 선택이다. 캘린더는 일간 · 주간 · 월간, 장소별 · 담당자별 타임라인으로 본다.</p>
+    </div>
+  </div>
+</article>
+
+<!-- 6 -->
+<article class="scene" id="s6">
+  <div class="scene-head">
+    <p class="n"><b>06</b> 회기 진행 — 필드노트</p>
+    <h2>기억으로 쓰는 일지</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>하루 6~8회기. 회기가 끝나면 다음 아이가 들어온다. 회기 중 관찰은 <em>치료사의 머릿속에만</em> 있다가 밤까지 버텨야 한다. 기록이 밀리면 기억이 흐려지고, 안 밀리려면 퇴근이 늦다.</p>
+      <p>밤에 쓰는 일지는 그날의 전부가 아니라 가장 강했던 한 장면이다. 나머지는 사라진다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>필드노트</em> — 상담사 앱에서 회기 시작에 녹음을 켠다. 말하는 동안 <em>실시간으로 전사</em>되고, 끝나면 자동으로 화자가 분리되고 요약이 만들어진다. 화자 이름은 상담사 · 내담자로 매핑해 저장한다.</p>
+      <p>회기 없이도, 검사 중에도 녹음할 수 있고, 분석 없이 파일만 저장하는 선택도 있다. 녹음 시점이 진행 중이거나 다가오는 회기에 가까우면 연결할 회기를 추천한다.</p>
+      <p>웹에서는 원본 전사 · 화자별 대화 · 요약을 시간 축으로 열람하고, 대화를 누르면 그 재생 시점으로 간다. 회기 하나에 필드노트 여러 개를 연결할 수 있다.</p>
+    </div>
+  </div>
+</article>
+
+<!-- 7 -->
+<article class="scene" id="s7">
+  <div class="scene-head">
+    <p class="n"><b>07</b> 회기 후 — 자동 상담 일지</p>
+    <h2>10분, 그리고 가방 속 녹음기</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>40분 교육이 끝나면 대기실에서 10분. 그 10분은 말로 오가고 그 자리에서 끝난다. 일지를 부모에게 주는 센터는 거의 없다 — 상담사마다 수준이 다르고, 쓸 시간이 없고, 아이가 숨기고 싶은 내용까지 갈까 봐. 그래서 보호자 열 명 중 여섯은 <em>가방에 녹음기를 넣어 보낸다</em>.</p>
+      <p>한편 상담사는 같은 회기를 센터 내부 일지로 한 번, 바우처 제출 양식으로 또 한 번, 슈퍼바이저 제출 양식으로 또 한 번 쓴다. 내용은 같은데 양식이 달라 그대로 낼 수 없다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>일지 초안 생성</em> — 필드노트에서 서식을 고르면 전사와 요약을 바탕으로 초안이 만들어진다. 서식은 다섯 가지: <span class="fx">기본 서식</span> <span class="fx">SOAP</span> <span class="fx">DAP</span> <span class="fx">BIRP</span> <span class="fx">가족센터</span>. 센터 내부용, 슈퍼비전용 임상 표준 서식, 기관 제출 서식을 같은 녹음에서 각각 뽑는다. 한 필드노트에서 여러 초안을 만들 수 있고 전부 이력으로 남는다.</p>
+      <p>초안은 상담사가 이미 쓴 본문 <em>끝에 이어붙는다</em> — 덮어쓰지 않는다. 상담사는 검토하고 저장한다. 쓰는 일이 다듬는 일로 바뀐다. 미작성 일지는 리스트에서 잡힌다.</p>
+      <div class="scope"><b>범위</b>보호자 발행은 검사 결과에만 있다(앱 공개 토글). 상담 일지를 보호자용 글로 옮겨 발행하는 기능과 내담자 앱의 기록 탭은 준비 중이다 — 녹음기가 사라지는 장면은 그때 완성된다.</div>
+    </div>
+  </div>
+</article>
+
+<!-- 8 -->
+<article class="scene" id="s8">
+  <div class="scene-head">
+    <p class="n"><b>08</b> 케어보드</p>
+    <h2>한 아이의 기록이 네 곳에 흩어져 있다</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>상담 일지는 상담사 파일에, 검사 보고서는 메일에, 바우처 잔여는 장부에, 보호자 통화는 메모지에. 회기 전에 지난 회기를 다시 파악하려면 파일철을 꺼낸다. 담당이 바뀌면 인수인계는 구두다.</p>
+      <p>의사 · 슈퍼바이저 · 치료사 · 교사 · 보호자가 같은 일지를 필요로 하는데 그 일지는 한 사람의 파일에만 있다. 그래서 서로 카톡으로 묻고, 수업 중에 답하고, <em>그 대화는 사라진다</em>.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>케어보드</em> — 내담자 한 명의 화면에 전부 모인다: 프로필과 보호자 · 형제 관계, 케이스 이력(상담 · 검사의 회기별 진행), 서류(사전기록지 · 동의서), 바우처(잔여 · 사용 이력), 앱 연결 상태. 회기 일지는 작성이 끝나면 여기 쌓인다.</p>
+      <p><em>구성원 간 기록 공유</em> — 필드노트는 센터 구성원 누구의 것이든 목록에 작성자 이름으로 보이고, 일정과 케이스에 연결한다. 전달해야 하던 일이 남겨두면 되는 일이 된다. 누가 무엇을 바꿨는지는 활동 로그에 남고, 변경은 알림으로 간다.</p>
+      <p><em>담당 이관</em> — 케이스를 다른 상담사에게 넘기면 기록이 그대로 따라간다. 새로 맡은 사람은 스크롤을 올리는 것으로 인수인계가 끝난다.</p>
+      <div class="scope"><b>범위</b>세밀한 상담 내용을 센터장 · 실장에게 어디까지 보일지의 공유 범위 설정은 설정 항목으로 남아 있다.</div>
+    </div>
+  </div>
+</article>
+
+<!-- 9 -->
+<article class="scene" id="s9">
+  <div class="scene-head">
+    <p class="n"><b>09</b> 회기 관리 · 정산</p>
+    <h2>수를 세서 낸다, 그 숫자로 급여가 정해진다</h2>
+  </div>
+  <div class="cols">
+    <div class="col b"><p class="lab">아날로그 흐름</p>
+      <p>월말에 상담사가 회기와 검사 건수를 직접 세서 원장에게 낸다. 그 숫자로 급여가 산정된다. 내담자가 늦어 재량으로 진행한 수업은 집계에서 빠지고 실장이 따로 넣는다. 사전 취소와 당일 노쇼는 페이가 다른데 <em>구분되지 않는다</em>. 노쇼 환불은 센터 정책에 맞춰 손으로 기록한다.</p>
+      <p>바우처 잔여 회기는 엑셀에서 수기로 차감하고 월말에 일일이 대조한다. 미납은 기억으로 추적한다.</p>
+    </div>
+    <div class="col a"><p class="lab">우리가 푼 방식</p>
+      <p><em>회기 상태</em> — 회기마다 예정 · 완료 · 참석 · 불참 · 노쇼 · 취소를 표시한다. 취소는 사유를 고르고 되돌릴 수 있다. 완료 · 노쇼 · 취소 회기는 청구 · 차감 · 일지의 앵커라 잠긴다. 앞 장면의 일정 변경 요청이 승인되면 회기가 옮겨질 뿐 사라지지 않는다.</p>
+      <p><em>회기 → 차감 → 청구</em> — 노쇼 시 차감 여부는 센터 정책으로 선택한다. 차감되면 "회기 차감" 배지가 붙고 바우처 잔여가 줄고 사용 이력에 어느 회기인지 남는다. 청구는 회기를 골라 금액이 계산되고, 그룹 청구 · 부분결제 · 미납이 상태로 갈린다. 잔여가 2회 이하면 대시보드에 신호가 뜬다.</p>
+      <p><em>구성원별 집계</em> — 상담사 본인의 상담 이력에서 프로그램별 · 개별/그룹별 완료 회기 수가 자동으로 나온다. 세지 않는다.</p>
+      <div class="scope"><b>범위</b>급여 계산 기능은 없다. 사라지는 것은 수기 집계와 그 오류다 — 급여의 근거 숫자가 회기 상태에서 자동으로 나온다.</div>
+    </div>
+  </div>
+</article>
+
+<footer>
+  <div>
+    <h4>순서</h4>
+    <p>상담센터 AS-IS 흐름도의 10단계를 따랐다. 접수 → 검사 → 회기 → 정산.</p>
+  </div>
+  <div>
+    <h4>기능 확인</h4>
+    <p><code>saas-center-platform</code> 9월 9일 소스 기준. web · mobile(상담사) · mobile-client(내담자) 세 앱과 7월 20일 워크스루 판정으로 확인했다. "범위" 상자는 부분 해결이거나 아직 없는 것을 적은 곳이다.</p>
+  </div>
+  <div>
+    <h4>이 문서에 없는 것</h4>
+    <p>학술 근거, 촬영 · 편집 지시, 장면 선별 기준. 그것은 <b>75초의 전환</b>과 <b>열한 개의 장면</b>에 있다. 이 문서는 제목 · 문제 · 해결만 담는다.</p>
+  </div>
+</footer>
+
+</div>

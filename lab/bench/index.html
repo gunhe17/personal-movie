@@ -1,0 +1,265 @@
+<!doctype html><meta charset="utf-8"><title>video edit bench</title>
+<style>
+ body{font:12px/1.5 ui-monospace,monospace;padding:16px;background:#111;color:#ddd;margin:0}
+ h3{margin:0 0 10px} a{color:#6cf}
+ #drop{border:2px dashed #555;border-radius:8px;padding:26px;text-align:center;color:#999;margin-bottom:12px}
+ #drop.over{border-color:#6cf;background:#16202a;color:#6cf}
+ button{font:inherit;background:#252525;color:#ddd;border:1px solid #555;border-radius:5px;padding:5px 11px;cursor:pointer}
+ table{border-collapse:collapse;margin-top:12px;font-size:11px;width:100%}
+ th,td{border:1px solid #333;padding:3px 7px;text-align:right;white-space:nowrap}
+ th{background:#1c1c1c;text-align:center} td:first-child,th:first-child{text-align:left}
+ .g{color:#6c6} .y{color:#dc6} .r{color:#e66} .dim{color:#777}
+ #log{color:#888;max-height:150px;overflow:auto;white-space:pre-wrap;margin-top:12px;font-size:11px}
+ video{width:150px;vertical-align:top}
+</style>
+<h3>video editing feasibility bench</h3>
+<div id="drop">영상 파일을 드래그하거나 클릭해서 선택 (여러 개 가능)<br>
+  <span class="dim">측정: 로드 · 재생 fps · 프레임 스텝 · 랜덤 seek · 컷 전환 · WebCodecs</span></div>
+<button id="bundled">번들 테스트 영상 실행 (1080p30 / 1080p60 / 4K30)</button>
+<span class="dim" id="env"></span>
+<div id="out"></div><div id="stage"></div><pre id="log"></pre>
+<input type="file" id="picker" accept="video/*" multiple hidden>
+<script src="mp4box.all.min.js"></script>
+<script>
+const Q=new URLSearchParams(location.search);
+const BUNDLED=(Q.get('files')||'1080p30_gop60.mp4,1080p60_gop120.mp4,4k30_gop60.mp4').split(',');
+// ponytail: mp4box needs the whole file in memory; above this we skip the WebCodecs tests instead of OOMing.
+const WC_MAX_BYTES=600*1024*1024;
+const $=s=>document.querySelector(s), STAGE=$('#stage'), LOG=$('#log');
+const log=s=>{LOG.textContent+=s+'\n';LOG.scrollTop=1e9;fetch('/progress',{method:'POST',body:s}).catch(()=>{});};
+addEventListener('unhandledrejection',e=>log('UNHANDLED: '+String(e.reason&&e.reason.message||e.reason)));
+$('#env').textContent=` ${navigator.hardwareConcurrency} cores · screen ${screen.width}x${screen.height}`;
+
+const withTimeout=(p,ms,w)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('TIMEOUT '+w)),ms))]);
+const stats=a=>{const s=[...a].sort((x,y)=>x-y),q=p=>s[Math.min(s.length-1,Math.floor(s.length*p))];
+  return {n:s.length,min:+s[0].toFixed(1),med:+q(.5).toFixed(1),p95:+q(.95).toFixed(1),max:+s[s.length-1].toFixed(1)};};
+const nextPainted=v=>new Promise(r=>v.requestVideoFrameCallback((now,md)=>r({now,md})));
+const raf=()=>new Promise(r=>requestAnimationFrame(r));
+const ready=v=>new Promise((res,rej)=>{ if(v.readyState>=2)return res();
+  v.addEventListener('loadeddata',()=>res(),{once:true});
+  v.addEventListener('error',()=>rej(new Error('브라우저가 재생할 수 없는 코덱/컨테이너')),{once:true}); });
+
+function mkVideo(url){const v=document.createElement('video');
+  v.muted=true;v.playsInline=true;v.preload='auto';v.src=url;STAGE.appendChild(v);return v;}
+
+// fps from presented-frame mediaTime deltas: format-agnostic, no demux needed
+const COMMON=[23.976,24,25,29.97,30,48,50,59.94,60,120];
+async function detectFps(v){
+  v.currentTime=Math.min(0.5,v.duration/4); await nextPainted(v);
+  const mt=[]; await v.play().catch(()=>{});
+  await new Promise(res=>{ const cb=(n,md)=>{mt.push(md.mediaTime); mt.length<25?v.requestVideoFrameCallback(cb):res();};
+    v.requestVideoFrameCallback(cb); });
+  v.pause();
+  const d=[]; for(let i=1;i<mt.length;i++){const x=mt[i]-mt[i-1]; if(x>1e-4)d.push(x);}
+  if(!d.length) return {fps:30, fps_source:'fallback(감지 실패)'};
+  d.sort((a,b)=>a-b); const raw=1/d[Math.floor(d.length/2)];
+  // nearest, not first-within-tolerance: 29.97 and 30 both match a true 30fps stream
+  const near=COMMON.reduce((b,c)=>Math.abs(c-raw)<Math.abs(b-raw)?c:b);
+  const snap=Math.abs(near-raw)/near<0.02?near:null;
+  return {fps:snap||+raw.toFixed(3), fps_source:snap?'감지':'감지(비표준 '+raw.toFixed(2)+')'};
+}
+
+async function tLoad(url){
+  const t0=performance.now(); const v=mkVideo(url); await ready(v);
+  const ld=performance.now()-t0;
+  v.currentTime=0.001; await nextPainted(v);
+  return {v,loadeddata_ms:+ld.toFixed(1),firstframe_ms:+(performance.now()-t0).toFixed(1)};
+}
+
+async function tPlayback(v,fps,secs=5){
+  secs=Math.min(secs,Math.max(1,v.duration-1));
+  v.currentTime=Math.min(0.5,v.duration/10); await nextPainted(v);
+  let n=0,t0=0,last=null; const gaps=[];
+  const before=v.getVideoPlaybackQuality().droppedVideoFrames;
+  await new Promise(res=>{
+    const cb=now=>{ if(!t0)t0=now; else gaps.push(now-last); last=now; n++;
+      if(now-t0>=secs*1000||v.ended){v.pause();res();} else v.requestVideoFrameCallback(cb); };
+    v.requestVideoFrameCallback(cb); v.play().catch(e=>{log('play() rejected: '+e);res();});
+  });
+  const q=v.getVideoPlaybackQuality();
+  return {target_fps:fps,effective_fps:+(n/((last-t0)/1000)).toFixed(2),
+          dropped:q.droppedVideoFrames-before,frame_gap_ms:stats(gaps)};
+}
+
+async function tStep(v,fps,n=60,s0=null){
+  const s=s0!=null?s0:Math.min(5,v.duration*0.2);
+  n=Math.min(n,Math.max(5,Math.floor((v.duration-s-0.2)*fps)));   // never step past the end
+  v.currentTime=s+0.5/fps; await nextPainted(v);
+  const lat=[];
+  for(let i=1;i<=n;i++){const t=performance.now();
+    v.currentTime=s+(i+0.5)/fps; await nextPainted(v); lat.push(performance.now()-t);}
+  return stats(lat);
+}
+
+async function tSeek(v,n=30){
+  const lat=[], span=Math.max(0.2,v.duration-1.0);
+  for(let i=0;i<n;i++){const t0=performance.now();
+    v.currentTime=0.5+Math.random()*span*0.95; await nextPainted(v); lat.push(performance.now()-t0);}
+  return stats(lat);
+}
+
+async function tCutSwap(url,dur){
+  const a=mkVideo(url),b=mkVideo(url); await Promise.all([ready(a),ready(b)]);
+  const lat=[], A=dur*0.1, B=dur*0.6, stepT=Math.min(1,dur*0.03);
+  for(let i=0;i<10;i++){
+    a.currentTime=A+i*stepT; b.currentTime=B+i*stepT;
+    await Promise.all([nextPainted(a),nextPainted(b)]);          // preroll the incoming clip
+    await a.play().catch(()=>{}); await b.play().catch(()=>{});
+    await new Promise(r=>setTimeout(r,150));
+    const t0=performance.now();                                   // the cut
+    a.style.display='none'; b.style.display='inline'; a.pause();
+    await nextPainted(b); lat.push(performance.now()-t0);
+    b.pause(); a.style.display='inline';
+  }
+  a.remove(); b.remove(); return stats(lat);
+}
+
+function demux(buf){
+  return new Promise((resolve,reject)=>{
+    const file=MP4Box.createFile(); const chunks=[]; let cfg=null,total=0;
+    file.onError=e=>reject(new Error('mp4box: '+e));
+    file.onReady=info=>{
+      const tr=info.videoTracks&&info.videoTracks[0];
+      if(!tr) return reject(new Error('비디오 트랙 없음'));
+      total=tr.nb_samples; const trak=file.getTrackById(tr.id); let desc=null;
+      for(const e of trak.mdia.minf.stbl.stsd.entries){
+        const box=e.avcC||e.hvcC||e.vpcC||e.av1C;
+        if(box){const st=new DataStream(undefined,0,DataStream.BIG_ENDIAN);box.write(st);desc=new Uint8Array(st.buffer,8);break;}
+      }
+      cfg={codec:tr.codec,codedWidth:tr.video.width,codedHeight:tr.video.height,description:desc,
+           hardwareAcceleration:'prefer-hardware',optimizeForLatency:true};
+      file.setExtractionOptions(tr.id,null,{nbSamples:1e6}); file.start();
+    };
+    file.onSamples=(id,u,samples)=>{
+      for(const s of samples) chunks.push(new EncodedVideoChunk({type:s.is_sync?'key':'delta',
+        timestamp:1e6*s.cts/s.timescale,duration:1e6*s.duration/s.timescale,data:s.data}));
+      if(chunks.length>=total) resolve({cfg,chunks});
+    };
+    setTimeout(()=>reject(new Error('demux 응답 없음 (MP4/MOV 아닐 가능성)')),25000);
+    const b=buf.slice(0); b.fileStart=0; file.appendBuffer(b); file.flush();
+  });
+}
+
+async function tWebCodecs(buf,fps){
+  if(!window.VideoDecoder) return {error:'이 브라우저는 WebCodecs 미지원'};
+  const t0=performance.now(); const {cfg,chunks}=await demux(buf);
+  const demux_ms=performance.now()-t0;
+  const sup=await VideoDecoder.isConfigSupported(cfg);
+  if(!sup.supported) return {supported:false,codec:cfg.codec,demux_ms:+demux_ms.toFixed(1)};
+
+  let got=0; const keep=[],KEEP=90;
+  const dec=new VideoDecoder({output:f=>{got++;keep.length<KEEP?keep.push(f):f.close();},error:e=>log('decoder: '+e)});
+  dec.configure(cfg);
+  const t1=performance.now(); for(const c of chunks) dec.decode(c); await dec.flush();
+  const decode_ms=performance.now()-t1;
+
+  const cv=document.createElement('canvas'); cv.width=cfg.codedWidth; cv.height=cfg.codedHeight;
+  const ctx=cv.getContext('2d'); const draw=[];
+  for(const f of keep){const t=performance.now();ctx.drawImage(f,0,0);await raf();draw.push(performance.now()-t);}
+  keep.forEach(f=>f.close()); dec.close();
+
+  const keys=chunks.map((c,i)=>c.type==='key'?i:-1).filter(i=>i>=0);
+  const jump=[],dist=[];
+  for(let k=0;k<12;k++){
+    const target=Math.floor(Math.random()*chunks.length);
+    const kf=keys.filter(i=>i<=target).pop()??0; dist.push(target-kf);
+    let done; const p=new Promise(r=>done=r); let n=0;
+    const d2=new VideoDecoder({output:f=>{f.close(); if(++n===target-kf+1)done();},error:()=>{}});
+    d2.configure(cfg); const t=performance.now();
+    for(let i=kf;i<=target;i++) d2.decode(chunks[i]);
+    d2.flush().then(done,()=>done()); await p;
+    jump.push(performance.now()-t); d2.close();
+  }
+  return {supported:true,codec:cfg.codec,demux_ms:+demux_ms.toFixed(1),frames:got,
+    decode_fps:+(got/(decode_ms/1000)).toFixed(0), realtime_x:+((got/fps)/(decode_ms/1000)).toFixed(1),
+    cached_frame_draw_ms:stats(draw), random_jump_ms:stats(jump), jump_frames_from_keyframe:stats(dist)};
+}
+
+// ---------- table ----------
+const COLS=[['파일',r=>r.name],['해상도',r=>r.dims],['fps',r=>r.fps],['크기',r=>r.size_mb+'MB'],
+  ['첫 프레임',r=>ms(r.load&&r.load.firstframe_ms)],
+  ['재생 fps',r=>r.playback?tint(r.playback.effective_fps,r.playback.effective_fps>=r.fps*0.95?'g':'y'):'-'],
+  ['드롭',r=>r.playback?tint(r.playback.dropped,r.playback.dropped?'r':'g'):'-'],
+  ['프레임스텝 med/p95',r=>pair(r.frame_step_video_el)],
+  ['랜덤seek med/p95',r=>pair(r.random_seek_video_el)],
+  ['컷전환 med',r=>ms(r.cut_swap&&r.cut_swap.med)],
+  ['WC 디코드',r=>r.webcodecs&&r.webcodecs.decode_fps?r.webcodecs.decode_fps+'fps ('+r.webcodecs.realtime_x+'x)':err(r.webcodecs)],
+  ['WC 캐시프레임',r=>r.webcodecs&&r.webcodecs.cached_frame_draw_ms?ms(r.webcodecs.cached_frame_draw_ms.min):'-'],
+  ['WC 점프 med/p95',r=>r.webcodecs?pair(r.webcodecs.random_jump_ms):'-']];
+const ms=v=>v==null?'-':tint(v.toFixed(1)+'ms',v<20?'g':v<60?'y':'r');
+const pair=s=>!s||s.error?'-':tint(s.med+' / '+s.p95,s.med<20?'g':s.med<60?'y':'r');
+const tint=(t,c)=>`<span class="${c}">${t}</span>`;
+const err=w=>w&&w.error?`<span class="dim">${w.error}</span>`:(w&&w.supported===false?'<span class="r">미지원</span>':'-');
+const ROWS=[];
+function render(){
+  $('#out').innerHTML='<table><tr>'+COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+
+    ROWS.map(r=>'<tr>'+COLS.map(c=>'<td>'+(()=>{try{return c[1](r)??'-'}catch(e){return '-'}})()+'</td>').join('')+'</tr>').join('')+
+    '</table><p class="dim">초록 &lt;20ms · 노랑 &lt;60ms · 빨강 ≥60ms. 60Hz 화면에서 16.7ms = vsync 1회 = 최소값.</p>';
+}
+
+async function bench(name,url,bytes,getBuf){
+  const r={name,size_mb:+(bytes/1048576).toFixed(1)}; ROWS.push(r); render();
+  const run=async(k,label,fn,to)=>{ log(' > '+name+' '+label);
+    try{r[k]=await withTimeout(fn(),to,label);}catch(e){r[k]={error:String(e.message||e)};log('   FAILED '+r[k].error);}
+    render(); };
+  let v=null;
+  await run('load','load',async()=>{const x=await tLoad(url);v=x.v;
+    return {loadeddata_ms:x.loadeddata_ms,firstframe_ms:x.firstframe_ms};},25000);
+  if(!v){ r.dims='-'; r.fps='-'; log('   재생 불가 — 이후 항목 건너뜀'); render(); return r; }
+  r.dims=v.videoWidth+'x'+v.videoHeight; r.duration=+v.duration.toFixed(1);
+  const d=await detectFps(v); r.fps=d.fps; r.fps_source=d.fps_source; render();
+  await run('playback','playback',()=>tPlayback(v,r.fps),30000);
+  await run('frame_step_video_el','step',()=>tStep(v,r.fps),60000);
+  await run('random_seek_video_el','seek',()=>tSeek(v),60000);
+  const dur=v.duration; v.remove();
+  await run('cut_swap','cut',()=>tCutSwap(url,dur),60000);
+  if(bytes>WC_MAX_BYTES) r.webcodecs={error:'파일이 커서 생략 (>600MB)'};
+  else await run('webcodecs','webcodecs',async()=>tWebCodecs(await getBuf(),r.fps),300000);
+  render(); return r;
+}
+
+let busy=false;
+async function runAll(items){
+  if(busy){log('이미 실행 중');return;} busy=true;
+  for(const it of items){
+    try{ await bench(it.name,it.url,it.bytes,it.getBuf); }
+    catch(e){ log('ERROR '+it.name+': '+(e.message||e)); }
+    if(it.revoke) URL.revokeObjectURL(it.url);
+    STAGE.innerHTML='';
+  }
+  fetch('/result',{method:'POST',body:JSON.stringify({ua:navigator.userAgent,cores:navigator.hardwareConcurrency,
+    screen:screen.width+'x'+screen.height,results:ROWS},null,2)}).catch(()=>{});
+  log('DONE'); busy=false;
+}
+
+const fromFiles=files=>[...files].map(f=>({name:f.name,url:URL.createObjectURL(f),bytes:f.size,revoke:true,
+  getBuf:()=>f.arrayBuffer()}));
+
+const drop=$('#drop');
+drop.onclick=()=>$('#picker').click();
+$('#picker').onchange=e=>runAll(fromFiles(e.target.files));
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over');};
+drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');
+  const f=[...e.dataTransfer.files].filter(x=>x.type.startsWith('video/')||/\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(x.name));
+  f.length?runAll(fromFiles(f)):log('영상 파일이 없습니다');};
+$('#bundled').textContent='번들 테스트 영상 실행 ('+BUNDLED.join(' / ')+')';
+$('#bundled').onclick=async()=>{
+  const items=[];
+  for(const n of BUNDLED){
+    const b=await (await fetch(n)).blob();
+    items.push({name:n,url:URL.createObjectURL(b),bytes:b.size,revoke:true,getBuf:()=>b.arrayBuffer()});
+  }
+  runAll(items);
+};
+if(Q.has('sweep')){(async()=>{
+  const name=Q.get('sweep'), b=await (await fetch(name)).blob(), url=URL.createObjectURL(b);
+  const {v}=await tLoad(url); const {fps}=await detectFps(v);
+  log('sweep '+name+' fps='+fps+' (GOP '+Q.get('gop')+' frames)');
+  for(const s0 of Q.get('offsets').split(',').map(Number))
+    for(const pass of [1,2])
+      log('  start='+s0.toFixed(3)+'s pass'+pass+'  '+JSON.stringify(await tStep(v,fps,60,s0)));
+  log('DONE');
+})();}
+if(Q.has('auto')) $('#bundled').click();
+</script>

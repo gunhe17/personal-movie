@@ -1,0 +1,329 @@
+<!doctype html><meta charset="utf-8"><title>improvement loop 4</title>
+<style>
+ body{font:12px/1.5 ui-monospace,monospace;background:#111;color:#ddd;padding:16px;margin:0}
+ table{border-collapse:collapse;margin:8px 0 18px;font-size:11px}
+ th,td{border:1px solid #333;padding:3px 8px;text-align:right;white-space:nowrap}
+ th{background:#1c1c1c;text-align:center} td:first-child,th:first-child{text-align:left}
+ h4{margin:16px 0 4px;font-size:12px;color:#9cf}
+ .g{color:#6c6} .y{color:#dc6} .r{color:#e66} .dim{color:#777}
+ #log{color:#888;max-height:200px;overflow:auto;white-space:pre-wrap;font-size:11px;margin-top:12px}
+ video{width:130px}
+</style>
+<h3>improvement loop 4 — 스트리밍 디먹싱 · 임포트 비용 · 임의 컷</h3>
+<div id="out"></div><div id="stage"></div><pre id="log"></pre>
+
+<script src="mp4box.all.min.js"></script>
+<script src="mp4-muxer.min.js"></script>
+<script src="bench-core.js"></script>
+<script>
+const Q=new URLSearchParams(location.search);
+const LOG=document.getElementById('log');
+const log=s=>{LOG.textContent+=s+'\n';LOG.scrollTop=1e9;fetch('/progress',{method:'POST',body:s}).catch(()=>{});};
+addEventListener('unhandledrejection',e=>log('UNHANDLED: '+String(e.reason&&e.reason.stack||e.reason)));
+const RESULTS={};
+const rt=(frames,fps,ms)=>+((frames/fps)/(ms/1000)).toFixed(1);
+const heapMB=()=>performance.memory?+(performance.memory.usedJSHeapSize/1048576).toFixed(0):null;
+const gc=async()=>{ for(let i=0;i<3;i++) await new Promise(r=>setTimeout(r,120)); };
+function table(title,head,rows){
+  const el=document.createElement('div');
+  el.innerHTML='<h4>'+title+'</h4><table><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+
+    rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</table>';
+  document.getElementById('out').appendChild(el);
+}
+const asBlob=n=>fetch(n).then(r=>r.blob());
+
+// =====================================================================
+// K1. 스트리밍 디먹싱 — 샘플 데이터를 들지 않고 색인만 만든다
+// =====================================================================
+// mp4box는 moov를 파싱하면 trak.samples에 {offset,size,cts,dts,is_sync}를 채운다.
+// 파일 앞부분(moov)만 먹이면 전체 색인을 얻으면서 샘플 바이트는 힙에 올리지 않는다.
+const HEAD_MB=8;
+async function buildIndex(blob){
+  const file=MP4Box.createFile(false);          // false = 샘플 데이터 보관하지 않음
+  let info=null;
+  file.onReady=i=>{info=i;};
+  file.onError=e=>{throw new Error('mp4box: '+e);};
+  let pos=0;
+  const CH=4*1024*1024;
+  while(pos<blob.size && !info){
+    const b=await blob.slice(pos,Math.min(blob.size,pos+CH)).arrayBuffer();
+    b.fileStart=pos; file.appendBuffer(b); pos+=CH;
+    if(pos>HEAD_MB*1024*1024 && !info) break;   // faststart면 여기서 이미 나온다
+  }
+  if(!info) throw new Error('moov를 앞부분에서 찾지 못함 (faststart 아님)');
+  const tr=info.videoTracks[0];
+  const trak=file.getTrackById(tr.id);
+  let desc=null;
+  for(const e of trak.mdia.minf.stbl.stsd.entries){
+    const box=e.avcC||e.hvcC||e.vpcC||e.av1C;
+    if(box){const st=new DataStream(undefined,0,DataStream.BIG_ENDIAN);box.write(st);desc=new Uint8Array(st.buffer,8);break;}
+  }
+  const cfg={codec:tr.codec,codedWidth:tr.video.width,codedHeight:tr.video.height,
+             description:desc,hardwareAcceleration:'prefer-hardware',optimizeForLatency:true};
+  const index=(trak.samples||[]).map(s=>({o:s.offset,z:s.size,k:!!s.is_sync,
+                                          t:1e6*s.cts/s.timescale,d:1e6*s.duration/s.timescale}));
+  file.flush();
+  return {cfg,index,bytesRead:Math.min(pos,blob.size)};
+}
+// 색인 구간 [lo,hi)의 바이트만 읽어 청크로 만든다
+async function chunksFor(blob,index,lo,hi){
+  const start=index[lo].o, end=index[hi-1].o+index[hi-1].z;
+  const buf=new Uint8Array(await blob.slice(start,end).arrayBuffer());
+  const out=[];
+  for(let i=lo;i<hi;i++){
+    const s=index[i];
+    out.push(new EncodedVideoChunk({type:s.k?'key':'delta',timestamp:s.t,duration:s.d,
+      data:buf.subarray(s.o-start,s.o-start+s.z)}));
+  }
+  return out;
+}
+async function k1_streaming(){
+  const name='long5min_nobf.mp4';
+  const blob=await asBlob(name);
+  await gc(); const h0=heapMB();
+
+  // (A) 3차 루프 방식: 전체를 ArrayBuffer로 읽고 모든 청크를 배열에
+  const tA=performance.now();
+  const buf=await blob.arrayBuffer();
+  const full=await demux(buf);
+  const msA=performance.now()-tA; const hA=heapMB();
+  const nFull=full.chunks.length;
+  full.chunks.length=0;
+  await gc();
+
+  // (B) 스트리밍 방식: 색인만
+  await gc(); const h1=heapMB();
+  const tB=performance.now();
+  const {cfg,index,bytesRead}=await buildIndex(blob);
+  const msB=performance.now()-tB; const hB=heapMB();
+
+  // 색인만 들고 임의 구간 60프레임을 디코딩할 수 있는가
+  const keys=index.map((s,i)=>s.k?i:-1).filter(i=>i>=0);
+  const lat=[];
+  let painted=0;
+  for(let n=0;n<10;n++){
+    const kf=keys[Math.floor(Math.random()*keys.length)];
+    const hi=Math.min(index.length,kf+60);
+    const t=performance.now();
+    const cks=await chunksFor(blob,index,kf,hi);
+    let got=0;
+    await new Promise(async res=>{
+      const d=new VideoDecoder({output:f=>{got++;f.close();},error:e=>log('  dec '+e)});
+      d.configure(cfg); for(const c of cks) d.decode(c);
+      await d.flush(); d.close(); res();
+    });
+    lat.push(performance.now()-t); painted+=got;
+  }
+  await gc(); const hC=heapMB();
+
+  const r={file_mb:+(blob.size/1048576).toFixed(0), frames:index.length,
+           full_ms:+msA.toFixed(0), full_heap_delta:hA-h0,
+           index_ms:+msB.toFixed(0), index_heap_delta:hB-h1, index_bytes_read_mb:+(bytesRead/1048576).toFixed(1),
+           window_decode:stats(lat), frames_decoded:painted, heap_after_windows:hC,
+           index_matches_full: index.length===nFull};
+  RESULTS.k1=r; log('K1 '+JSON.stringify(r));
+  table('K1. 스트리밍 디먹싱 — 5분 소스(360MB · 9000프레임)의 색인만 만들기',
+    ['방식','소요','힙 증가','읽은 바이트','임의 60프레임 창 디코딩'],
+    [['전체 디먹싱 (3차 루프 방식)',r.full_ms+'ms',
+      `<span class="r">+${r.full_heap_delta}MB</span>`,r.file_mb+'MB','<span class="dim">—</span>'],
+     ['색인만 (스트리밍)',`<span class="g">${r.index_ms}ms</span>`,
+      `<span class="g">+${r.index_heap_delta}MB</span>`,
+      `<span class="g">${r.index_bytes_read_mb}MB</span>`,
+      `<span class="g">med ${r.window_decode.med}ms / p95 ${r.window_decode.p95}ms</span>`],
+     ['색인 프레임 수 일치',r.index_matches_full?'<span class="g">일치 ('+r.frames+')</span>':'<span class="r">불일치</span>','','','']]);
+}
+
+// =====================================================================
+// K2. 임포트 비용 — 정규화와 프록시를 한 번의 디코딩으로 만들 수 있는가
+// =====================================================================
+const NORM={codec:'avc1.640033',width:3840,height:2160,bitrate:50e6,framerate:30,
+            hardwareAcceleration:'prefer-hardware',avc:{format:'avc'},latencyMode:'quality'};
+const PROXY={codec:'avc1.640029',width:1920,height:1080,bitrate:8e6,framerate:30,
+             hardwareAcceleration:'prefer-hardware',avc:{format:'avc'},latencyMode:'quality'};
+async function encodePass(cfg,chunks,encCfgs){
+  // encCfgs가 둘이면 디코딩 1회로 두 인코더를 동시에 먹인다
+  const encs=encCfgs.map(c=>{
+    const st={n:0};
+    st.enc=new VideoEncoder({output:()=>{st.n++;st.g.release();},error:e=>log('  enc '+e)});
+    st.enc.configure(c); st.g=gate(8); st.cfg=c;
+    if(c.width!==NORM.width||c.height!==NORM.height){
+      st.cv=new OffscreenCanvas(c.width,c.height); st.ctx=st.cv.getContext('2d',{alpha:false});
+    }
+    return st;
+  });
+  let i=0;
+  const gDec=gate(8);
+  const dec=new VideoDecoder({output:f=>{
+    const ts=Math.round(i*1e6/30), dur=Math.round(1e6/30);
+    for(const st of encs){
+      let vf;
+      if(st.ctx){ st.ctx.drawImage(f,0,0,st.cfg.width,st.cfg.height); vf=new VideoFrame(st.cv,{timestamp:ts,duration:dur}); }
+      else vf=new VideoFrame(f,{timestamp:ts,duration:dur});
+      st.enc.encode(vf,{keyFrame:i%15===0}); vf.close();
+    }
+    f.close(); i++; gDec.release();
+  },error:e=>log('  dec '+e)});
+  dec.configure(cfg);
+  const t0=performance.now();
+  for(const c of chunks){ await gDec.acquire(); dec.decode(c); }
+  await dec.flush();
+  for(const st of encs) await st.enc.flush();
+  const ms=performance.now()-t0;
+  dec.close(); for(const st of encs) st.enc.close();
+  return {ms, counts:encs.map(s=>s.n)};
+}
+async function k2_import(){
+  const blob=await asBlob('4k30_gop60.mp4');
+  const {cfg,chunks}=await demux(await blob.arrayBuffer());
+  const N=chunks.length;
+  const a=await encodePass(cfg,chunks,[NORM]);          log('K2 normalize '+JSON.stringify(a));
+  const b=await encodePass(cfg,chunks,[PROXY]);         log('K2 proxy '+JSON.stringify(b));
+  const c=await encodePass(cfg,chunks,[NORM,PROXY]);    log('K2 shared '+JSON.stringify(c));
+  const sep=a.ms+b.ms;
+  const r={normalize_ms:+a.ms.toFixed(0),proxy_ms:+b.ms.toFixed(0),
+           separate_ms:+sep.toFixed(0),shared_ms:+c.ms.toFixed(0),
+           saved_pct:+((1-c.ms/sep)*100).toFixed(0),
+           separate_x:rt(N,30,sep),shared_x:rt(N,30,c.ms)};
+  RESULTS.k2=r; log('K2 '+JSON.stringify(r));
+  table('K2. 임포트 비용 — 4K 정규화 + 1080p 프록시 (20초 4K30 소스)',
+    ['방식','소요','실시간 대비','5분 소스 환산'],
+    [['정규화만 (4K→4K)',r.normalize_ms+'ms','<span class="dim">—</span>','<span class="dim">—</span>'],
+     ['프록시만 (4K→1080p)',r.proxy_ms+'ms','<span class="dim">—</span>','<span class="dim">—</span>'],
+     ['따로 두 번 (디코딩 2회)',`<span class="y">${r.separate_ms}ms</span>`,r.separate_x+'×',(300/r.separate_x).toFixed(0)+'초'],
+     ['한 번에 (디코딩 1회 · 인코더 2개)',`<span class="g">${r.shared_ms}ms</span>`,r.shared_x+'×',(300/r.shared_x).toFixed(0)+'초'],
+     ['<b>절감</b>',`<b class="g">${r.saved_pct}%</b>`,'','']]);
+}
+
+// =====================================================================
+// K3. 임의 프레임 컷 — 실제 편집은 GOP 경계에 맞춰주지 않는다
+// =====================================================================
+const ENC1080={codec:'avc1.640029',width:1920,height:1080,bitrate:15e6,framerate:30,
+               hardwareAcceleration:'prefer-hardware',avc:{format:'avc'},latencyMode:'quality'};
+async function normalizeAll(cfg,chunks,GOPN){
+  const g=gate(16); const out=[]; let meta=null;
+  const enc=new VideoEncoder({output:(c,m)=>{if(m&&m.decoderConfig&&!meta)meta=m;out.push(c);g.release();},
+                              error:e=>log('  enc '+e)});
+  enc.configure(ENC1080);
+  let i=0;
+  const dec=new VideoDecoder({output:f=>{
+    const nf=new VideoFrame(f,{timestamp:Math.round(i*1e6/30),duration:Math.round(1e6/30)});
+    enc.encode(nf,{keyFrame:i%GOPN===0}); nf.close(); f.close(); i++;
+  },error:e=>log('  dec '+e)});
+  dec.configure(cfg);
+  for(const c of chunks){ await g.acquire(); dec.decode(c); }
+  await dec.flush(); await enc.flush(); dec.close(); enc.close();
+  return {chunks:out,meta};
+}
+function retime(chunk,timestamp,duration){
+  const data=new Uint8Array(chunk.byteLength); chunk.copyTo(data);
+  return new EncodedVideoChunk({type:chunk.type,timestamp,duration,data});
+}
+// [from,to) 프레임 구간을 GOP 정렬 여부에 따라 복사/재인코딩으로 나눠 담는다
+async function buildSegment(normChunks,meta,from,to,GOPN,outChunks,tsRef){
+  const firstAligned=Math.ceil(from/GOPN)*GOPN;
+  const lastAligned=Math.floor(to/GOPN)*GOPN;
+  const parts=[];
+  if(firstAligned>=lastAligned) parts.push(['re',from,to]);
+  else{
+    if(from<firstAligned) parts.push(['re',from,firstAligned]);
+    parts.push(['copy',firstAligned,lastAligned]);
+    if(lastAligned<to) parts.push(['re',lastAligned,to]);
+  }
+  const dur=Math.round(1e6/30);
+  let copied=0,reenc=0;
+  for(const [kind,lo,hi] of parts){
+    if(kind==='copy'){
+      for(let i=lo;i<hi;i++){ outChunks.push(retime(normChunks[i],tsRef.t,dur)); tsRef.t+=dur; copied++; }
+    }else{
+      // 재인코딩 구간은 직전 키프레임부터 디코딩해야 화면이 나온다
+      const kf=Math.floor(lo/GOPN)*GOPN;
+      const g=gate(16); const produced=[];
+      const enc=new VideoEncoder({output:c=>{produced.push(c);g.release();},error:e=>log('  enc '+e)});
+      enc.configure(ENC1080);
+      let idx=kf, emitted=0;
+      const dec=new VideoDecoder({output:f=>{
+        if(idx>=lo&&idx<hi){
+          const nf=new VideoFrame(f,{timestamp:tsRef.t+emitted*dur,duration:dur});
+          enc.encode(nf,{keyFrame:emitted===0}); nf.close(); emitted++;
+        }else{
+          // 키프레임부터 lo까지의 프레임은 디코딩만 하고 버린다.
+          // 인코더를 거치지 않으므로 여기서 직접 게이트를 반납해야 교착되지 않는다.
+          g.release();
+        }
+        f.close(); idx++;
+      },error:e=>log('  dec '+e)});
+      dec.configure(meta.decoderConfig);
+      for(let i=kf;i<hi;i++){ await g.acquire(); dec.decode(normChunks[i]); }
+      await dec.flush(); await enc.flush(); dec.close(); enc.close();
+      outChunks.push(...produced); tsRef.t+=emitted*dur; reenc+=emitted;
+    }
+  }
+  return {copied,reenc};
+}
+async function k3_arbitraryCuts(){
+  const blob=await asBlob('nobf_1080p30.mp4');
+  const {cfg,chunks}=await demux(await blob.arrayBuffer());
+  const rows=[];
+  for(const GOPN of [60,15]){
+    const norm=await normalizeAll(cfg,chunks,GOPN);
+    const N=norm.chunks.length;
+    // 임의 프레임에 떨어지는 컷 4개 → 유지 구간 5개
+    const cuts=[Math.floor(N*0.13),Math.floor(N*0.31),Math.floor(N*0.58),Math.floor(N*0.79)];
+    const keep=[[0,cuts[0]],[cuts[0]+7,cuts[1]],[cuts[1]+11,cuts[2]],[cuts[2]+5,cuts[3]],[cuts[3]+9,N]];
+    const out=[]; const tsRef={t:0}; let copied=0,reenc=0;
+    const t0=performance.now();
+    for(const [a,b] of keep){
+      const r=await buildSegment(norm.chunks,norm.meta,a,b,GOPN,out,tsRef);
+      copied+=r.copied; reenc+=r.reenc;
+    }
+    const target=new Mp4Muxer.ArrayBufferTarget();
+    const m=new Mp4Muxer.Muxer({target,video:{codec:'avc',width:1920,height:1080},
+                                fastStart:'in-memory',firstTimestampBehavior:'offset'});
+    for(const c of out) m.addVideoChunk(c,norm.meta);
+    m.finalize();
+    const ms=performance.now()-t0;
+
+    // 결과를 여러 지점에서 재생 검증
+    const url=URL.createObjectURL(new Blob([target.buffer],{type:'video/mp4'}));
+    const v=mkVideo(url); let okCount=0, probes=8;
+    try{
+      await withTimeout(ready(v),10000,'ready');
+      for(let i=0;i<probes;i++){
+        const t=(i+0.5)*v.duration/probes;
+        try{ v.currentTime=t; await withTimeout(nextPainted(v),6000,'p'); okCount++; }catch(e){}
+      }
+    }catch(e){}
+    const dur=isFinite(v.duration)?+v.duration.toFixed(2):null;
+    v.remove(); URL.revokeObjectURL(url);
+    rows.push({gop:GOPN,frames:out.length,copied,reenc,
+               reenc_pct:+(100*reenc/out.length).toFixed(1),ms:+ms.toFixed(0),
+               realtime_x:rt(out.length,30,ms),duration:dur,
+               expected:+(out.length/30).toFixed(2),probes,okCount});
+    log('K3 '+JSON.stringify(rows[rows.length-1]));
+  }
+  RESULTS.k3=rows;
+  table('K3. 임의 프레임 컷 4개 — 유지 구간 5개를 이어 익스포트 (20초 1080p30)',
+    ['키프레임 간격','출력 프레임','복사','재인코딩','재인코딩 비율','소요','실시간 대비','길이','재생 검증'],
+    rows.map(r=>[(r.gop/30).toFixed(2)+'초 (GOP '+r.gop+')', r.frames, r.copied, r.reenc,
+      `<span class="${r.reenc_pct<20?'g':'y'}">${r.reenc_pct}%</span>`, r.ms+'ms',
+      `<span class="${r.realtime_x>=20?'g':'y'}">${r.realtime_x}×</span>`,
+      (Math.abs(r.duration-r.expected)<0.05?'<span class="g">':'<span class="r">')+r.duration+'초</span>',
+      (r.okCount===r.probes?'<span class="g">':'<span class="r">')+r.okCount+'/'+r.probes+' 지점 OK</span>']));
+}
+
+// =====================================================================
+const TESTS={k1:k1_streaming,k2:k2_import,k3:k3_arbitraryCuts};
+(async()=>{
+  const only=Q.get('only');
+  for(const [k,fn] of Object.entries(TESTS)){
+    if(only&&!only.split(',').includes(k)) continue;
+    log('=== '+k);
+    try{ await withTimeout(fn(),900000,k); }
+    catch(e){ RESULTS[k]={error:String(e.message||e)}; log('   '+k+' FAILED '+RESULTS[k].error); }
+    document.getElementById('stage').innerHTML='';
+  }
+  fetch('/loop4-result',{method:'POST',body:JSON.stringify(
+    {ua:navigator.userAgent,results:RESULTS},null,2)}).catch(()=>{});
+  log('DONE');
+})();
+</script>

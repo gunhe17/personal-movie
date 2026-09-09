@@ -1,0 +1,12 @@
+{
+  "base": "http://localhost:3503",
+  "password": "test1234",
+  "note": "로컬 개발 서버(:3503) 센터 직원 계정. 실계정 아님. 상태 파일은 이 폴더의 local-<key>.json",
+  "accounts": {
+    "admin":      { "email": "admin@mindscope.com",      "name": "김원장", "role": "ADMIN 관리자" },
+    "manager":    { "email": "manager@mindscope.com",    "name": "이사무", "role": "MANAGER 매니저" },
+    "staff":      { "email": "staff@mindscope.com",      "name": "박접수", "role": "STAFF 직원" },
+    "counselor1": { "email": "counselor1@mindscope.com", "name": "정상담", "role": "COUNSELOR 전문가" },
+    "counselor2": { "email": "counselor2@mindscope.com", "name": "최치료", "role": "COUNSELOR 전문가" }
+  }
+}

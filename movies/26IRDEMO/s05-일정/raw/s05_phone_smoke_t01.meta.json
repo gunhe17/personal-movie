@@ -1,0 +1,96 @@
+{
+  "id": "s05_phone_smoke_t01",
+  "scene": "s05-일정",
+  "device": "phone",
+  "action": "smoke",
+  "take": "t01",
+  "captured_at": "2026-09-09T09:11:06.304Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone, manual)",
+  "app": {
+    "bundle_id": null,
+    "url": null,
+    "env": "local",
+    "commit": "a54b57898"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "2964900F-E9FC-4EB4-B58F-4C0349E448E1",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 784,
+      "appended": 840,
+      "dupped": 70,
+      "notReady": 0,
+      "ticks": 840,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": null,
+    "sha256": null
+  },
+  "script": null,
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 3,
+      "kind": "manual",
+      "target": "8s",
+      "note": "사람이 직접 조작"
+    },
+    {
+      "t": 11,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [],
+  "result": {
+    "file": "raw/s05_phone_smoke_t01.mov",
+    "duration": 14,
+    "ok": true,
+    "error": null
+  }
+}

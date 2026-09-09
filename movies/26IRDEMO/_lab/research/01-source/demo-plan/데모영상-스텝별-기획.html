@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데모 영상 v2 — 스텝 분류·기능 후보 (검토용)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#E2E8F0; font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; color:#1E293B;
+    display:flex; flex-direction:column; align-items:center; gap:28px; padding:28px; }
+  .slide { width:1280px; max-width:100%; min-height:720px; background:#fff; border-radius:14px; overflow:hidden;
+    box-shadow:0 10px 40px rgba(15,23,42,.12); padding:52px 60px; position:relative; }
+  .slide.dark { background:linear-gradient(135deg,#EEF3FF 0%,#F8FAFC 55%,#EDF0FB 100%); }
+  .num { position:absolute; right:28px; bottom:20px; font-size:13px; color:#94A3B8; }
+  h1 { font-size:50px; font-weight:900; line-height:1.35; }
+  h1 em { font-style:normal; color:#2563EB; }
+  h2 { font-size:31px; font-weight:900; margin-bottom:22px; }
+  h2 .tag { font-size:15px; font-weight:800; color:#2563EB; background:#EFF6FF; border-radius:999px;
+    padding:6px 16px; vertical-align:middle; margin-left:12px; }
+  h2 .step-no { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px;
+    border-radius:12px; background:#2563EB; color:#fff; font-size:20px; margin-right:14px; vertical-align:middle; }
+  .sub { font-size:19px; color:#64748B; margin-top:14px; line-height:1.65; }
+  ul { list-style:none; }
+  li { font-size:18px; line-height:1.6; padding-left:22px; position:relative; margin-bottom:9px; color:#334155; }
+  li::before { content:''; position:absolute; left:0; top:11px; width:8px; height:8px; border-radius:50%; background:#2563EB; }
+  li b { color:#1D4ED8; }
+  table { width:100%; border-collapse:collapse; font-size:17px; }
+  th { text-align:left; color:#64748B; font-weight:700; padding:9px 13px; border-bottom:2px solid #E2E8F0; font-size:15px; }
+  td { padding:11px 13px; border-bottom:1px solid #F1F5F9; line-height:1.55; vertical-align:top; }
+  td b { color:#1D4ED8; }
+  tr.core td { background:#F5F9FF; }
+  .cols { display:flex; gap:32px; }
+  .cols > div { flex:1; }
+  .box { border:1px solid #E2E8F0; border-radius:14px; padding:18px 22px; margin-bottom:12px; }
+  .box h3 { font-size:16px; font-weight:800; color:#2563EB; margin-bottom:7px; }
+  .box p { font-size:16.5px; color:#334155; line-height:1.65; }
+  .box.old { background:#F8FAFC; }
+  .box.old h3 { color:#64748B; }
+  .box.now { background:#F5F9FF; border-color:#BFDBFE; }
+  .kicker { font-size:15px; letter-spacing:4px; font-weight:800; color:#2563EB; margin-bottom:20px; }
+  .st { display:inline-block; font-size:13px; font-weight:800; border-radius:7px; padding:3px 10px; white-space:nowrap; }
+  .st.ok { background:#ECFDF5; color:#047857; }
+  .st.part { background:#FEF3C7; color:#B45309; }
+  .st.new { background:#FEE2E2; color:#B91C1C; }
+  .star { color:#2563EB; font-weight:900; }
+  .flow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin:10px 0 4px; }
+  .flow span { background:#EFF6FF; color:#1D4ED8; border-radius:9px; padding:8px 13px; font-size:15.5px; font-weight:700; white-space:nowrap; }
+  .flow span.gray { background:#F1F5F9; color:#64748B; font-weight:600; }
+  .flow span.hl { background:#2563EB; color:#fff; font-weight:800; }
+  .flow span.app { background:#0F172A; color:#E2E8F0; }
+  .flow i { color:#94A3B8; font-style:normal; font-size:13px; }
+  .oldline { font-size:16px; color:#94A3B8; margin-bottom:6px; }
+  .oldline b { color:#64748B; }
+  .opt { border:1px solid #E2E8F0; border-radius:12px; padding:14px 18px; margin-bottom:10px; font-size:16.5px; line-height:1.6; }
+  .opt b { color:#1D4ED8; }
+  .opt.rec { border-color:#BFDBFE; background:#F5F9FF; }
+  .legend { display:flex; gap:12px; margin:6px 0 18px; font-size:14px; color:#64748B; align-items:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+
+<!-- 1. 타이틀 -->
+<div class="slide dark" style="display:flex; flex-direction:column; justify-content:center;">
+  <div class="kicker">DEMO VIDEO v2 — 스텝 분류 · 기능 후보</div>
+  <h1>전화로 하던 일이,<br><em>앱·플랫폼의 양방향 흐름</em>이 된다</h1>
+  <div class="sub">데모 영상 v2 방향 검토용 (9/7) · 스텝을 먼저 분류하고, 스텝마다 나올 만한 기능을 나열한 문서.<br>
+  어떤 기능을 핵심으로 세울지 여기서 고르고 → 대본·영상 제작으로 넘어간다.</div>
+  <div class="sub" style="margin-top:48px; font-size:16px;">
+    대표 예시로 주신 방향: 기존에는 <b>전화로 예약·변경</b>(모션그래픽) → 지금은 <b>내담자가 앱으로 변경 요청 → 전문가가 확인·승인</b>.<br>
+    모든 스텝을 이 감각(기존: 전화·수기 → 지금: 플랫폼 양방향)으로 구성한다.</div>
+  <div class="num">1</div>
+</div>
+
+<!-- 2. 코드 조사 핵심 결과 -->
+<div class="slide">
+  <h2>먼저, 뭐가 실제로 있는지 확인했다 <span class="tag">9/7 코드베이스 조사</span></h2>
+  <div class="cols">
+    <div>
+      <div class="box now"><h3>✅ 킬러 흐름은 이미 구현돼 있다</h3>
+        <p><b>예약 변경 요청 → 승인</b>이 실제 기능으로 존재:<br>
+        내담자 앱(일정 탭)에서 변경·취소 요청 → 웹 예약 화면(schedule/reservations)에서 승인/거절 →
+        누가 언제 결정했는지까지 기록. 원하시는 흐름을 <b>실화면 그대로 촬영 가능</b>.</p></div>
+      <div class="box"><h3>⚠️ 전화 접수 전사는 현재 없다</h3>
+        <p>"전화 접수 → 전사된 내용으로 빠르게 메모·일정 등록"은 미구현.
+        단, 필드노트에 녹음→전사→화자분리→요약 파이프라인이 이미 있어 <b>기술 토대는 있음</b>.
+        처리 방안 3가지를 마지막 장에 정리 (논의 1번).</p></div>
+    </div>
+    <div>
+      <div class="box"><h3>상태 표기 (이후 모든 표에 사용)</h3>
+        <p><span class="st ok">실재</span> 실화면 촬영 가능 &nbsp;
+        <span class="st part">부분</span> 일부 구현 · 동작 확인 필요 &nbsp;
+        <span class="st new">신규</span> 미구현 — 모션그래픽 연출 또는 개발 필요</p></div>
+      <div class="box old"><h3>에이전트의 경계 (정직 연출)</h3>
+        <p>AI 에이전트는 <b>조회 50+ 도구</b>와 폼 미리 채움(prefill)까지만 — 등록·변경을 실행하는 쓰기 도구는 없다.
+        "에이전트가 대신 등록해준다" 연출은 하지 않는다.</p></div>
+    </div>
+  </div>
+  <div class="num">2</div>
+</div>
+
+<!-- 3. 스텝 맵 -->
+<div class="slide">
+  <h2>스텝 분류 — 5스텝 + 관통축</h2>
+  <table>
+    <tr><th style="width:190px;">스텝</th><th>기존 방식 (모션그래픽 영역)</th><th>지금 방식 (실화면 영역)</th></tr>
+    <tr><td><b>1 접수·등록</b></td><td>전화 받아 수기 장부·엑셀에 적는다</td><td>접수 한 흐름(내담자→담당→상담실→일정→메모) + 통합 내담자 DB</td></tr>
+    <tr class="core"><td><b>2 일정·예약</b> ⭐</td><td>변경 전화가 오면 달력을 지우고 다시 쓴다</td><td>내담자 앱 변경 요청 → 전문가 확인·승인 → 캘린더 반영</td></tr>
+    <tr><td><b>3 상담 진행·기록</b></td><td>회기 끝나고 기억으로 일지를 쓴다</td><td>회기 녹음 → AI 전사·화자분리·요약(필드노트)</td></tr>
+    <tr><td><b>4 검사</b></td><td>내원 실시 → 수기 채점 → 보고서 수기 작성</td><td>온라인 응시 링크 → AI 채점 → AI 종합보고서 → 소견 워크스페이스 확정</td></tr>
+    <tr><td><b>5 바우처·청구</b></td><td>엑셀 수기 차감 · 월말 대조</td><td>회기 진행 → 소진 반영 · 청구·미납 현황</td></tr>
+  </table>
+  <div class="sub">
+  <b>관통축 — AI 에이전트</b>: 스텝 사이사이 "물어보면 답하고 화면까지 이동"으로 흐름을 잇는 내레이터 역할 (조회 한정).<br>
+  ⭐ = 데모 방향성의 심장 스텝. 기존 방식 문장은 전부 초안 — 현장 표현으로 교체 필요.</div>
+  <div class="num">3</div>
+</div>
+
+<!-- 4. 스텝 1 -->
+<div class="slide">
+  <h2><span class="step-no">1</span>접수·등록 — "전화 받아 적던 것"</h2>
+  <div class="oldline">기존: <b>전화 문의 → 수기 장부/엑셀 → 같은 사람 정보가 파일마다 흩어짐</b> (모션그래픽)</div>
+  <table>
+    <tr><th style="width:56px;">핵심?</th><th>기능 후보</th><th style="width:70px;">상태</th><th>설명</th></tr>
+    <tr class="core"><td class="star">⭐</td><td><b>전화 접수 전사 → 메모·일정 빠른 등록</b></td><td><span class="st new">신규</span></td><td>말씀하신 예시. 통화가 텍스트가 되고, 그 내용으로 접수가 바로 채워지는 그림. 처리 방안은 논의 1번</td></tr>
+    <tr><td></td><td>상담 접수 스테퍼</td><td><span class="st ok">실재</span></td><td>내담자 선택 → 담당 → 상담실 → 다중 일정 → 메모, 한 흐름</td></tr>
+    <tr><td></td><td>통합 내담자 DB</td><td><span class="st ok">실재</span></td><td>1인 1레코드, 보호자 관계 포함 — 이후 모든 스텝이 이 레코드에 쌓임</td></tr>
+    <tr><td></td><td>에이전트 prefill (대화로 폼 미리 채움)</td><td><span class="st part">부분</span></td><td>전사 연출의 대체 후보 — "이 내용으로 접수 잡아줘" → 폼이 채워져 있고 사람이 저장</td></tr>
+  </table>
+  <div class="num">4</div>
+</div>
+
+<!-- 5. 스텝 2 -->
+<div class="slide">
+  <h2><span class="step-no">2</span>일정·예약 — "전화로 예약·변경하던 것" <span class="tag">⭐ 데모 방향성의 심장</span></h2>
+  <div class="oldline">기존: <b>변경 전화 → 달력 지우고 다시 쓰기 → 착오·누락</b> (모션그래픽)</div>
+  <div class="flow" style="margin-bottom:14px;">
+    <span class="app">내담자 앱: 변경 요청</span><i>▶</i><span class="hl">웹: 요청 확인 → 승인/거절</span><i>▶</i><span>캘린더 자동 반영</span><i>▶</i><span class="app">앱: 결과 확인</span>
+  </div>
+  <table>
+    <tr><th style="width:56px;">핵심?</th><th>기능 후보</th><th style="width:70px;">상태</th><th>설명</th></tr>
+    <tr class="core"><td class="star">⭐</td><td><b>예약 변경 요청 → 승인 (양방향)</b></td><td><span class="st ok">실재</span></td><td>내담자 앱 일정 탭에서 변경·취소 요청 → 웹 예약 화면에서 승인/거절, 결정자·결정시각 기록</td></tr>
+    <tr><td></td><td>캘린더 일정 등록·변경</td><td><span class="st ok">실재</span></td><td>센터 전체 일정 한눈에 — 접수(스텝 1)에서 잡은 일정이 여기 뜬다</td></tr>
+    <tr><td></td><td>승인 결과 내담자 알림</td><td><span class="st part">부분</span></td><td>notification 모듈은 있으나 변경 승인→앱 알림 연동은 확인 필요</td></tr>
+    <tr><td></td><td>내담자 앱에서 새 예약 생성</td><td><span class="st new">신규</span></td><td>현재는 변경·취소 요청만 — 신규 예약은 미구현 (데모 범위에서 제외 권장)</td></tr>
+  </table>
+  <div class="num">5</div>
+</div>
+
+<!-- 6. 스텝 3 -->
+<div class="slide">
+  <h2><span class="step-no">3</span>상담 진행·기록 — "기억으로 일지 쓰던 것"</h2>
+  <div class="oldline">기존: <b>회기 종료 → 기억에 의존해 수기 일지 → 기록이 밀림</b> (모션그래픽)</div>
+  <table>
+    <tr><th style="width:56px;">핵심?</th><th>기능 후보</th><th style="width:70px;">상태</th><th>설명</th></tr>
+    <tr class="core"><td class="star">⭐</td><td><b>필드노트: 녹음 → 전사 → 화자분리 → AI 요약</b></td><td><span class="st ok">실재</span></td><td>파이프라인 전 단계 구현. 열람·편집 화면 상태는 촬영 전 확인 필요</td></tr>
+    <tr><td></td><td>상담일지 · 진행 회기 자동 집계</td><td><span class="st ok">실재</span></td><td>몇 회기째인지 세지 않아도 맞는다 — 스텝 5(바우처)의 근거가 됨</td></tr>
+    <tr><td></td><td>내담자 앱 기록 탭 (상담 노트 열람)</td><td><span class="st ok">실재</span></td><td>기록이 보호자에게도 이어진다 — 양방향 감각을 여기서도 한 번</td></tr>
+  </table>
+  <div class="num">6</div>
+</div>
+
+<!-- 7. 스텝 4 -->
+<div class="slide">
+  <h2><span class="step-no">4</span>검사 — "내원 실시·수기 채점하던 것"</h2>
+  <div class="oldline">기존: <b>내원 → 대면 실시 → 수기 채점 → 보고서 수기 작성, N주</b> (모션그래픽) · "검사를 받아야 할 사람은 많은데, 실시할 수 있는 사람이 부족하다"</div>
+  <table>
+    <tr><th style="width:56px;">핵심?</th><th>기능 후보</th><th style="width:70px;">상태</th><th>설명</th></tr>
+    <tr><td></td><td>온라인 응시 링크 발송 + 접속 추적</td><td><span class="st ok">실재</span></td><td>quick-links 화면 — 보냈는지·접속했는지 추적</td></tr>
+    <tr><td></td><td>AI 채점 · HTP · 로샤 (마인드봄)</td><td><span class="st ok">실재</span></td><td>v1 클립 확보분 — 재사용 가능</td></tr>
+    <tr class="core"><td class="star">⭐</td><td><b>AI 종합보고서 초안 → 소견 워크스페이스에서 임상가 확정</b></td><td><span class="st ok">실재</span></td><td>클라이맥스. 소견 워크스페이스(3열, 8월 말 신기능)로 "임상가 확정" 컷이 실화면이 됨</td></tr>
+    <tr><td></td><td>결과 전송 → 내담자 앱 도착</td><td><span class="st part">부분</span></td><td>앱에 도착 스테퍼(실시→준비 중→도착)는 있으나 결과 열람 화면은 확인 필요</td></tr>
+  </table>
+  <div class="num">7</div>
+</div>
+
+<!-- 8. 스텝 5 -->
+<div class="slide">
+  <h2><span class="step-no">5</span>바우처·청구 — "엑셀로 차감하던 것"</h2>
+  <div class="oldline">기존: <b>엑셀 잔여 회기 수기 차감 → 월말 일일이 대조 → 미납은 기억으로 추적</b> (모션그래픽)</div>
+  <table>
+    <tr><th style="width:56px;">핵심?</th><th>기능 후보</th><th style="width:70px;">상태</th><th>설명</th></tr>
+    <tr class="core"><td class="star">⭐</td><td><b>회기 진행 → 바우처 소진 자동 반영</b></td><td><span class="st part">부분</span></td><td>진행 회기=소진 규칙은 확정(참석+불참+노쇼) — 화면 동작은 촬영 전 확인 필요. 스텝 3의 회기가 여기로 이어지는 게 스텝별 구성의 힘</td></tr>
+    <tr><td></td><td>바우처 소진 현황 (내담자 기준 / 센터 관리)</td><td><span class="st ok">실재</span></td><td>내담자별 잔여·소진 한눈에</td></tr>
+    <tr><td></td><td>청구 생성 (회기 선택 → 금액 계산) · 미납 탭</td><td><span class="st ok">실재</span></td><td>청구·부분결제·완납·미납 상태 분류</td></tr>
+  </table>
+  <div class="num">8</div>
+</div>
+
+<!-- 9. 관통축 에이전트 -->
+<div class="slide">
+  <h2>관통축 — AI 에이전트 <span class="tag">스텝 사이를 잇는 내레이터</span></h2>
+  <div class="cols">
+    <div>
+      <div class="box now"><h3>할 수 있는 것 (실재)</h3>
+        <p>조회 50+ 도구 — "김도윤 진행 상황", "내일 일정", "진행 중인 검사", "바우처 소진 현황", "미납 청구" 등을
+        물으면 <b>답하고 해당 화면으로 이동</b>. v1에서 검증된 연출(답변 → 화면 전환)을 스텝 전환부에 배치.</p></div>
+      <div class="box old"><h3>하지 않는 연출</h3>
+        <p>등록·변경 실행(쓰기)은 도구가 없다 — "에이전트가 예약을 승인해준다" 같은 연출 금지.
+        승인은 전문가가 누른다(그게 방향성과도 맞다 — 전문가가 확인하고 결정하는 그림).</p></div>
+    </div>
+    <div>
+      <div class="box"><h3>배치 가안</h3>
+        <p>스텝마다 1비트씩 넣으면 총 5비트(v1 클립 재사용 가능).
+        대안: 도입부에 1번 + 마무리에 1번만 넣어 담백하게.
+        스텝별 vs 몰아서 — 논의 3번.</p></div>
+      <div class="box"><h3>prefill (부분)</h3>
+        <p>"이 내용으로 접수 잡아줘" → 폼이 미리 채워지고 사람이 저장.
+        전사 접수(스텝 1)가 신규인 상황에서 <b>실재하는 대체 연출</b>이 될 수 있음.</p></div>
+    </div>
+  </div>
+  <div class="num">9</div>
+</div>
+
+<!-- 10. 핵심 요약 + 논의 -->
+<div class="slide dark">
+  <h2>핵심 후보 5 + 논의 포인트</h2>
+  <div class="flow" style="margin-bottom:20px;">
+    <span>① 전사 접수 <small>(신규)</small></span><i>▶</i>
+    <span class="hl">② 변경 요청→승인 <small>(실재)</small></span><i>▶</i>
+    <span>③ 필드노트 AI <small>(실재)</small></span><i>▶</i>
+    <span>④ AI 보고서+소견 확정 <small>(실재)</small></span><i>▶</i>
+    <span>⑤ 소진 자동 반영 <small>(부분)</small></span>
+  </div>
+  <div class="sub" style="margin-bottom:18px;">5개 전부 "전화·수기 → 플랫폼 양방향" 한 문장 안에 들어간다. 이 5개를 세울지, 빼거나 바꿀 게 있는지가 첫 결정.</div>
+
+  <div class="opt rec"><b>논의 1 — 전사 접수(①)를 어떻게 갈까 (가장 먼저 정할 것)</b><br>
+    (a) 컨셉 연출 — 통화가 텍스트로 변하는 모션그래픽 → 실화면 접수 스테퍼로 연결 <b>(추천: 개발 없이 방향성 전달)</b><br>
+    (b) 필드노트 전사 파이프라인을 접수에 붙여 실제 개발 후 촬영 (개발 소요 발생)<br>
+    (c) 이번 데모에서 제외 — 접수는 스테퍼+통합 DB만으로</div>
+  <div class="opt"><b>논의 2 — 스텝 2 승인 알림</b>: 승인 후 내담자 앱에 알림이 실제로 가는지 확인 필요 — 안 가면 "앱에서 결과 확인" 컷을 어떻게 처리할지</div>
+  <div class="opt"><b>논의 3 — 에이전트 배치</b>: 스텝마다 1비트(총 5) vs 도입·마무리 2비트만</div>
+  <div class="opt"><b>논의 4 — 검사 비중</b>: v1은 검사가 40%였다 — v2에서도 클라이맥스(④)로 유지할지, ②(예약 양방향)를 더 키울지</div>
+  <div class="opt"><b>논의 5 — 기존 방식 문장</b>: 각 스텝 회색 문장은 전부 초안 — 현장에서 실제 쓰는 표현으로 교체</div>
+  <div class="num">10</div>
+</div>
+
+</body>
+</html>

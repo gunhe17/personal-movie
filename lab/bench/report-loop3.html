@@ -1,0 +1,601 @@
+<title>스마트 렌더링이 깨지는 지점</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f5f7f8; --surface:#ffffff; --surface-2:#eef2f4;
+  --ink:#161a1f; --ink-2:#3a444f; --muted:#5b6874; --rule:#dce2e7; --rule-2:#c3ccd4;
+  --accent:#046b9c; --accent-deep:#075a83; --accent-wash:#e8f1f7; --s2:#a87c00;
+  --ok:#177a4a; --warn:#a87c00; --bad:#c4213c;
+  --ok-wash:#e7f2ec; --warn-wash:#f6efdd; --bad-wash:#faeaed;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+    --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+    --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+    --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+    --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+  --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+  --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+  --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+  --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  font-weight:400;line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 100px}
+h1{font-size:34px;line-height:1.25;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h3{font-size:16px;line-height:1.45;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+small,.small{font-size:13px;line-height:1.65;color:var(--muted);max-width:70ch;display:block}
+header{padding:56px 0 30px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.stamp{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.stamp b{font-weight:500;color:var(--ink-2)}
+section{padding:48px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;flex-direction:column;gap:7px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--bad);
+  padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+.verdict.fixed{border-left-color:var(--ok)}
+.hyp{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hrow{background:var(--surface);display:grid;grid-template-columns:52px 1fr 116px;gap:0 18px;padding:18px 20px;align-items:start}
+.hid{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);padding-top:1px}
+.hbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hclaim{font-size:14.5px;font-weight:500;line-height:1.6}
+.hfals{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hfals b{font-weight:500;color:var(--ink-2)}
+.hprob{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;justify-self:start;white-space:nowrap;border:1px solid}
+.t-ok{color:var(--ok);border-color:var(--ok);background:var(--ok-wash)}
+.t-no{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
+.t-part{color:var(--warn);border-color:var(--warn);background:var(--warn-wash)}
+.scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+caption{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);background:var(--surface-2)}
+caption b{color:var(--ink-2);font-weight:600}
+th,td{padding:9px 16px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface-2);text-align:right}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+th:first-child{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.metric{font-weight:500;color:var(--ink-2)}
+td.hexcell{font-family:"IBM Plex Mono",monospace;font-size:10.5px;white-space:normal;
+  word-break:break-all;text-align:left;max-width:340px;line-height:1.5}
+.g{color:var(--ok);font-weight:600} .y{color:var(--warn);font-weight:600} .r{color:var(--bad);font-weight:600}
+.dim{color:var(--muted)}
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.chartbox{background:var(--surface);border:1px solid var(--rule);padding:20px 12px 12px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:74ch}
+figcaption b{color:var(--ink-2);font-weight:500}
+pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule-2);
+  padding:16px 18px;overflow-x:auto;margin:0;color:var(--ink-2)}
+pre .c{color:var(--muted)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border:1px solid var(--rule)}
+.pit{background:var(--surface);border:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;gap:9px}
+.pit .sym{font-size:14.5px;font-weight:600}
+.pit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;line-height:1.6}
+.pit dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.pit dd{margin:0;color:var(--ink-2)}
+.pits{display:flex;flex-direction:column;gap:14px}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;max-width:68ch}
+li{line-height:1.7} li::marker{color:var(--rule-2)}
+a{color:var(--accent-deep)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{padding:36px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:720px){
+  .wrap{padding:0 18px 70px} h1{font-size:27px}
+  .hrow{grid-template-columns:44px 1fr;gap:0 12px} .tag{grid-column:2;margin-top:8px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">측정 보고서 · 2026-09-08 · 3차 루프</div>
+  <h1>스마트 렌더링이 깨지는 지점</h1>
+  <p class="lede">2차 루프에서 찾은 가장 큰 레버 &mdash; 재인코딩 없이 청크를 복사하는 익스포트 &mdash; 는
+  <b>순수 복사에서만 측정됐다.</b> 실제 편집 타임라인은 복사 구간과 재인코딩 구간이 섞인다.
+  3차 루프는 그 혼합을 만들어 재생시켜 봤고, <b>깨졌다.</b> 원인을 찾아 고치는 데까지가 이 루프다.</p>
+  <div class="stamp">
+    <span><b>기기</b> Apple M3 · 8 cores</span>
+    <span><b>OS</b> macOS 26.6</span>
+    <span><b>브라우저</b> Chrome 152</span>
+    <span><b>실행</b> 2회 · 하네스 <span class="mono">loop3.html</span></span>
+  </div>
+</header>
+
+<!-- ============ 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">판정</div>
+    <h2>레버는 유효하다. 단, 전제가 하나 더 붙는다</h2>
+  </div>
+
+  <div class="verdict">
+    <p><b>순진하게 섞으면 깨진다.</b> 복사 100%도 되고 재인코딩 100%도 되지만,
+    둘을 섞은 파일은 재인코딩 구간에서 프레임이 나오지 않는다.
+    소스 파일의 파라미터 세트(<code>avcC</code>)와 <code>VideoEncoder</code>가 만드는 파라미터 세트가
+    다르기 때문이고, MP4의 <code>avc1</code> 트랙은 트랙 전체에 하나의 파라미터 세트만 쓴다.</p>
+  </div>
+
+  <div class="verdict fixed">
+    <p><b>임포트할 때 소스를 우리 인코더로 한 번 정규화하면 해결된다.</b>
+    같은 설정의 <code>VideoEncoder</code>는 항상 바이트 단위로 동일한 <code>avcC</code>를 만든다(실측 확인).
+    정규화된 중간 포맷 위에서는 어떤 복사 비율에서도 전 구간이 정상 재생된다.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 1.</b> 3차 루프의 다섯 가지 결과.</caption>
+      <thead><tr><th>문제</th><th>결과</th><th>수치</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">혼합 타임라인</td><td style="text-align:left" class="r">정규화 없이는 깨진다</td>
+            <td class="num">복사 20&ndash;80% 구간 전부 재생 실패</td></tr>
+        <tr><td class="metric">혼합 타임라인 (정규화 후)</td><td style="text-align:left" class="g">전 구간 정상</td>
+            <td class="num">80% 복사 → 28.4× 실시간</td></tr>
+        <tr><td class="metric">익스포트 시간의 법칙</td><td style="text-align:left" class="g">재인코딩 비율에 정비례</td>
+            <td class="num">복사는 사실상 0 비용</td></tr>
+        <tr><td class="metric">프록시 생성 비용</td><td style="text-align:left" class="y">4K 디코딩이 병목</td>
+            <td class="num">5분 4K → 45초 · 해상도 무관</td></tr>
+        <tr><td class="metric">긴 소스 (5분)</td><td style="text-align:left" class="y">속도는 그대로, 메모리가 는다</td>
+            <td class="num">첫 프레임 134ms · 힙 +1.1GB</td></tr>
+        <tr><td class="metric">썸네일 (2차 루프 권고)</td><td style="text-align:left" class="r">긴 소스에서 뒤집힘</td>
+            <td class="num">순차 디코딩이 최악 · 키프레임 전용이 11× 빠름</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="small">실무 환산: 5분 타임라인에 컷 20개, 키프레임 간격 0.5초(GOP 15)라면
+  재인코딩 대상은 전체의 3.3%다. 익스포트가 <b>43초에서 약 1.4초</b>가 된다.</p>
+</section>
+
+<!-- ============ 문제 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">문제</div>
+    <h2>2차 루프가 남긴 빚</h2>
+  </div>
+  <div class="stack">
+    <p>2차 루프의 &ldquo;한계&rdquo; 절에 적어둔 것들이 그대로 3차 루프의 문제가 된다.
+    가장 위험한 것은 첫 번째다 &mdash; <b>가장 큰 레버를 실제 사용 조건에서 검증하지 않았다.</b></p>
+    <ul>
+      <li><b>혼합 타임라인.</b> 순수 복사만 쟀다. 컷이 GOP 경계에 걸치면 그 GOP는 재인코딩해야 하고,
+      두 종류의 청크를 하나의 파일로 이어야 한다. 이게 되는지 모른다.</li>
+      <li><b>프록시 생성 비용.</b> 프록시가 <em>있을 때</em>의 이득만 쟀다. 만드는 값을 모른다.</li>
+      <li><b>긴 소스.</b> 전부 20초 클립이다. 실제 편집은 몇 분에서 몇 시간이다.</li>
+      <li><b>썸네일 비교의 공정성.</b> 20초 소스에서는 전체 순차 디코딩이 유리할 수밖에 없다고
+      2차 루프가 스스로 인정했다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 가설 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">가설</div>
+    <h2>네 개의 사전 가설과 한 개의 사후 가설</h2>
+  </div>
+  <div class="hyp">
+    <div class="hrow">
+      <span class="hid">J1</span>
+      <span class="hbody">
+        <span class="hprob">익스포트</span>
+        <span class="hclaim">복사 구간과 재인코딩 구간을 섞어도 하나의 정상적인 MP4가 나오고,
+        익스포트 시간은 재인코딩 비율에 비례한다.</span>
+        <span class="hfals"><b>반증 조건:</b> 결과 파일의 일부 구간이 재생되지 않는다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">J2</span>
+      <span class="hbody">
+        <span class="hprob">프리뷰</span>
+        <span class="hclaim">프록시 해상도를 더 낮추면(1080p → 540p) 생성이 그만큼 빨라진다.</span>
+        <span class="hfals"><b>반증 조건:</b> 해상도를 낮춰도 생성 시간이 거의 줄지 않는다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">J3</span>
+      <span class="hbody">
+        <span class="hprob">로딩</span>
+        <span class="hclaim">소스가 길어져도(20초 → 5분) 첫 프레임·스텝·seek 성능은 그대로다.</span>
+        <span class="hfals"><b>반증 조건:</b> 길이에 따라 탐색 성능이 나빠진다.</span>
+      </span>
+      <span class="tag t-part">부분</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">J4</span>
+      <span class="hbody">
+        <span class="hprob">로딩</span>
+        <span class="hclaim">긴 소스에서는 키프레임만 디코딩하는 편이 전체 순차 디코딩보다 빠르다
+        &mdash; 2차 루프가 측정하지 않은 경우다.</span>
+        <span class="hfals"><b>반증 조건:</b> 순차 디코딩이 여전히 가장 빠르다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">J5<br><span style="font-size:9px;letter-spacing:.08em;color:var(--muted)">사후</span></span>
+      <span class="hbody">
+        <span class="hprob">익스포트</span>
+        <span class="hclaim">J1이 깨진 원인이 파라미터 세트 불일치라면,
+        소스를 우리 인코더로 한 번 정규화해 중간 포맷을 만들면 혼합이 정상 동작한다.</span>
+        <span class="hfals"><b>반증 조건:</b> 정규화 후에도 재인코딩 구간이 재생되지 않거나,
+        같은 설정의 인코더가 매번 다른 파라미터 세트를 만든다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 실험 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">실험</div>
+    <h2>어떻게 측정했는가</h2>
+  </div>
+  <div class="stack">
+    <p>핵심은 <b>검증</b>이다. 익스포트 실험은 처리량만 재면 무의미하다 &mdash;
+    깨진 파일을 빠르게 만드는 것은 개선이 아니다. 모든 익스포트 결과는 재생시켜
+    <b>복사 구간 · 경계 · 재인코딩 구간 세 지점</b>에서 프레임이 실제로 나오는지 확인했다.
+    3차 루프의 핵심 발견은 바로 이 검증에서 나왔다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 2.</b> 실험 구성.</caption>
+        <thead><tr><th>실험</th><th style="text-align:left">방법</th><th>소스</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">E1 혼합 타임라인</td>
+              <td style="text-align:left">GOP 단위로 복사/재인코딩을 나눠 한 트랙으로 먹싱. 복사 비율 100/80/50/20/0%</td>
+              <td class="mono">nobf_1080p30</td></tr>
+          <tr><td class="metric">E2 프록시 생성</td>
+              <td style="text-align:left">4K 디코딩 → 캔버스 축소 → 인코딩 (GOP 15)</td>
+              <td class="mono">4k30_gop60</td></tr>
+          <tr><td class="metric">E3 긴 소스</td>
+              <td style="text-align:left">읽기·디먹싱·첫 프레임·스텝·seek + JS 힙 추적</td>
+              <td class="mono">long5min_nobf</td></tr>
+          <tr><td class="metric">E4 썸네일</td>
+              <td style="text-align:left">키프레임 150개 위치에 썸네일 1장씩, 세 가지 방식으로</td>
+              <td class="mono">long5min_nobf</td></tr>
+          <tr><td class="metric">E5 정규화</td>
+              <td style="text-align:left">avcC 바이트 비교 + 정규화된 중간 포맷 위에서 E1 재실행</td>
+              <td class="mono">nobf_1080p30</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">5분 소스는 20초 클립을 재인코딩 없이 15번 이어붙여 만들었다
+    (<code>-stream_loop 14 -c copy</code>). 9000프레임 · 360MB.</p>
+  </div>
+
+  <div class="stack">
+    <h3>재현 절차</h3>
+    <pre><span class="c"># 1·2차 루프 클립 + 5분 소스</span>
+cd bench &amp;&amp; ./make-test-videos.sh &amp;&amp; ./make-loop2-videos.sh &amp;&amp; ./make-loop3-videos.sh
+python3 serve.py &amp;
+
+<span class="c"># 전체 (약 3분)</span>
+open "http://127.0.0.1:8777/loop3.html"
+
+<span class="c"># e1 혼합 · e2 프록시비용 · e3 긴소스 · e4 썸네일 · e5 정규화</span>
+open "http://127.0.0.1:8777/loop3.html?only=e1,e5"
+
+<span class="c"># 결과는 loop3-result.json</span></pre>
+  </div>
+</section>
+
+<!-- ============ 사실 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">사실</div>
+    <h2>측정된 값</h2>
+  </div>
+
+  <div class="stack">
+    <h3>F1 &mdash; J1 반증: 섞으면 재인코딩 구간이 재생되지 않는다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 3.</b> 복사 비율별 익스포트 결과와 세 지점 재생 검증 (정규화 없음, 20초 1080p30).</caption>
+        <thead><tr><th>복사 비율</th><th>재인코딩 프레임</th><th>소요</th><th>실시간 대비</th><th>길이</th><th>복사 구간</th><th>경계</th><th>재인코딩 구간</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">100%</td><td class="num">0</td><td class="num g">24ms</td><td class="num g">840×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num dim">—</td><td class="num g">OK</td></tr>
+          <tr><td class="metric">80%</td><td class="num">120</td><td class="num">676ms</td><td class="num">29.6×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num r">실패</td><td class="num r">실패</td></tr>
+          <tr><td class="metric">50%</td><td class="num">300</td><td class="num">1664ms</td><td class="num">12.0×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num r">실패</td><td class="num r">실패</td></tr>
+          <tr><td class="metric">20%</td><td class="num">480</td><td class="num">2644ms</td><td class="num">7.6×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num r">실패</td><td class="num r">실패</td></tr>
+          <tr><td class="metric">0%</td><td class="num">600</td><td class="num">3278ms</td><td class="num">6.1×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num g">OK</td><td class="num g">OK</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>양 끝은 되고 중간은 전부 깨진다.</b> 파일 길이는 20.00초로 정확하고 컨테이너 구조도 멀쩡하다 &mdash;
+    앞부분이 재생되므로 겉보기에는 성공한 파일이다. 재인코딩 구간에서만 디코딩이 실패한다.</p>
+    <p class="small">처리량만 봤다면 &ldquo;80% 복사 시 29.6× &mdash; 성공&rdquo;으로 기록했을 것이다.
+    세 지점을 재생시켜 본 것이 이 루프에서 가장 값어치 있는 설계였다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F2 &mdash; 원인은 파라미터 세트(avcC) 불일치다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 4.</b> 같은 영상에 대한 <code>avcC</code> 바이트열.</caption>
+        <thead><tr><th>출처</th><th style="text-align:left">avcC</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">소스 파일 (libx264)</td>
+              <td class="hexcell dim">01640028ffe1001967640028acb603c0113f2e0220000003002000000781e3065c01000668eac3cb22c0fdf8f800</td>
+              <td class="num dim">기준</td></tr>
+          <tr><td class="metric">VideoEncoder 1회차</td>
+              <td class="hexcell">01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800</td>
+              <td class="num r">소스와 다름</td></tr>
+          <tr><td class="metric">VideoEncoder 2회차</td>
+              <td class="hexcell">01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800</td>
+              <td class="num g">1회차와 동일</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>MP4의 <code>avc1</code> 트랙은 <code>avcC</code>를 <b>트랙에 하나만</b> 둔다.
+    복사한 청크와 새로 인코딩한 청크는 서로 다른 SPS/PPS를 전제하는데, 트랙에는 하나만 들어가므로
+    나머지 하나는 디코딩되지 않는다. 먹서(mp4-muxer 5.2.1)는 <code>avc1</code>만 지원하고
+    파라미터 세트를 샘플에 인라인하는 <code>avc3</code>는 지원하지 않으므로, 먹서 쪽 해결책은 없다.</p>
+    <p><b>결정적인 것은 두 번째 사실이다.</b> 같은 설정의 <code>VideoEncoder</code>는 매번 바이트 단위로
+    같은 <code>avcC</code>를 낸다. 즉 <b>모든 청크를 같은 인코더 설정에서 나오게 만들면</b> 문제가 사라진다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F3 &mdash; J5 확인: 임포트할 때 정규화하면 혼합이 정상 동작한다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 5.</b> 소스를 <code>VideoEncoder</code>로 한 번 통과시킨 중간 포맷 위에서 같은 실험.</caption>
+        <thead><tr><th>복사 비율</th><th>소요</th><th>실시간 대비</th><th>길이</th><th>복사 구간</th><th>경계</th><th>재인코딩 구간</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">80%</td><td class="num">704ms</td><td class="num g">28.4×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num g">OK</td><td class="num g">OK</td></tr>
+          <tr><td class="metric">50%</td><td class="num">1669ms</td><td class="num g">12.0×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num g">OK</td><td class="num g">OK</td></tr>
+          <tr><td class="metric">20%</td><td class="num">2603ms</td><td class="num y">7.7×</td><td class="num g">20.00초</td><td class="num g">OK</td><td class="num g">OK</td><td class="num g">OK</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>세 지점 모두 정상이다. 정규화의 대가는 임포트 시 <b>전체 1회 재인코딩</b>(6.1× 실시간,
+    5분 소스면 약 49초)이고, 이후 모든 익스포트가 복사 경로를 탈 수 있다.
+    편집 세션에서 익스포트를 두 번 이상 한다면 즉시 이득이다.</p>
+    <p class="small">정규화는 2차 루프가 권고한 &ldquo;B-프레임 없는 내부 중간 포맷&rdquo;과 같은 작업이다.
+    <code>-bf 0</code> · GOP 15 · 고정 인코더 설정 &mdash; 세 조건을 한 번의 변환으로 동시에 만족시킨다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F4 &mdash; 익스포트 시간은 재인코딩 비율에 정비례한다</h3>
+    <figure>
+      <div class="chartbox">
+        <svg viewBox="0 0 720 320" width="100%" style="max-width:720px;display:block" role="img"
+             aria-label="재인코딩 비율에 대한 익스포트 소요 시간. 0퍼센트 24밀리초, 20퍼센트 676, 50퍼센트 1664, 80퍼센트 2644, 100퍼센트 3278밀리초로 거의 완전한 정비례">
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">
+            <text x="82" y="243.5">0</text>
+            <text x="82" y="192.9">1000</text>
+            <text x="82" y="142.3">2000</text>
+            <text x="82" y="91.7">3000</text>
+          </g>
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="90" y1="189.4" x2="620" y2="189.4"></line>
+            <line x1="90" y1="138.8" x2="620" y2="138.8"></line>
+            <line x1="90" y1="88.2"  x2="620" y2="88.2"></line>
+          </g>
+          <text x="90" y="24" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">익스포트 소요 (ms) — 20초 1080p30</text>
+          <line x1="90" y1="240" x2="620" y2="240" stroke="var(--rule-2)" stroke-width="1"></line>
+          <!-- ideal proportional reference: 0 -> 3278 -->
+          <line x1="90" y1="240" x2="620" y2="74.2" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"></line>
+          <text x="612" y="205" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">회색 점선 = 완전 비례 기준선</text>
+          <!-- measured -->
+          <path d="M90,238.8 L196,205.8 L355,155.8 L514,106.2 L620,74.2" fill="none"
+                stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"></path>
+          <g fill="var(--accent)" stroke="var(--surface)" stroke-width="2">
+            <circle cx="90"  cy="238.8" r="5"><title>재인코딩 0% · 24ms</title></circle>
+            <circle cx="196" cy="205.8" r="5"><title>재인코딩 20% · 676ms</title></circle>
+            <circle cx="355" cy="155.8" r="5"><title>재인코딩 50% · 1664ms</title></circle>
+            <circle cx="514" cy="106.2" r="5"><title>재인코딩 80% · 2644ms</title></circle>
+            <circle cx="620" cy="74.2"  r="5"><title>재인코딩 100% · 3278ms</title></circle>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--ink)">
+            <text x="99" y="228">24ms</text>
+            <text x="620" y="64" text-anchor="end">3278ms</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)" text-anchor="middle">
+            <text x="90"  y="262">0%</text>
+            <text x="196" y="262">20%</text>
+            <text x="355" y="262">50%</text>
+            <text x="514" y="262">80%</text>
+            <text x="620" y="262">100%</text>
+          </g>
+          <text x="355" y="284" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)" text-anchor="middle">재인코딩해야 하는 구간의 비율</text>
+          <text x="355" y="304" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--accent)" text-anchor="middle">복사 구간은 시간을 거의 쓰지 않는다 — 측정선이 기준선과 겹친다</text>
+        </svg>
+      </div>
+      <figcaption><b>그림 1.</b> 실측(파란 선)이 완전 비례 기준선(회색 점선)과 거의 포개진다.
+      즉 복사 구간의 비용은 0에 가깝고, 익스포트 시간은 <b>재인코딩해야 하는 구간의 길이만으로</b> 결정된다.</figcaption>
+    </figure>
+    <p>이 법칙이 설계에 주는 것은 명확한 예측식이다.
+    <span class="mono">익스포트 시간 &asymp; (재인코딩 구간 길이) &divide; 6.1</span> 초.
+    그리고 재인코딩 구간의 길이는 <b>컷 개수 × 키프레임 간격</b>이다 &mdash;
+    컷 하나가 GOP 하나를 오염시키기 때문이다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 6.</b> 5분 1080p30 타임라인, 컷 20개 기준 익스포트 예상 시간.</caption>
+        <thead><tr><th>키프레임 간격</th><th>재인코딩 구간</th><th>비율</th><th>예상 익스포트</th><th>전체 재인코딩 대비</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">2.0초 (GOP 60)</td><td class="num">40초</td><td class="num">13.3%</td><td class="num y">6.6초</td><td class="num g">7.5× 빠름</td></tr>
+          <tr><td class="metric">1.0초 (GOP 30)</td><td class="num">20초</td><td class="num">6.7%</td><td class="num g">3.3초</td><td class="num g">15× 빠름</td></tr>
+          <tr><td class="metric">0.5초 (GOP 15)</td><td class="num">10초</td><td class="num">3.3%</td><td class="num g">1.6초</td><td class="num g">30× 빠름</td></tr>
+          <tr><td class="metric dim">전체 재인코딩</td><td class="num dim">300초</td><td class="num dim">100%</td><td class="num dim">49초</td><td class="num dim">기준</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>2차 루프의 GOP 15 권고가 여기서 다시 등장한다.</b> 짧은 키프레임 간격은 프리뷰 탐색만
+    개선하는 것이 아니라, 컷이 오염시키는 구간을 줄여 <b>스마트 렌더링의 효율도 함께 높인다.</b>
+    두 개의 독립적인 실험이 같은 설정값을 가리켰다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F5 &mdash; J2 반증: 프록시 해상도를 낮춰도 생성이 빨라지지 않는다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 7.</b> 4K30 20초 소스를 프록시로 변환 (GOP 15).</caption>
+        <thead><tr><th>프록시 해상도</th><th>소요</th><th>처리량</th><th>실시간 대비</th><th>5분 소스 환산</th><th>크기</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">1920×1080</td><td class="num">3049ms</td><td class="num">197 fps</td><td class="num g">6.6×</td><td class="num">45초</td><td class="num">17.4MB</td></tr>
+          <tr><td class="metric">1280×720</td><td class="num">2953ms</td><td class="num">203 fps</td><td class="num g">6.8×</td><td class="num">44초</td><td class="num">9.6MB</td></tr>
+          <tr><td class="metric">960×540</td><td class="num">2730ms</td><td class="num">220 fps</td><td class="num g">7.3×</td><td class="num">41초</td><td class="num">4.5MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>해상도를 4분의 1로 줄여도 생성 시간은 10%만 줄어든다. <b>병목이 인코딩이 아니라
+    4K 디코딩</b>이기 때문이다 &mdash; 1차 루프에서 잰 4K 디코딩 상한이 12.3× 실시간이고,
+    여기서 얻은 6.6&ndash;7.3×는 그 절반 수준이다.</p>
+    <p>따라서 프록시 해상도는 <b>속도가 아니라 화질과 용량으로 고르면 된다.</b>
+    1080p 프록시는 이미 프리뷰가 vsync 1회(2차 루프 F3)이므로 더 낮출 이유가 없다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F6 &mdash; J3 부분 확인: 속도는 길이와 무관하지만 메모리는 선형으로 는다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 8.</b> 5분 1080p30 (9000프레임 · 360MB) 대 20초 클립.</caption>
+        <thead><tr><th>항목</th><th>5분 소스</th><th>20초 소스</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">첫 프레임</td><td class="num g">134ms</td><td class="num dim">142ms</td><td class="num g">차이 없음</td></tr>
+          <tr><td class="metric">프레임 스텝 med/p95</td><td class="num g">17.1 / 35.8</td><td class="num dim">16.7 / 33.6</td><td class="num g">차이 없음</td></tr>
+          <tr><td class="metric">랜덤 seek med/p95</td><td class="num g">17.3 / 40.9</td><td class="num dim">17.1 / 34.0</td><td class="num g">차이 없음</td></tr>
+          <tr><td class="metric">디먹싱 (청크 9000개)</td><td class="num g">184ms</td><td class="num dim">20ms</td><td class="num g">선형, 충분히 빠름</td></tr>
+          <tr><td class="metric">JS 힙 (시작 → 읽기 → 디먹싱)</td><td class="num r">394 → 754 → 1477MB</td><td class="num dim">—</td><td class="num r">파일 크기의 3배</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>탐색 성능은 길이에 완전히 무관하다. 문제는 <b>메모리</b>다.
+    360MB 파일 하나를 디먹싱하는 데 힙이 1.1GB 늘었다 &mdash; 원본 버퍼 360MB에
+    청크 배열이 그만큼 더 붙는다. 이 비율이 유지되면 <b>30분 소스는 약 6.5GB</b>가 되어 무너진다.</p>
+    <p class="small">현재 하네스는 파일 전체를 <code>ArrayBuffer</code>로 읽고 모든 청크를 배열에 담는다.
+    실제 편집기는 <code>File</code>을 구간별로 읽어 필요한 청크만 유지하는 스트리밍 디먹싱이 필요하다.
+    이것이 4차 루프의 1순위다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F7 &mdash; J4 확인: 2차 루프의 썸네일 권고가 긴 소스에서 뒤집힌다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 9.</b> 5분 소스에서 썸네일 150장 (키프레임 위치마다 1장).</caption>
+        <thead><tr><th>방식</th><th>총 시간</th><th>1장당</th><th>디코딩한 프레임</th><th>최속 대비</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">키프레임만 디코딩</td><td class="num g">227ms</td><td class="num g">1.5ms</td><td class="num">150</td><td class="num g">1.0×</td></tr>
+          <tr><td class="metric">&lt;video&gt; seek 반복</td><td class="num r">2490ms</td><td class="num">16.6ms</td><td class="num">150</td><td class="num r">11.0×</td></tr>
+          <tr><td class="metric">전체 순차 디코딩 <span class="dim">(2차 루프 권고)</span></td><td class="num r">4245ms</td><td class="num">28.3ms</td><td class="num">9000</td><td class="num r">18.7×</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>2차 루프에서 가장 빨랐던 방식이 여기서는 가장 느리다.</b>
+    20초 소스에서는 전체 순차 디코딩(600프레임)이 seek 100번보다 쌌지만,
+    5분 소스에서는 9000프레임을 다 디코딩해야 하므로 비용이 길이에 비례해 늘어난다.
+    키프레임만 디코딩하면 디코딩 대상이 썸네일 수와 같아져 길이와 무관해진다.</p>
+    <p class="small">2차 루프는 이 한계를 스스로 적어뒀지만 권고문에는 반영하지 않았다.
+    <b>권고를 정정한다:</b> 썸네일은 키프레임만 디코딩한다. 썸네일 간격이 키프레임 간격보다
+    촘촘해야 할 때만 그 구간을 추가로 디코딩한다.</p>
+  </div>
+</section>
+
+<!-- ============ 계측 함정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">계측 함정</div>
+    <h2>측정 중에 막힌 지점</h2>
+  </div>
+  <div class="pits">
+    <div class="pit">
+      <span class="sym">K1. 처리량만 재면 깨진 파일을 성공으로 기록한다</span>
+      <dl>
+        <dt>증상</dt><dd>혼합 타임라인이 정상 길이(20.00초)의 MP4를 만들고, 앞부분은 재생된다. 처리량도 29.6×로 훌륭하다.</dd>
+        <dt>실제</dt><dd>재인코딩 구간에서 프레임이 나오지 않는다. 컨테이너는 멀쩡하고 비트스트림만 깨져 있다.</dd>
+        <dt>교훈</dt><dd>익스포트 실험은 <b>결과물의 여러 지점을 재생시켜야</b> 한다. 파일 길이나 크기는 검증이 아니다.</dd>
+      </dl>
+    </div>
+    <div class="pit">
+      <span class="sym">K2. <code>EncodedVideoChunk</code>의 타임스탬프는 수정할 수 없다</span>
+      <dl>
+        <dt>증상</dt><dd>복사한 청크를 타임라인의 새 위치에 놓으려면 타임스탬프를 바꿔야 하는데 읽기 전용이다.</dd>
+        <dt>수정</dt><dd><code>copyTo()</code>로 바이트를 꺼내 새 <code>EncodedVideoChunk</code>를 만든다.
+        메모리 복사가 한 번 더 생기지만 측정상 무시할 수준이다(전체 복사 24ms).</dd>
+      </dl>
+    </div>
+    <div class="pit">
+      <span class="sym">K3. 2차 루프의 권고를 3차 루프가 뒤집었다</span>
+      <dl>
+        <dt>증상</dt><dd>&ldquo;썸네일은 순차 디코딩&rdquo; 권고가 5분 소스에서 가장 느린 방식이 됐다.</dd>
+        <dt>원인</dt><dd>2차 루프의 자극이 전부 20초였다. 자극의 규모가 결론의 유효 범위를 정한다는 것을 권고문에 반영하지 않았다.</dd>
+        <dt>교훈</dt><dd>비용이 소재 길이에 비례하는 방식과 그렇지 않은 방식을 비교할 때는
+        <b>길이를 실험 변수로 넣어야</b> 한다. 한 가지 길이에서 나온 순위는 그 길이에서만 유효하다.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 한계 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">한계</div>
+    <h2>이 루프가 말하지 않는 것</h2>
+  </div>
+  <ul>
+    <li><b>메모리 한계는 <a href="https://claude.ai/code/artifact/fa59c238-52b4-40e6-b188-f6ad29972a2e">4차 루프</a>에서 해결했다.</b> <code>moov</code>만 읽어
+    색인을 만들면 5분 소스 기준 힙 증가가 1083MB에서 5MB로 떨어진다.</li>
+    <li><b>임의 프레임 컷도 <a href="https://claude.ai/code/artifact/fa59c238-52b4-40e6-b188-f6ad29972a2e">4차 루프</a>에서 검증했다.</b> 8개 지점 전부 정상 재생,
+    키프레임 0.5초에서 재인코딩 대상 10.2%.</li>
+    <li><b>컷을 GOP 경계에 맞춰 나눴다.</b> 실제 컷은 임의 프레임에 떨어진다.
+    부분 GOP를 재인코딩할 때 첫 프레임을 키프레임으로 만들면 GOP 구조가 바뀌는데, 그 영향은 재지 않았다.</li>
+    <li><b>여전히 오디오가 없다.</b> 1&mdash;3차 루프 전부 비디오만 다뤘다.</li>
+    <li><b>정규화의 화질 손실을 평가하지 않았다.</b> 임포트 시 1회 재인코딩은 세대 손실을 일으킨다.
+    15 Mbps에서 눈에 띄는지는 봐야 안다.</li>
+    <li><b>같은 avcC가 나온다는 것은 이 기기·이 브라우저에서만 확인했다.</b>
+    다른 하드웨어 인코더가 다른 SPS를 낼 수 있다. 정규화 전략 자체는 유효하지만,
+    <b>이미 정규화된 파일을 다른 기기에서 열면</b> 파라미터 세트가 다를 수 있다.</li>
+    <li><b>단일 기기·단일 브라우저다.</b> Apple M3 + Chrome 152.</li>
+  </ul>
+</section>
+
+<!-- ============ 함의 ============ -->
+<section style="border-bottom:none">
+  <div class="sechead">
+    <div class="eyebrow">함의</div>
+    <h2>구현에 그대로 옮길 것</h2>
+  </div>
+  <ul>
+    <li><b>임포트 파이프라인을 만든다.</b> 소스를 받으면 고정된 인코더 설정으로 한 번 변환해
+    중간 포맷을 만든다: <code>-bf 0</code> · GOP 15 · 설정 고정.
+    이 한 번의 변환이 스마트 렌더링(F3), 프리뷰 탐색(2차 F4), 스트림 복사(2차 F1)의 전제를 모두 만족시킨다.</li>
+    <li><b>익스포트는 GOP 단위로 복사/재인코딩을 판정한다.</b> 컷이 걸친 GOP만 재인코딩하고 나머지는 복사한다.
+    예상 시간은 <span class="mono">(재인코딩 구간 길이) ÷ 6.1</span>초로 계산해 진행률에 그대로 쓴다. (F4)</li>
+    <li><b>익스포트 결과는 여러 지점에서 검증한다.</b> 최소한 복사 구간과 재인코딩 구간 각각 한 곳.
+    깨진 파일은 길이도 크기도 정상으로 보인다. (K1)</li>
+    <li><b>썸네일은 키프레임만 디코딩한다.</b> 2차 루프의 순차 디코딩 권고를 정정한다. (F7)</li>
+    <li><b>프록시 해상도는 1080p로 둔다.</b> 더 낮춰도 생성이 빨라지지 않고, 프리뷰는 이미 최소 지연이다. (F5)</li>
+    <li><b>긴 소스를 열기 전에 스트리밍 디먹싱을 만든다.</b> 현재 방식은 파일 크기의 3배를 힙에 올린다.
+    5분은 되지만 30분은 안 된다. (F6)</li>
+  </ul>
+</section>
+
+<footer>
+  측정 2026-09-08 · Apple M3 / macOS 26.6 / Chrome 152 · 원본 데이터 <span class="mono">bench/data/loop3-*.json</span> ·
+  하네스 <span class="mono">bench/loop3.html</span><br>
+  1차 · <a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프레임 단위 편집, 웹에서 되는가</a>
+  · <a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">웹에서 익스포트, 얼마나 빠른가</a><br>
+  2차 · <a href="https://claude.ai/code/artifact/53b41859-87d5-4134-bf6c-b94b03a452b5">편집기를 빠르게 만드는 레버</a>
+  &nbsp;·&nbsp; 4차 · <a href="https://claude.ai/code/artifact/fa59c238-52b4-40e6-b188-f6ad29972a2e">루프를 멈추는 지점</a>
+</footer>
+
+</div>

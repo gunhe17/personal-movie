@@ -1,0 +1,257 @@
+<!doctype html><meta charset="utf-8"><title>improvement loop 2</title>
+<style>
+ body{font:12px/1.5 ui-monospace,monospace;background:#111;color:#ddd;padding:16px;margin:0}
+ table{border-collapse:collapse;margin:8px 0 18px;font-size:11px}
+ th,td{border:1px solid #333;padding:3px 8px;text-align:right;white-space:nowrap}
+ th{background:#1c1c1c;text-align:center} td:first-child,th:first-child{text-align:left}
+ h4{margin:16px 0 4px;font-size:12px;color:#9cf}
+ .g{color:#6c6} .y{color:#dc6} .r{color:#e66} .dim{color:#777}
+ #log{color:#888;max-height:200px;overflow:auto;white-space:pre-wrap;font-size:11px;margin-top:12px}
+ video{width:130px}
+</style>
+<h3>improvement loop 2 — 개선 레버 검증</h3>
+<div id="out"></div><div id="stage"></div><pre id="log"></pre>
+
+<script src="mp4box.all.min.js"></script>
+<script src="mp4-muxer.min.js"></script>
+<script src="bench-core.js"></script>
+<script>
+const Q=new URLSearchParams(location.search);
+const LOG=document.getElementById('log');
+const log=s=>{LOG.textContent+=s+'\n';LOG.scrollTop=1e9;fetch('/progress',{method:'POST',body:s}).catch(()=>{});};
+addEventListener('unhandledrejection',e=>log('UNHANDLED: '+String(e.reason&&e.reason.stack||e.reason)));
+const RESULTS={};
+const fetchBuf=n=>fetch(n).then(r=>r.arrayBuffer());
+const blobUrl=buf=>URL.createObjectURL(new Blob([buf],{type:'video/mp4'}));
+const rt=(frames,fps,ms)=>+((frames/fps)/(ms/1000)).toFixed(1);
+function table(title,head,rows){
+  const el=document.createElement('div');
+  el.innerHTML='<h4>'+title+'</h4><table><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+
+    rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</table>';
+  document.getElementById('out').appendChild(el);
+}
+
+// =====================================================================
+// E1. 스마트 렌더링: 편집으로 건드리지 않은 구간을 재인코딩 없이 그대로 먹싱
+// =====================================================================
+async function copyOne(name,fps){
+  const buf=await fetchBuf(name);
+  const {cfg,chunks}=await demux(buf);
+  const meta={decoderConfig:{codec:cfg.codec,description:cfg.description,
+                             codedWidth:cfg.codedWidth,codedHeight:cfg.codedHeight}};
+  const t0=performance.now();
+  let ms,target;
+  try{
+    target=new Mp4Muxer.ArrayBufferTarget();
+    const m=new Mp4Muxer.Muxer({target,video:{codec:'avc',width:cfg.codedWidth,height:cfg.codedHeight},
+                                fastStart:'in-memory',firstTimestampBehavior:'offset'});
+    for(const c of chunks) m.addVideoChunk(c,meta);
+    m.finalize();
+    ms=performance.now()-t0;
+  }catch(e){
+    return {name,frames:chunks.length,src_mb:+(buf.byteLength/1048576).toFixed(1),
+            failed:String(e.message||e).split('.')[0]};
+  }
+  // 재인코딩 없이 만든 파일이 실제로 재생되는가 — 검증 없이는 무의미한 수치다
+  const url=URL.createObjectURL(new Blob([target.buffer],{type:'video/mp4'}));
+  const v=mkVideo(url); let verify;
+  try{
+    await withTimeout(ready(v),10000,'verify');
+    v.currentTime=Math.min(5,v.duration/2); await withTimeout(nextPainted(v),10000,'verify-paint');
+    verify={playable:true,duration:+v.duration.toFixed(2),w:v.videoWidth,h:v.videoHeight};
+  }catch(e){ verify={playable:false,error:String(e.message||e)}; }
+  v.remove(); URL.revokeObjectURL(url);
+  return {name,frames:chunks.length,ms:+ms.toFixed(1),fps:+(chunks.length/(ms/1000)).toFixed(0),
+          realtime_x:rt(chunks.length,fps,ms),mb:+(target.buffer.byteLength/1048576).toFixed(1),
+          src_mb:+(buf.byteLength/1048576).toFixed(1),verify};
+}
+async function e1_smartCopy(){
+  const rows=[];
+  for(const n of ['1080p30_gop60.mp4','nobf_1080p30.mp4']){
+    const r=await copyOne(n,30); rows.push(r); log('E1 '+JSON.stringify(r));
+  }
+  RESULTS.e1=rows;
+  table('E1. 스마트 렌더링 — 재인코딩 없이 청크를 그대로 먹싱 (1080p30)',
+    ['소스','처리량','실시간 대비','출력','결과'],
+    rows.map(r=>r.failed
+      ? [r.name+' <span class="dim">(B-프레임 있음)</span>','—','—','—','<span class="r">'+r.failed+'</span>']
+      : [r.name+' <span class="dim">(B-프레임 없음)</span>',r.fps+' fps',
+         '<span class="g">'+r.realtime_x+'×</span>',r.mb+'MB',
+         r.verify.playable?'<span class="g">재생 OK · '+r.verify.duration+'초 · '+r.verify.w+'×'+r.verify.h+'</span>'
+                          :'<span class="r">'+r.verify.error+'</span>'])
+     .concat([['전체 재인코딩 <span class="dim">(1차 루프)</span>','207 fps','<span class="y">6.9×</span>','36.0MB','—']]));
+}
+
+// =====================================================================
+// E2. 프리뷰 프록시: 4K 대신 1080p 프록시로 스크러빙하면 얼마나 개선되는가
+// =====================================================================
+async function measureNav(name){
+  const url=blobUrl(await fetchBuf(name));
+  const v=mkVideo(url); await ready(v);
+  const fps=await detectFps(v);
+  const step=await tStep(v,fps);
+  const seek=await tSeek(v);
+  const dims=v.videoWidth+'×'+v.videoHeight;
+  v.remove(); URL.revokeObjectURL(url);
+  return {name,fps,dims,step,seek};
+}
+async function e2_proxy(){
+  const rows=[];
+  for(const n of ['4k30_gop60.mp4','proxy1080_from4k.mp4']){
+    const r=await measureNav(n); rows.push(r); log('E2 '+JSON.stringify(r));
+  }
+  RESULTS.e2=rows;
+  const c=v=>`<span class="${v<20?'g':v<60?'y':'r'}">${v}</span>`;
+  table('E2. 프리뷰 프록시 — 같은 소스를 4K로 볼 때와 1080p 프록시로 볼 때',
+    ['소스','해상도','프레임 스텝 med/p95','랜덤 seek med/p95'],
+    rows.map(r=>[r.name,r.dims,c(r.step.med)+' / '+c(r.step.p95),c(r.seek.med)+' / '+c(r.seek.p95)]));
+}
+
+// =====================================================================
+// E3. GOP 길이: 키프레임을 촘촘히 하면 seek이 빨라지는가, 대가는 얼마인가
+// =====================================================================
+async function e3_gop(){
+  const rows=[];
+  for(const g of [60,30,15,6,1]){
+    const n='gop'+g+'.mp4';
+    const buf=await fetchBuf(n);
+    const r=await measureNav(n);
+    // WebCodecs 경로에서 키프레임 → 목표 프레임 디코딩 비용도 함께
+    const {cfg,chunks}=await demux(buf);
+    const keys=chunks.map((c,i)=>c.type==='key'?i:-1).filter(i=>i>=0);
+    const jump=[];
+    for(let k=0;k<12;k++){
+      const target=Math.floor(Math.random()*chunks.length);
+      const kf=keys.filter(i=>i<=target).pop()??0;
+      let done; const p=new Promise(res=>done=res); let cnt=0;
+      const d=new VideoDecoder({output:f=>{f.close(); if(++cnt===target-kf+1) done();},error:()=>{}});
+      d.configure(cfg); const t=performance.now();
+      for(let i=kf;i<=target;i++) d.decode(chunks[i]);
+      d.flush().then(done,()=>done()); await p;
+      jump.push(performance.now()-t); d.close();
+    }
+    rows.push({gop:g,mb:+(buf.byteLength/1048576).toFixed(1),keyframes:keys.length,
+               step:r.step,seek:r.seek,jump:stats(jump)});
+    log('E3 gop'+g+' '+JSON.stringify(rows[rows.length-1]));
+  }
+  RESULTS.e3=rows;
+  const base=rows[0].mb;
+  const c=v=>`<span class="${v<20?'g':v<60?'y':'r'}">${v}</span>`;
+  table('E3. GOP 길이 — 키프레임 간격을 좁히면 (품질 CRF 23 고정, 1080p30)',
+    ['GOP','키프레임 간격','키프레임 수','파일 크기','크기 대가','프레임 스텝 med','랜덤 seek med/p95','WC 점프 med'],
+    rows.map(r=>[r.gop===1?'1 (all-intra)':r.gop, (r.gop/30).toFixed(2)+'초', r.keyframes,
+      r.mb+'MB', '<span class="'+(r.mb/base>1.5?'r':r.mb/base>1.15?'y':'g')+'">'+
+      (r.mb/base).toFixed(2)+'×</span>',
+      c(r.step.med), c(r.seek.med)+' / '+c(r.seek.p95), c(r.jump.med)]));
+}
+
+// =====================================================================
+// E4. 타임라인 썸네일 스트립 — 편집기 로딩의 실제 체감
+// =====================================================================
+const N_THUMBS=100, TW=160, TH=90;
+async function e4_thumbs(){
+  const name='1080p30_gop60.mp4';
+  const buf=await fetchBuf(name);
+  const cv=document.createElement('canvas'); cv.width=TW*10; cv.height=TH;
+  const ctx=cv.getContext('2d');
+
+  // A: <video>를 100번 seek해서 뽑기 (가장 흔한 구현)
+  const url=blobUrl(buf); const v=mkVideo(url); await ready(v);
+  const tA=performance.now();
+  for(let i=0;i<N_THUMBS;i++){
+    v.currentTime=(i+0.5)*v.duration/N_THUMBS;
+    await nextPainted(v);
+    ctx.drawImage(v,(i%10)*TW,0,TW,TH);
+  }
+  const msA=performance.now()-tA;
+  v.remove(); URL.revokeObjectURL(url);
+
+  // B: WebCodecs로 순차 디코딩하며 N번째 프레임만 그리기
+  const {cfg,chunks}=await demux(buf);
+  const every=Math.max(1,Math.floor(chunks.length/N_THUMBS));
+  let idx=0,drawn=0;
+  const tB=performance.now();
+  await new Promise(async res=>{
+    const d=new VideoDecoder({output:f=>{
+      if(idx%every===0&&drawn<N_THUMBS){ ctx.drawImage(f,(drawn%10)*TW,0,TW,TH); drawn++; }
+      f.close(); idx++;
+    },error:e=>log('  dec '+e)});
+    d.configure(cfg);
+    for(const c of chunks) d.decode(c);
+    await d.flush(); d.close(); res();
+  });
+  const msB=performance.now()-tB;
+
+  const r={video_seek_ms:+msA.toFixed(0), video_seek_per_thumb:+(msA/N_THUMBS).toFixed(1),
+           webcodecs_ms:+msB.toFixed(0), webcodecs_per_thumb:+(msB/N_THUMBS).toFixed(1),
+           thumbs:N_THUMBS, decoded_frames:idx, drawn:drawn, speedup:+(msA/msB).toFixed(1)};
+  RESULTS.e4=r; log('E4 '+JSON.stringify(r));
+  table('E4. 타임라인 썸네일 100장 생성 (20초 1080p30 클립)',
+    ['방식','총 시간','썸네일 1장당','디코딩한 프레임'],
+    [['&lt;video&gt; seek 반복',`<span class="r">${r.video_seek_ms}ms</span>`,r.video_seek_per_thumb+'ms',N_THUMBS],
+     ['WebCodecs 순차 디코딩',`<span class="g">${r.webcodecs_ms}ms</span>`,r.webcodecs_per_thumb+'ms',r.decoded_frames],
+     ['<b>차이</b>','<b>'+r.speedup+'× 빠름</b>','','']]);
+}
+
+// =====================================================================
+// E5. 인코더 설정 — 4K 익스포트를 설정만으로 빠르게 할 수 있는가
+// =====================================================================
+async function e5_encCfg(){
+  const s={w:3840,h:2160,fps:30,codec:'avc1.640033'};
+  const buf=await fetchBuf('4k30_gop60.mp4');
+  const {cfg,chunks}=await demux(buf);
+  const frames=[];
+  await new Promise(async res=>{
+    const d=new VideoDecoder({output:f=>{frames.length<20?frames.push(f):f.close();},error:()=>{}});
+    d.configure(cfg); for(let i=0;i<60;i++) d.decode(chunks[i]);
+    await d.flush(); d.close(); res();
+  });
+  const rows=[];
+  for(const bitrate of [50e6,20e6,8e6]){
+    for(const mode of ['quality','realtime']){
+      const c={codec:s.codec,width:s.w,height:s.h,bitrate,framerate:s.fps,
+               hardwareAcceleration:'prefer-hardware',avc:{format:'avc'},latencyMode:mode};
+      const sup=await VideoEncoder.isConfigSupported(c);
+      if(!sup.supported){ rows.push({bitrate,mode,error:'미지원'}); continue; }
+      let out=0,bytes=0; const g=gate(8);
+      const enc=new VideoEncoder({output:ch=>{out++;bytes+=ch.byteLength;g.release();},error:e=>log('  enc '+e)});
+      enc.configure(c);
+      const N=120, t0=performance.now();
+      for(let i=0;i<N;i++){
+        await g.acquire();
+        const f=new VideoFrame(frames[i%frames.length],
+          {timestamp:Math.round(i*1e6/s.fps),duration:Math.round(1e6/s.fps)});
+        enc.encode(f,{keyFrame:i%(s.fps*2)===0}); f.close();
+      }
+      await enc.flush(); const ms=performance.now()-t0; enc.close();
+      rows.push({bitrate,mode,frames:out,fps:+(out/(ms/1000)).toFixed(0),realtime_x:rt(out,s.fps,ms),
+                 out_mbps:+((bytes*8/1e6)/(out/s.fps)).toFixed(1)});
+      log('E5 '+JSON.stringify(rows[rows.length-1]));
+    }
+  }
+  frames.forEach(f=>f.close());
+  RESULTS.e5=rows;
+  table('E5. 인코더 설정 — 4K30, 같은 프레임을 설정만 바꿔 인코딩',
+    ['목표 비트레이트','latencyMode','처리량','실시간 대비','실제 출력 비트레이트'],
+    rows.map(r=>r.error?[(r.bitrate/1e6)+' Mbps',r.mode,'<span class="dim">'+r.error+'</span>','','']:
+      [(r.bitrate/1e6)+' Mbps',r.mode,r.fps+' fps',
+       `<span class="${r.realtime_x>=5?'g':r.realtime_x>=1?'y':'r'}">${r.realtime_x}×</span>`,
+       r.out_mbps+' Mbps']));
+}
+
+// =====================================================================
+const TESTS={e1:e1_smartCopy,e2:e2_proxy,e3:e3_gop,e4:e4_thumbs,e5:e5_encCfg};
+(async()=>{
+  const only=Q.get('only');
+  for(const [k,fn] of Object.entries(TESTS)){
+    if(only&&!only.split(',').includes(k)) continue;
+    log('=== '+k);
+    try{ await withTimeout(fn(),600000,k); }
+    catch(e){ RESULTS[k]={error:String(e.message||e)}; log('   '+k+' FAILED '+RESULTS[k].error); }
+    document.getElementById('stage').innerHTML='';
+  }
+  fetch('/loop2-result',{method:'POST',body:JSON.stringify(
+    {ua:navigator.userAgent,results:RESULTS},null,2)}).catch(()=>{});
+  log('DONE');
+})();
+</script>

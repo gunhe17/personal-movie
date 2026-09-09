@@ -1,0 +1,4 @@
+file,scene,device,action,take,in,out,use,note
+raw/s02_web_receive-entry_t01.mov,s02-검사실시,web,receive-entry,t01,,,,시험 촬영: 검사 탭 → 검사 접수 버튼까지
+raw/s02_web_receive-entry_t02.mov,s02-검사실시,web,receive-entry,t02,,,,SCK 캡처러 첫 시험
+raw/s05_phone_smoke_t01.mov,s05-일정,phone,smoke,t01,,,,폰 러너 시험 (홈 화면)

@@ -1,0 +1,241 @@
+<div class="px-4 py-4 space-y-5 border-t border-notion-border">
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-2">인증 방법</h4>
+    <p class="text-xs text-notion-text-secondary mb-2">모든 API 요청에 <code
+        class="px-1.5 py-0.5 bg-notion-bg-secondary rounded text-notion-accent font-mono">X-API-Key</code> 헤더를 포함하세요.
+    </p>
+    <div class="bg-notion-bg-secondary rounded-md p-3 relative group"><code
+        class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">X-API-Key: imtk_your_key_here</code>
+    </div>
+  </div>
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-2">Base URL</h4>
+    <p class="text-xs text-notion-text-secondary mb-2">모든 리소스 API는 워크스페이스 경로 하위에 있습니다.</p>
+    <div class="bg-notion-bg-secondary rounded-md p-3"><code
+        class="text-xs font-mono text-notion-text break-all">http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c</code>
+    </div>
+  </div>
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-3">요청 예시</h4>
+    <div class="space-y-3">
+      <div>
+        <div class="flex items-center justify-between mb-1"><span class="text-xs text-notion-text-secondary">산출물 목록
+            조회</span><button
+            class="text-xs text-notion-text-secondary hover:text-notion-text flex items-center gap-1"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-copy h-3 w-3">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>복사</button></div>
+        <div class="bg-notion-bg-secondary rounded-md p-3"><code
+            class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">curl -H "X-API-Key: imtk_your_key_here" \
+  http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c/artifacts</code></div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-1"><span class="text-xs text-notion-text-secondary">산출물
+            생성</span><button
+            class="text-xs text-notion-text-secondary hover:text-notion-text flex items-center gap-1"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-copy h-3 w-3">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>복사</button></div>
+        <div class="bg-notion-bg-secondary rounded-md p-3"><code
+            class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">curl -X POST \
+  -H "X-API-Key: imtk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"새 메모","content":"내용","type":"MEMO"}' \
+  http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c/artifacts</code></div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-1"><span class="text-xs text-notion-text-secondary">통합
+            검색</span><button
+            class="text-xs text-notion-text-secondary hover:text-notion-text flex items-center gap-1"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-copy h-3 w-3">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>복사</button></div>
+        <div class="bg-notion-bg-secondary rounded-md p-3"><code
+            class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">curl -X POST \
+  -H "X-API-Key: imtk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"search":"검색어"}' \
+  http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c/search/unified</code></div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-1"><span class="text-xs text-notion-text-secondary">페이지네이션 조회
+            (권장)</span><button
+            class="text-xs text-notion-text-secondary hover:text-notion-text flex items-center gap-1"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-copy h-3 w-3">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>복사</button></div>
+        <div class="bg-notion-bg-secondary rounded-md p-3"><code
+            class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">curl -X POST \
+  -H "X-API-Key: imtk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"page":1,"page_size":20,"include":["issues","relations"]}' \
+  http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c/search/unified</code></div>
+        <p class="text-xs text-notion-text-secondary mt-1.5">응답의 <code
+            class="px-1 py-0.5 bg-notion-bg-secondary rounded font-mono text-notion-accent">meta.has_more</code>가 true이면
+          다음 페이지가 있습니다. page를 증가시켜 요청하세요.</p>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-1"><span class="text-xs text-notion-text-secondary">멤버 목록
+            조회</span><button
+            class="text-xs text-notion-text-secondary hover:text-notion-text flex items-center gap-1"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-copy h-3 w-3">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>복사</button></div>
+        <div class="bg-notion-bg-secondary rounded-md p-3"><code
+            class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">curl -H "X-API-Key: imtk_your_key_here" \
+  http://192.168.1.186:3033/api/workspaces/c052a8b4-25ad-4746-809c-0f1566a6641c/members</code></div>
+        <p class="text-xs text-notion-text-secondary mt-1.5">멤버 초대(POST), 역할 변경(PUT), 제거(DELETE)는 Admin 권한이 필요합니다.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-2">통합 검색 응답 형식</h4>
+    <p class="text-xs text-notion-text-secondary mb-2"><code
+        class="px-1.5 py-0.5 bg-notion-bg-secondary rounded text-notion-accent font-mono">POST /search/unified</code>는
+      산출물, 이슈, 관계를 한 번에 반환합니다.</p>
+    <div class="bg-notion-bg-secondary rounded-md p-3"><code
+        class="text-xs font-mono text-notion-text whitespace-pre-wrap break-all leading-relaxed">{
+  "artifacts": [...],
+  "pinned_artifacts": [...],
+  "issues": { "artifact_id": [...] },
+  "relations": [...],
+  "meta": {
+    "page": 1,
+    "page_size": 20,
+    "total_count": 423,
+    "has_more": true,
+    "pinned_count": 3
+  }
+}</code></div>
+    <p class="text-xs text-notion-text-secondary mt-1.5">page 파라미터 없이 요청하면 전체 결과를 반환합니다 (검색용). 대량 조회 시 반드시
+      page/page_size를 사용하세요.</p>
+  </div>
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-2">산출물 타입 (12개)</h4>
+    <p class="text-xs text-notion-text-secondary mb-2">산출물 생성 시 <code
+        class="px-1.5 py-0.5 bg-notion-bg-secondary rounded text-notion-accent font-mono">type</code> 필드에 사용합니다.</p>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">MEMO</code><span class="text-notion-text-secondary">메모 — 간단한
+          메모, 일시적인 아이디어</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">NOTE</code><span class="text-notion-text-secondary">노트 — 구조화된
+          문서, 정보 정리</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">PLAN</code><span class="text-notion-text-secondary">기획안 —
+          프로젝트 기획, 전략 문서</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">STORY</code><span class="text-notion-text-secondary">스토리 —
+          사용자 스토리, 역할/목표/행동</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">API</code><span class="text-notion-text-secondary">API — API
+          엔드포인트 명세</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">SCREEN</code><span class="text-notion-text-secondary">화면 — UI
+          화면 설계, 이미지 첨부</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">TODO</code><span class="text-notion-text-secondary">할일 —
+          체크리스트, 작업 목록</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">TABLE</code><span class="text-notion-text-secondary">테이블 — 표
+          형식 데이터</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">MILESTONE</code><span class="text-notion-text-secondary">마일스톤
+          — 목표 일정, 진행률 추적</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">MEETING_MINUTES</code><span
+          class="text-notion-text-secondary">회의록 — 회의 녹취/요약, 음성 전사</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">RETROSPECTIVE</code><span
+          class="text-notion-text-secondary">회고 — 스프린트/프로젝트 회고 (KPT 형식)</span></div>
+      <div class="flex items-center gap-2 px-2.5 py-1.5 bg-notion-bg-secondary rounded text-xs"><code
+          class="font-mono text-notion-accent font-medium">DECISION</code><span class="text-notion-text-secondary">의사결정
+          — ADR(Architecture Decision Record) 형식</span></div>
+    </div>
+  </div>
+  <div>
+    <h4 class="text-xs font-semibold text-notion-text uppercase tracking-wider mb-2">API 키 역할별 권한</h4>
+    <div class="border border-notion-border rounded-md overflow-hidden text-xs">
+      <div
+        class="grid grid-cols-4 bg-notion-bg-secondary border-b border-notion-border font-medium text-notion-text-secondary">
+        <div class="px-3 py-2">권한</div>
+        <div class="px-3 py-2 text-center">Viewer</div>
+        <div class="px-3 py-2 text-center">Editor</div>
+        <div class="px-3 py-2 text-center">Admin</div>
+      </div>
+      <div class="grid grid-cols-4 ">
+        <div class="px-3 py-1.5 text-notion-text">조회 (GET)</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+      <div class="grid grid-cols-4 border-t border-notion-border">
+        <div class="px-3 py-1.5 text-notion-text">산출물/문서/이슈 CRUD</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+      <div class="grid grid-cols-4 border-t border-notion-border">
+        <div class="px-3 py-1.5 text-notion-text">파일 업로드</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+      <div class="grid grid-cols-4 border-t border-notion-border">
+        <div class="px-3 py-1.5 text-notion-text">AI 채팅</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+      <div class="grid grid-cols-4 border-t border-notion-border">
+        <div class="px-3 py-1.5 text-notion-text">에이전트 관리/실행</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+      <div class="grid grid-cols-4 border-t border-notion-border">
+        <div class="px-3 py-1.5 text-notion-text">멤버 초대/역할변경/제거</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">X</div>
+        <div class="px-3 py-1.5 text-center">O</div>
+      </div>
+    </div>
+  </div>
+  <div><button
+      class="flex items-center gap-1.5 text-xs font-semibold text-notion-text uppercase tracking-wider mb-2 hover:text-notion-accent transition-colors"><svg
+        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right h-3.5 w-3.5">
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>사용 가능한 API (15개)</button></div>
+  <div class="flex items-start gap-2 p-3 rounded-md bg-amber-50/50 border border-amber-200/50"><svg
+      xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="lucide lucide-shield h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+    </svg>
+    <div class="text-xs text-notion-text-secondary space-y-1">
+      <p class="font-medium text-notion-text">보안 참고사항</p>
+      <ul class="list-disc list-inside space-y-0.5 ml-0.5">
+        <li>API 키는 생성 시 1회만 표시됩니다. 안전한 곳에 보관하세요.</li>
+        <li>키가 노출된 경우 즉시 폐기하고 새 키를 발급하세요.</li>
+        <li>API 키는 해당 워크스페이스의 리소스에만 접근할 수 있습니다.</li>
+        <li>API 키의 실제 권한은 키 역할과 발급자 역할 중 <strong>낮은 쪽</strong>이 적용됩니다.</li>
+      </ul>
+    </div>
+  </div>
+</div>

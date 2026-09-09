@@ -1,0 +1,81 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "cores": 8,
+  "screen": "2240x1260",
+  "results": [
+    {
+      "name": "short_25fps_4s.mp4",
+      "size_mb": 4.6,
+      "load": {
+        "loadeddata_ms": 91,
+        "firstframe_ms": 99.7
+      },
+      "dims": "1280x720",
+      "duration": 4,
+      "fps": 25,
+      "fps_source": "감지",
+      "playback": {
+        "target_fps": 25,
+        "effective_fps": 25.19,
+        "dropped": 0,
+        "frame_gap_ms": {
+          "n": 75,
+          "min": 15.6,
+          "med": 50,
+          "p95": 66.6,
+          "max": 66.7
+        }
+      },
+      "frame_step_video_el": {
+        "n": 60,
+        "min": 15.6,
+        "med": 17.7,
+        "p95": 40.7,
+        "max": 41.4
+      },
+      "random_seek_video_el": {
+        "n": 30,
+        "min": 7.1,
+        "med": 23.9,
+        "p95": 40.4,
+        "max": 41
+      },
+      "cut_swap": {
+        "n": 10,
+        "min": 13,
+        "med": 80.9,
+        "p95": 82.6,
+        "max": 82.6
+      },
+      "webcodecs": {
+        "supported": true,
+        "codec": "avc1.64001f",
+        "demux_ms": 12.1,
+        "frames": 100,
+        "decode_fps": 1634,
+        "realtime_x": 65.4,
+        "cached_frame_draw_ms": {
+          "n": 90,
+          "min": 0.5,
+          "med": 16.7,
+          "p95": 17.6,
+          "max": 22
+        },
+        "random_jump_ms": {
+          "n": 12,
+          "min": 6.6,
+          "med": 9.5,
+          "p95": 41.1,
+          "max": 41.1
+        },
+        "jump_frames_from_keyframe": {
+          "n": 12,
+          "min": 3,
+          "med": 20,
+          "p95": 45,
+          "max": 45
+        }
+      }
+    }
+  ]
+}

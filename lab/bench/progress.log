@@ -1,0 +1,11 @@
+=== k1
+K1 {"file_mb":360,"frames":9000,"full_ms":382,"full_heap_delta":1083,"index_ms":12,"index_heap_delta":5,"index_bytes_read_mb":4,"window_decode":{"n":10,"min":29.9,"med":35.8,"p95":112.6,"max":112.6},"frames_decoded":600,"heap_after_windows":1114,"index_matches_full":true}
+=== k2
+K2 normalize {"ms":10727.800000011921,"counts":[600]}
+K2 proxy {"ms":4377,"counts":[600]}
+K2 {"normalize_ms":10728,"proxy_ms":4377,"separate_ms":15105,"shared_ms":13587,"saved_pct":10,"separate_x":1.3,"shared_x":1.5}
+K2 shared {"ms":13586.699999988079,"counts":[600,600]}
+=== k3
+K3 {"gop":60,"frames":568,"copied":300,"reenc":268,"reenc_pct":47.2,"ms":1639,"realtime_x":11.6,"duration":18.93,"expected":18.93,"probes":8,"okCount":8}
+K3 {"gop":15,"frames":568,"copied":510,"reenc":58,"reenc_pct":10.2,"ms":566,"realtime_x":33.5,"duration":18.93,"expected":18.93,"probes":8,"okCount":8}
+DONE

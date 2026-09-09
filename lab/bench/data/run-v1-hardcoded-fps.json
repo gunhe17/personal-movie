@@ -1,0 +1,223 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "cores": 8,
+  "screen": "2240x1260@30bit",
+  "results": {
+    "1080p30_gop60.mp4": {
+      "size_mb": 37.9,
+      "load": {
+        "loadeddata_ms": 169.1,
+        "firstframe_ms": 208
+      },
+      "playback": {
+        "target_fps": 30,
+        "effective_fps": 30.2,
+        "dropped": 0,
+        "total_decoded": 177,
+        "frame_gap_ms": {
+          "n": 151,
+          "min": 15.6,
+          "med": 33.3,
+          "p95": 50.1,
+          "max": 51.1
+        }
+      },
+      "frame_step_video_el": {
+        "n": 60,
+        "min": 15.8,
+        "med": 16.8,
+        "p95": 34.2,
+        "max": 34.4
+      },
+      "random_seek_video_el": {
+        "n": 30,
+        "min": 15.3,
+        "med": 32.4,
+        "p95": 116,
+        "max": 117.3
+      },
+      "cut_swap": {
+        "n": 10,
+        "min": 11.5,
+        "med": 15,
+        "p95": 16.9,
+        "max": 16.9
+      },
+      "webcodecs": {
+        "supported": true,
+        "hw": "prefer-hardware",
+        "codec": "avc1.640029",
+        "demux_ms": 27.5,
+        "frames": 600,
+        "decode_all_ms": 477.6,
+        "decode_fps": 1256,
+        "realtime_x": 41.9,
+        "cached_frame_draw_ms": {
+          "n": 90,
+          "min": 0.4,
+          "med": 16.7,
+          "p95": 17.6,
+          "max": 17.7
+        },
+        "random_jump_ms": {
+          "n": 12,
+          "min": 12.7,
+          "med": 26.1,
+          "p95": 126.3,
+          "max": 126.3
+        },
+        "jump_frames_from_keyframe": {
+          "n": 12,
+          "min": 4,
+          "med": 41,
+          "p95": 55,
+          "max": 55
+        }
+      }
+    },
+    "1080p60_gop120.mp4": {
+      "size_mb": 48,
+      "load": {
+        "loadeddata_ms": 37.4,
+        "firstframe_ms": 54.4
+      },
+      "playback": {
+        "target_fps": 60,
+        "effective_fps": 51.19,
+        "dropped": 0,
+        "total_decoded": 341,
+        "frame_gap_ms": {
+          "n": 255,
+          "min": 15.6,
+          "med": 16.7,
+          "p95": 33.4,
+          "max": 34.2
+        }
+      },
+      "frame_step_video_el": {
+        "n": 60,
+        "min": 20.5,
+        "med": 50,
+        "p95": 59.9,
+        "max": 86.1
+      },
+      "random_seek_video_el": {
+        "n": 30,
+        "min": 16.1,
+        "med": 33.4,
+        "p95": 82.5,
+        "max": 82.9
+      },
+      "cut_swap": {
+        "n": 10,
+        "min": 11.1,
+        "med": 15.1,
+        "p95": 15.7,
+        "max": 15.7
+      },
+      "webcodecs": {
+        "supported": true,
+        "hw": "prefer-hardware",
+        "codec": "avc1.64002a",
+        "demux_ms": 34.7,
+        "frames": 1200,
+        "decode_all_ms": 582.3,
+        "decode_fps": 2061,
+        "realtime_x": 34.3,
+        "cached_frame_draw_ms": {
+          "n": 90,
+          "min": 0.2,
+          "med": 16.7,
+          "p95": 17.4,
+          "max": 17.7
+        },
+        "random_jump_ms": {
+          "n": 12,
+          "min": 12.7,
+          "med": 42.3,
+          "p95": 57.8,
+          "max": 57.8
+        },
+        "jump_frames_from_keyframe": {
+          "n": 12,
+          "min": 5,
+          "med": 62,
+          "p95": 119,
+          "max": 119
+        }
+      }
+    },
+    "4k30_gop60.mp4": {
+      "size_mb": 130.7,
+      "load": {
+        "loadeddata_ms": 199.7,
+        "firstframe_ms": 279.4
+      },
+      "playback": {
+        "target_fps": 30,
+        "effective_fps": 30.19,
+        "dropped": 0,
+        "total_decoded": 176,
+        "frame_gap_ms": {
+          "n": 150,
+          "min": 15.8,
+          "med": 33.3,
+          "p95": 50,
+          "max": 50.9
+        }
+      },
+      "frame_step_video_el": {
+        "n": 60,
+        "min": 11.6,
+        "med": 52,
+        "p95": 89.8,
+        "max": 91.4
+      },
+      "random_seek_video_el": {
+        "n": 30,
+        "min": 16.7,
+        "med": 50.1,
+        "p95": 276.9,
+        "max": 292.8
+      },
+      "cut_swap": {
+        "n": 10,
+        "min": 10,
+        "med": 15.2,
+        "p95": 31.4,
+        "max": 31.4
+      },
+      "webcodecs": {
+        "supported": true,
+        "hw": "prefer-hardware",
+        "codec": "avc1.640033",
+        "demux_ms": 88.5,
+        "frames": 600,
+        "decode_all_ms": 1382.1,
+        "decode_fps": 434,
+        "realtime_x": 14.5,
+        "cached_frame_draw_ms": {
+          "n": 90,
+          "min": 0.5,
+          "med": 16.7,
+          "p95": 17.7,
+          "max": 17.7
+        },
+        "random_jump_ms": {
+          "n": 12,
+          "min": 41.4,
+          "med": 96.1,
+          "p95": 328,
+          "max": 328
+        },
+        "jump_frames_from_keyframe": {
+          "n": 12,
+          "min": 6,
+          "med": 40,
+          "p95": 59,
+          "max": 59
+        }
+      }
+    }
+  }
+}

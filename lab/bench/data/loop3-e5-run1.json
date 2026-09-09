@@ -1,0 +1,82 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "results": {
+    "e5": {
+      "desc": {
+        "src": "01640028ffe1001967640028acb603c0113f2e0220000003002000000781e3065c01000668eac3cb22c0fdf8f800",
+        "encA": "01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800",
+        "encB": "01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800",
+        "encA_eq_encB": true,
+        "src_eq_enc": false
+      },
+      "rows": [
+        {
+          "copyRatio": 0.8,
+          "ms": 694,
+          "realtime_x": 28.8,
+          "mb": 34.5,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "copyRatio": 0.5,
+          "ms": 1668,
+          "realtime_x": 12,
+          "mb": 31.7,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "copyRatio": 0.2,
+          "ms": 2591,
+          "realtime_x": 7.7,
+          "mb": 28.2,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

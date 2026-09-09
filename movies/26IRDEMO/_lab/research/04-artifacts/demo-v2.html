@@ -1,0 +1,442 @@
+<title>데모 v2 선별안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488;
+  --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --before:#3F5B66; --before-bg:#DCE4E7;
+  --after:#A9702F;  --after-bg:#F2E5D2;
+  --stop:#A8324F;   --stop-bg:#F1DCE2;
+  --f-d:'Hahmlet','Nanum Myeongjo',serif;
+  --f-b:'Gothic A1',system-ui,-apple-system,sans-serif;
+  --f-m:'IBM Plex Mono','Nanum Gothic Coding',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --stop:#E27890;   --stop-bg:#321A21;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --stop:#E27890;   --stop-bg:#321A21;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-b);line-height:1.68;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
+.slate{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.slate b{color:var(--before);font-weight:500}.slate s{color:var(--after);text-decoration:none;font-weight:500}
+.mast h1{font-family:var(--f-d);font-weight:800;font-size:clamp(38px,6.4vw,72px);line-height:1.06;letter-spacing:-.03em;margin:14px 0 8px;text-wrap:balance}
+.mast .lede{font-size:16.5px;font-weight:300;color:var(--ink-2);max-width:62ch;margin:0 0 28px}
+.mfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));border-top:1px solid var(--rule)}
+.mfields>div{padding:11px 14px 13px;border-right:1px solid var(--rule)}.mfields>div:last-child{border-right:0}
+.mfields dt{font-family:var(--f-m);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);margin-bottom:3px}
+.mfields dd{margin:0;font-size:13px;font-variant-numeric:tabular-nums}
+
+.sh{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule-2);padding-bottom:9px;margin:66px 0 22px}
+.sh .id{font-family:var(--f-m);font-size:11px;letter-spacing:.12em;color:var(--ink-3);flex:none;padding-top:6px}
+.sh h2{font-family:var(--f-d);font-weight:600;font-size:28px;letter-spacing:-.02em;margin:0;flex:1;line-height:1.28}
+.sh p{margin:0;font-size:12.5px;color:var(--ink-3);max-width:36ch;text-align:right}
+
+/* 결론 3개 */
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:var(--rule)}
+.three>div{background:var(--surface);padding:20px 20px 22px}
+.three .n{font-family:var(--f-m);font-size:11px;letter-spacing:.14em;color:var(--after);font-weight:500}
+.three h3{font-family:var(--f-d);font-weight:600;font-size:20px;line-height:1.35;margin:8px 0 9px;letter-spacing:-.01em}
+.three p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+
+/* 선별 결과 스트립 */
+.strip{margin-top:22px;background:var(--surface);border:1px solid var(--rule);padding:18px 20px;overflow-x:auto}
+.strip-lab{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);margin-bottom:12px}
+.flow{display:flex;align-items:stretch;gap:0;min-width:720px}
+.flow .node{flex:1;border:1px solid var(--rule-2);padding:10px 12px;position:relative;background:var(--surface)}
+.flow .node.hi{border-color:var(--after);background:var(--after-bg)}
+.flow .node b{display:block;font-size:13.5px;font-weight:600;line-height:1.35}
+.flow .node span{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px;line-height:1.45}
+.flow .arr{flex:none;width:26px;display:grid;place-items:center;color:var(--ink-3);font-family:var(--f-m)}
+.flow .node .st{position:absolute;top:8px;right:9px}
+
+/* 상태 칩 */
+.st{display:inline-block;font-family:var(--f-m);font-size:9.5px;letter-spacing:.1em;padding:1px 6px;border-radius:2px;border:1px solid var(--ink);color:var(--ink);white-space:nowrap;vertical-align:middle}
+.st.real{background:var(--ink);color:var(--surface)}
+.st.part{background:none;position:relative}
+.st.part::before{content:"◐ "}
+.st.defer{border-style:dashed;color:var(--ink-2);border-color:var(--rule-2)}
+.st.none{border-color:var(--stop);color:var(--stop);text-decoration:line-through}
+.st.ext{border-style:dotted;color:var(--ink-2)}
+
+/* 판정 칩 */
+.vd{display:inline-block;font-family:var(--f-m);font-size:10px;letter-spacing:.12em;padding:2px 8px;border-radius:2px;white-space:nowrap;font-weight:500}
+.vd.main{background:var(--after);color:var(--surface)}
+.vd.side{background:var(--before);color:var(--surface)}
+.vd.pain{border:1.5px solid var(--before);color:var(--before)}
+.vd.cut{background:var(--stop);color:var(--surface)}
+
+/* 근거 미터 */
+.tier{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-m);font-size:10px;letter-spacing:.08em;color:var(--ink-2);white-space:nowrap}
+.tier .m{display:inline-flex;gap:2px}.tier i{width:5px;height:11px;border:1px solid var(--rule-2);display:block}
+.tier[data-fill="4"] i:nth-child(-n+4),.tier[data-fill="3"] i:nth-child(-n+3),.tier[data-fill="2"] i:nth-child(-n+2),.tier[data-fill="1"] i:nth-child(-n+1){background:var(--ink);border-color:var(--ink)}
+
+/* 표 */
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--rule)}
+.spec{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+.spec th,.spec td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+.spec thead th{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);font-weight:400;border-bottom:1.5px solid var(--ink)}
+.spec tbody th{font-weight:500;font-size:12.5px}
+.spec td code,.spec th code{font-family:var(--f-m);font-size:11px;background:var(--band);padding:0 4px;border-radius:2px}
+.spec .cb{color:var(--before)}.spec .ca{color:var(--after)}
+.spec .mono{font-family:var(--f-m);font-size:11px;color:var(--ink-2);line-height:1.55}
+.spec tr.sec td,.spec tr.sec th{background:var(--band);font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);padding:6px 13px}
+
+/* 단위 판정 카드 */
+.units{display:grid;gap:1px;background:var(--rule)}
+.u{background:var(--surface);padding:20px 22px 22px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px}
+.u-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.u h3{font-family:var(--f-d);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1.35}
+.u .src{font-family:var(--f-m);font-size:10.5px;color:var(--ink-3)}
+.axes{display:grid;gap:9px;margin:12px 0 0}
+.axis{display:grid;grid-template-columns:52px 84px 1fr;gap:10px;align-items:start;font-size:12.5px;line-height:1.55}
+.axis .k{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);padding-top:3px}
+.axis .v{color:var(--ink-2)}
+.u .pick{border-left:2px solid var(--after);padding:2px 0 2px 14px;align-self:start}
+.u .pick .lab{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--after);font-weight:500;margin-bottom:6px}
+.u .pick p{margin:0;font-size:13.5px;line-height:1.62}
+.u .pick p+p{margin-top:7px;color:var(--ink-2);font-size:12.5px}
+.u.cutu .pick{border-left-color:var(--stop)}.u.cutu .pick .lab{color:var(--stop)}
+.u.sideu .pick{border-left-color:var(--before)}.u.sideu .pick .lab{color:var(--before)}
+
+.note{background:var(--stop-bg);border:1px solid var(--stop);padding:15px 17px;margin:22px 0 0}
+.note h3{font-family:var(--f-d);font-weight:600;font-size:16.5px;margin:0 0 6px;color:var(--stop)}
+.note p{margin:0;font-size:13px;line-height:1.62}.note p+p{margin-top:7px}
+.note.neutral{background:var(--band);border-color:var(--rule-2)}.note.neutral h3{color:var(--ink)}
+
+footer{margin:66px 0 0;border-top:2px solid var(--ink);padding:20px 0 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
+footer h4{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 7px;font-weight:400}
+footer p,footer li{font-size:12px;color:var(--ink-2);line-height:1.68;margin:0}footer ul{margin:0;padding-left:15px}
+footer code{font-family:var(--f-m);font-size:11px}
+
+@media (max-width:760px){
+  .wrap{padding:0 16px}.sh{flex-direction:column;gap:4px}.sh p{text-align:left;max-width:none}
+  .u{grid-template-columns:1fr;gap:14px}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="slate"><span>MOEUM · 마인드스코프</span><span>／</span><b>section.md</b><span>+</span><b>데모 v2 스텝 분류</b><span>→</span><s>선별</s><span>／</span><span>2026-09-09</span></p>
+  <h1>데모 v2 선별안</h1>
+  <p class="lede">초안 5단위와 v2 후보 5개를 <b>고통 강도 × 해결 실재성 × 영상 적합성</b> 세 축에 놓고 골랐다. 고통은 리빙랩 1차 자료로, 실재성은 9월 9일 웹앱 소스로, 적합성은 근거 조사(75초의 전환)로 판정했다.</p>
+  <dl class="mfields">
+    <div><dt>재료</dt><dd>초안 5단위 · v2 후보 5개</dd></div>
+    <div><dt>코드 확인</dt><dd>후보 21개 · 9/9 소스</dd></div>
+    <div><dt>본편 채택</dt><dd>5 (전부 실재)</dd></div>
+    <div><dt>별도 편</dt><dd>1 (검사)</dd></div>
+    <div><dt>제외</dt><dd>9</dd></div>
+  </dl>
+</header>
+
+<!-- 00 결론 -->
+<section>
+  <div class="sh"><span class="id">00</span><h2>결론 — v2의 축은 유지, 세 가지를 바꾼다</h2><p>"전화·수기 → 플랫폼 양방향"은 그대로</p></div>
+  <div class="three">
+    <div>
+      <p class="n">변경 1 · 근거 A</p>
+      <h3>주인공을 한 명으로 고정한다</h3>
+      <p>5스텝을 5명으로 찍으면 식별 가능한 피해자 효과가 사라진다(Kogut &amp; Ritov 2005 — 8명 각각 식별시키면 효과 소멸). 상담사 한 명의 하루로 5스텝을 관통시킨다. 웹앱 폴더의 <code>상담사의-하루-대본.md</code>가 이미 그 구조다.</p>
+    </div>
+    <div>
+      <p class="n">변경 2 · 근거 B+C</p>
+      <h3>클라이맥스를 "AI 종합보고서"에서 "보호자가 기록을 받는 순간"으로</h3>
+      <p>임상심리사는 AI 채점·보고서에 가장 방어적인 관객이고(2·3차 리빙랩), "AI가 판단을 대체한다"는 인상은 확인된 지뢰다(Babylon·Watson). 게다가 <b>"3열 소견 워크스페이스"는 이 저장소에 없다.</b> 반면 "10분 피드백이 사라져 부모가 녹음기를 들고 온다"는 고통은 1차 근거가 가장 두껍고, 그 해결(내담자 앱 기록 탭)은 실재한다.</p>
+    </div>
+    <div>
+      <p class="n">변경 3 · 근거 A+C</p>
+      <h3>미구현 기능은 화면에 올리지 않는다</h3>
+      <p>전사 접수(없음)·바우처 서류 자동 생성(연기)·공고 파싱(코드 없음)은 모션그래픽으로도 연출하지 않는다. "진짜 UI만"은 문헌과 X 조사가 독립적으로 도달한 결론이고, 과대 약속은 전문가 관객 앞에서 한 번에 무너진다 — JAMA 16분 반격, 매니토바 간호사 광고.</p>
+    </div>
+  </div>
+
+  <div class="strip">
+    <p class="strip-lab">선별 결과 — 본편 75초의 AFTER 순서</p>
+    <div class="flow">
+      <div class="node"><span class="st real">실재</span><b>접수 스테퍼</b><span>내담자→담당→상담실→일정→메모. 오프닝 3초</span></div>
+      <div class="arr">→</div>
+      <div class="node hi"><span class="st real">실재</span><b>변경 요청 → 승인 ⭐</b><span>v2의 심장. 승인은 상담사가 누른다</span></div>
+      <div class="arr">→</div>
+      <div class="node"><span class="st real">실재</span><b>필드노트 → 일지 초안</b><span>녹음→전사→화자분리→서식 선택→초안. 6초 노컷</span></div>
+      <div class="arr">→</div>
+      <div class="node hi"><span class="st real">실재</span><b>보호자 앱 기록 탭</b><span>클라이맥스. 대기실 아닌 집에서 기록을 받는다</span></div>
+      <div class="arr">→</div>
+      <div class="node"><span class="st real">실재</span><b>바우처 잔여 자동 반영</b><span>회기 완료 → 4→3. 5초</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 코드 현실 지도 -->
+<section>
+  <div class="sh"><span class="id">01</span><h2>코드 현실 지도</h2><p>7/20 워크스루 판정 + 9/9 소스. 경로는 apps/web/src 기준</p></div>
+
+  <p style="font-size:12.5px;color:var(--ink-2);margin:0 0 14px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+    <span class="st real">실재</span> 실화면 촬영 가능 &nbsp;
+    <span class="st part">부분</span> 일부 구현 · 동작 확인 필요 &nbsp;
+    <span class="st defer">연기</span> 차수 연기 확정 &nbsp;
+    <span class="st none">없음</span> 코드 없음 &nbsp;
+    <span class="st ext">별도</span> 다른 제품·저장소
+  </p>
+
+  <div class="tablewrap">
+  <table class="spec">
+    <thead><tr><th style="width:34%">영상 후보</th><th style="width:9%">상태</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr class="sec"><td colspan="3">접수 · 내담자</td></tr>
+      <tr><th>상담 접수 스테퍼 (내담자→담당→상담실→다중 일정→메모)</th><td><span class="st real">실재</span></td><td class="mono">routes/(protected)/counseling/receive · 1.7.0</td></tr>
+      <tr><th>통합 내담자 DB + 보호자 관계</th><td><span class="st real">실재</span></td><td class="mono">features/clients/ · A2 통과</td></tr>
+      <tr><th>검사 접수 엑셀 일괄 등록</th><td><span class="st real">실재</span></td><td class="mono">features/assessment/receive/ excel-preview · 1.7.3 · 활짝센터 요청분</td></tr>
+      <tr><th>전화 접수 전사 → 메모·일정 등록</th><td><span class="st none">없음</span></td><td class="mono">필드노트 파이프라인이 토대일 뿐</td></tr>
+
+      <tr class="sec"><td colspan="3">일정</td></tr>
+      <tr><th><b>예약 변경 요청 → 승인 / 거절</b></th><td><span class="st real">실재</span></td><td class="mono">hooks/actions/schedule.action.ts getScheduleChangeRequests · postApproveScheduleChangeRequest · features/schedule/reservations/reservations-service.ts approve·reject · 결정자·시각 기록<br><span style="color:var(--after)">7월 판정은 "더미·백엔드 API 미존재" → 이후 구현. v2 문서가 맞다</span></td></tr>
+      <tr><th>승인 결과 → 내담자 앱 알림</th><td><span class="st part">부분</span></td><td class="mono">알림 인프라 실재(앱 내·알림톡·웹 푸시, 1.5.0). 승인 이벤트 연동은 미확인 → 확인 ①</td></tr>
+      <tr><th>스마트 일괄 회기 추가 (달력 다중 날짜 · 복수 담당자 · 충돌 경고)</th><td><span class="st real">실재</span></td><td class="mono">components/schedule/counsel/RecurrenceSection.svelte · B4 통과</td></tr>
+      <tr><th>내담자 앱에서 신규 예약</th><td><span class="st none">없음</span></td><td class="mono">v2 문서도 제외 권장</td></tr>
+
+      <tr class="sec"><td colspan="3">상담 · 기록</td></tr>
+      <tr><th>필드노트: 녹음 → 전사 → 화자 분리 → 요약</th><td><span class="st real">실재</span></td><td class="mono">features/field-note/ · routes/(protected)/schedule/field-notes/[id] · segments / speakerMap / summary. 녹음은 모바일</td></tr>
+      <tr><th><b>AI 상담일지 초안</b> (필드노트 → 서식 선택 → 초안 → 본문 끝에 이어붙임)</th><td><span class="st real">실재</span></td><td class="mono">field-note-service.ts generateCounselingNote(id, templateType) · InlineJournalEditor.svelte:177 "덮어쓰지 않으므로 상담사가 쓴 내용은 유지" · AiDraftHistory.svelte · 서식 기본/SOAP/DAP · 크레딧 필요</td></tr>
+      <tr><th>케어보드 (내담자 모든 기록 한 화면)</th><td><span class="st real">실재</span></td><td class="mono">features/clients/detail/ — 화면 이름은 "내담자 상세". B3 통과</td></tr>
+      <tr><th>내담자 앱 기록 탭 (상담 노트 열람)</th><td><span class="st real">실재</span></td><td class="mono">모바일 앱 — 웹 코드 밖. 공개 범위 → 확인 ②</td></tr>
+
+      <tr class="sec"><td colspan="3">검사</td></tr>
+      <tr><th>바로링크: 접수→문자 링크→4자리 인증→수행→자동 채점→보고서→결과 전송→보호자 열람</th><td><span class="st real">실재</span></td><td class="mono">E2E 완주(07-20~21), 자가보고식 18종. W-5(전송 미구현)·W-8(문자 URL 누락) 치명 결함 수정됨</td></tr>
+      <tr><th>검사별 소견 작성</th><td><span class="st real">실재</span></td><td class="mono">features/assessment/status-detail/opinion-service.ts — 검사명·작성일 + 텍스트 모달</td></tr>
+      <tr><th>"3열 소견 워크스페이스" · "AI 종합보고서 초안"</th><td><span class="st none">없음</span></td><td class="mono">이 코드베이스에서 미확인. v2 문서의 "8월 말 신기능" 주장과 불일치 → 확인 ③</td></tr>
+      <tr><th>HTP · 로샤 AI 채점</th><td><span class="st ext">별도</span></td><td class="mono">마인드봄, v1 클립. 3차 리빙랩: "원자료 스캔·업로드가 진입 장벽, 수기가 더 빠를 수 있다"</td></tr>
+      <tr><th>AI 검사 해석 보조</th><td><span class="st defer">연기</span></td><td class="mono">평가양식 매핑표 고지 2번</td></tr>
+
+      <tr class="sec"><td colspan="3">바우처 · 행정</td></tr>
+      <tr><th>회기 완료·노쇼 → 차감 배지 · 잔여 표시 · 사용 이력</th><td><span class="st real">실재</span></td><td class="mono">ClientActionCard.svelte "회기 차감" · counseling-billing-service.ts voucherRemaining/Total · clientVoucher.action.ts VoucherUsage(related_session_id)<br><span style="color:var(--after)">v2는 "부분"으로 표기 — 코드상 연결 확인, 실재로 상향</span></td></tr>
+      <tr><th>대시보드 바우처 임박 신호 (잔여 ≤ 2)</th><td><span class="st real">실재</span></td><td class="mono">routes/(protected)/dashboard/+page.svelte:164</td></tr>
+      <tr><th>청구 생성 · 미납</th><td><span class="st real">실재</span></td><td class="mono">1.7.2 · A6 통과</td></tr>
+      <tr><th><b>바우처 증빙 · 제출 서류 자동 생성</b> (일지 → 제출 양식 변환)</th><td><span class="st defer">연기</span></td><td class="mono">평가양식 매핑표 12·13 "이번 차수 연기(D2·D3), 상태 알림만"</td></tr>
+      <tr><th>공고 PDF 파싱 → 조건·단가·서류 추출</th><td><span class="st none">없음</span></td><td class="mono">memos/106_마인드스코프-기능정리에 기획만. 코드 검색 결과 notice(공지)뿐</td></tr>
+
+      <tr class="sec"><td colspan="3">에이전트</td></tr>
+      <tr><th>조회 50+ 도구 + 화면 이동</th><td><span class="st real">실재</span></td><td class="mono">features/agent/chat/tool-columns.ts</td></tr>
+      <tr><th>폼 prefill</th><td><span class="st real">실재</span></td><td class="mono">features/agent/page-tools/ — client-register · counsel-receive · assessment-receive · operation-receive · center-info-edit. page.submit 계약도 존재(v2 "쓰기 없음" 서술과 미세 불일치) → 확인 ⑥. 원칙은 유지</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 02 단위별 판정 -->
+<section>
+  <div class="sh"><span class="id">02</span><h2>section.md 단위별 판정</h2><p>고통 = 1차 자료 두께 · 해결 = 위 표 · 적합 = 영상 근거</p></div>
+
+  <div class="units">
+
+    <div class="u">
+      <div>
+        <div class="u-head"><h3>① 문의/접수 → 검사 결정</h3><span class="vd main">본편 · 도입만</span></div>
+        <p class="src">1차 실장 그룹 · 활짝센터 피드백</p>
+        <div class="axes">
+          <div class="axis"><span class="k">고통</span><span class="tier" data-fill="2"><span class="m"><i></i><i></i><i></i><i></i></span> 중</span><span class="v">통화 중 수기 기록, PC 켜져 있을 때만 이력, CID 꺼지면 부재중 확인 불가. 단체 유입 카톡→엑셀. 정량 근거 없음</span></div>
+          <div class="axis"><span class="k">해결</span><span class="tier" data-fill="3"><span class="m"><i></i><i></i><i></i><i></i></span> 실재</span><span class="v">접수 스테퍼 · 통합 DB · 엑셀 일괄. <b>전화 전사는 없음</b></span></div>
+          <div class="axis"><span class="k">적합</span><span class="tier" data-fill="1"><span class="m"><i></i><i></i><i></i><i></i></span> 낮음</span><span class="v">실장의 고통이라 <b>주인공(상담사)과 어긋난다</b></span></div>
+        </div>
+      </div>
+      <div class="pick"><div class="lab">선별</div><p>도입 10초로 압축. 데스크 컷 하나 — 전화 받으며 손으로 적는 실장의 손 → 접수 스테퍼 실화면.</p><p>전사 접수는 뺀다. 미구현이고, 주인공의 고통도 아니다.</p></div>
+    </div>
+
+    <div class="u sideu">
+      <div>
+        <div class="u-head"><h3>② 검사 → 보고서 작성</h3><span class="vd side">별도 편</span></div>
+        <p class="src">리빙랩 2·3차 · 한국임상심리학회지 · 쿠키뉴스 2023</p>
+        <div class="axes">
+          <div class="axis"><span class="k">고통</span><span class="tier" data-fill="4"><span class="m"><i></i><i></i><i></i><i></i></span> 최강 정량</span><span class="v">종합보고서 8시간~2일 · 재입력 3시간+ · 성인 종합심리평가 539분 중 <b>채점·보고서 257분</b> · "주말이 없다" · 내담자 왕복 2회</span></div>
+          <div class="axis"><span class="k">해결</span><span class="tier" data-fill="2"><span class="m"><i></i><i></i><i></i><i></i></span> 갈림</span><span class="v">바로링크 실재(자가보고식). 그러나 초안이 말하는 "수기 결과를 편집기로 옮겨 직접 채점·참고지 보며 보고서 작성"은 <b>풀배터리</b>의 고통 — 그 해결은 별도 제품 + 코드 미확인 + 전문가 거부감</span></div>
+          <div class="axis"><span class="k">적합</span><span class="tier" data-fill="1"><span class="m"><i></i><i></i><i></i><i></i></span> 관객 불일치</span><span class="v">고통의 주인은 임상심리사(결정 1 위배). 이 관객은 AI 채점을 가장 불신한다 — "AI는 결과 확인·근거 점검 수준으로", "수련생은 AI 도움 많이 받으면 안 된다"</span></div>
+        </div>
+      </div>
+      <div class="pick"><div class="lab">선별</div><p>본편에서 뺀다. 검사편 45~75초를 따로 — 주인공은 임상심리사, 고통은 "왕복 2회", 해결은 "링크 하나".</p><p>풀배터리 AI 채점은 임상심리사용 별도 맥락에서 "AI는 근거를 모아주고 사람이 판단한다" 프레임으로만.</p></div>
+    </div>
+
+    <div class="u">
+      <div>
+        <div class="u-head"><h3>③ 상담</h3><span class="vd main">본편 · 몸통</span></div>
+        <p class="src">1차 전문가 그룹 · 기능정리 memo · 0810 현장 실사</p>
+        <div class="axes">
+          <div class="axis"><span class="k">고통</span><span class="tier" data-fill="4"><span class="m"><i></i><i></i><i></i><i></i></span> 최강 질적</span><span class="v">하루 6~8회기 · "기록이 밀리면 기억이 흐려지고 안 밀리려면 퇴근이 늦다" · 일지가 엑셀·종이·메일·한글 제각각 · 스케줄 변경 시 개별 연락으로 전부 조정 · 10분 피드백 휘발 → <b>보호자 60~70% 녹음기</b></span></div>
+          <div class="axis"><span class="k">해결</span><span class="tier" data-fill="4"><span class="m"><i></i><i></i><i></i><i></i></span> 전부 실재</span><span class="v">스마트 일괄 회기 · 변경 요청 승인 · 필드노트 · AI 일지 초안 · 케어보드 · 앱 기록 탭</span></div>
+          <div class="axis"><span class="k">적합</span><span class="tier" data-fill="4"><span class="m"><i></i><i></i><i></i><i></i></span> 전부 맞음</span><span class="v">주인공이 상담사. 고통을 겪게 하는 장면(동일 숏 2회, 타임스탬프 누적)이 여기서 나온다. 해방이 관계로 끝난다(결정 7)</span></div>
+        </div>
+      </div>
+      <div class="pick"><div class="lab">선별</div><p>본편의 몸통. BEFORE 25초 + AFTER 30초를 여기서.</p></div>
+    </div>
+
+    <div class="u cutu">
+      <div>
+        <div class="u-head"><h3>④ 행정/정산 — 내부 일지 + 바우처 양식 + 슈퍼바이저 양식</h3><span class="vd pain">고통만</span></div>
+        <p class="src">언어치료연구 2019(동료심사) · 비마이너 2020 · 기능정리 memo</p>
+        <div class="axes">
+          <div class="axis"><span class="k">고통</span><span class="tier" data-fill="4"><span class="m"><i></i><i></i><i></i><i></i></span> 가장 구조적</span><span class="v">"같은 회기를 두 번 씀" · <b>"기록지 세 장씩, 굳이 한 장에다 하면 되는데"</b> · "소설을 쓰게 되었다" · 건수 직접 세서 원장에게 제출</span></div>
+          <div class="axis"><span class="k">해결</span><span class="tier" data-fill="0"><span class="m"><i></i><i></i><i></i><i></i></span> 연기</span><span class="v">일지→제출 서류 변환은 D2·D3에서 밀렸고 상태 알림만 있다</span></div>
+          <div class="axis"><span class="k">적합</span><span class="tier" data-fill="2"><span class="m"><i></i><i></i><i></i><i></i></span> 반쪽</span><span class="v">고통은 최고인데 해결이 없다. <b>이 조합이 정확히 매니토바 지뢰의 반대형</b> — 고통을 세우고 완화를 못 보이면 "피자"가 된다</span></div>
+        </div>
+      </div>
+      <div class="pick"><div class="lab">선별</div><p>고통 장면으로만 쓴다. 해결을 약속하지 않는다.</p><p>BEFORE 정점 컷(동일 타이핑 숏 2회 = 이중 입력)은 여기서 가져오되, AFTER에서 "제출 서류가 자동으로"라고 말하지 않는다. AFTER는 일지 초안이 서식(기본/SOAP/DAP)으로 생기는 것까지만 — 그건 실재다.</p></div>
+    </div>
+
+    <div class="u">
+      <div>
+        <div class="u-head"><h3>⑤ 바우처 <span style="font-family:var(--f-m);font-size:11px;color:var(--ink-3);font-weight:400">— 초안은 비어 있음</span></h3><span class="vd main">본편 · 5초</span></div>
+        <p class="src">0810 현장 실사 · 경기도의회 2026-08 · X 2026-09</p>
+        <div class="axes">
+          <div class="axis"><span class="k">고통</span><span class="tier" data-fill="3"><span class="m"><i></i><i></i><i></i><i></i></span> 높음</span><span class="v">도장 시각 ±30분 · 2개월 무실적 자격상실 · 회기 사이 10분에 바우처 결제·본인부담금·주차·보강 조율 · "쓴 거 찢어버리냐"</span></div>
+          <div class="axis"><span class="k">해결</span><span class="tier" data-fill="3"><span class="m"><i></i><i></i><i></i><i></i></span> 실재</span><span class="v">잔여 회기 자동 반영 · 차감 배지 · 임박 신호 · 청구. 서류 생성·공고 파싱은 없음</span></div>
+          <div class="axis"><span class="k">적합</span><span class="tier" data-fill="2"><span class="m"><i></i><i></i><i></i><i></i></span> 조연</span><span class="v">원장·실장의 고통. 상담사 시점에서는 "몇 회기째인지 세지 않아도 맞는다" 한 컷</span></div>
+        </div>
+      </div>
+      <div class="pick"><div class="lab">선별</div><p>AFTER 끝부분 5초. 회기 완료 → 잔여 회기 숫자가 줄어드는 한 컷. 그 이상 확장하지 않는다.</p></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 03 75초 구성 -->
+<section>
+  <div class="sh"><span class="id">03</span><h2>75초 마스터 구성</h2><p>75초의 전환 타임라인에 선별 결과를 얹은 것</p></div>
+
+  <p style="font-size:13px;color:var(--ink-2);margin:0 0 14px">주인공: 상담사 1명(아동 놀이치료, 30~40대). 조연: 아동 1명 · 보호자 1명 · 데스크 실장(오프닝만). 에이전트는 도입·마무리 <b>2비트만</b>, BEFORE 구간에는 절대 넣지 않는다 — 처리 지시가 몰입을 끊는다(Green &amp; Brock, A).</p>
+
+  <div class="tablewrap">
+  <table class="spec">
+    <thead><tr><th style="width:9%">시간</th><th style="width:13%">구간</th><th>화면</th><th style="width:8%">실재</th><th style="width:20%">근거</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">0:00–0:05</td><th>후크</th><td>상담사와 아이가 놀이치료실에서 웃는다. 자연광. 음악 없음. <b>5.0초에 아이가 문 밖으로</b> — 사운드 붕괴</td><td class="mono">촬영</td><td class="mono">첫 5초 웃는 얼굴(Google/Ipsos, C) → 낙차를 스킵 지점에</td></tr>
+      <tr><td class="mono cb">0:05–0:12</td><th class="cb">BEFORE ① 접수</th><td>데스크. 전화 받는 실장의 손이 수기로 적는다. 뒤로 카톡 알림. 우상단 타임스탬프 <code>09:40</code></td><td class="mono">촬영</td><td class="mono">1차 실장 그룹</td></tr>
+      <tr><td class="mono cb">0:12–0:22</td><th class="cb">BEFORE ② 회기 사이 10분</th><td>상담사가 치료실에서 나와 데스크로. 바우처 단말 결제 · 보호자 응대 · 다음 아이 준비를 <b>한 컷에</b>. <code>10:50</code> → <code>11:00</code></td><td class="mono">촬영</td><td class="mono">경기도의회 진술(C) — 열거 업무 그대로</td></tr>
+      <tr><td class="mono cb">0:22–0:28</td><th class="cb">BEFORE ③ 10분 피드백</th><td>대기실. OTS 쌍. 보호자 위 내면 자막 <code>"방금 뭐라고 하셨더라"</code>, 상담사 위 <code>"이 얘기 지난주에도"</code>. 보호자 가방 속 <b>녹음기 빨간 불</b> 한 컷</td><td class="mono">촬영</td><td class="mono">Cleveland Clinic 기법 · 0810 실사 60~70%</td></tr>
+      <tr><td class="mono cb">0:28–0:33</td><th class="cb">BEFORE ④ 일지</th><td>밤. 노트북. 한글 파일에 타이핑하는 <b>동일 숏을 소스 그대로 2회 반복</b>(두 번째 피치 −0.5옥타브). <code>22:47</code> → 누적 <code>+1일 6시간 40분</code></td><td class="mono">촬영</td><td class="mono">이중 입력(2019 FGI "세 장씩") · 정점-종점</td></tr>
+      <tr><td class="mono cb">0:33–0:35</td><th class="cb"><b>정점</b></th><td>파일 이름을 보고 어제 것과 오늘 것이 같은 걸 깨닫는 <b>눈</b>. 3초 홀드. 한숨 없음</td><td class="mono">촬영</td><td class="mono">클로즈업은 표정 변화 순간만(Rooney &amp; Bálint)</td></tr>
+      <tr><td class="mono" style="color:var(--stop)">0:35–0:36</td><th style="color:var(--stop)"><b>피벗</b></th><td>볼펜이 종이에 닿기 직전 프레임에서 컷. 1.2초 무음. 같은 손이 펴진다</td><td class="mono">촬영</td><td class="mono">Lawrence of Arabia · 17dB 낙차</td></tr>
+      <tr><td class="mono ca">0:36–0:46</td><th class="ca">AFTER ① 필드노트 → 일지</th><td>회기 끝. 모바일 녹음을 멈춘다 → 웹 <code>field-notes/[id]</code>에 전사·화자 분리 → "일지 초안 생성" → 서식 선택 → 초안이 <b>본문 끝에 이어붙는다</b>. <b>6초 노컷</b></td><td><span class="st real">실재</span></td><td class="mono">결정 3: 사라지는 한 가지 작업 = "기억으로 쓰기"</td></tr>
+      <tr><td class="mono ca">0:46–0:54</td><th class="ca">AFTER ② 변경 요청 승인 ⭐</th><td>웹 <code>schedule/reservations</code>에 보호자 변경 요청 → 상담사가 <b>승인을 누른다</b> → 캘린더 반영 → (확인 시) 보호자 앱 알림</td><td><span class="st real">실재</span></td><td class="mono">v2의 심장. 알림은 확인 ①</td></tr>
+      <tr><td class="mono ca">0:54–1:03</td><th class="ca"><b>클라이맥스</b> — 기록이 보호자에게</th><td>보호자 폰. 앱 기록 탭에 오늘 회기 노트 도착. 대기실이 아니라 <b>집</b>. 가방에서 녹음기를 꺼내지 않는다</td><td><span class="st real">실재</span></td><td class="mono">결정 7 관계 보상 · 녹음기 60~70%의 정확한 역상 · 확인 ②</td></tr>
+      <tr><td class="mono ca">1:03–1:08</td><th class="ca">AFTER ④ 바우처</th><td>케어보드에서 회기 완료 → 잔여 회기 <code>4 → 3</code>. 대시보드 임박 신호 한 컷</td><td><span class="st real">실재</span></td><td class="mono">"몇 회기째인지 세지 않아도 맞는다"</td></tr>
+      <tr><td class="mono ca">1:08–1:13</td><th class="ca">숫자 1개</th><td>무음 위, 좌하단. <code>일지 2번</code> → 교체 → <code>1번</code>. 업계 통계가 아니라 이 사람의 것</td><td class="mono">자막</td><td class="mono">Zebregs · Slovic · Teixeira</td></tr>
+      <tr><td class="mono ca">1:13–1:15</td><th class="ca">엔드</th><td>낮 6시, 밖이 밝다. 아이와 보호자에게 인사. 로고 1.5초. 카피 후보: <b>"상담사가 아이를 돌보고, 마인드스코프가 상담사를 돌봅니다."</b></td><td class="mono">촬영</td><td class="mono">Abridge 구조 · 정점-종점</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 04 논의 5 -->
+<section>
+  <div class="sh"><span class="id">04</span><h2>v2 문서의 논의 5개에 대한 답</h2><p>+ 회색 문장 교체표</p></div>
+
+  <div class="tablewrap">
+  <table class="spec">
+    <thead><tr><th style="width:20%">논의</th><th style="width:36%">제안</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><th>1 · 전사 접수 어떻게</th><td><b>(c) 제외.</b> prefill로 대체하지도 않는다</td><td>미구현을 모션으로 연출하면 "진짜 UI" 원칙 위배. 전화 접수는 실장의 고통이라 주인공과 어긋남. 접수는 스테퍼 실화면 3초로 충분</td></tr>
+      <tr><th>2 · 승인 → 앱 알림</th><td>촬영 전 확인. <b>연동 안 되면 "앱에서 결과 확인" 컷을 빼고 웹 승인 컷에서 끝낸다.</b> 연출로 메우지 않는다</td><td>없는 것을 있는 것처럼 보이면 첫 도입 센터에서 바로 발각됨 — FIGS 지뢰의 변형</td></tr>
+      <tr><th>3 · 에이전트 배치</th><td><b>도입·마무리 2비트.</b> 스텝마다 1비트 반대</td><td>Teixeira 펄스 원리에는 부합하지만 BEFORE 중간 삽입은 몰입 파괴. 5비트는 "에이전트 영상"이 됨</td></tr>
+      <tr><th>4 · 검사 비중</th><td><b>본편에서 검사를 뺀다.</b> v1 40% → v2 0%. 검사편을 별도 45~75초로</td><td>① 관객이 다름(임상심리사) ② 그 관객이 AI 채점에 가장 방어적(2·3차 리빙랩) ③ "3열 소견 워크스페이스·AI 종합보고서" 코드 미확인 ④ 클라이맥스 자리는 "보호자가 기록을 받는 순간"이 더 강함</td></tr>
+      <tr><th>5 · 기존 방식 문장</th><td>아래 교체표</td><td>현장 어휘 뱅크(practitioner-quotes.md)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tablewrap" style="margin-top:22px">
+  <table class="spec">
+    <thead><tr><th style="width:12%">스텝</th><th class="cb" style="width:30%">v2 초안 (회색 문장)</th><th class="ca">교체안 — 현장 어휘</th><th style="width:16%">출처</th></tr></thead>
+    <tbody>
+      <tr><th>1 접수</th><td class="cb">전화 받아 수기 장부·엑셀에 적는다</td><td class="ca"><b>통화하면서 손으로 적는다. PC가 꺼져 있으면 부재중도 모른다.</b></td><td class="mono">1차 실장 그룹</td></tr>
+      <tr><th>2 일정</th><td class="cb">변경 전화가 오면 달력을 지우고 다시 쓴다</td><td class="ca"><b>빈 시간을 맞추려면 한 명 한 명 따로 연락해야 한다.</b></td><td class="mono">1차 전문가 그룹</td></tr>
+      <tr><th>3 상담</th><td class="cb">회기 끝나고 기억으로 일지를 쓴다</td><td class="ca"><b>기록이 밀리면 기억이 흐려지고, 안 밀리려면 퇴근이 늦다.</b></td><td class="mono">기능정리 memo</td></tr>
+      <tr><th>3 상담 (부모)</th><td class="cb">—</td><td class="ca"><b>10분 피드백. 부모 열 명 중 여섯은 가방에 녹음기를 넣어 온다.</b></td><td class="mono">0810 실사</td></tr>
+      <tr><th>4 검사</th><td class="cb">내원 실시 → 수기 채점 → 보고서 수기 작성</td><td class="ca"><b>검사는 207분. 채점과 보고서는 257분.</b></td><td class="mono">한국임상심리학회지</td></tr>
+      <tr><th>5 바우처</th><td class="cb">엑셀 수기 차감 · 월말 대조</td><td class="ca"><b>건수를 직접 세서 낸다. 그 숫자로 급여가 정해진다.</b></td><td class="mono">1차 전문가 그룹</td></tr>
+      <tr><th>5 바우처 (점검)</th><td class="cb">—</td><td class="ca"><b>일지는 수업마다 바로 쓰라며? 쓴 거 찢어버리냐.</b> <span style="color:var(--ink-3)">(순화 필요)</span></td><td class="mono">X 2026-09</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 05 잘라낸 것 -->
+<section>
+  <div class="sh"><span class="id">05</span><h2>잘라낸 것과 이유</h2><p>9개</p></div>
+  <div class="tablewrap">
+  <table class="spec">
+    <thead><tr><th style="width:32%">잘라낸 것</th><th style="width:22%">어디 있었나</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><th>전화 접수 전사</th><td class="mono">v2 ① 신규</td><td>미구현. 연출 금지</td></tr>
+      <tr><th>수기 결과 → 편집기 → 채점 → 보고서 (풀배터리)</th><td class="mono">section.md ②</td><td>관객 불일치 + AI 채점 거부감 + 코드 미확인. 검사편으로</td></tr>
+      <tr><th>AI 종합보고서 → 소견 확정 클라이맥스</th><td class="mono">v2 ④</td><td>위와 같음. <code>opinion-service.ts</code>는 텍스트 모달일 뿐</td></tr>
+      <tr><th>바우처 제출 서류 자동 생성</th><td class="mono">section.md ④ · 기능정리 #7</td><td><b>연기.</b> 고통은 쓰되 해결을 약속하지 않음</td></tr>
+      <tr><th>공고 파싱</th><td class="mono">기능정리 #3</td><td>코드 없음</td></tr>
+      <tr><th>슈퍼바이저 제출 양식</th><td class="mono">section.md ④</td><td>위와 같음</td></tr>
+      <tr><th>스텝별 에이전트 5비트</th><td class="mono">v2 관통축 가안</td><td>BEFORE 몰입 파괴. 2비트로</td></tr>
+      <tr><th>"번아웃", "업무 효율화", "저녁을 돌려드립니다"</th><td class="mono">카피 전반</td><td>결정 2·3. 도덕적 상해 논의 + JAMA 16분 반격</td></tr>
+      <tr><th>지친 상담사 여러 명 교차 편집</th><td class="mono">(예상되는 연출)</td><td>결정 1. 단일성 효과</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 06 확인 -->
+<section>
+  <div class="sh"><span class="id">06</span><h2>촬영 전 확인 항목</h2><p>개발팀 반나절</p></div>
+  <div class="tablewrap">
+  <table class="spec">
+    <thead><tr><th style="width:5%">#</th><th style="width:47%">확인할 것</th><th>안 되면</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">①</td><th>변경 요청 승인 → 내담자 앱 알림이 실제로 가는가</th><td>AFTER ② 마지막 컷 삭제, 웹 승인에서 끝</td></tr>
+      <tr><td class="mono">②</td><th>내담자 앱 기록 탭에 상담 노트가 실제로 열람되는가. 어떤 범위까지 — 상담사가 공개 설정하는가</th><td><b>클라이맥스 재설계.</b> 1차 리빙랩이 경고한 "아이가 숨기고 싶은 내용 노출" 문제와 직결</td></tr>
+      <tr><td class="mono">③</td><th>"3열 소견 워크스페이스 · AI 종합보고서 초안"이 다른 브랜치/저장소에 있는가</th><td>없으면 검사편도 자가보고식 바로링크만</td></tr>
+      <tr><td class="mono">④</td><th>AI 일지 초안 크레딧이 촬영용 센터에 세팅됐는가</th><td><code>운영-세팅-체크리스트.md</code></td></tr>
+      <tr><td class="mono">⑤</td><th>필드노트 녹음 안정성 — 50분 녹음 1회 실측 (<code>memos/018_필드노트-개선방향</code>의 미완 항목)</th><td>녹음 컷을 짧게, 전사 결과 화면만</td></tr>
+      <tr><td class="mono">⑥</td><th>에이전트 <code>page.submit</code>이 실제로 쓰기를 실행하는 폼이 있는가</th><td>있어도 영상에서는 "사람이 저장"만 보인다</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note neutral">
+    <h3>다음 작업</h3>
+    <p>1. 위 ①~③ 확인 &nbsp;·&nbsp; 2. 75초 콘티 → 제작사 브리프. 75초의 전환의 스펙(ASL·LUFS·렌즈·대비비)을 그대로 첨부 &nbsp;·&nbsp; 3. 검사편(바로링크) 별도 45초 콘티 — AI 채점은 넣지 않는다 &nbsp;·&nbsp; 4. 크레딧에 자문 상담사·임상심리사 실명(FIGS 예방, athenahealth 방식) &nbsp;·&nbsp; 5. 러프컷을 <b>상담센터에서 일해본 적 없는 사람</b>에게 보여주고 BEFORE에서 무엇이 잘못됐는지 말하게 한다 — 못 말하면 고통이 안 닿은 것(지식의 저주, Camerer 1989)</p>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <h4>재료</h4>
+    <ul>
+      <li><code>section.md</code> — 초안 5단위</li>
+      <li><code>데모영상-스텝별-기획.html</code> — v2 스텝 분류 (9/7)</li>
+      <li><code>apps/web</code> 리빙랩 감사 문서 · changelog · 9/9 소스</li>
+      <li>research/02-findings/ — AS-IS 흐름 · 고장 패턴 · 근거 표 · 현장 어휘 · 영상 기법</li>
+    </ul>
+  </div>
+  <div>
+    <h4>시차 처리</h4>
+    <p>7월 워크스루 판정과 9월 소스가 다른 곳이 둘 있다. 예약 변경 승인은 더미 → 실재로, 바우처 소진 반영은 부분 → 실재로 상향했다. 반대로 v2 문서가 실재라고 한 "3열 소견 워크스페이스"는 이 저장소에서 찾지 못했다.</p>
+  </div>
+  <div>
+    <h4>연결</h4>
+    <p>BEFORE 장면은 전부 <b>상담센터 AS-IS 흐름도</b>의 10단계에서, 편집 스펙과 근거 등급은 <b>75초의 전환</b>에서 왔다. 로컬 원본: <code>research/02-findings/demo-proposal.md</code></p>
+  </div>
+</footer>
+
+</div>

@@ -1,0 +1,604 @@
+<title>편집기를 빠르게 만드는 레버</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f5f7f8; --surface:#ffffff; --surface-2:#eef2f4;
+  --ink:#161a1f; --ink-2:#3a444f; --muted:#5b6874; --rule:#dce2e7; --rule-2:#c3ccd4;
+  --accent:#046b9c; --accent-deep:#075a83; --accent-wash:#e8f1f7; --s2:#a87c00;
+  --ok:#177a4a; --warn:#a87c00; --bad:#c4213c;
+  --ok-wash:#e7f2ec; --warn-wash:#f6efdd; --bad-wash:#faeaed;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+    --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+    --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+    --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+    --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+  --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+  --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+  --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+  --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  font-weight:400;line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 100px}
+h1{font-size:34px;line-height:1.25;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h3{font-size:16px;line-height:1.45;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+small,.small{font-size:13px;line-height:1.65;color:var(--muted);max-width:70ch;display:block}
+header{padding:56px 0 30px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.stamp{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.stamp b{font-weight:500;color:var(--ink-2)}
+section{padding:48px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;flex-direction:column;gap:7px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--ok);
+  padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+
+/* the loop, as a real sequence */
+.loop{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.loop div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:5px}
+.loop .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:var(--accent)}
+.loop .t{font-size:14px;font-weight:600}
+.loop .d{font-size:12.5px;color:var(--muted);line-height:1.55}
+
+.hyp{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hrow{background:var(--surface);display:grid;grid-template-columns:52px 1fr 116px;gap:0 18px;padding:18px 20px;align-items:start}
+.hid{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);padding-top:1px}
+.hbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hclaim{font-size:14.5px;font-weight:500;line-height:1.6}
+.hfals{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hfals b{font-weight:500;color:var(--ink-2)}
+.hprob{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;justify-self:start;white-space:nowrap;border:1px solid}
+.t-ok{color:var(--ok);border-color:var(--ok);background:var(--ok-wash)}
+.t-no{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
+.t-part{color:var(--warn);border-color:var(--warn);background:var(--warn-wash)}
+
+.scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+caption{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);background:var(--surface-2)}
+caption b{color:var(--ink-2);font-weight:600}
+th,td{padding:9px 16px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface-2);text-align:right}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+th:first-child{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.metric{font-weight:500;color:var(--ink-2)}
+.g{color:var(--ok);font-weight:600} .y{color:var(--warn);font-weight:600} .r{color:var(--bad);font-weight:600}
+.dim{color:var(--muted)}
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.chartbox{background:var(--surface);border:1px solid var(--rule);padding:20px 12px 12px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:74ch}
+figcaption b{color:var(--ink-2);font-weight:500}
+.legend{display:flex;gap:20px;padding:0 12px 4px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:7px}
+.swatch{width:11px;height:11px;flex:none}
+pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule-2);
+  padding:16px 18px;overflow-x:auto;margin:0;color:var(--ink-2)}
+pre .c{color:var(--muted)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border:1px solid var(--rule)}
+.pit{background:var(--surface);border:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;gap:9px}
+.pit .sym{font-size:14.5px;font-weight:600}
+.pit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;line-height:1.6}
+.pit dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.pit dd{margin:0;color:var(--ink-2)}
+.pits{display:flex;flex-direction:column;gap:14px}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;max-width:68ch}
+li{line-height:1.7} li::marker{color:var(--rule-2)}
+a{color:var(--accent-deep)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{padding:36px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:720px){
+  .wrap{padding:0 18px 70px} h1{font-size:27px}
+  .hrow{grid-template-columns:44px 1fr;gap:0 12px} .tag{grid-column:2;margin-top:8px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">측정 보고서 · 2026-09-08 · 2차 루프</div>
+  <h1>편집기를 빠르게 만드는 레버</h1>
+  <p class="lede">1차 루프는 &ldquo;웹으로 만들 수 있는가&rdquo;를 물었고 답은 예였다
+  (<a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프리뷰</a> ·
+  <a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">익스포트</a>).
+  2차 루프는 같은 세 문제에 대해 <b>어떻게 더 빠르게 만들 것인가</b>를 묻는다.
+  다섯 개의 개선 가설 중 셋이 확인됐고 둘은 반증됐다. 확인된 것 하나는 <b>세 자릿수 배수</b>의 개선이었다.</p>
+  <div class="stamp">
+    <span><b>기기</b> Apple M3 · 8 cores</span>
+    <span><b>OS</b> macOS 26.6</span>
+    <span><b>브라우저</b> Chrome 152</span>
+    <span><b>실행</b> 2회 · 하네스 <span class="mono">loop2.html</span></span>
+  </div>
+</header>
+
+<!-- ============ 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">판정</div>
+    <h2>세 개는 쓰고, 두 개는 버린다</h2>
+  </div>
+
+  <div class="verdict">
+    <p>가장 큰 레버는 익스포트에 있었다. 편집으로 손대지 않은 구간을 재인코딩하지 않고
+    <b>인코딩된 청크 그대로 복사하면</b> 실시간의 1000배 넘는 속도가 나온다 &mdash;
+    전체 재인코딩(6.9×)의 약 170배다. 대신 소스에 B-프레임이 없어야 한다는 조건이 붙는다.</p>
+    <p>반면 <b>인코더 설정 튜닝은 완전히 헛수고였다.</b> 비트레이트를 50에서 8 Mbps로 낮춰도
+    처리량이 변하지 않고, <code>latencyMode:'realtime'</code>은 오히려 절반으로 떨어뜨린다.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 1.</b> 다섯 개 레버의 판정. 개선 전은 1차 루프 측정값이다.</caption>
+      <thead><tr><th>문제</th><th>레버</th><th>개선 전</th><th>개선 후</th><th>배수</th><th>대가</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">익스포트</td><td style="text-align:left">재인코딩 대신 스트림 복사</td>
+            <td class="num">6.9× 실시간</td><td class="num g">1198× 실시간</td><td class="num g">174×</td>
+            <td class="num y">B-프레임 불가</td></tr>
+        <tr><td class="metric">로딩</td><td style="text-align:left">썸네일을 WebCodecs로 생성</td>
+            <td class="num">3045ms</td><td class="num g">388ms</td><td class="num g">7.8×</td>
+            <td class="num dim">없음</td></tr>
+        <tr><td class="metric">프리뷰</td><td style="text-align:left">4K → 1080p 프리뷰 프록시</td>
+            <td class="num">51.2 / 55.1ms</td><td class="num g">16.7 / 16.7ms</td><td class="num g">3.1× / 3.3×</td>
+            <td class="num y">프록시 생성 시간</td></tr>
+        <tr><td class="metric">프리뷰</td><td style="text-align:left">GOP 60 → 15 (키프레임 0.5초)</td>
+            <td class="num">p95 33.7 / 34.3ms</td><td class="num g">p95 17.6 / 16.8ms</td><td class="num g">2×</td>
+            <td class="num y">파일 +9%</td></tr>
+        <tr><td class="metric">프리뷰</td><td style="text-align:left">all-intra (GOP 1)까지 확대</td>
+            <td class="num">p95 17.6ms</td><td class="num">p95 17.7ms</td><td class="num r">효과 없음</td>
+            <td class="num r">파일 +100%</td></tr>
+        <tr><td class="metric">익스포트</td><td style="text-align:left">인코더 설정 튜닝</td>
+            <td class="num">1.8× 실시간</td><td class="num">1.8× 실시간</td><td class="num r">효과 없음</td>
+            <td class="num r">realtime 모드는 오히려 −55%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="small">가장 큰 실무적 결과: 컷 편집만 한 5분 타임라인의 익스포트가
+  <b>43초에서 0.25초</b>가 된다. 절반만 복사 가능해도 43초 → 22초다.</p>
+</section>
+
+<!-- ============ 루프 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">방법</div>
+    <h2>루프를 한 바퀴 더 돌린다는 것</h2>
+  </div>
+  <div class="loop">
+    <div><span class="n">1 · 문제</span><span class="t">남은 여지를 지목</span>
+      <span class="d">1차 루프의 사실 중 아직 느린 것, 또는 권고했지만 측정하지 않은 것.</span></div>
+    <div><span class="n">2 · 가설</span><span class="t">개선책과 반증 조건</span>
+      <span class="d">&ldquo;X를 하면 Y가 빨라진다&rdquo;와, 그것이 틀렸음을 보일 관측.</span></div>
+    <div><span class="n">3 · 실험</span><span class="t">개선 전후를 같은 자로</span>
+      <span class="d">1차 루프와 동일한 측정 함수. 비교 가능해야 개선이라 부를 수 있다.</span></div>
+    <div><span class="n">4 · 사실</span><span class="t">채택 또는 폐기</span>
+      <span class="d">확인된 레버는 구현에, 반증된 레버는 &ldquo;하지 말 것&rdquo; 목록에.</span></div>
+  </div>
+  <p>1차 루프에서 &ldquo;프록시가 표준 관행&rdquo;이라고 권고했지만 실제로 측정한 적은 없었다.
+  2차 루프는 그런 <b>검증되지 않은 권고를 먼저 회수한다.</b> 반증된 레버가 두 개 나온 것이 이 루프의 실제 수익이다 &mdash;
+  구현하지 않을 근거가 생겼기 때문이다.</p>
+</section>
+
+<!-- ============ 가설 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">가설</div>
+    <h2>다섯 개의 개선 가설</h2>
+  </div>
+  <div class="hyp">
+    <div class="hrow">
+      <span class="hid">I1</span>
+      <span class="hbody">
+        <span class="hprob">익스포트</span>
+        <span class="hclaim">편집으로 손대지 않은 구간은 디코딩·인코딩 없이 원본 청크를 그대로 먹싱할 수 있고,
+        그 구간의 익스포트는 사실상 공짜가 된다.</span>
+        <span class="hfals"><b>반증 조건:</b> 복사 처리량이 재인코딩과 같은 자릿수이거나, 결과 파일이 재생되지 않는다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">I2</span>
+      <span class="hbody">
+        <span class="hprob">로딩</span>
+        <span class="hclaim">타임라인 썸네일은 <code>&lt;video&gt;</code>를 반복 seek하는 것보다
+        WebCodecs로 순차 디코딩하는 편이 빠르다.</span>
+        <span class="hfals"><b>반증 조건:</b> 두 방식의 소요 시간이 비슷하거나 WebCodecs가 더 느리다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">I3</span>
+      <span class="hbody">
+        <span class="hprob">프리뷰</span>
+        <span class="hclaim">4K를 1080p 프록시로 바꾸면 스크러빙 지연이 1080p 수준(1 vsync)으로 떨어진다.</span>
+        <span class="hfals"><b>반증 조건:</b> 프록시에서도 스텝/seek이 1 vsync에 도달하지 못한다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">I4</span>
+      <span class="hbody">
+        <span class="hprob">프리뷰</span>
+        <span class="hclaim">키프레임 간격을 좁히면 seek 지연의 p95 꼬리가 사라진다.
+        프록시는 어차피 재인코딩하므로 이 설정은 공짜에 가깝다.</span>
+        <span class="hfals"><b>반증 조건:</b> GOP를 줄여도 p95가 개선되지 않는다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">I4b</span>
+      <span class="hbody">
+        <span class="hprob">프리뷰</span>
+        <span class="hclaim">끝까지 밀어 all-intra(모든 프레임이 키프레임)로 만들면 가장 빠르다.</span>
+        <span class="hfals"><b>반증 조건:</b> all-intra가 짧은 GOP보다 더 빠르지 않다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">I5</span>
+      <span class="hbody">
+        <span class="hprob">익스포트</span>
+        <span class="hclaim">4K 익스포트는 비트레이트를 낮추거나 <code>latencyMode</code>를 바꾸면 빨라진다.</span>
+        <span class="hfals"><b>반증 조건:</b> 설정을 바꿔도 처리량이 변하지 않는다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 실험 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">실험</div>
+    <h2>어떻게 측정했는가</h2>
+  </div>
+
+  <div class="stack">
+    <p>측정 함수는 1차 루프와 동일하다(<code>bench-core.js</code>로 분리).
+    같은 자로 재야 개선이라고 부를 수 있다. 새로 만든 자극은 다섯 종이다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 2.</b> 2차 루프에서 추가한 클립. 전부 1차 루프 클립에서 파생.</caption>
+        <thead><tr><th>파일</th><th>목적</th><th style="text-align:left">생성</th><th>크기</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">proxy1080_from4k.mp4</td><td>I3</td>
+              <td style="text-align:left" class="mono">4k30 → scale=1920:1080, 8Mbps, GOP 60</td><td class="num">20.0 MB</td></tr>
+          <tr><td class="mono">gop{60,30,15,6,1}.mp4</td><td>I4</td>
+              <td style="text-align:left" class="mono">1080p30 → CRF 23 고정, GOP만 변경</td><td class="num">23.3&ndash;46.7 MB</td></tr>
+          <tr><td class="mono">nobf_1080p30.mp4</td><td>I1</td>
+              <td style="text-align:left" class="mono">1080p30 → -bf 0 (B-프레임 제거)</td><td class="num">24.0 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">GOP 변형은 비트레이트가 아니라 <b>CRF를 고정</b>했다. 품질을 붙들어야
+    파일 크기가 짧은 GOP의 진짜 대가를 드러낸다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>재현 절차</h3>
+    <pre><span class="c"># 1차 루프 클립 + 2차 루프 파생 클립</span>
+cd bench &amp;&amp; ./make-test-videos.sh &amp;&amp; ./make-loop2-videos.sh
+python3 serve.py &amp;
+
+<span class="c"># 전체 (약 4분)</span>
+open "http://127.0.0.1:8777/loop2.html"
+
+<span class="c"># 개별 실험만: e1 스트림복사 · e2 프록시 · e3 GOP · e4 썸네일 · e5 인코더설정</span>
+open "http://127.0.0.1:8777/loop2.html?only=e1,e5"
+
+<span class="c"># 결과는 loop2-result.json</span></pre>
+  </div>
+</section>
+
+<!-- ============ 사실 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">사실</div>
+    <h2>측정된 값</h2>
+  </div>
+
+  <div class="stack">
+    <h3>F1 &mdash; I1 확인: 스트림 복사는 재인코딩보다 세 자릿수 배 빠르다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 3.</b> 20초 1080p30 클립 전체를 출력 파일로 만드는 데 걸린 시간.</caption>
+        <thead><tr><th>방식</th><th>소요</th><th>처리량</th><th>실시간 대비</th><th>결과 검증</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">스트림 복사 (B-프레임 없음)</td><td class="num g">16.7ms</td>
+              <td class="num g">35,928 fps</td><td class="num g">1198×</td>
+              <td class="num g">재생 OK · 20.00초 · 1920×1080</td></tr>
+          <tr><td class="metric">스트림 복사 (B-프레임 있음)</td><td class="num r" colspan="3">먹싱 실패 &mdash; DTS 역행</td>
+              <td class="num r">파일 생성 불가</td></tr>
+          <tr><td class="metric dim">전체 재인코딩 <span class="dim">(1차 루프)</span></td><td class="num dim">2892ms</td>
+              <td class="num dim">207 fps</td><td class="num dim">6.9×</td><td class="num dim">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>복사한 파일이 실제로 재생되는지 확인했다 &mdash; 길이 20.00초, 1920×1080, 중간 지점 프레임 표시 성공.
+    검증하지 않은 처리량 수치는 의미가 없다.</p>
+    <p><b>단, B-프레임이 있으면 이 경로가 막힌다.</b> <code>EncodedVideoChunk</code>는
+    표시 시각(CTS)만 담고 디코딩 시각(DTS)을 담지 않는다. B-프레임이 있으면 두 순서가 어긋나고,
+    먹서는 단조 증가하지 않는 타임스탬프를 거부한다. 같은 소스를 <code>-bf 0</code>으로 다시 인코딩하면 통과한다.</p>
+    <p class="small">2회 실행에서 833×와 1198×가 나왔다. 이 수준에서는 측정값이 먹서의 장부 작업에 지배되므로,
+    &ldquo;정확히 몇 배&rdquo;가 아니라 <b>자릿수가 다르다</b>로 읽는 것이 맞다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F2 &mdash; I2 확인: 썸네일은 WebCodecs가 7.8배 빠르다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 4.</b> 20초 클립에서 썸네일 100장 생성.</caption>
+        <thead><tr><th>방식</th><th>총 시간</th><th>1장당</th><th>디코딩한 프레임</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">&lt;video&gt; seek 반복</td><td class="num r">3045ms</td><td class="num r">30.4ms</td><td class="num">100</td></tr>
+          <tr><td class="metric">WebCodecs 순차 디코딩</td><td class="num g">388ms</td><td class="num g">3.9ms</td><td class="num">600</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>역설적으로 <b>6배 많은 프레임을 디코딩하고도 7.8배 빠르다.</b>
+    seek 방식은 매번 키프레임부터 다시 디코딩하고 그 결과를 화면에 표시하기까지 기다린다.
+    순차 디코딩은 디코더를 한 번도 멈추지 않고, 표시 파이프라인을 거치지 않는다.</p>
+    <p class="small">1장당 30.4ms는 1차 루프의 랜덤 seek 중앙값(17.1ms)보다 크다.
+    썸네일 생성에는 seek 뿐 아니라 <code>drawImage</code> 축소가 더해지기 때문이다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F3 &mdash; I3 확인: 프록시는 4K 스크러빙을 1 vsync로 떨어뜨린다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 5.</b> 같은 소스를 4K 원본으로 볼 때와 1080p 프록시로 볼 때 (med / p95, ms).</caption>
+        <thead><tr><th>소스</th><th>해상도</th><th>프레임 스텝</th><th>랜덤 seek</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">4K 원본</td><td class="num">3840×2160</td>
+              <td class="num y">51.2 / 89.9</td><td class="num y">55.1 / 100.0</td></tr>
+          <tr><td class="metric">1080p 프록시</td><td class="num">1920×1080</td>
+              <td class="num g">16.7 / 34.3</td><td class="num g">16.7 / 33.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>프록시는 1차 루프에서 측정한 1080p 원본과 동일한 값(16.7ms = vsync 1회)에 도달한다.
+    즉 프록시로 바꾸는 순간 <b>4K라는 사실이 프리뷰 성능에서 완전히 사라진다.</b>
+    1차 루프에서 근거 없이 권고했던 것을 이제 수치로 회수했다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F4 &mdash; I4 확인 / I4b 반증: 좋은 GOP는 15, all-intra는 낭비다</h3>
+    <figure>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--accent)"></i>프레임 스텝 p95</span>
+        <span><i class="swatch" style="background:var(--s2)"></i>랜덤 seek p95</span>
+      </div>
+      <div class="chartbox">
+        <svg viewBox="0 0 720 390" width="100%" style="max-width:720px;display:block" role="img"
+             aria-label="GOP를 60에서 30으로 줄이면 프레임 스텝 p95가 33.7에서 17.6ms로 떨어지고, seek p95는 GOP 15에서 16.8ms로 안정된다. 파일 크기는 GOP 60 대비 GOP 15가 1.09배, all-intra가 2.0배">
+          <!-- panel A: latency -->
+          <text x="100" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">p95 지연 (ms) — 낮을수록 좋음</text>
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="100" y1="127.4" x2="620" y2="127.4"></line>
+            <line x1="100" y1="65.1"  x2="620" y2="65.1"></line>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">
+            <text x="92" y="130.9">16.7</text>
+            <text x="92" y="68.6">33.3</text>
+            <text x="92" y="193.5">0</text>
+          </g>
+          <text x="628" y="130.9" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">1× vsync</text>
+          <text x="628" y="68.6"  font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">2×</text>
+          <line x1="100" y1="190" x2="620" y2="190" stroke="var(--rule-2)" stroke-width="1"></line>
+          <path d="M100,63.6 L230,124.0 L360,124.0 L490,124.0 L620,123.6" fill="none"
+                stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"></path>
+          <path d="M100,61.4 L230,65.1 L360,127.0 L490,124.4 L620,125.9" fill="none"
+                stroke="var(--s2)" stroke-width="2" stroke-linejoin="round"></path>
+          <g stroke="var(--surface)" stroke-width="2">
+            <g fill="var(--accent)">
+              <circle cx="100" cy="63.6" r="4.5"><title>GOP 60 · 스텝 p95 33.7ms</title></circle>
+              <circle cx="230" cy="124.0" r="4.5"><title>GOP 30 · 스텝 p95 17.6ms</title></circle>
+              <circle cx="360" cy="124.0" r="4.5"><title>GOP 15 · 스텝 p95 17.6ms</title></circle>
+              <circle cx="490" cy="124.0" r="4.5"><title>GOP 6 · 스텝 p95 17.6ms</title></circle>
+              <circle cx="620" cy="123.6" r="4.5"><title>GOP 1 · 스텝 p95 17.7ms</title></circle>
+            </g>
+            <g fill="var(--s2)">
+              <circle cx="100" cy="61.4" r="4.5"><title>GOP 60 · seek p95 34.3ms</title></circle>
+              <circle cx="230" cy="65.1" r="4.5"><title>GOP 30 · seek p95 33.3ms</title></circle>
+              <circle cx="360" cy="127.0" r="4.5"><title>GOP 15 · seek p95 16.8ms</title></circle>
+              <circle cx="490" cy="124.4" r="4.5"><title>GOP 6 · seek p95 17.5ms</title></circle>
+              <circle cx="620" cy="125.9" r="4.5"><title>GOP 1 · seek p95 17.1ms</title></circle>
+            </g>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--ink)">
+            <text x="100" y="52" text-anchor="start">33.7</text>
+            <text x="360" y="144" text-anchor="middle">16.8</text>
+          </g>
+
+          <!-- panel B: size cost -->
+          <text x="100" y="238" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">파일 크기 (GOP 60 = 1.00) — 낮을수록 좋음</text>
+          <line x1="100" y1="330" x2="620" y2="330" stroke="var(--rule-2)" stroke-width="1"></line>
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="100" y1="293.6" x2="620" y2="293.6"></line>
+          </g>
+          <text x="628" y="297.1" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">GOP 60 기준</text>
+          <g fill="var(--accent)">
+            <rect x="77"  y="293.6" width="46" height="36.4" rx="2"></rect>
+            <rect x="207" y="292.5" width="46" height="37.5" rx="2"></rect>
+            <rect x="337" y="290.4" width="46" height="39.6" rx="2"></rect>
+            <rect x="467" y="285.3" width="46" height="44.7" rx="2"></rect>
+          </g>
+          <rect x="597" y="257.3" width="46" height="72.7" rx="2" fill="var(--bad)"></rect>
+          <g font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="var(--ink)" text-anchor="middle">
+            <text x="100" y="288">1.00</text>
+            <text x="230" y="287">1.03</text>
+            <text x="360" y="285">1.09</text>
+            <text x="490" y="280">1.23</text>
+            <text x="620" y="252" fill="var(--bad)">2.00</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)" text-anchor="middle">
+            <text x="100" y="352">GOP 60</text>
+            <text x="230" y="352">30</text>
+            <text x="360" y="352">15</text>
+            <text x="490" y="352">6</text>
+            <text x="620" y="352">1</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="middle">
+            <text x="100" y="368">2.0초</text>
+            <text x="230" y="368">1.0초</text>
+            <text x="360" y="368">0.5초</text>
+            <text x="490" y="368">0.2초</text>
+            <text x="620" y="368">all-intra</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>그림 1.</b> 위: 키프레임 간격에 따른 탐색 지연의 p95. 아래: 그 대가인 파일 크기(품질 CRF 23 고정).
+      스텝은 GOP 30에서, seek은 GOP 15에서 vsync 1회로 내려앉고 그 뒤로는 평평하다.
+      크기는 GOP 15까지 +9%로 저렴하지만 all-intra에서 2배로 뛴다.</figcaption>
+    </figure>
+    <p><b>GOP 15(키프레임 0.5초 간격)가 임계점이다.</b> 여기서 스텝과 seek의 p95가 모두 vsync 1회로 내려앉고,
+    파일 크기 대가는 9%에 그친다. 그 아래로 더 내려가도 <code>&lt;video&gt;</code> 경로는 개선되지 않는다 &mdash;
+    이미 물리적 최소값이기 때문이다.</p>
+    <p>all-intra는 크기를 2배로 늘리면서 <code>&lt;video&gt;</code> 탐색을 전혀 개선하지 못한다.
+    개선되는 것은 WebCodecs 키프레임 점프(중앙값 18.6ms → 4.4ms)뿐이므로,
+    <b>WebCodecs 링버퍼를 쓰는 편집기에서만</b> 검토할 가치가 있다.</p>
+    <p class="small">GOP 30의 seek p95는 두 실행에서 17.7ms와 33.3ms로 갈렸다. 표본 30회로는 꼬리가 안정되지 않는다.
+    두 실행 모두에서 안정적으로 개선된 지점은 GOP 15다. 그래서 권고를 30이 아니라 15로 잡았다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F5 &mdash; I5 반증: 인코더 설정으로는 아무것도 얻지 못한다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 6.</b> 4K30, 같은 프레임을 설정만 바꿔 인코딩.</caption>
+        <thead><tr><th>목표 비트레이트</th><th>latencyMode</th><th>처리량</th><th>실시간 대비</th><th>실제 출력</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">50 Mbps</td><td class="num">quality</td><td class="num">55 fps</td><td class="num y">1.8×</td><td class="num dim">50.0 Mbps</td></tr>
+          <tr><td class="metric">50 Mbps</td><td class="num">realtime</td><td class="num r">25 fps</td><td class="num r">0.8×</td><td class="num dim">49.0 Mbps</td></tr>
+          <tr><td class="metric">20 Mbps</td><td class="num">quality</td><td class="num">55 fps</td><td class="num y">1.8×</td><td class="num dim">20.1 Mbps</td></tr>
+          <tr><td class="metric">20 Mbps</td><td class="num">realtime</td><td class="num">50 fps</td><td class="num y">1.7×</td><td class="num dim">19.3 Mbps</td></tr>
+          <tr><td class="metric">8 Mbps</td><td class="num">quality</td><td class="num">56 fps</td><td class="num y">1.9×</td><td class="num dim">8.1 Mbps</td></tr>
+          <tr><td class="metric">8 Mbps</td><td class="num">realtime</td><td class="num">50 fps</td><td class="num y">1.7×</td><td class="num dim">7.7 Mbps</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>비트레이트를 6배 낮춰도 처리량은 55&ndash;56 fps로 고정이다.
+    1차 루프의 결론 &mdash; 인코더는 픽셀 처리율로 한계가 잡혀 있다 &mdash; 이 다시 확인된다.
+    데이터 양이 아니라 <b>픽셀 수</b>가 비용을 정한다.</p>
+    <p><code>latencyMode:'realtime'</code>은 이름과 반대로 <b>느리다.</b> 50 Mbps에서는 절반 아래(25 fps)로 떨어진다.
+    이 모드는 처리량이 아니라 프레임당 지연을 줄이도록 설계됐고, 익스포트에는 잘못된 선택이다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F6 &mdash; 재현성</h3>
+    <p>2회 실행에서 대부분 일치했다. 썸네일 3045/3031ms(seek)과 388/398ms(WebCodecs),
+    프록시 스텝 16.7/16.7ms, 인코더 설정 55&ndash;56 fps 전부 안정적이다.
+    변동이 큰 항목은 두 가지다. 스트림 복사(833×/1198×)는 절대값이 너무 작아 흔들리고,
+    GOP 30의 seek p95(17.7/33.3ms)는 표본 30회로 꼬리가 잡히지 않는다.
+    두 경우 모두 결론은 변동에 의존하지 않도록 서술했다.</p>
+  </div>
+</section>
+
+<!-- ============ 계측 함정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">계측 함정</div>
+    <h2>측정 중에 막힌 지점</h2>
+  </div>
+  <div class="pits">
+    <div class="pit">
+      <span class="sym">P1. WebCodecs 청크에는 디코딩 시각(DTS)이 없다</span>
+      <dl>
+        <dt>증상</dt><dd>스트림 복사 시 먹서가 <code>Timestamps must be monotonically increasing (DTS went from 133334 to 66667)</code>로 거부.</dd>
+        <dt>원인</dt><dd><code>EncodedVideoChunk</code>는 표시 시각(CTS)만 담는다. B-프레임이 있으면 디코딩 순서와 표시 순서가 달라 CTS가 역행한다. 디코더는 이 형태를 받아들이지만 먹서는 DTS 기준 단조 증가를 요구한다.</dd>
+        <dt>결과</dt><dd>측정 자체가 <b>제약을 드러낸 사실</b>이 됐다. <code>-bf 0</code> 소스에서는 통과한다. 이것은 하네스의 결함이 아니라 스마트 렌더링 구현의 실제 전제 조건이다.</dd>
+      </dl>
+    </div>
+    <div class="pit">
+      <span class="sym">P2. 첫 청크 타임스탬프가 0이 아니면 먹서가 거부한다</span>
+      <dl>
+        <dt>증상</dt><dd><code>The first chunk must have a timestamp of 0 (received DTS=0.066666)</code>.</dd>
+        <dt>원인</dt><dd>디먹싱한 청크의 시작 시각이 0이 아니다.</dd>
+        <dt>수정</dt><dd>mp4-muxer의 <code>firstTimestampBehavior:'offset'</code>. 편집기가 타임라인 중간 구간을 복사할 때 항상 마주치는 상황이므로 기본값으로 두는 편이 낫다.</dd>
+      </dl>
+    </div>
+    <div class="pit">
+      <span class="sym">P3. p95를 표본 30회로 재면 결론이 흔들린다</span>
+      <dl>
+        <dt>증상</dt><dd>GOP 30의 seek p95가 실행에 따라 17.7ms와 33.3ms로 갈렸다.</dd>
+        <dt>원인</dt><dd>표본 30회에서 p95는 사실상 상위 2번째 값이다. 한 번의 이상값이 결과를 바꾼다.</dd>
+        <dt>수정</dt><dd>표본을 늘리는 대신, <b>두 실행 모두에서 개선된 지점</b>으로 권고를 잡았다(GOP 30이 아니라 15). 꼬리를 근거로 결론을 낼 때는 표본 수를 먼저 확인해야 한다.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 한계 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">한계</div>
+    <h2>이 루프가 말하지 않는 것</h2>
+  </div>
+  <ul>
+    <li><b>스트림 복사와 재인코딩을 섞은 실제 타임라인을 만들지 않았다.</b> 순수 복사 처리량만 쟀다.
+    컷이 GOP 경계에 걸치면 그 GOP는 재인코딩해야 하고, 두 경로의 출력을 하나의 파일로 잇는 것은 별개의 문제다.</li>
+    <li><b>프록시 생성 시간을 재지 않았다.</b> F3은 프록시가 <em>있을 때</em>의 이득이다.
+    만드는 비용은 1차 루프의 인코딩 처리량(4K 디코딩 후 1080p 인코딩)으로 추정할 수 있으나 직접 측정하지 않았다.</li>
+    <li><b>화질을 평가하지 않았다.</b> GOP와 비트레이트는 전부 속도와 크기로만 판단했다.
+    프록시 8 Mbps가 편집에 충분한 화질인지는 눈으로 봐야 한다.</li>
+    <li><b>썸네일 비교가 완전히 공정하지는 않다.</b> WebCodecs 방식은 전체 순차 디코딩이라
+    20초 클립에서는 유리하다. 2시간짜리 소스에서 앞부분 썸네일만 필요할 때는
+    키프레임만 골라 디코딩하는 편이 낫고, 그 경우는 측정하지 않았다.</li>
+    <li><b>단일 기기·단일 브라우저다.</b> Apple M3 + Chrome 152.</li>
+    <li><b>3·4차 루프에서 전부 다뤘다.</b> 혼합 타임라인은 <a href="https://claude.ai/code/artifact/cb91c558-4cfb-45cd-87f3-65724b616aa1">3차 루프</a>에서
+    실제로 깨졌고(원인: 파라미터 세트 불일치) 임포트 정규화로 해결했다.
+    프록시 생성 비용과 긴 소스 메모리는 <a href="https://claude.ai/code/artifact/fa59c238-52b4-40e6-b188-f6ad29972a2e">4차 루프</a>에서 닫혔다.
+    남은 것은 오디오뿐이다.</li>
+  </ul>
+</section>
+
+<!-- ============ 함의 ============ -->
+<section style="border-bottom:none">
+  <div class="sechead">
+    <div class="eyebrow">함의</div>
+    <h2>구현에 그대로 옮길 것</h2>
+  </div>
+  <ul>
+    <li><b>익스포트에 스트림 복사 경로를 먼저 만든다.</b> 컷 편집만 한 구간은 재인코딩하지 않는다.
+    가장 큰 레버이고, 다른 어떤 최적화보다 먼저다. (F1)</li>
+    <li><b>내부 중간 포맷은 B-프레임 없이 만든다.</b> 프록시와 임시 렌더 결과에 <code>-bf 0</code>을 적용한다.
+    이것이 스트림 복사를 가능하게 하는 전제다. (F1, P1)</li>
+    <li><b>프록시는 1080p · GOP 15 · B-프레임 없음으로 만든다.</b>
+    이 조합 하나가 프리뷰 레버 두 개(F3, F4)와 익스포트 레버(F1)의 전제를 동시에 만족한다.</li>
+    <li><b>all-intra는 만들지 않는다.</b> 파일이 2배가 되고 <code>&lt;video&gt;</code> 탐색은 그대로다.
+    WebCodecs 링버퍼로 전환한 뒤에 다시 검토한다. (F4)</li>
+    <li><b>썸네일은 WebCodecs 순차 디코딩으로 뽑는다.</b> <code>&lt;video&gt;</code> seek 반복은 7.8배 느리다. (F2)</li>
+    <li><b>인코더 설정 튜닝에 시간을 쓰지 않는다.</b> 비트레이트는 처리량과 무관하고
+    <code>latencyMode:'realtime'</code>은 오히려 해롭다. 익스포트를 빠르게 하는 유일한 설정 레버는 해상도다. (F5)</li>
+    <li><b>먹서 옵션은 <code>firstTimestampBehavior:'offset'</code>을 기본으로 둔다.</b>
+    타임라인 중간 구간을 다룰 때 반드시 필요하다. (P2)</li>
+  </ul>
+</section>
+
+<footer>
+  측정 2026-09-08 · Apple M3 / macOS 26.6 / Chrome 152 · 원본 데이터 <span class="mono">bench/data/loop2-run*.json</span> ·
+  하네스 <span class="mono">bench/loop2.html</span><br>
+  1차 루프 · <a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프레임 단위 편집, 웹에서 되는가</a>
+  · <a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">웹에서 익스포트, 얼마나 빠른가</a>
+</footer>
+
+</div>

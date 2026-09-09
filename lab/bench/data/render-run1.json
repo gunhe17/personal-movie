@@ -1,0 +1,174 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "cores": 8,
+  "results": [
+    {
+      "name": "1080p30_gop60.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 1492.8,
+        "fps": 201,
+        "realtime_x": 6.7,
+        "out_mbps": 13.9
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 492.9,
+        "fps": 183,
+        "realtime_x": 6.1,
+        "out_mbps": 14.1
+      },
+      "transcode": {
+        "frames": 600,
+        "ms": 2892.5,
+        "fps": 207,
+        "realtime_x": 6.9
+      },
+      "mux": {
+        "ms": 43.3,
+        "mb": 36,
+        "ms_per_frame": 0.072
+      },
+      "pipeline": {
+        "frames": 600,
+        "ms": 2896.4,
+        "fps": 207,
+        "realtime_x": 6.9,
+        "composite_ms_per_frame": 0.13
+      },
+      "mediarecorder": {
+        "mime": "video/mp4;codecs=avc1.640029",
+        "frames": 150,
+        "push_ms": 2480.3,
+        "total_ms": 2484.3,
+        "realtime_x": 2,
+        "expected_duration_s": 5,
+        "actual_duration_s": 2.5,
+        "mb": 7.6
+      },
+      "ffmpeg": {
+        "core_load_ms": 85,
+        "seconds": 5,
+        "frames": 150,
+        "exit": 0,
+        "ms": 12439,
+        "fps": 12.1,
+        "realtime_x": 0.4,
+        "mb": 7.1,
+        "frames_from_log": false
+      }
+    },
+    {
+      "name": "1080p60_gop120.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 1459.8,
+        "fps": 206,
+        "realtime_x": 3.4,
+        "out_mbps": 20.9
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 418.8,
+        "fps": 215,
+        "realtime_x": 3.6,
+        "out_mbps": 19.6
+      },
+      "transcode": {
+        "frames": 1200,
+        "ms": 5702.9,
+        "fps": 210,
+        "realtime_x": 3.5
+      },
+      "mux": {
+        "ms": 39.1,
+        "mb": 47.8,
+        "ms_per_frame": 0.033
+      },
+      "pipeline": {
+        "frames": 1200,
+        "ms": 5693.2,
+        "fps": 211,
+        "realtime_x": 3.5,
+        "composite_ms_per_frame": 0.13
+      },
+      "mediarecorder": {
+        "mime": "video/mp4;codecs=avc1.640029",
+        "frames": 150,
+        "push_ms": 2476,
+        "total_ms": 2483.1,
+        "realtime_x": 1,
+        "expected_duration_s": 2.5,
+        "actual_duration_s": 2.49,
+        "mb": 10.3
+      },
+      "ffmpeg": {
+        "core_load_ms": 85,
+        "seconds": 5,
+        "frames": 300,
+        "exit": 0,
+        "ms": 31891,
+        "fps": 9.4,
+        "realtime_x": 0.2,
+        "mb": 12.9,
+        "frames_from_log": false
+      }
+    },
+    {
+      "name": "4k30_gop60.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 5391.5,
+        "fps": 56,
+        "realtime_x": 1.9,
+        "out_mbps": 50.2
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 1689.2,
+        "fps": 53,
+        "realtime_x": 1.8,
+        "out_mbps": 50
+      },
+      "transcode": {
+        "frames": 600,
+        "ms": 10717.8,
+        "fps": 56,
+        "realtime_x": 1.9
+      },
+      "mux": {
+        "ms": 106.6,
+        "mb": 119.6,
+        "ms_per_frame": 0.178
+      },
+      "pipeline": {
+        "frames": 600,
+        "ms": 10727,
+        "fps": 56,
+        "realtime_x": 1.9,
+        "composite_ms_per_frame": 0.24
+      },
+      "mediarecorder": {
+        "mime": "video/mp4;codecs=avc1.640029",
+        "frames": 150,
+        "push_ms": 2913.2,
+        "total_ms": 2951.5,
+        "realtime_x": 1.7,
+        "expected_duration_s": 5,
+        "actual_duration_s": 2.2,
+        "mb": 21.7
+      },
+      "ffmpeg": {
+        "core_load_ms": 85,
+        "seconds": 5,
+        "frames": 150,
+        "exit": 0,
+        "ms": 44977,
+        "fps": 3.3,
+        "realtime_x": 0.1,
+        "mb": 27.9,
+        "frames_from_log": false
+      }
+    }
+  ]
+}

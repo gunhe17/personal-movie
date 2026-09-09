@@ -1,0 +1,143 @@
+{
+  "id": "s02_web_receive-entry_t02",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "receive-entry",
+  "take": "t02",
+  "captured_at": "2026-09-09T08:22:21.792Z",
+  "spec_version": 2,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/dashboard",
+    "env": "local",
+    "commit": "a54b57898"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 앱 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "overlay (OS 커서 제외)",
+    "audio": false,
+    "rect_pt": {
+      "x": 0,
+      "y": 88,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 318,
+      "appended": 969,
+      "dupped": 652,
+      "notReady": 0,
+      "ticks": 969,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": null,
+    "sha256": null
+  },
+  "script": {
+    "file": "_scripts/s02-receive-entry.mjs",
+    "sha256": "ad4c295c1c118e967571be4b5d0c23023817874ecd68313701c6b15d49817eeb"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.2,
+      "kind": "beat",
+      "target": "",
+      "note": "대시보드"
+    },
+    {
+      "t": 5.97,
+      "kind": "click",
+      "target": "aside button:has-text(\"검사\"), nav button:has-text(\"검사\")",
+      "note": "사이드바 검사"
+    },
+    {
+      "t": 7.98,
+      "kind": "beat",
+      "target": "",
+      "note": "검사 현황 목록"
+    },
+    {
+      "t": 8.97,
+      "kind": "hover",
+      "target": "role=button[name=\"검사 접수\"]",
+      "note": "접수 버튼에 손"
+    },
+    {
+      "t": 9.57,
+      "kind": "hold",
+      "target": "600",
+      "note": "버튼 위 멈춤"
+    },
+    {
+      "t": 11.13,
+      "kind": "click",
+      "target": "role=button[name=\"검사 접수\"]",
+      "note": "검사 접수 클릭"
+    },
+    {
+      "t": 13.14,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 화면 열림"
+    },
+    {
+      "t": 13.14,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 9.57,
+      "note": "검사 접수 버튼 → 접수 화면",
+      "end": 13.14
+    }
+  ],
+  "result": {
+    "file": "raw/s02_web_receive-entry_t02.mov",
+    "duration": 16.15,
+    "ok": true,
+    "error": null
+  }
+}

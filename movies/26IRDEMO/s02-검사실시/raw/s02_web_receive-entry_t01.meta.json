@@ -1,0 +1,133 @@
+{
+  "id": "s02_web_receive-entry_t01",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "receive-entry",
+  "take": "t01",
+  "captured_at": "2026-09-09T08:05:12.663Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/dashboard",
+    "env": "local",
+    "commit": "a54b57898"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "ffmpeg-avfoundation",
+    "device": "1",
+    "fps": 60,
+    "codec": "h264_videotoolbox",
+    "quality": 70,
+    "pix_fmt": "yuv420p",
+    "cursor": "overlay",
+    "audio": false,
+    "crop": {
+      "x": 0,
+      "y": 176,
+      "w": 3200,
+      "h": 1800
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": null,
+    "sha256": null
+  },
+  "script": {
+    "file": "_scripts/s02-receive-entry.mjs",
+    "sha256": "ad4c295c1c118e967571be4b5d0c23023817874ecd68313701c6b15d49817eeb"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.2,
+      "kind": "beat",
+      "target": "",
+      "note": "대시보드"
+    },
+    {
+      "t": 5.93,
+      "kind": "click",
+      "target": "aside button:has-text(\"검사\"), nav button:has-text(\"검사\")",
+      "note": "사이드바 검사"
+    },
+    {
+      "t": 7.93,
+      "kind": "beat",
+      "target": "",
+      "note": "검사 현황 목록"
+    },
+    {
+      "t": 9.15,
+      "kind": "hover",
+      "target": "role=button[name=\"검사 접수\"]",
+      "note": "접수 버튼에 손"
+    },
+    {
+      "t": 9.76,
+      "kind": "hold",
+      "target": "600",
+      "note": "버튼 위 멈춤"
+    },
+    {
+      "t": 11.29,
+      "kind": "click",
+      "target": "role=button[name=\"검사 접수\"]",
+      "note": "검사 접수 클릭"
+    },
+    {
+      "t": 13.29,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 화면 열림"
+    },
+    {
+      "t": 13.29,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 9.76,
+      "note": "검사 접수 버튼 → 접수 화면",
+      "end": 13.29
+    }
+  ],
+  "result": {
+    "file": "raw/s02_web_receive-entry_t01.mov",
+    "duration": 17.07,
+    "ok": true,
+    "error": null
+  }
+}

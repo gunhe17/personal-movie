@@ -1,0 +1,452 @@
+<title>루프를 멈추는 지점</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f5f7f8; --surface:#ffffff; --surface-2:#eef2f4;
+  --ink:#161a1f; --ink-2:#3a444f; --muted:#5b6874; --rule:#dce2e7; --rule-2:#c3ccd4;
+  --accent:#046b9c; --accent-deep:#075a83; --accent-wash:#e8f1f7; --s2:#a87c00;
+  --ok:#177a4a; --warn:#a87c00; --bad:#c4213c;
+  --ok-wash:#e7f2ec; --warn-wash:#f6efdd; --bad-wash:#faeaed;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+    --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+    --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+    --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+    --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+  --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+  --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33; --s2:#bd8a20;
+  --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+  --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  font-weight:400;line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 100px}
+h1{font-size:34px;line-height:1.25;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h3{font-size:16px;line-height:1.45;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+small,.small{font-size:13px;line-height:1.65;color:var(--muted);max-width:70ch;display:block}
+header{padding:56px 0 30px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.stamp{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.stamp b{font-weight:500;color:var(--ink-2)}
+section{padding:48px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;flex-direction:column;gap:7px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--ok);
+  padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+.verdict.open{border-left-color:var(--warn)}
+.hyp{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hrow{background:var(--surface);display:grid;grid-template-columns:52px 1fr 116px;gap:0 18px;padding:18px 20px;align-items:start}
+.hid{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);padding-top:1px}
+.hbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hclaim{font-size:14.5px;font-weight:500;line-height:1.6}
+.hfals{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hfals b{font-weight:500;color:var(--ink-2)}
+.hprob{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;justify-self:start;white-space:nowrap;border:1px solid}
+.t-ok{color:var(--ok);border-color:var(--ok);background:var(--ok-wash)}
+.t-no{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
+.t-part{color:var(--warn);border-color:var(--warn);background:var(--warn-wash)}
+.scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+caption{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);background:var(--surface-2)}
+caption b{color:var(--ink-2);font-weight:600}
+th,td{padding:9px 16px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface-2);text-align:right}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+th:first-child{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.metric{font-weight:500;color:var(--ink-2)}
+td.wrap-cell{white-space:normal;text-align:left;line-height:1.55;min-width:180px}
+.g{color:var(--ok);font-weight:600} .y{color:var(--warn);font-weight:600} .r{color:var(--bad);font-weight:600}
+.dim{color:var(--muted)}
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.chartbox{background:var(--surface);border:1px solid var(--rule);padding:20px 12px 12px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:74ch}
+figcaption b{color:var(--ink-2);font-weight:500}
+pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule-2);
+  padding:16px 18px;overflow-x:auto;margin:0;color:var(--ink-2)}
+pre .c{color:var(--muted)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border:1px solid var(--rule)}
+.pit{background:var(--surface);border:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;gap:9px}
+.pit .sym{font-size:14.5px;font-weight:600}
+.pit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;line-height:1.6}
+.pit dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.pit dd{margin:0;color:var(--ink-2)}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;max-width:68ch}
+li{line-height:1.7} li::marker{color:var(--rule-2)}
+ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:11px;max-width:68ch}
+ol li::marker{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:600}
+a{color:var(--accent-deep)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{padding:36px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:720px){
+  .wrap{padding:0 18px 70px} h1{font-size:27px}
+  .hrow{grid-template-columns:44px 1fr;gap:0 12px} .tag{grid-column:2;margin-top:8px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">측정 보고서 · 2026-09-08 · 4차 루프 · 종결</div>
+  <h1>루프를 멈추는 지점</h1>
+  <p class="lede">3차 루프가 남긴 유일한 차단 요소는 메모리였다 &mdash; 5분 소스를 여는 데 힙 1.1GB,
+  30분이면 무너진다. 4차 루프는 그것을 <b>5MB로 줄였고</b>, 남은 두 개의 미검증 항목도 닫았다.
+  그리고 여기서 멈춘다. 세 문제 모두 <b>더 최적화할 대상이 아니라 하드웨어와 물리의 바닥</b>에 닿았기 때문이다.</p>
+  <div class="stamp">
+    <span><b>기기</b> Apple M3 · 8 cores</span>
+    <span><b>OS</b> macOS 26.6</span>
+    <span><b>브라우저</b> Chrome 152</span>
+    <span><b>실행</b> 2회 · 하네스 <span class="mono">loop4.html</span></span>
+  </div>
+</header>
+
+<!-- ============ 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">판정</div>
+    <h2>세 문제 모두 바닥에 닿았다</h2>
+  </div>
+
+  <div class="verdict">
+    <p><b>메모리 문제는 해결됐다.</b> 파일 전체를 읽어 모든 청크를 배열에 담는 대신
+    <code>moov</code>만 읽어 색인을 만들면, 5분 소스 기준 힙 증가가 <b>1083MB에서 5MB로</b> 떨어진다.
+    읽는 바이트도 360MB에서 4MB다. 색인만 들고도 임의 구간 60프레임을 중앙값 35.8ms에 디코딩한다.</p>
+    <p><b>임의 프레임 컷도 정상 동작한다.</b> GOP 경계에 맞지 않는 컷 4개로 만든 타임라인이
+    8개 지점 전부에서 재생됐고 길이도 정확하다. 키프레임 간격 0.5초에서 재인코딩 대상은 전체의 10.2%다.</p>
+  </div>
+
+  <div class="verdict open">
+    <p><b>남은 하나는 최적화가 아니라 제품 결정이다.</b> 4K 소스를 4K 중간 포맷으로 정규화하는 비용이
+    실시간의 1.5배 &mdash; 5분 소스에 <b>3분 20초</b>다. 디코딩을 공유해도 10%밖에 줄지 않는다.
+    인코딩이 지배하고, 인코더는 이미 하드웨어 상한이다. 줄이려면 &ldquo;4K 정규화를 할 것인가&rdquo;를
+    답해야 하고, 그것은 측정이 아니라 선택이다.</p>
+  </div>
+</section>
+
+<!-- ============ 가설 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">문제 · 가설</div>
+    <h2>3차 루프가 남긴 세 가지</h2>
+  </div>
+  <div class="hyp">
+    <div class="hrow">
+      <span class="hid">L1</span>
+      <span class="hbody">
+        <span class="hprob">로딩 · 메모리</span>
+        <span class="hclaim">샘플 데이터를 힙에 올리지 않고 <code>moov</code>의 색인만 만들면,
+        메모리 사용이 소재 길이와 사실상 무관해진다. 필요한 구간의 바이트만 그때그때 읽어 디코딩한다.</span>
+        <span class="hfals"><b>반증 조건:</b> 색인만 만들어도 메모리가 크게 늘거나,
+        구간 디코딩이 실용적이지 않게 느리다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">L2</span>
+      <span class="hbody">
+        <span class="hprob">임포트 비용</span>
+        <span class="hclaim">정규화와 프록시는 둘 다 디코딩 후 인코딩이다.
+        디코딩을 한 번만 하고 인코더 두 개를 동시에 먹이면 임포트 비용이 크게 준다.</span>
+        <span class="hfals"><b>반증 조건:</b> 절감폭이 미미하다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">L3</span>
+      <span class="hbody">
+        <span class="hprob">익스포트 정확성</span>
+        <span class="hclaim">컷이 GOP 경계에 맞지 않아도, 걸친 GOP만 재인코딩하면
+        정상 재생되는 파일이 나온다. 키프레임 간격이 짧을수록 재인코딩 대상이 준다.</span>
+        <span class="hfals"><b>반증 조건:</b> 컷 경계 부근이 재생되지 않거나 길이가 어긋난다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 사실 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">사실</div>
+    <h2>측정된 값</h2>
+  </div>
+
+  <div class="stack">
+    <h3>M1 &mdash; L1 확인: 색인만 만들면 힙이 216분의 1이 된다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 1.</b> 5분 1080p30 소스(360MB · 9000프레임)를 여는 두 방식.</caption>
+        <thead><tr><th>방식</th><th>소요</th><th>힙 증가</th><th>읽은 바이트</th><th>임의 60프레임 창 디코딩</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">전체 디먹싱 <span class="dim">(3차 루프까지)</span></td>
+              <td class="num">382ms</td><td class="num r">+1083MB</td><td class="num r">360MB</td><td class="num dim">—</td></tr>
+          <tr><td class="metric">색인만 <span class="dim">(스트리밍)</span></td>
+              <td class="num g">12ms</td><td class="num g">+5MB</td><td class="num g">4MB</td>
+              <td class="num g">med 35.8 / p95 112.6ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>색인이 담는 것은 프레임당 다섯 개의 숫자다 &mdash; 파일 내 위치, 크기, 키프레임 여부,
+    표시 시각, 지속 시간. 9000프레임이면 5MB다. 재생이나 스크러빙에 필요한 순간에
+    해당 바이트 범위만 <code>Blob.slice()</code>로 읽는다.</p>
+    <p>색인이 만들어낸 프레임 수는 전체 디먹싱과 <b>정확히 일치</b>했다(9000). 즉 정보 손실이 없다.
+    소요 시간도 382ms에서 12ms로 줄었는데, 파일 앞 4MB만 읽으면 되기 때문이다 &mdash;
+    <b>이 비용은 파일 길이와 거의 무관하다.</b></p>
+    <p class="small">전제는 <code>moov</code>가 파일 앞에 있어야 한다는 것(faststart).
+    뒤에 있으면 파일 끝을 먼저 읽어야 하고, 하네스는 이 경우 명시적으로 실패한다.
+    임포트 시 정규화를 거치면 우리가 만드는 파일은 항상 faststart다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>M2 &mdash; L2 반증: 디코딩을 공유해도 10%뿐이다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 2.</b> 4K30 20초 소스에서 4K 정규화 + 1080p 프록시를 함께 만들기.</caption>
+        <thead><tr><th>방식</th><th>소요</th><th>실시간 대비</th><th>5분 소스 환산</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">정규화만 (4K → 4K)</td><td class="num">10728ms</td><td class="num dim">—</td><td class="num dim">—</td></tr>
+          <tr><td class="metric">프록시만 (4K → 1080p)</td><td class="num">4377ms</td><td class="num dim">—</td><td class="num dim">—</td></tr>
+          <tr><td class="metric">따로 두 번 (디코딩 2회)</td><td class="num y">15105ms</td><td class="num y">1.3×</td><td class="num y">3분 51초</td></tr>
+          <tr><td class="metric">한 번에 (디코딩 1회 · 인코더 2개)</td><td class="num">13587ms</td><td class="num">1.5×</td><td class="num">3분 20초</td></tr>
+          <tr><td class="metric"><b>절감</b></td><td class="num"><b>10%</b></td><td class="num dim">—</td><td class="num dim">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>4K 디코딩은 1차 루프에서 368 fps로 측정됐다 &mdash; 600프레임이면 1.6초다.
+    반면 4K 인코딩은 10.7초다. <b>공유할 수 있는 부분이 전체의 10%밖에 안 된다.</b>
+    가설은 디코딩이 상당한 비용일 것이라 봤지만, 1차 루프가 이미 알려준 대로
+    인코딩이 디코딩보다 7&ndash;9배 비싸다.</p>
+    <p>남는 것은 설계 질문이다. <b>4K 중간 포맷이 정말 필요한가?</b> 세 갈래가 있다.</p>
+    <ol>
+      <li><b>4K 정규화를 한다.</b> 임포트에 5분당 3분 20초. 대신 4K 익스포트도 스마트 렌더링이 된다.</li>
+      <li><b>프록시만 만들고 정규화는 미룬다.</b> 임포트는 5분당 45초로 끝난다(3차 루프 F5).
+      익스포트할 때 전체 재인코딩(5분당 49초)을 감수한다.</li>
+      <li><b>1080p로만 편집한다.</b> 4K 소스를 1080p 중간 포맷으로 정규화하면
+      정규화와 프록시가 같은 파일이 된다. 임포트 45초, 익스포트 스마트 렌더링, 대신 출력이 1080p다.</li>
+    </ol>
+    <p class="small">셋 중 무엇이 옳은지는 측정이 답하지 않는다. 사용자가 4K 출력을 원하는지,
+    임포트 대기를 얼마나 견디는지의 문제다. 측정이 한 일은 <b>세 선택지의 가격표를 붙인 것</b>이다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>M3 &mdash; L3 확인: 임의 컷도 정상이고, 키프레임 간격이 비용을 정한다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 3.</b> GOP 경계에 맞지 않는 컷 4개 &rarr; 유지 구간 5개를 이어 익스포트 (20초 1080p30).</caption>
+        <thead><tr><th>키프레임 간격</th><th>복사 프레임</th><th>재인코딩 프레임</th><th>재인코딩 비율</th><th>소요</th><th>실시간 대비</th><th>길이</th><th>재생 검증</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">2.0초 (GOP 60)</td><td class="num">300</td><td class="num">268</td>
+              <td class="num y">47.2%</td><td class="num">1639ms</td><td class="num y">11.6×</td>
+              <td class="num g">18.93초 정확</td><td class="num g">8/8 지점 OK</td></tr>
+          <tr><td class="metric">0.5초 (GOP 15)</td><td class="num">510</td><td class="num">58</td>
+              <td class="num g">10.2%</td><td class="num g">566ms</td><td class="num g">33.5×</td>
+              <td class="num g">18.93초 정확</td><td class="num g">8/8 지점 OK</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>컷 하나는 자기가 걸친 GOP를 통째로 오염시킨다. 컷 개수가 같다면
+    <b>오염되는 총 길이는 키프레임 간격에 정비례한다.</b> 2.0초에서 0.5초로 줄이자
+    재인코딩 대상이 47.2%에서 10.2%로 떨어졌고, 익스포트가 2.9배 빨라졌다.</p>
+
+    <figure>
+      <div class="chartbox">
+        <svg viewBox="0 0 720 300" width="100%" style="max-width:720px;display:block" role="img"
+             aria-label="5분 타임라인 익스포트 시간. 전체 재인코딩 49초, 키프레임 2초 스마트 렌더링 23초, 키프레임 0.5초 5초. 순수 복사 바닥은 0.25초">
+          <text x="150" y="16" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">5분 타임라인 익스포트 소요 (초) — 컷 밀도 5초당 1개</text>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">
+            <text x="142" y="223.5">0</text>
+            <text x="142" y="185.5">10</text>
+            <text x="142" y="147.5">20</text>
+            <text x="142" y="109.5">30</text>
+            <text x="142" y="71.5">40</text>
+          </g>
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="150" y1="182" x2="670" y2="182"></line>
+            <line x1="150" y1="144" x2="670" y2="144"></line>
+            <line x1="150" y1="106" x2="670" y2="106"></line>
+            <line x1="150" y1="68"  x2="670" y2="68"></line>
+          </g>
+          <line x1="150" y1="220" x2="670" y2="220" stroke="var(--rule-2)" stroke-width="1"></line>
+          <rect x="185" y="33"  width="86" height="187"   rx="2" fill="var(--s2)"></rect>
+          <rect x="357" y="132" width="86" height="88"    rx="2" fill="var(--accent)"></rect>
+          <rect x="529" y="201" width="86" height="19"    rx="2" fill="var(--accent)"></rect>
+          <line x1="150" y1="219" x2="670" y2="219" stroke="var(--ok)" stroke-width="1.5" stroke-dasharray="6 3"></line>
+          <text x="670" y="240" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ok)" text-anchor="end">순수 복사 바닥 0.25초 (재인코딩 0%)</text>
+          <g font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--ink)" text-anchor="middle">
+            <text x="228" y="27">49초</text>
+            <text x="400" y="126">23초</text>
+            <text x="572" y="195">5.0초</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)" text-anchor="middle">
+            <text x="228" y="260">전체 재인코딩</text>
+            <text x="400" y="260">스마트 렌더링</text>
+            <text x="572" y="260">스마트 렌더링</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="middle">
+            <text x="228" y="277">1차 루프 방식</text>
+            <text x="400" y="277">키프레임 2.0초</text>
+            <text x="572" y="277">키프레임 0.5초</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>그림 1.</b> 5분 타임라인 익스포트 소요. 막대는 M3의 재인코딩 비율(47.2% / 10.2%)을
+      5분 길이에 적용하고 3차 루프의 재인코딩 속도(6.1× 실시간)로 환산한 값이다.
+      초록 점선은 재인코딩이 전혀 없을 때의 바닥(0.25초).
+      <b>49초 → 5.0초까지 왔고, 남은 여지는 5초 안쪽이다.</b></figcaption>
+    </figure>
+    <p class="small">막대 값은 5분 길이에 대한 환산이다. 재인코딩 비율은 20초 클립에서 컷 4개(5초당 1개 밀도)로
+    실측한 값을 같은 밀도로 확장했다. 컷이 더 촘촘하면 비율이 오른다.</p>
+  </div>
+</section>
+
+<!-- ============ 수렴 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">수렴 판정</div>
+    <h2>왜 5차 루프를 돌지 않는가</h2>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 4.</b> 네 번의 루프를 지나온 세 문제. 마지막 열이 멈추는 이유다.</caption>
+      <thead><tr><th>문제</th><th>1차 루프</th><th>최종</th><th>개선</th><th>지금 무엇이 한계인가</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">프레임 스텝 (1080p)</td><td class="num">16.7ms</td><td class="num g">16.7ms</td>
+            <td class="num dim">—</td><td class="wrap-cell">디스플레이 주사율. 60Hz에서 vsync 1회가 물리적 최소값이다.</td></tr>
+        <tr><td class="metric">스크러빙 (4K)</td><td class="num">82.7ms · p95 317</td><td class="num g">16.7ms · p95 33</td>
+            <td class="num g">5×</td><td class="wrap-cell">프록시로 1080p가 되면 위와 같은 물리적 최소값.</td></tr>
+        <tr><td class="metric">썸네일 (5분 · 150장)</td><td class="num">2490ms</td><td class="num g">227ms</td>
+            <td class="num g">11×</td><td class="wrap-cell">디코더 처리량. 썸네일 수만큼만 디코딩하므로 더 줄일 대상이 없다.</td></tr>
+        <tr><td class="metric">소스 열기 (5분)</td><td class="num">382ms · 힙 +1083MB</td><td class="num g">12ms · 힙 +5MB</td>
+            <td class="num g">216×</td><td class="wrap-cell">파일 앞 4MB만 읽는다. 길이와 거의 무관하다.</td></tr>
+        <tr><td class="metric">익스포트 (5분)</td><td class="num">49초</td><td class="num g">5.0초</td>
+            <td class="num g">10×</td><td class="wrap-cell">인코더의 픽셀 처리율. 하드웨어 고정이고 병렬화가 듣지 않는다(2차 F3).</td></tr>
+        <tr><td class="metric">임포트 (5분 4K)</td><td class="num dim">미측정</td><td class="num y">45초 &ndash; 3분 20초</td>
+            <td class="num dim">—</td><td class="wrap-cell y">최적화 여지가 아니라 <b>선택지</b>. 정규화 범위를 정하면 값이 정해진다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stack">
+    <p>루프를 멈추는 기준은 &ldquo;더 개선할 아이디어가 없다&rdquo;가 아니다.
+    <b>남은 한계가 측정으로 옮길 수 없는 것인지</b>가 기준이다. 지금 각 축의 한계는 이렇다.</p>
+    <ul>
+      <li><b>프리뷰는 디스플레이 주사율이다.</b> 16.7ms 아래로 내려가려면 120Hz 화면이 필요하고,
+      그것은 코드가 아니라 하드웨어다.</li>
+      <li><b>익스포트는 인코더의 픽셀 처리율이다.</b> 1차 루프에서 비트레이트·<code>latencyMode</code>·
+      병렬 인코더가 모두 효과 없음을 확인했다. 남은 레버는 재인코딩 비율뿐이고,
+      그것은 이미 10.2%까지 내려왔다. 더 내리려면 키프레임을 더 촘촘히 해야 하는데
+      2차 루프에서 GOP 6 이하는 파일 크기 대가가 급증함을 측정했다.</li>
+      <li><b>로딩은 파일 앞 4MB다.</b> 더 줄일 것이 남아 있지 않다.</li>
+    </ul>
+    <p>세 축 모두 <b>다음 개선의 기대값이 측정 비용보다 작다.</b> 그래서 멈춘다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>여전히 열려 있는 것</h3>
+    <p>이것들은 &ldquo;더 빠르게&rdquo;의 문제가 아니라 <b>아직 다루지 않은 차원</b>이다.
+    새 루프가 아니라 새 조사가 필요하다.</p>
+    <ul>
+      <li><b>오디오.</b> 네 번의 루프 전부 비디오만 다뤘다. A/V 동기화, 오디오 인코딩,
+      컷 지점의 오디오 처리는 전혀 측정되지 않았다.</li>
+      <li><b>정규화의 세대 손실.</b> 임포트 시 1회 재인코딩의 화질 영향을 눈으로 확인하지 않았다.</li>
+      <li><b>다른 기기에서의 파라미터 세트.</b> 같은 설정의 인코더가 같은 <code>avcC</code>를 내는 것은
+      이 기기에서만 확인했다. 정규화된 파일을 다른 기기에서 열어 편집하면 문제가 될 수 있다.</li>
+      <li><b>단일 기기·단일 브라우저.</b> 네 루프 전부 Apple M3 + Chrome 152다.
+      하드웨어 인코더가 약한 기기에서는 익스포트 수치가 전부 달라진다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 계측 함정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">계측 함정</div>
+    <h2>측정 중에 막힌 지점</h2>
+  </div>
+  <div class="pit">
+    <span class="sym">N1. 백프레셔 게이트가 교착됐다 &mdash; 반납되지 않는 경로가 있었다</span>
+    <dl>
+      <dt>증상</dt><dd>임의 컷 실험이 아무 로그 없이 멈췄다.</dd>
+      <dt>원인</dt><dd>재인코딩 구간은 직전 키프레임부터 디코딩해야 하는데,
+      키프레임과 컷 지점 사이의 프레임은 인코더로 보내지 않고 버린다.
+      게이트를 디코딩할 때 잡고 <b>인코더 출력에서만</b> 반납하도록 짜서,
+      버려지는 프레임이 게이트 한도(16)를 넘으면 영원히 대기했다.</dd>
+      <dt>수정</dt><dd>버리는 프레임은 디코더 출력에서 즉시 반납. 실제 편집기에서도
+      같은 구조가 나오므로 <b>게이트를 잡는 지점과 반납하는 지점이 모든 경로에서 짝이 맞는지</b> 확인해야 한다.</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ 최종 설계 ============ -->
+<section style="border-bottom:none">
+  <div class="sechead">
+    <div class="eyebrow">최종 설계</div>
+    <h2>네 번의 루프가 만든 사양</h2>
+  </div>
+
+  <div class="stack">
+    <h3>임포트</h3>
+    <ul>
+      <li>소스를 고정된 인코더 설정으로 한 번 변환해 중간 포맷을 만든다:
+      <b><code>-bf 0</code> · 키프레임 0.5초(GOP 15) · 설정 고정 · faststart</b>.
+      이 하나가 스마트 렌더링(3차 F3) · 스트림 복사(2차 F1) · 프리뷰 탐색(2차 F4) ·
+      색인 스트리밍(4차 M1)의 전제를 모두 만족한다.</li>
+      <li>4K 소스의 정규화 범위는 제품 결정이다. 1080p 편집이면 정규화와 프록시가 한 파일이 되어
+      임포트가 5분당 45초로 끝난다. (M2)</li>
+    </ul>
+  </div>
+
+  <div class="stack">
+    <h3>로딩 · 프리뷰</h3>
+    <ul>
+      <li>파일을 열 때 <code>moov</code>만 읽어 색인을 만든다. 샘플 데이터를 힙에 올리지 않는다. (M1)</li>
+      <li>썸네일은 키프레임만 디코딩한다. (3차 F7)</li>
+      <li>프리뷰는 <code>&lt;video&gt;</code> + 다음 클립 미리 seek으로 충분하다.
+      1080p에서 프레임 스텝과 컷 전환이 모두 vsync 1회다. (1차 F2·F4)</li>
+    </ul>
+  </div>
+
+  <div class="stack">
+    <h3>익스포트</h3>
+    <ul>
+      <li>GOP 단위로 판정한다. 컷이 걸친 GOP만 재인코딩하고 나머지는 청크를 그대로 복사한다. (3차 F4, 4차 M3)</li>
+      <li>진행률과 예상 시간은 <span class="mono">(재인코딩 구간 길이) ÷ 6.1</span>초로 계산한다. (3차 F4)</li>
+      <li>결과 파일은 <b>복사 구간과 재인코딩 구간 각각 한 곳 이상</b>에서 재생 검증한다.
+      깨진 파일은 길이도 크기도 정상으로 보인다. (3차 K1)</li>
+      <li>인코더 설정 튜닝과 워커 분산에는 시간을 쓰지 않는다. 둘 다 효과 없음이 측정됐다. (1차 F3, 2차 F5)</li>
+      <li>디코더와 인코더 사이 백프레셔 게이트는 필수다. 모든 경로에서 잡기/반납이 짝이 맞는지 확인한다. (N1)</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  측정 2026-09-08 · Apple M3 / macOS 26.6 / Chrome 152 · 원본 데이터 <span class="mono">bench/data/loop4-*.json</span> ·
+  하네스 <span class="mono">bench/loop4.html</span><br>
+  1차 · <a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프레임 단위 편집, 웹에서 되는가</a>
+  · <a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">웹에서 익스포트, 얼마나 빠른가</a><br>
+  2차 · <a href="https://claude.ai/code/artifact/53b41859-87d5-4134-bf6c-b94b03a452b5">편집기를 빠르게 만드는 레버</a>
+  &nbsp;·&nbsp; 3차 · <a href="https://claude.ai/code/artifact/cb91c558-4cfb-45cd-87f3-65724b616aa1">스마트 렌더링이 깨지는 지점</a>
+</footer>
+
+</div>

@@ -1,0 +1,580 @@
+<title>웹에서 익스포트, 얼마나 빠른가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f5f7f8; --surface:#ffffff; --surface-2:#eef2f4;
+  --ink:#161a1f; --ink-2:#3a444f; --muted:#5b6874; --rule:#dce2e7; --rule-2:#c3ccd4;
+  --accent:#046b9c; --accent-deep:#075a83; --accent-wash:#e8f1f7;
+  --s2:#a87c00;
+  --ok:#177a4a; --warn:#a87c00; --bad:#c4213c;
+  --ok-wash:#e7f2ec; --warn-wash:#f6efdd; --bad-wash:#faeaed;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+    --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+    --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33;
+    --s2:#bd8a20;
+    --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+    --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+  --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+  --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33;
+  --s2:#bd8a20;
+  --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+  --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  font-weight:400; line-height:1.75; font-size:15px; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 100px}
+h1{font-size:34px;line-height:1.25;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h3{font-size:16px;line-height:1.45;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+small,.small{font-size:13px;line-height:1.65;color:var(--muted);max-width:70ch;display:block}
+header{padding:56px 0 30px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.stamp{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.stamp b{font-weight:500;color:var(--ink-2)}
+section{padding:48px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;flex-direction:column;gap:7px}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+.verdict{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--ok);
+  padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.criterion{background:var(--surface);padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.criterion .q{font-size:14px;font-weight:500;color:var(--ink-2)}
+.criterion .a{font-size:15px;font-weight:600}
+.criterion .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.hyp{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hrow{background:var(--surface);display:grid;grid-template-columns:56px 1fr 108px;gap:0 18px;padding:18px 20px;align-items:start}
+.hid{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);padding-top:1px}
+.hbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hclaim{font-size:14.5px;font-weight:500;line-height:1.6}
+.hfals{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hfals b{font-weight:500;color:var(--ink-2)}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;justify-self:start;white-space:nowrap;border:1px solid}
+.t-ok{color:var(--ok);border-color:var(--ok);background:var(--ok-wash)}
+.t-no{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
+.t-part{color:var(--warn);border-color:var(--warn);background:var(--warn-wash)}
+
+.scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+caption{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);background:var(--surface-2)}
+caption b{color:var(--ink-2);font-weight:600}
+th,td{padding:9px 16px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface-2);text-align:right}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+th:first-child{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.metric{font-weight:500;color:var(--ink-2)}
+.g{color:var(--ok);font-weight:600} .y{color:var(--warn);font-weight:600} .r{color:var(--bad);font-weight:600}
+.dim{color:var(--muted)}
+
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.chartbox{background:var(--surface);border:1px solid var(--rule);padding:20px 12px 12px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:74ch}
+figcaption b{color:var(--ink-2);font-weight:500}
+.legend{display:flex;gap:20px;padding:0 12px 4px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:7px}
+.swatch{width:11px;height:11px;flex:none}
+
+pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule-2);
+  padding:16px 18px;overflow-x:auto;margin:0;color:var(--ink-2)}
+pre .c{color:var(--muted)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border:1px solid var(--rule)}
+
+.pit{background:var(--surface);border:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;gap:9px}
+.pit .sym{font-size:14.5px;font-weight:600}
+.pit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;line-height:1.6}
+.pit dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.pit dd{margin:0;color:var(--ink-2)}
+.pits{display:flex;flex-direction:column;gap:14px}
+
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;max-width:68ch}
+li{line-height:1.7}
+li::marker{color:var(--rule-2)}
+a{color:var(--accent-deep)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{padding:36px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:720px){
+  .wrap{padding:0 18px 70px} h1{font-size:27px}
+  .hrow{grid-template-columns:44px 1fr;gap:0 12px} .tag{grid-column:2;margin-top:8px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">측정 보고서 · 2026-09-08 · 후속</div>
+  <h1>웹에서 익스포트, 얼마나 빠른가</h1>
+  <p class="lede">앞선 <a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프리뷰 성능 측정</a>에서
+  미측정으로 남긴 부분이다. 프리뷰가 아니라 익스포트가 진짜 병목일 것이라 봤고, 그 예상은 맞았다.
+  다만 병목의 위치는 예상과 달랐다 &mdash; 합성도, 먹싱도, 디코딩도 아닌 <b>인코더 단 하나</b>다.</p>
+  <div class="stamp">
+    <span><b>기기</b> Apple M3 · 8 cores</span>
+    <span><b>OS</b> macOS 26.6</span>
+    <span><b>브라우저</b> Chrome 152</span>
+    <span><b>먹서</b> mp4-muxer 5.2.1</span>
+    <span><b>비교군</b> @ffmpeg/core 0.12.6</span>
+  </div>
+</header>
+
+<!-- ============ 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">판정</div>
+    <h2>WebCodecs 파이프라인이 유일한 실용 경로다</h2>
+  </div>
+
+  <div class="verdict">
+    <p>익스포트 속도는 <b>인코더 처리량 하나로 결정된다.</b> 1080p에서 약 200 fps,
+    4K에서 약 56 fps이고, 이 값은 해상도에만 의존한다 &mdash; 소스 fps에도, 합성 레이어 수에도,
+    인코더를 몇 개 띄우는지에도 반응하지 않는다. 나머지 단계(디코딩·합성·먹싱)를 다 합쳐도
+    인코딩 시간의 5%가 되지 않는다.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 1.</b> 실무 환산 &mdash; 5분짜리 타임라인 하나를 익스포트하는 데 걸리는 시간.</caption>
+      <thead><tr><th>출력</th><th>WebCodecs 파이프라인</th><th>ffmpeg.wasm</th><th>배수</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">1080p30</td><td class="num g">43초</td><td class="num r">12분 30초</td><td class="num">17×</td></tr>
+        <tr><td class="metric">1080p60</td><td class="num g">1분 26초</td><td class="num r">25분</td><td class="num">17×</td></tr>
+        <tr><td class="metric">4K30</td><td class="num y">2분 38초</td><td class="num r">50분</td><td class="num">17×</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="criteria">
+    <div class="criterion">
+      <span class="q">병목은 어디인가</span>
+      <span class="a">인코더 단독</span>
+      <span class="n">인코딩 4.8ms/프레임 · 합성 0.13ms · 먹싱 0.07ms</span>
+    </div>
+    <div class="criterion">
+      <span class="q">병렬화로 빨라지는가</span>
+      <span class="a">아니다. 전혀.</span>
+      <span class="n">인코더 1개 203fps · 2개 202fps · 4개 199fps</span>
+    </div>
+    <div class="criterion">
+      <span class="q">MediaRecorder는 대안인가</span>
+      <span class="a">아니다. 타임라인이 깨진다.</span>
+      <span class="n">5초 분량이 2.5초 영상으로 출력됨</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 문제 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">문제</div>
+    <h2>무엇을 결정해야 하는가</h2>
+  </div>
+  <div class="stack">
+    <p>프리뷰는 된다는 것이 앞선 측정에서 확인됐다. 남은 질문은 편집 결과를 파일로 뽑아내는 속도다.
+    사용자가 &ldquo;내보내기&rdquo;를 누르고 기다리는 시간이 곧 제품의 체감 품질이 된다.</p>
+    <p>구체적으로 세 가지를 골라야 한다.</p>
+    <ul>
+      <li><b>어떤 경로로 뽑을 것인가.</b> WebCodecs <code>VideoEncoder</code>, <code>MediaRecorder</code>,
+      ffmpeg.wasm &mdash; 셋 중 무엇인가.</li>
+      <li><b>어디에 최적화를 투자할 것인가.</b> 합성 파이프라인인가, 인코더 설정인가, 먹싱인가.</li>
+      <li><b>병렬화가 답인가.</b> 타임라인을 쪼개 워커로 분산하면 빨라지는가.</li>
+    </ul>
+    <p>세 번째가 특히 중요하다. 워커 분산은 구현 비용이 크기 때문에,
+    효과가 없다면 <b>시도하지 않는 것 자체가 이득</b>이다.</p>
+  </div>
+</section>
+
+<!-- ============ 가설 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">가설</div>
+    <h2>측정 전에 무엇을 믿었는가</h2>
+    <p class="small">H1&ndash;H5는 측정 전에 세웠다. H6은 인코더 처리량이 조건과 무관하게 일정하다는
+    관찰에서 사후에 생성했다.</p>
+  </div>
+
+  <div class="hyp">
+    <div class="hrow">
+      <span class="hid">H1</span>
+      <span class="hbody">
+        <span class="hclaim">WebCodecs <code>VideoEncoder</code>는 하드웨어 인코딩으로 실시간보다 빠르게 익스포트한다.</span>
+        <span class="hfals"><b>반증 조건:</b> 실시간 대비 배수가 1× 이하로 떨어진다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H2</span>
+      <span class="hbody">
+        <span class="hclaim">전체 파이프라인의 병목은 인코딩이 아니라 GPU와 CPU 사이의 프레임 전송, 즉 캔버스 합성이다.</span>
+        <span class="hfals"><b>반증 조건:</b> 합성 단계를 넣어도 전체 시간이 유의하게 늘지 않는다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H3</span>
+      <span class="hbody">
+        <span class="hclaim"><code>MediaRecorder</code>는 실시간에 묶여 있어 익스포트 경로로 쓸 수 없다.</span>
+        <span class="hfals"><b>반증 조건:</b> 실시간보다 빠르게, 타이밍이 맞는 파일을 출력한다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H4</span>
+      <span class="hbody">
+        <span class="hclaim">ffmpeg.wasm은 소프트웨어 인코딩이라 실시간보다 느리다.</span>
+        <span class="hfals"><b>반증 조건:</b> 실시간 대비 1× 이상이 나온다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H5</span>
+      <span class="hbody">
+        <span class="hclaim">먹싱(인코딩된 청크를 MP4로 조립) 비용은 무시할 수 있다.</span>
+        <span class="hfals"><b>반증 조건:</b> 먹싱이 전체 시간의 5%를 넘는다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H6<br><span style="font-size:9px;letter-spacing:.08em;color:var(--muted)">사후</span></span>
+      <span class="hbody">
+        <span class="hclaim">200 fps는 인코더 인스턴스 하나의 한계가 아니라 하드웨어 인코딩 블록 전체의 상한이다.
+        따라서 인코더를 여러 개 띄워도 총 처리량은 늘지 않는다.</span>
+        <span class="hfals"><b>반증 조건:</b> 인코더 2개·4개의 합산 처리량이 1개보다 높다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 실험 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">실험</div>
+    <h2>어떻게 측정했는가</h2>
+  </div>
+
+  <div class="stack">
+    <p>자극은 앞선 측정과 동일한 클립이다(1080p30 / 1080p60 / 4K30, H.264, 20초).
+    출력 비트레이트는 소스와 같게 맞췄다(15 / 20 / 50 Mbps).
+    모든 수치의 공통 단위는 <b>실시간 대비 배수</b>로,
+    <span class="mono">(프레임수 &divide; fps) &divide; 경과시간</span>이다. 6.9×는 20초 영상을 2.9초에 뽑는다는 뜻이다.</p>
+
+    <div class="scroll">
+      <table>
+        <caption><b>표 2.</b> 측정 항목의 조작적 정의.</caption>
+        <thead><tr><th>항목</th><th style="text-align:left">정의</th><th>프레임</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">인코드 단독</td><td style="text-align:left">미리 디코딩해 둔 실제 프레임만 반복 인코딩. 디코딩 비용 제외</td><td class="num">300</td></tr>
+          <tr><td class="metric">인코드 ×2, ×4</td><td style="text-align:left">동시 실행 <code>VideoEncoder</code> 2·4개에 작업을 나눠 합산 처리량 측정</td><td class="num">300</td></tr>
+          <tr><td class="metric">트랜스코드</td><td style="text-align:left">디코드 &rarr; 인코드 파이프라인. 합성 없음</td><td class="num">600&ndash;1200</td></tr>
+          <tr><td class="metric">캔버스 파이프라인</td><td style="text-align:left">디코드 &rarr; 캔버스 합성(+오버레이 1장) &rarr; <code>VideoFrame</code> &rarr; 인코드</td><td class="num">600&ndash;1200</td></tr>
+          <tr><td class="metric">먹싱</td><td style="text-align:left">인코딩된 청크를 mp4-muxer로 MP4 조립</td><td class="num">600&ndash;1200</td></tr>
+          <tr><td class="metric">MediaRecorder</td><td style="text-align:left"><code>captureStream(0)</code> + <code>requestFrame()</code>으로 최대 속도 푸시. 결과 영상의 실제 길이도 확인</td><td class="num">150</td></tr>
+          <tr><td class="metric">ffmpeg.wasm</td><td style="text-align:left">워커에서 <code>libx264 -preset veryfast</code>. 앞 5초 구간</td><td class="num">150&ndash;300</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="small">디코더와 인코더를 직결하면 디코더가 인코더보다 7&ndash;9배 빨라 프레임이 메모리에 쌓인다.
+    4K에서는 프레임 한 장이 약 12MB라 수 초 만에 수 GB가 된다.
+    하네스는 두 코덱 사이에 미처리 프레임 수를 제한하는 게이트를 둔다(1080p 24장, 4K 8장).
+    <b>실제 편집기에도 같은 게이트가 필요하다.</b></p>
+  </div>
+
+  <div class="stack">
+    <h3>재현 절차</h3>
+    <pre><span class="c"># 앞선 측정과 같은 클립을 쓴다</span>
+cd bench &amp;&amp; ./make-test-videos.sh
+python3 serve.py &amp;
+
+<span class="c"># 전체 측정 (ffmpeg.wasm 포함, 약 4분)</span>
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --user-data-dir=/tmp/bench-profile --no-first-run --no-default-browser-check \
+  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
+  "http://127.0.0.1:8777/render.html?auto=1"
+
+<span class="c"># 병렬 인코더만 (H6 검증, 약 40초)</span>
+open "http://127.0.0.1:8777/render.html?auto=1&amp;only=parallel"
+
+<span class="c"># 결과는 render-result.json</span></pre>
+    <p class="small">필요한 라이브러리는 <code>bench/</code>에 이미 받아져 있다:
+    <code>mp4box.all.min.js</code>(디먹싱), <code>mp4-muxer.min.js</code>(먹싱),
+    <code>core/ffmpeg-core.{js,wasm}</code>(비교군), <code>ffmpeg-worker.js</code>(자체 구동 래퍼).</p>
+  </div>
+</section>
+
+<!-- ============ 사실 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">사실</div>
+    <h2>측정된 값</h2>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 3.</b> 실시간 대비 배수와 처리량. <span class="g">초록 ≥5×</span> · <span class="y">노랑 ≥1×</span> · <span class="r">빨강 &lt;1×</span></caption>
+      <thead><tr><th>측정</th><th>1080p30</th><th>1080p60</th><th>4K30</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">인코드 단독</td><td class="num g">6.8× · 203fps</td><td class="num y">3.4× · 203fps</td><td class="num y">1.9× · 56fps</td></tr>
+        <tr><td class="metric">인코드 ×2 (합산)</td><td class="num g">6.7× · 202fps</td><td class="num y">3.4× · 204fps</td><td class="num y">1.9× · 56fps</td></tr>
+        <tr><td class="metric">인코드 ×4 (합산)</td><td class="num g">6.6× · 199fps</td><td class="num y">3.4× · 202fps</td><td class="num y">1.9× · 56fps</td></tr>
+        <tr><td class="metric">트랜스코드</td><td class="num g">6.9× · 207fps</td><td class="num y">3.5× · 210fps</td><td class="num y">1.9× · 56fps</td></tr>
+        <tr><td class="metric">캔버스 파이프라인</td><td class="num g">6.9× · 207fps</td><td class="num y">3.5× · 211fps</td><td class="num y">1.9× · 56fps</td></tr>
+        <tr><td class="metric">합성 비용 / 프레임</td><td class="num g">0.13ms</td><td class="num g">0.13ms</td><td class="num g">0.24ms</td></tr>
+        <tr><td class="metric">먹싱 / 프레임</td><td class="num g">0.072ms</td><td class="num g">0.033ms</td><td class="num g">0.178ms</td></tr>
+        <tr><td class="metric">MediaRecorder</td><td class="num r">타임라인 손상</td><td class="num r">타임라인 손상</td><td class="num r">타임라인 손상</td></tr>
+        <tr><td class="metric">ffmpeg.wasm</td><td class="num r">0.4× · 12.1fps</td><td class="num r">0.2× · 9.4fps</td><td class="num r">0.1× · 3.3fps</td></tr>
+        <tr><td class="metric dim">참고: 디코딩</td><td class="num dim">50.8× · 1524fps</td><td class="num dim">31.6× · 1898fps</td><td class="num dim">12.3× · 368fps</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stack">
+    <h3>F1 &mdash; WebCodecs와 ffmpeg.wasm의 격차는 17배다</h3>
+    <figure>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--accent)"></i>WebCodecs 파이프라인</span>
+        <span><i class="swatch" style="background:var(--s2)"></i>ffmpeg.wasm (libx264 veryfast)</span>
+      </div>
+      <div class="chartbox">
+        <svg viewBox="0 0 720 300" width="100%" style="max-width:720px;display:block" role="img"
+             aria-label="실시간 대비 익스포트 속도. WebCodecs는 1080p30 6.9배, 1080p60 3.5배, 4K30 1.9배. ffmpeg.wasm은 각각 0.4배, 0.2배, 0.1배로 모두 실시간보다 느리다">
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">
+            <text x="80" y="243.5">0</text>
+            <text x="80" y="216.8">1</text>
+            <text x="80" y="190.3">2</text>
+            <text x="80" y="137.3">4</text>
+            <text x="80" y="84.3">6</text>
+          </g>
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="90" y1="186.7" x2="640" y2="186.7"></line>
+            <line x1="90" y1="133.3" x2="640" y2="133.3"></line>
+            <line x1="90" y1="80.0"  x2="640" y2="80.0"></line>
+          </g>
+          <!-- realtime reference -->
+          <line x1="90" y1="213.3" x2="640" y2="213.3" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="6 3"></line>
+          <text x="646" y="217" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--bad)">실시간 1×</text>
+          <text x="90" y="22" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">실시간 대비 배수 (높을수록 빠름)</text>
+          <line x1="90" y1="240" x2="640" y2="240" stroke="var(--rule-2)" stroke-width="1"></line>
+
+          <!-- group 1: 1080p30 -->
+          <rect x="134" y="56.0" width="46" height="184.0" fill="var(--accent)" rx="2"></rect>
+          <rect x="182" y="229.3" width="46" height="10.7" fill="var(--s2)" rx="2"></rect>
+          <!-- group 2: 1080p60 -->
+          <rect x="317" y="146.7" width="46" height="93.3" fill="var(--accent)" rx="2"></rect>
+          <rect x="365" y="234.7" width="46" height="5.3" fill="var(--s2)" rx="2"></rect>
+          <!-- group 3: 4K30 -->
+          <rect x="500" y="189.3" width="46" height="50.7" fill="var(--accent)" rx="2"></rect>
+          <rect x="548" y="237.3" width="46" height="2.7" fill="var(--s2)" rx="2"></rect>
+
+          <g font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="600" text-anchor="middle">
+            <text x="157" y="48"  fill="var(--ink)">6.9×</text>
+            <text x="205" y="223" fill="var(--ink)">0.4×</text>
+            <text x="340" y="139" fill="var(--ink)">3.5×</text>
+            <text x="388" y="228" fill="var(--ink)">0.2×</text>
+            <text x="523" y="182" fill="var(--ink)">1.9×</text>
+            <text x="571" y="231" fill="var(--ink)">0.1×</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)" text-anchor="middle">
+            <text x="181" y="260">1080p30</text>
+            <text x="364" y="260">1080p60</text>
+            <text x="547" y="260">4K30</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="middle">
+            <text x="181" y="276">5분 → 43초</text>
+            <text x="364" y="276">5분 → 1분 26초</text>
+            <text x="547" y="276">5분 → 2분 38초</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>그림 1.</b> 익스포트 경로별 실시간 대비 속도. 붉은 점선 아래는 실시간보다 느리다는 뜻이다.
+      ffmpeg.wasm은 세 해상도 모두 점선 아래에 있다. 하단 숫자는 5분 타임라인 기준 실제 소요 시간.</figcaption>
+    </figure>
+    <p>ffmpeg.wasm은 <code>-preset veryfast</code>에서도 1080p30 기준 12.1 fps에 그친다.
+    같은 작업을 WebCodecs가 207 fps로 처리하므로 <b>17배</b> 차이다.
+    이 배수는 세 해상도에서 모두 17배 안팎으로 일정했다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F2 &mdash; H2 반증: 합성은 공짜다. 병목은 인코더 단독이다</h3>
+    <p>트랜스코드(합성 없음)와 캔버스 파이프라인(합성 포함)이 <b>같은 시간</b>에 끝난다 &mdash;
+    1080p30에서 각각 207 fps, 207 fps다. 합성 비용을 따로 재면 프레임당 0.13ms로,
+    프레임당 인코딩 예산 4.8ms의 <b>2.7%</b>다. 4K에서도 0.24ms 대 17.9ms로 1.3%다.</p>
+    <p>먹싱도 마찬가지다. 프레임당 0.033&ndash;0.178ms이고, 20초 클립 전체를 조립하는 데
+    39&ndash;107ms 걸린다. <b>합성 파이프라인이나 먹서를 최적화하는 것은 의미가 없다.</b></p>
+  </div>
+
+  <div class="stack">
+    <h3>F3 &mdash; H6 확인: 인코더를 늘려도 총 처리량은 그대로다</h3>
+    <div class="scroll">
+      <table>
+        <caption><b>표 4.</b> 동시 실행 인코더 수에 따른 합산 처리량(fps). 총 300프레임을 나눠 인코딩.</caption>
+        <thead><tr><th>동시 인코더</th><th>1080p30</th><th>1080p60</th><th>4K30</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">1개</td><td class="num">203</td><td class="num">203</td><td class="num">56</td></tr>
+          <tr><td class="metric">2개</td><td class="num">202</td><td class="num">204</td><td class="num">56</td></tr>
+          <tr><td class="metric">4개</td><td class="num">199</td><td class="num">202</td><td class="num">56</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>완전히 평평하다. 인코더는 프로세스 전체가 공유하는 고정 기능 블록이고, 인스턴스 하나가 이미 그것을 포화시킨다.
+    <b>타임라인을 쪼개 워커로 분산해도 익스포트는 빨라지지 않는다.</b>
+    구현 비용이 큰 방향 하나를 측정 40초로 배제한 셈이다.</p>
+    <p class="small">이 결론은 같은 프로세스 안의 동시 인코더에 한한다. 별도 프로세스(다른 탭)나
+    다른 기기로의 분산은 측정하지 않았다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F4 &mdash; H3 확인, 그리고 예상보다 나쁘다: MediaRecorder는 타임라인을 망가뜨린다</h3>
+    <p>MediaRecorder가 느린 것이 문제가 아니다. <b>출력 영상의 길이가 틀린다.</b>
+    프레임을 최대 속도로 밀어 넣으면 벽시계 기준으로 타임스탬프가 찍히기 때문이다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 5.</b> 150프레임을 최대 속도로 푸시했을 때 출력 영상의 길이.</caption>
+        <thead><tr><th>소스</th><th>기대 길이</th><th>실제 길이</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">1080p30</td><td class="num">5.00초</td><td class="num r">2.50초</td><td class="num r">2배 빨리 감김</td></tr>
+          <tr><td class="metric">1080p60</td><td class="num">2.50초</td><td class="num g">2.49초</td><td class="num g">정상</td></tr>
+          <tr><td class="metric">4K30</td><td class="num">5.00초</td><td class="num r">2.20초</td><td class="num r">2.3배 빨리 감김</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>1080p60만 정상인 것이 원리를 그대로 드러낸다. 프레임 푸시가 컴포지터 주기(60Hz)에 맞춰지므로
+    <b>소스가 정확히 60fps일 때만</b> 길이가 맞는다. 30fps 소스는 2배로 압축된다.
+    즉 MediaRecorder는 <b>실시간 재생을 녹화하는 도구</b>이지 익스포트 도구가 아니다.
+    타이밍을 지키려면 실시간으로 재생하며 녹화해야 하고, 그러면 5분 영상에 5분이 걸린다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F5 &mdash; 인코더 처리량은 해상도에만 반응한다</h3>
+    <p>1080p30과 1080p60의 인코딩 처리량이 203 fps로 같다. 소스 fps가 두 배여도 초당 처리하는
+    프레임 수는 동일하다. 4K는 56 fps다. 픽셀 수 기준으로는 1080p 203fps &asymp; 4.2억 픽셀/초,
+    4K 56fps &asymp; 4.6억 픽셀/초로 거의 일치한다 &mdash; <b>인코더는 픽셀 처리율로 한계가 잡혀 있다.</b></p>
+    <p>따라서 익스포트 시간을 줄이는 유일한 실질적 수단은 <b>해상도를 낮추는 것</b>이다.
+    실시간 대비 배수는 <span class="mono">(픽셀 처리율) &divide; (해상도 × fps)</span>로 예측할 수 있다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F6 &mdash; 재현성</h3>
+    <p>2회 실행에서 인코딩 처리량이 1080p30 201/203 fps, 1080p60 206/203 fps, 4K30 56/56 fps로 일치했다.
+    변동이 있는 항목은 <code>prefer-software</code> 힌트를 준 경우로,
+    168&ndash;230 fps 범위를 오갔다(아래 P3 참조).</p>
+  </div>
+</section>
+
+<!-- ============ 계측 함정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">계측 함정</div>
+    <h2>측정 중에 막힌 지점</h2>
+  </div>
+
+  <div class="pits">
+    <div class="pit">
+      <span class="sym">P1. @ffmpeg/ffmpeg UMD 빌드에 빌드 머신 경로가 박혀 있다</span>
+      <dl>
+        <dt>증상</dt><dd><code>ffmpeg.load()</code>가 <code>failed to import ffmpeg-core.js</code>로 실패. core 파일 자체는 워커에서 <code>importScripts</code>로 정상 로드됐다.</dd>
+        <dt>원인</dt><dd>UMD 번들 안에 <code>new Worker(new URL(s, "file:///home/jeromewu/ffmpeg.wasm/..."))</code>가 그대로 들어 있다. <code>classWorkerURL</code>을 줘도 이 base에 대해 해석된다.</dd>
+        <dt>수정</dt><dd>래퍼를 버리고 <code>createFFmpegCore</code>를 직접 구동하는 워커를 작성(<code>bench/ffmpeg-worker.js</code>, 30줄). 공식 워커의 API 호출 순서를 그대로 따랐다.</dd>
+      </dl>
+    </div>
+
+    <div class="pit">
+      <span class="sym">P2. MediaRecorder 측정은 컴포지터 주기에 갇힌다</span>
+      <dl>
+        <dt>증상</dt><dd>어떤 소스든 초당 약 60프레임 이상 밀어 넣을 수 없었다.</dd>
+        <dt>원인</dt><dd><code>requestFrame()</code>을 <code>requestAnimationFrame</code>으로 페이싱했기 때문이다. 페이싱을 빼면 같은 컴포지터 프레임 안의 푸시가 합쳐져 프레임이 유실된다.</dd>
+        <dt>해석</dt><dd>이것은 계측 한계인 동시에 실제 제약이다. 다만 &ldquo;MediaRecorder는 정확히 1× 속도&rdquo;라고 말하면 틀리다. 정확히는 <b>컴포지터 주기가 상한이고, 그 상한에서도 타임스탬프가 벽시계 기준</b>이다. 결론(F4)은 속도가 아니라 출력 길이로 판정했다.</dd>
+      </dl>
+    </div>
+
+    <div class="pit">
+      <span class="sym">P3. <code>hardwareAcceleration</code> 힌트는 백엔드를 고르지 못한다</span>
+      <dl>
+        <dt>증상</dt><dd><code>prefer-hardware</code>와 <code>prefer-software</code>의 처리량이 사실상 같았고, 소프트웨어 쪽이 더 빠른 경우도 있었다(1080p60: 203 대 230 fps).</dd>
+        <dt>원인</dt><dd>명세상 이 값은 <b>힌트</b>다. 브라우저는 무시할 수 있고, Chrome은 두 경우 모두 같은 백엔드를 쓴 것으로 보인다.</dd>
+        <dt>결과</dt><dd>하드웨어 대 소프트웨어 비교 실험은 <b>무효</b>다. 이 문서는 그 비교를 결론에 쓰지 않는다. 하드웨어 인코딩 사용 여부를 확인하려면 브라우저 밖의 도구(<code>powermetrics</code> 등)가 필요하다.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 한계 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">한계</div>
+    <h2>이 실험이 말하지 않는 것</h2>
+  </div>
+  <ul>
+    <li><b>하드웨어 인코딩 여부를 확정하지 못했다.</b> 처리량은 하드웨어 인코딩과 일관되지만
+    API로 증명되지 않았다(P3).</li>
+    <li><b>인코더 설정을 탐색하지 않았다.</b> 비트레이트, <code>latencyMode</code>,
+    키프레임 간격을 바꾸면 처리량이 달라질 수 있다. 전부 소스와 같은 값으로 고정했다.</li>
+    <li><b>오디오가 없다.</b> 전 구간 비디오만 다뤘다. 실제 익스포트에는 오디오 인코딩과
+    A/V 동기화가 추가된다.</li>
+    <li><b>합성이 단순하다.</b> 캔버스 2D에 <code>drawImage</code> 한 번과 사각형 하나다.
+    실제 편집기의 트랜지션·필터·다중 레이어는 더 비싸다. 다만 인코딩 예산 대비 여유가
+    30배 이상이라 결론이 뒤집히려면 합성이 지금의 30배로 무거워져야 한다.</li>
+    <li><b>단일 기기·단일 브라우저다.</b> Apple M3 + Chrome 152.
+    하드웨어 인코더가 없거나 약한 기기에서는 전혀 다른 값이 나온다.</li>
+    <li><b>프로세스 간 병렬화를 측정하지 않았다.</b> F3은 같은 프로세스 안의 동시 인코더에 한한다.</li>
+    <li><b>ffmpeg.wasm은 단일 스레드 코어다.</b> 멀티스레드 코어(<code>core-mt</code>)는
+    <code>SharedArrayBuffer</code>와 cross-origin isolation이 필요해 측정하지 않았다.
+    코어 수만큼 빨라진다 해도 8배로 WebCodecs와의 17배 격차를 메우지 못한다.</li>
+  </ul>
+</section>
+
+<!-- ============ 함의 ============ -->
+<section style="border-bottom:none">
+  <div class="sechead">
+    <div class="eyebrow">함의</div>
+    <h2>구현에 그대로 옮길 것</h2>
+  </div>
+  <ul>
+    <li><b>익스포트는 WebCodecs <code>VideoEncoder</code> + mp4-muxer로 간다.</b>
+    ffmpeg.wasm은 17배 느리고, MediaRecorder는 타임라인이 깨진다. 선택지가 사실상 하나다. (F1, F4)</li>
+    <li><b>워커 분산은 만들지 않는다.</b> 같은 프로세스 안에서 인코더를 늘려도 처리량이 그대로다.
+    이 방향에 쓸 시간을 다른 곳에 쓴다. (F3)</li>
+    <li><b>합성 파이프라인과 먹서는 최적화 대상이 아니다.</b> 둘을 합쳐 인코딩 시간의 5% 미만이다.
+    최적화가 필요해지면 해상도와 인코더 설정부터 본다. (F2, F5)</li>
+    <li><b>디코더와 인코더 사이에 백프레셔 게이트를 반드시 둔다.</b> 디코더가 7&ndash;9배 빨라
+    게이트가 없으면 4K에서 수 GB가 쌓인다. 미처리 프레임 상한은 1080p 24장, 4K 8장으로 충분했다.</li>
+    <li><b>진행률은 프레임 수로 표시한다.</b> 처리량이 해상도에 대해 안정적이므로
+    (1080p 200fps, 4K 56fps) 남은 시간을 정확히 예측할 수 있다. (F5)</li>
+    <li><b>4K 익스포트는 시간을 미리 알린다.</b> 5분 타임라인에 2분 38초다. 배경 작업으로 돌리고
+    진행률을 보여주는 편이 낫다.</li>
+    <li><b>2차 루프에서 스트림 복사를 검증했다.</b> 재인코딩하지 않고 청크를 그대로 먹싱하면
+    1198× 실시간이 나온다 &mdash; 여기 측정한 6.9×의 약 170배다.
+    (<a href="https://claude.ai/code/artifact/53b41859-87d5-4134-bf6c-b94b03a452b5">편집기를 빠르게 만드는 레버</a>)</li>
+    <li><b>다음 실험은 오디오와 실제 편집 연산이다.</b> 이 측정에 빠진 두 가지이고,
+    합성이 지금의 30배로 무거워지는 경우에만 결론이 바뀐다.</li>
+  </ul>
+</section>
+
+<footer>
+  측정 2026-09-08 · Apple M3 / macOS 26.6 / Chrome 152 · 원본 데이터 <span class="mono">bench/data/render-run*.json</span> ·
+  하네스 <span class="mono">bench/render.html</span> · 선행 측정 <a href="https://claude.ai/code/artifact/e74e2036-075f-478f-bc1d-85b65f04d87f">프레임 단위 편집, 웹에서 되는가</a>
+</footer>
+
+</div>

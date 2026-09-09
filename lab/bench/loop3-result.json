@@ -1,0 +1,296 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "results": {
+    "e1": [
+      {
+        "copyRatio": 1,
+        "gops": 10,
+        "copied": 600,
+        "reEncoded": 0,
+        "ms": 24,
+        "realtime_x": 840.3,
+        "mb": 24,
+        "duration": 20,
+        "expected_duration": 20,
+        "probes": [
+          {
+            "n": "복사 구간",
+            "t": 0.5,
+            "ok": true
+          },
+          {
+            "n": "경계",
+            "t": 20,
+            "ok": null,
+            "note": "해당 구간 없음"
+          },
+          {
+            "n": "재인코딩 구간",
+            "t": 19,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "copyRatio": 0.8,
+        "gops": 10,
+        "copied": 480,
+        "reEncoded": 120,
+        "ms": 676,
+        "realtime_x": 29.6,
+        "mb": 25.4,
+        "duration": 20,
+        "expected_duration": 20,
+        "probes": [
+          {
+            "n": "복사 구간",
+            "t": 0.5,
+            "ok": true
+          },
+          {
+            "n": "경계",
+            "t": 16,
+            "ok": false
+          },
+          {
+            "n": "재인코딩 구간",
+            "t": 19,
+            "ok": false
+          }
+        ]
+      },
+      {
+        "copyRatio": 0.5,
+        "gops": 10,
+        "copied": 300,
+        "reEncoded": 300,
+        "ms": 1664,
+        "realtime_x": 12,
+        "mb": 27.2,
+        "duration": 20,
+        "expected_duration": 20,
+        "probes": [
+          {
+            "n": "복사 구간",
+            "t": 0.5,
+            "ok": true
+          },
+          {
+            "n": "경계",
+            "t": 10,
+            "ok": false
+          },
+          {
+            "n": "재인코딩 구간",
+            "t": 19,
+            "ok": false
+          }
+        ]
+      },
+      {
+        "copyRatio": 0.2,
+        "gops": 10,
+        "copied": 120,
+        "reEncoded": 480,
+        "ms": 2644,
+        "realtime_x": 7.6,
+        "mb": 29.8,
+        "duration": 20,
+        "expected_duration": 20,
+        "probes": [
+          {
+            "n": "복사 구간",
+            "t": 0.5,
+            "ok": true
+          },
+          {
+            "n": "경계",
+            "t": 4,
+            "ok": false
+          },
+          {
+            "n": "재인코딩 구간",
+            "t": 19,
+            "ok": false
+          }
+        ]
+      },
+      {
+        "copyRatio": 0,
+        "gops": 10,
+        "copied": 0,
+        "reEncoded": 600,
+        "ms": 3278,
+        "realtime_x": 6.1,
+        "mb": 30.9,
+        "duration": 20,
+        "expected_duration": 20,
+        "probes": [
+          {
+            "n": "복사 구간",
+            "t": 0.5,
+            "ok": true
+          },
+          {
+            "n": "경계",
+            "t": 0.6,
+            "ok": true
+          },
+          {
+            "n": "재인코딩 구간",
+            "t": 19,
+            "ok": true
+          }
+        ]
+      }
+    ],
+    "e2": [
+      {
+        "w": 1920,
+        "h": 1080,
+        "ms": 3049,
+        "fps": 197,
+        "realtime_x": 6.6,
+        "mb": 17.4
+      },
+      {
+        "w": 1280,
+        "h": 720,
+        "ms": 2953,
+        "fps": 203,
+        "realtime_x": 6.8,
+        "mb": 9.6
+      },
+      {
+        "w": 960,
+        "h": 540,
+        "ms": 2730,
+        "fps": 220,
+        "realtime_x": 7.3,
+        "mb": 4.5
+      }
+    ],
+    "e3": {
+      "mb": 360,
+      "frames": 9000,
+      "duration_s": 300,
+      "fetch_ms": 538,
+      "demux_ms": 184,
+      "first_frame_ms": 134,
+      "heap_start": 394,
+      "heap_after_fetch": 754,
+      "heap_after_demux": 1477,
+      "seek": {
+        "n": 30,
+        "min": 6.8,
+        "med": 17.3,
+        "p95": 40.9,
+        "max": 46.4
+      },
+      "step": {
+        "n": 60,
+        "min": 14.7,
+        "med": 17.1,
+        "p95": 35.8,
+        "max": 39.2
+      }
+    },
+    "e4": {
+      "thumbs": 150,
+      "rows": [
+        {
+          "method": "<video> seek 반복",
+          "ms": 2490,
+          "decoded": 150
+        },
+        {
+          "method": "전체 순차 디코딩",
+          "ms": 4245,
+          "decoded": 9000
+        },
+        {
+          "method": "키프레임만 디코딩",
+          "ms": 227,
+          "decoded": 150
+        }
+      ]
+    },
+    "e5": {
+      "desc": {
+        "src": "01640028ffe1001967640028acb603c0113f2e0220000003002000000781e3065c01000668eac3cb22c0fdf8f800",
+        "encA": "01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800",
+        "encB": "01640028ffe1001027640028ac5680780227e59a8080808101000428ee3cb0fdf8f800",
+        "encA_eq_encB": true,
+        "src_eq_enc": false
+      },
+      "rows": [
+        {
+          "copyRatio": 0.8,
+          "ms": 704,
+          "realtime_x": 28.4,
+          "mb": 34.5,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "copyRatio": 0.5,
+          "ms": 1669,
+          "realtime_x": 12,
+          "mb": 31.7,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "copyRatio": 0.2,
+          "ms": 2603,
+          "realtime_x": 7.7,
+          "mb": 28.2,
+          "duration": 20,
+          "reEncodedDescMatches": true,
+          "probes": [
+            {
+              "n": "복사",
+              "ok": true
+            },
+            {
+              "n": "경계",
+              "ok": true
+            },
+            {
+              "n": "재인코딩",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

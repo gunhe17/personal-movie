@@ -1,0 +1,636 @@
+<title>프레임 단위 편집, 웹에서 되는가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f5f7f8; --surface:#ffffff; --surface-2:#eef2f4;
+  --ink:#161a1f; --ink-2:#3a444f; --muted:#5b6874; --rule:#dce2e7; --rule-2:#c3ccd4;
+  --accent:#046b9c; --accent-deep:#075a83; --accent-wash:#e8f1f7;
+  --ok:#177a4a; --warn:#a87c00; --bad:#c4213c;
+  --ok-wash:#e7f2ec; --warn-wash:#f6efdd; --bad-wash:#faeaed;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+    --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+    --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33;
+    --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+    --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161b; --surface:#1a1f26; --surface-2:#212832;
+  --ink:#e4e9ee; --ink-2:#c2ccd6; --muted:#93a1ae; --rule:#2a323b; --rule-2:#3a444f;
+  --accent:#2b9fb4; --accent-deep:#4cbcd0; --accent-wash:#122a33;
+  --ok:#35a468; --warn:#bd8a20; --bad:#e2606a;
+  --ok-wash:#14261c; --warn-wash:#262009; --bad-wash:#2c1418;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  font-weight:400; line-height:1.75; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 100px}
+
+/* ---- type scale ---- */
+h1{font-size:34px;line-height:1.25;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h3{font-size:16px;line-height:1.45;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+}
+.lede{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+small,.small{font-size:13px;line-height:1.65;color:var(--muted);max-width:70ch;display:block}
+
+/* ---- masthead ---- */
+header{padding:56px 0 30px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.stamp{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.stamp b{font-weight:500;color:var(--ink-2)}
+
+/* ---- section rhythm ---- */
+section{padding:48px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;flex-direction:column;gap:7px}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* ---- verdict ---- */
+.verdict{
+  background:var(--surface); border:1px solid var(--rule); border-left:4px solid var(--ok);
+  padding:26px 28px; display:flex; flex-direction:column; gap:14px;
+}
+.verdict h2{font-size:20px}
+.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.criterion{background:var(--surface);padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.criterion .q{font-size:14px;font-weight:500;color:var(--ink-2)}
+.criterion .a{font-size:15px;font-weight:600}
+.criterion .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---- hypothesis list ---- */
+.hyp{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hrow{background:var(--surface);display:grid;grid-template-columns:56px 1fr 108px;gap:0 18px;padding:18px 20px;align-items:start}
+.hid{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);padding-top:1px}
+.hbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hclaim{font-size:14.5px;font-weight:500;line-height:1.6}
+.hfals{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hfals b{font-weight:500;color:var(--ink-2)}
+.tag{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;justify-self:start;white-space:nowrap;border:1px solid;
+}
+.t-ok{color:var(--ok);border-color:var(--ok);background:var(--ok-wash)}
+.t-no{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
+.t-part{color:var(--warn);border-color:var(--warn);background:var(--warn-wash)}
+
+/* ---- tables ---- */
+.scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+caption{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);background:var(--surface-2)}
+caption b{color:var(--ink-2);font-weight:600}
+th,td{padding:9px 16px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface-2);text-align:right;
+}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+th:first-child{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.metric{font-weight:500;color:var(--ink-2)}
+.g{color:var(--ok);font-weight:600} .y{color:var(--warn);font-weight:600} .r{color:var(--bad);font-weight:600}
+.dim{color:var(--muted)}
+
+/* ---- chart ---- */
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.chartbox{background:var(--surface);border:1px solid var(--rule);padding:20px 12px 12px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:74ch}
+figcaption b{color:var(--ink-2);font-weight:500}
+
+/* ---- code ---- */
+pre{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule-2);
+  padding:16px 18px;overflow-x:auto;margin:0;color:var(--ink-2);
+}
+pre .c{color:var(--muted)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border:1px solid var(--rule)}
+
+/* ---- pitfalls ---- */
+.pit{background:var(--surface);border:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;gap:9px}
+.pit .sym{font-size:14.5px;font-weight:600}
+.pit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;line-height:1.6}
+.pit dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.pit dd{margin:0;color:var(--ink-2)}
+.pits{display:flex;flex-direction:column;gap:14px}
+
+/* ---- misc lists ---- */
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;max-width:68ch}
+li{line-height:1.7}
+li::marker{color:var(--rule-2)}
+.files{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13px;align-items:baseline}
+.files dt{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent-deep);white-space:nowrap}
+.files dd{margin:0;color:var(--ink-2)}
+a{color:var(--accent-deep)}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{padding:36px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:720px){
+  .wrap{padding:0 18px 70px}
+  h1{font-size:27px}
+  .hrow{grid-template-columns:44px 1fr;gap:0 12px}
+  .tag{grid-column:2;margin-top:8px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">측정 보고서 · 2026-09-08</div>
+  <h1>프레임 단위 편집, 웹에서 되는가</h1>
+  <p class="lede">웹 기반 영상 편집기를 만들지 결정하기 위해, 브라우저가 로컬 영상을 편집기 수준으로
+  다룰 수 있는지 실측했다. 결론부터: <b>된다.</b> 그리고 그 이유는 사전에 세운 가설과 달랐다.</p>
+  <div class="stamp">
+    <span><b>기기</b> Apple M3 · 8 cores</span>
+    <span><b>OS</b> macOS 26.6</span>
+    <span><b>브라우저</b> Chrome 152</span>
+    <span><b>화면</b> 2240×1260 · 60Hz(추정)</span>
+    <span><b>인코더</b> ffmpeg 8.1.1 / libx264</span>
+  </div>
+</header>
+
+<!-- ============ 판정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">판정</div>
+    <h2>두 조건 모두 만족한다</h2>
+  </div>
+
+  <div class="verdict">
+    <p>웹 서비스로 편집기를 구현하는 결정의 전제 두 가지가 모두 성립한다. 1080p에서는
+    <b>WebCodecs 없이 순수 <code>&lt;video&gt;</code> 엘리먼트만으로도</b> 프레임 스텝이
+    디스플레이 주사율 1회(16.7ms) 안에 끝난다 &mdash; 물리적으로 더 빠를 수 없는 값이다.
+    유일한 실질적 제약은 4K 스크러빙으로, 프리뷰 프록시로 해결하는 것이 편집기의 표준 관행이다.</p>
+  </div>
+
+  <div class="criteria">
+    <div class="criterion">
+      <span class="q">Q1. 로컬 영상을 브라우저에서 불러오고 재생하는 데 오래 걸리는가</span>
+      <span class="a">아니다. 업로드가 없다.</span>
+      <span class="n">첫 프레임 58.9&ndash;220.5ms · 파일 크기와 무관</span>
+    </div>
+    <div class="criterion">
+      <span class="q">Q2. 편집본 프리뷰 재생과 프레임별 이동이 빠를 수 있는가</span>
+      <span class="a">그렇다. 1080p는 1 vsync.</span>
+      <span class="n">프레임 스텝 16.7ms · 드롭 0 · 컷 전환 14.3ms</span>
+    </div>
+    <div class="criterion">
+      <span class="q">유일한 제약</span>
+      <span class="a">4K 스크러빙 p95 316.9ms</span>
+      <span class="n">프리뷰 프록시(1080p)로 회피</span>
+    </div>
+  </div>
+
+  <p class="small">이 문서의 모든 수치는 아래 &ldquo;실험&rdquo; 절의 명령으로 재현할 수 있다.
+  원본 측정 데이터는 <code>bench/data/</code>에 JSON으로 있다.</p>
+</section>
+
+<!-- ============ 문제 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">문제</div>
+    <h2>무엇을 결정해야 했는가</h2>
+  </div>
+  <div class="stack">
+    <p>간단한 영상 편집기를 만들려 한다. 네이티브 앱이 아니라 웹 서비스로 갈지가 갈림길이고,
+    그 판단은 두 질문에 달려 있었다.</p>
+    <ul>
+      <li><b>Q1 &mdash; 로딩.</b> 로컬에 저장된 영상을 브라우저에서 조회하는 데 걸리는 시간.
+      불러오고 재생하기까지 오래 걸리는가?</li>
+      <li><b>Q2 &mdash; 프리뷰.</b> 편집한 영상의 프리뷰를 볼 때의 재생 성능.
+      프레임별 이동도 빠를 수 있는가?</li>
+    </ul>
+    <p>결정 규칙은 단순했다. <b>둘 다 만족하면 웹으로 간다.</b>
+    따라서 측정의 목적은 성능 최적화가 아니라 두 명제의 참/거짓을 가리는 것이다.</p>
+  </div>
+</section>
+
+<!-- ============ 가설 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">가설</div>
+    <h2>측정 전에 무엇을 믿었는가</h2>
+    <p class="small">H1&ndash;H5는 측정 전에 세웠다. H6은 실험 도중 이상값을 설명하기 위해
+    사후에 생성한 가설이므로 같은 무게로 취급하지 않는다.</p>
+  </div>
+
+  <div class="hyp">
+    <div class="hrow">
+      <span class="hid">H1</span>
+      <span class="hbody">
+        <span class="hclaim">로컬 파일은 업로드 없이 브라우저 안에서만 처리되며, 첫 프레임까지 수백 ms 안에 도달한다.</span>
+        <span class="hfals"><b>반증 조건:</b> 첫 프레임까지 1초 이상 걸리거나, 파일 크기에 비례해 증가한다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H2</span>
+      <span class="hbody">
+        <span class="hclaim">하드웨어 디코더 덕분에 실시간 재생은 4K까지 프레임 드롭 없이 유지된다.</span>
+        <span class="hfals"><b>반증 조건:</b> 드롭 프레임이 발생하거나 실효 fps가 목표의 95% 아래로 떨어진다.</span>
+      </span>
+      <span class="tag t-part">부분</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H3</span>
+      <span class="hbody">
+        <span class="hclaim"><code>video.currentTime</code>을 이용한 프레임 스텝은 30&ndash;150ms로 느리다.
+        따라서 프레임 단위 편집에는 WebCodecs가 사실상 필수다.</span>
+        <span class="hfals"><b>반증 조건:</b> 프레임 스텝 중앙값이 30ms를 뚜렷하게 밑돈다.</span>
+      </span>
+      <span class="tag t-no">반증</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H4</span>
+      <span class="hbody">
+        <span class="hclaim">여러 클립을 잇는 컷에서, 다음 클립을 미리 seek해두면(preroll) seek 지연이 컷에 드러나지 않는다.</span>
+        <span class="hfals"><b>반증 조건:</b> preroll된 클립으로의 전환 비용이 랜덤 seek 비용과 비슷하다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H5</span>
+      <span class="hbody">
+        <span class="hclaim">WebCodecs는 실시간 대비 큰 디코딩 여유를 주며, 그 배수가 곧 레이어 합성 예산이다.</span>
+        <span class="hfals"><b>반증 조건:</b> 디코딩 처리량이 실시간의 몇 배에 못 미친다.</span>
+      </span>
+      <span class="tag t-ok">확인</span>
+    </div>
+    <div class="hrow">
+      <span class="hid">H6<br><span style="font-size:9px;letter-spacing:.08em;color:var(--muted)">사후</span></span>
+      <span class="hbody">
+        <span class="hclaim">프레임 스텝 비용은 GOP(키프레임 간격) 안에서의 위치에 의존한다.
+        키프레임에서 멀수록 느리다.</span>
+        <span class="hfals"><b>반증 조건:</b> 시작 위치를 바꿔도 스텝 지연이 변하지 않는다.</span>
+      </span>
+      <span class="tag t-part">1080p60만</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 실험 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">실험</div>
+    <h2>어떻게 측정했는가</h2>
+  </div>
+
+  <div class="stack">
+    <h3>자극 (테스트 영상)</h3>
+    <p class="small">합성 영상(<code>testsrc2</code>)에 노이즈를 얹어 실제 카메라 푸티지 수준의 비트레이트를 강제했다.
+    노이즈가 없으면 합성 패턴이 지나치게 잘 압축돼 디코딩 부하가 비현실적으로 낮아진다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 1.</b> 테스트 클립. 전부 H.264 High / yuv420p / faststart.</caption>
+        <thead><tr><th>파일</th><th>해상도</th><th>fps</th><th>비트레이트</th><th>GOP</th><th>키프레임 간격</th><th>길이</th><th>크기</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1080p30_gop60.mp4</td><td class="num">1920×1080</td><td class="num">30</td><td class="num">15 Mbps</td><td class="num">60</td><td class="num">2.0s</td><td class="num">20s</td><td class="num">37.9 MB</td></tr>
+          <tr><td class="mono">1080p60_gop120.mp4</td><td class="num">1920×1080</td><td class="num">60</td><td class="num">20 Mbps</td><td class="num">120</td><td class="num">2.0s</td><td class="num">20s</td><td class="num">48.0 MB</td></tr>
+          <tr><td class="mono">4k30_gop60.mp4</td><td class="num">3840×2160</td><td class="num">30</td><td class="num">50 Mbps</td><td class="num">60</td><td class="num">2.0s</td><td class="num">20s</td><td class="num">130.7 MB</td></tr>
+          <tr><td class="mono">short_25fps_4s.mp4</td><td class="num">1280×720</td><td class="num">25</td><td class="num">6 Mbps</td><td class="num">50</td><td class="num">2.0s</td><td class="num">4s</td><td class="num">4.6 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">마지막 클립은 성능 측정용이 아니라 하네스의 방어 로직(짧은 길이, 비표준 fps) 검증용이다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>측정 방법</h3>
+    <p>모든 클립은 <code>URL.createObjectURL()</code>로 만든 blob URL을 통해 로드했다.
+    이것이 사용자가 파일을 드롭했을 때 실제 편집기가 하는 일과 같다 &mdash; 업로드도, 복사도 없다.</p>
+    <p>지연 측정의 기준점은 전부 <code>requestVideoFrameCallback</code>이다.
+    <code>seeked</code> 이벤트가 아니라 <b>프레임이 실제로 화면에 표시된 시점</b>을 재기 위해서다.
+    사용자가 체감하는 것은 후자다.</p>
+    <div class="scroll">
+      <table>
+        <caption><b>표 2.</b> 측정 항목의 조작적 정의.</caption>
+        <thead><tr><th>항목</th><th style="text-align:left">정의</th><th>표본</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">첫 프레임</td><td style="text-align:left">blob URL 지정 &rarr; 첫 프레임 표시</td><td class="num">1</td></tr>
+          <tr><td class="metric">재생 fps</td><td style="text-align:left">5초 재생 동안 표시된 프레임 수 / 경과 시간</td><td class="num">150&ndash;257</td></tr>
+          <tr><td class="metric">프레임 스텝</td><td style="text-align:left"><code>currentTime = s + (i+0.5)/fps</code> &rarr; 표시. 프레임 중앙을 노린다</td><td class="num">60</td></tr>
+          <tr><td class="metric">랜덤 seek</td><td style="text-align:left">타임라인 임의 지점으로 이동 &rarr; 표시</td><td class="num">30</td></tr>
+          <tr><td class="metric">컷 전환</td><td style="text-align:left">미리 seek해 재생 중인 B로 교체 &rarr; B의 첫 프레임 표시</td><td class="num">10</td></tr>
+          <tr><td class="metric">WC 디코드</td><td style="text-align:left"><code>VideoDecoder</code>로 전체 파일 디코딩. mp4box.js로 디먹싱</td><td class="num">600&ndash;1200</td></tr>
+          <tr><td class="metric">WC 캐시 프레임</td><td style="text-align:left">이미 디코딩된 <code>VideoFrame</code>을 canvas에 <code>drawImage</code></td><td class="num">90</td></tr>
+          <tr><td class="metric">WC 점프</td><td style="text-align:left">직전 키프레임부터 목표 프레임까지 디코딩</td><td class="num">12</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">fps는 표시된 프레임의 <code>mediaTime</code> 간격 중앙값으로 자동 감지한다.
+    포맷과 무관하고 디먹싱이 필요 없다. 프레임 스텝이 <code>1/fps</code> 단위이므로 이 값이 틀리면 측정 자체가 틀어진다 &mdash;
+    실제로 그런 일이 있었다(아래 P3).</p>
+  </div>
+
+  <div class="stack">
+    <h3>재현 절차</h3>
+    <pre><span class="c"># 1. 테스트 영상 생성 (ffmpeg 필요, ~220MB)</span>
+cd bench &amp;&amp; ./make-test-videos.sh
+
+<span class="c"># 2. 로컬 서버 기동 (Range 요청 지원 + 스레딩 필수 — 아래 P1 참조)</span>
+python3 serve.py &amp;
+
+<span class="c"># 3. throttling을 끈 전용 프로필로 Chrome 기동</span>
+<span class="c">#    기존 Chrome이 떠 있으면 플래그가 무시되므로 --user-data-dir이 반드시 필요하다</span>
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --user-data-dir=/tmp/bench-profile --no-first-run --no-default-browser-check \
+  --autoplay-policy=no-user-gesture-required \
+  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
+  --disable-background-timer-throttling \
+  "http://127.0.0.1:8777/index.html?auto=1"
+
+<span class="c"># 4. GOP 내 위치에 따른 프레임 스텝 지연 (H6 검증)</span>
+<span class="c">#    같은 파일, 같은 세션에서 시작 오프셋만 바꾼다</span>
+open "http://127.0.0.1:8777/index.html?sweep=1080p60_gop120.mp4&amp;offsets=4.0,4.5,5.0,5.5,6.0"
+
+<span class="c"># 결과는 화면에 표로 뜨고, 서버가 살아있으면 result.json으로도 저장된다</span></pre>
+    <p class="small">임의의 파일로 재측정하려면 페이지에 드롭하면 된다. 여러 개 동시에 가능하다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>하네스 구성</h3>
+    <dl class="files">
+      <dt>bench/index.html</dt><dd>측정 페이지. 드롭존 + 결과 표 + 모든 측정 로직</dd>
+      <dt>bench/serve.py</dt><dd>로컬 서버. Range 요청과 스레딩 지원, 결과 수집</dd>
+      <dt>bench/make-test-videos.sh</dt><dd>표 1의 클립 생성 (~220MB라 커밋하지 않음)</dd>
+      <dt>bench/mp4box.all.min.js</dt><dd>mp4box 0.5.2. WebCodecs용 MP4 디먹싱</dd>
+      <dt>bench/data/*.json</dt><dd>이 문서의 원본 측정값. 실행 4회분</dd>
+      <dt>bench/data/sweep-gop-offset.txt</dt><dd>H6 검증용 오프셋 스윕 원본</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ 사실 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">사실</div>
+    <h2>측정된 값</h2>
+    <p class="small">아래는 fps 자동 감지가 정상 동작한 최종 실행
+    (<code>bench/data/run-final-fps-fixed.json</code>) 기준이다.
+    단위는 밀리초, <span class="mono">med / p95</span> 형식.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption><b>표 3.</b> 주 결과. <span class="g">초록 &lt;20ms</span> · <span class="y">노랑 &lt;60ms</span> · <span class="r">빨강 &ge;60ms</span> &mdash; 색은 숫자를 보조할 뿐이다.</caption>
+      <thead><tr><th>항목</th><th>1080p30</th><th>1080p60</th><th>4K30</th><th>관련 가설</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">첫 프레임</td><td class="num g">142.3</td><td class="num g">58.9</td><td class="num g">220.5</td><td class="num dim">H1</td></tr>
+        <tr><td class="metric">실효 재생 fps</td><td class="num g">30.2 / 30</td><td class="num y">51.6 / 60</td><td class="num g">30.2 / 30</td><td class="num dim">H2</td></tr>
+        <tr><td class="metric">드롭 프레임</td><td class="num g">0</td><td class="num y">1</td><td class="num g">0</td><td class="num dim">H2</td></tr>
+        <tr><td class="metric">프레임 스텝</td><td class="num g">16.7 / 33.6</td><td class="num g">17.6 / 33.9</td><td class="num y">51.2 / 90.2</td><td class="num dim">H3</td></tr>
+        <tr><td class="metric">랜덤 seek</td><td class="num g">17.1 / 34.0</td><td class="num y">33.4 / 83.3</td><td class="num r">82.7 / 316.9</td><td class="num dim">H3</td></tr>
+        <tr><td class="metric">컷 전환 (preroll)</td><td class="num g">14.3</td><td class="num g">15.5</td><td class="num g">10.6</td><td class="num dim">H4</td></tr>
+        <tr><td class="metric">WC 디코딩 처리량</td><td class="num g">1524 fps</td><td class="num g">1898 fps</td><td class="num g">368 fps</td><td class="num dim">H5</td></tr>
+        <tr><td class="metric">WC 실시간 대비</td><td class="num g">50.8×</td><td class="num g">31.6×</td><td class="num g">12.3×</td><td class="num dim">H5</td></tr>
+        <tr><td class="metric">WC 캐시 프레임 그리기</td><td class="num g">0.4</td><td class="num g">0.2</td><td class="num y">10.2</td><td class="num dim">H5</td></tr>
+        <tr><td class="metric">WC 키프레임 점프</td><td class="num y">27.2 / 57.6</td><td class="num y">38.9 / 89.9</td><td class="num r">60.2 / 376.6</td><td class="num dim">H5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stack">
+    <h3>F1 &mdash; 모든 지연이 16.7ms의 배수다</h3>
+    <p>표 3의 값들은 16.7 · 33.3 · 50.0 · 83.3에 몰려 있다. 이는 60Hz 디스플레이의 vsync 간격이며,
+    <b>16.7ms가 물리적 최소값</b>이라는 뜻이다. 주사율은 <code>system_profiler</code>로 읽히지 않아
+    이 양자화 패턴에서 60Hz로 역추정했다.</p>
+    <p>실무적 함의는 하나다. 16.7ms로 측정된 항목은 &ldquo;빠르다&rdquo;가 아니라
+    <b>&ldquo;더 빠를 수 없다, 디코딩은 여유가 남는다&rdquo;</b>로 읽어야 한다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F2 &mdash; H3은 반증됐다. 1080p 프레임 스텝은 1 vsync다</h3>
+    <p>사전 예측은 30&ndash;150ms였고 그래서 WebCodecs가 필수라고 봤다.
+    실측은 1080p30에서 <b>16.7ms</b>, 1080p60에서 <b>17.6ms</b>다. 순수
+    <code>&lt;video&gt;</code> 엘리먼트만으로 최소값에 도달한다.
+    4K30만 51.2ms로 예측 범위 안에 들어왔다.</p>
+    <p>결과적으로 <b>1080p 타깃이라면 1단계에서 WebCodecs가 필요 없다.</b>
+    이것이 이 측정에서 가장 비용을 아끼는 발견이다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F3 &mdash; H6: GOP 내 위치 의존성은 1080p60에서만 나타난다</h3>
+    <figure>
+      <div class="chartbox">
+        <svg viewBox="0 0 720 310" width="100%" style="max-width:720px;display:block" role="img"
+             aria-label="1080p60 프레임 스텝 지연은 키프레임 위(4.0초, 6.0초)에서 17.5ms, GOP 중간(5.0초)에서 49.9ms로 오른다">
+          <!-- vsync gridlines -->
+          <g stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="60" y1="183.2" x2="600" y2="183.2"></line>
+            <line x1="60" y1="116.8" x2="600" y2="116.8"></line>
+            <line x1="60" y1="50.0"  x2="600" y2="50.0"></line>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">
+            <text x="610" y="186.7">1× vsync</text>
+            <text x="610" y="120.3">2×</text>
+            <text x="610" y="53.5">3×</text>
+          </g>
+          <!-- baseline + y ticks -->
+          <line x1="60" y1="250" x2="600" y2="250" stroke="var(--rule-2)" stroke-width="1"></line>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="end">
+            <text x="50" y="253.5">0</text>
+            <text x="50" y="186.7">16.7</text>
+            <text x="50" y="120.3">33.3</text>
+            <text x="50" y="53.5">50.0</text>
+          </g>
+          <text x="60" y="22" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">프레임 스텝 지연 (ms, 중앙값)</text>
+          <!-- keyframe bands -->
+          <g fill="var(--accent-wash)">
+            <rect x="52" y="255" width="16" height="4"></rect>
+            <rect x="592" y="255" width="16" height="4"></rect>
+          </g>
+          <!-- x ticks -->
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)" text-anchor="middle">
+            <text x="60"  y="272">4.0s</text>
+            <text x="195" y="272">4.5s</text>
+            <text x="330" y="272">5.0s</text>
+            <text x="465" y="272">5.5s</text>
+            <text x="600" y="272">6.0s</text>
+            <text x="60"  y="288" fill="var(--accent)">키프레임</text>
+            <text x="330" y="288">GOP 중간</text>
+            <text x="600" y="288" fill="var(--accent)">키프레임</text>
+          </g>
+          <!-- series -->
+          <path d="M60,179.8 L195,116.4 L330,50.4 L465,115.0 L600,117.4"
+                fill="none" stroke="var(--accent)" stroke-width="2"
+                stroke-linejoin="round" stroke-linecap="round"></path>
+          <g fill="var(--accent)" stroke="var(--surface)" stroke-width="2">
+            <circle cx="60"  cy="179.8" r="5"><title>4.0s (키프레임) · 17.55ms</title></circle>
+            <circle cx="195" cy="116.4" r="5"><title>4.5s · 33.40ms</title></circle>
+            <circle cx="330" cy="50.4"  r="5"><title>5.0s (GOP 중간) · 49.90ms</title></circle>
+            <circle cx="465" cy="115.0" r="5"><title>5.5s · 33.75ms</title></circle>
+            <circle cx="600" cy="117.4" r="5"><title>6.0s (키프레임) · 33.15ms</title></circle>
+          </g>
+          <!-- direct labels: the two extremes only -->
+          <g font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="600" fill="var(--ink)">
+            <text x="70" y="203">17.5ms</text>
+            <text x="330" y="40" text-anchor="middle">49.9ms</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>그림 1.</b> 1080p60(GOP 120 = 키프레임 2.0초 간격)에서 프레임 스텝 지연 대 GOP 내 시작 위치.
+      각 점은 60회 스텝의 중앙값이며 2회 반복 실행의 평균이다(두 회차는 0.5ms 이내로 일치).
+      키프레임 위에서 1 vsync, GOP 중간에서 3 vsync로 오른다.</figcaption>
+    </figure>
+
+    <div class="scroll">
+      <table>
+        <caption><b>표 4.</b> 오프셋 스윕 전체. 1080p30과 4K30은 4.0s·5.0s 두 지점만 측정했고 두 값이 일치한다.</caption>
+        <thead><tr><th>시작 위치</th><th>4.0s (키프레임)</th><th>4.5s</th><th>5.0s (GOP 중간)</th><th>5.5s</th><th>6.0s (키프레임)</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">1080p60</td><td class="num g">17.5</td><td class="num y">33.4</td><td class="num y">49.9</td><td class="num y">33.8</td><td class="num y">33.2</td></tr>
+          <tr><td class="metric">1080p30</td><td class="num g">16.8</td><td class="num dim">&mdash;</td><td class="num g">16.8</td><td class="num dim">&mdash;</td><td class="num dim">&mdash;</td></tr>
+          <tr><td class="metric">4K30</td><td class="num y">51.1</td><td class="num dim">&mdash;</td><td class="num y">51.7</td><td class="num dim">&mdash;</td><td class="num dim">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>1080p30과 4K30은 위치와 <b>무관하게 평평하다</b>. 4K의 51ms는 GOP 위치가 아니라
+    순수 디코딩 비용이다. GOP 민감도는 1080p60에만 나타나는데, 60Hz 화면에서 초당 60프레임을
+    스텝하면 프레임당 실시간 예산이 절반이라 키프레임에서 멀어질수록 vsync를 더 소모하는 것으로 보인다.
+    <b>인과는 이 실험만으로 확정되지 않는다</b> &mdash; 상관은 재현 가능하게 관찰됐다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F4 &mdash; preroll하면 컷은 사실상 공짜다 (H4)</h3>
+    <p>다음 클립을 미리 seek해두고 재생 상태로 대기시키면, 전환 비용은 세 해상도 모두
+    <b>10.6&ndash;15.5ms</b>다. 같은 파일의 랜덤 seek이 4K에서 p95 316.9ms인 것과 대비된다.
+    즉 컷의 비용은 디코딩이 아니라 <b>언제 seek을 시작하느냐</b>의 문제다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F5 &mdash; WebCodecs 여유는 12&ndash;51배다 (H5)</h3>
+    <p>전체 파일 디코딩 처리량은 1080p30에서 실시간의 50.8배, 4K30에서 12.3배다.
+    이 배수가 곧 실시간을 유지하면서 합성할 수 있는 레이어 예산이다.
+    디코딩된 프레임을 canvas에 그리는 실비용은 1080p에서 <b>0.2&ndash;0.4ms</b>,
+    4K에서 <b>10.2ms</b>다 &mdash; 4K는 디코딩뿐 아니라 픽셀 전송에서도 한 자릿수 배 비싸다.</p>
+    <p>즉 프레임을 링버퍼에 미리 디코딩해두면 프레임 스텝은 1080p에서 사실상 0에 수렴하고,
+    화면 표시에 vsync 1회만 더해진다.</p>
+  </div>
+
+  <div class="stack">
+    <h3>F6 &mdash; 재현성</h3>
+    <p>동일 조건 2회 실행에서 주요 지표가 일치했다. 프레임 스텝 중앙값은
+    1080p30 16.8 / 16.7, 4K30 52.0 / 51.8. WebCodecs 처리량은 4K30에서 434 / 434 fps.
+    변동이 큰 항목은 랜덤 seek의 p95(4K30에서 277&ndash;317ms)로, 표본 30회에서는 꼬리가 안정되지 않는다.</p>
+    <p class="small">첫 프레임 시간도 회차 간 편차가 크다(1080p30에서 142&ndash;208ms).
+    측정 대상이 blob URL이라 디스크 I/O는 포함되지 않으며, 브라우저 내부 캐시 상태에 영향받는다.</p>
+  </div>
+</section>
+
+<!-- ============ 계측 함정 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">계측 함정</div>
+    <h2>측정 자체가 틀렸던 네 번</h2>
+    <p class="small">이 항목들은 재현에 필수다. 넷 다 그럴듯한 수치를 내놓으면서 틀렸고,
+    P3과 P4는 결론을 실제로 바꿨다.</p>
+  </div>
+
+  <div class="pits">
+    <div class="pit">
+      <span class="sym">P1. 단일 스레드 서버가 재생 측정을 무한 대기시켰다</span>
+      <dl>
+        <dt>증상</dt><dd>재생 측정이 25초 타임아웃까지 아무 프레임도 받지 못함. 워치독은 <code>paused=false readyState=1</code>을 보고했다.</dd>
+        <dt>원인</dt><dd><code>socketserver.TCPServer</code>가 단일 스레드라 영상 스트리밍과 진행 상황 POST가 서로를 막았다. Range 요청도 지원하지 않았다.</dd>
+        <dt>수정</dt><dd><code>ThreadingHTTPServer</code> + Range 응답. 이후 모든 측정은 메모리의 blob URL로 수행해 서버를 경로에서 완전히 제거했다.</dd>
+      </dl>
+    </div>
+
+    <div class="pit">
+      <span class="sym">P2. 이미 그 위치에 있는 영상을 seek하면 콜백이 영영 오지 않는다</span>
+      <dl>
+        <dt>증상</dt><dd><code>currentTime = 0</code> 후 <code>requestVideoFrameCallback</code>이 발화하지 않음.</dd>
+        <dt>원인</dt><dd>rVFC는 <b>새 프레임이 표시될 때만</b> 발화한다. 이미 0초에 정지해 있으면 새 프레임이 없다.</dd>
+        <dt>수정</dt><dd>현재 위치와 다른 지점으로 seek. 편집기 코드에서도 같은 함정이 적용된다.</dd>
+      </dl>
+    </div>
+
+    <div class="pit">
+      <span class="sym">P3. fps 감지가 허용 오차 안의 <em>첫</em> 후보를 골랐다</span>
+      <dl>
+        <dt>증상</dt><dd>진짜 30fps 영상을 29.97로, 60fps를 59.94로 보고.</dd>
+        <dt>원인</dt><dd>후보 목록에서 <code>find(오차&lt;2%)</code>를 썼는데, 29.97과 30은 둘 다 30fps 스트림의 2% 안에 들어오고 29.97이 목록에서 앞이었다.</dd>
+        <dt>수정</dt><dd>가장 가까운 값으로 선택. 프레임 스텝이 <code>1/fps</code> 단위라 이 오차가 스텝 정확도를 직접 훼손한다.</dd>
+      </dl>
+    </div>
+
+    <div class="pit">
+      <span class="sym">P4. 한 지점에서만 잰 값을 대표값으로 보고했다</span>
+      <dl>
+        <dt>증상</dt><dd>1080p60 프레임 스텝을 50ms로 보고. 하네스를 고친 뒤 같은 파일이 17.6ms로 측정됐다.</dd>
+        <dt>원인</dt><dd>초기 하네스는 시작 위치를 5.0초로 하드코딩했고, 그 지점이 하필 GOP 중간 &mdash; 최악의 위치였다.</dd>
+        <dt>수정</dt><dd>오프셋 스윕(그림 1)으로 위치 의존성 자체를 측정. <b>편집기 벤치마크는 GOP 내 여러 위치에서 재야 한다.</b></dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 한계 ============ -->
+<section>
+  <div class="sechead">
+    <div class="eyebrow">한계</div>
+    <h2>이 실험이 말하지 않는 것</h2>
+  </div>
+  <ul>
+    <li><b>합성 영상이다.</b> <code>testsrc2</code> + 노이즈이지 실제 카메라 푸티지가 아니다.
+    비트레이트는 현실적으로 맞췄지만 모션 특성과 인코더 설정이 다르다.
+    실제 촬영본으로 재측정하려면 페이지에 드롭하면 된다.</li>
+    <li><b>H.264만 측정했다.</b> HEVC(아이폰 기본 촬영), VP9, AV1, ProRes는 측정하지 않았다.
+    이들은 성능이 아니라 <b>재생 가능 여부</b>부터 갈린다.</li>
+    <li><b>단일 기기다.</b> Apple M3 + 60Hz + Chrome 152. 저사양 기기, Windows, Safari, Firefox는 다르다.
+    특히 Firefox의 WebCodecs 지원은 뒤처져 있다.</li>
+    <li><b>디스크 I/O가 빠져 있다.</b> 파일을 메모리로 읽은 뒤 측정했다.
+    실제 콜드 리드는 SSD에서 38MB 기준 수십 ms 수준이라 결론을 바꾸지는 않는다.</li>
+    <li><b>주사율은 추정이다.</b> 60Hz라고 직접 읽지 못했고 지연의 양자화 패턴에서 역추정했다.
+    120Hz 기기에서는 최소값 자체가 8.3ms로 내려간다.</li>
+    <li><b>익스포트를 측정하지 않았다.</b> 두 질문의 범위 밖이었다 &mdash;
+    후속 측정에서 다뤘다(<a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">익스포트 보고서</a>). 예상대로 실제 병목은 프리뷰가 아니라 여기였다.</li>
+    <li><b>1080p60의 51.6fps는 설명하지 못했다.</b> 브라우저가 보고한 드롭은 1프레임뿐이라
+    디코딩 실패는 아니다. 프레임 표시 합쳐짐이나 계측 오버헤드로 추정하나 확정하지 못했다.</li>
+  </ul>
+</section>
+
+<!-- ============ 함의 ============ -->
+<section style="border-bottom:none">
+  <div class="sechead">
+    <div class="eyebrow">함의</div>
+    <h2>구현에 그대로 옮길 것</h2>
+  </div>
+  <ul>
+    <li><b>1단계는 <code>&lt;video&gt;</code> + preroll로 충분하다.</b> 1080p 타깃이면 WebCodecs 없이
+    프레임 스텝 1 vsync, 컷 전환 1 vsync가 나온다. WebCodecs는 실제로 부족해질 때 도입한다. (F2, F4)</li>
+    <li><b>다음 클립은 항상 미리 seek해둔다.</b> 컷 비용을 결정하는 유일한 변수다. (F4)</li>
+    <li><b>프레임 위치를 <code>i/fps</code>로 계산하지 말고 컨테이너의 실제 프레임 타임스탬프를 쓴다.</b>
+    29.97과 30을 혼동하면 스텝이 3배 느려지는 것을 실측했다. (P3)</li>
+    <li><b>4K는 프리뷰 프록시를 만든다.</b> <span class="dim">(2차 루프에서 실측: 51.2ms → 16.7ms.
+    <a href="https://claude.ai/code/artifact/53b41859-87d5-4134-bf6c-b94b03a452b5">레버 보고서</a>)</span> 스크러빙 p95 316.9ms와 캐시 프레임 그리기 10.2ms 모두
+    1080p 프록시로 해결된다. 편집기의 표준 관행이다. (표 3, F5)</li>
+    <li><b>지원 포맷을 좁히고 명시한다.</b> H.264 MP4를 안전지대로 두고, 나머지는
+    &ldquo;지원하지 않는 형식&rdquo;으로 안내한다. 성능이 아니라 재생 가능 여부의 문제다.</li>
+    <li><b>익스포트는 별도로 측정했다.</b> <a href="https://claude.ai/code/artifact/490c9859-10f6-41e5-b332-a638661d13ad">웹에서 익스포트, 얼마나 빠른가</a> &mdash;
+    WebCodecs가 ffmpeg.wasm보다 17배 빠르고, 병목은 인코더 단독이며, 병렬화는 효과가 없다.</li>
+  </ul>
+  <p class="small" style="margin-top:8px">2차 루프에서 개선 레버를 검증했다 &mdash;
+  <a href="https://claude.ai/code/artifact/53b41859-87d5-4134-bf6c-b94b03a452b5">편집기를 빠르게 만드는 레버</a>.</p>
+</section>
+
+<footer>
+  측정 2026-09-08 · Apple M3 / macOS 26.6 / Chrome 152 · 원본 데이터 <span class="mono">bench/data/</span> ·
+  하네스 <span class="mono">bench/index.html</span>
+</footer>
+
+</div>

@@ -1,0 +1,1042 @@
+<title>상담센터 AS-IS 흐름도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+:root{
+  --ground:#E6E7E1;
+  --surface:#F7F7F3;
+  --band:#EDEEE8;
+  --ink:#1E2729;
+  --ink-2:#4E5C5F;
+  --ink-3:#7C8789;
+  --rule:#C9CCC5;
+  --rule-2:#AAB0A8;
+  --stamp:#A83B2C;
+  --stamp-bg:#EFDDD9;
+  --r-parent:#4A7568;
+  --r-desk:#7A6634;
+  --r-psych:#425682;
+  --r-couns:#764A67;
+  --r-dir:#8A523A;
+  --r-admin:#525C69;
+  --f-display:'Song Myung','Nanum Myeongjo',serif;
+  --f-body:'IBM Plex Sans KR',system-ui,-apple-system,sans-serif;
+  --f-mono:'Nanum Gothic Coding',ui-monospace,'SFMono-Regular',monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#161B1D; --surface:#1F2527; --band:#1A2022;
+    --ink:#E4E4DC; --ink-2:#A5AFB0; --ink-3:#7B8587;
+    --rule:#333B3D; --rule-2:#4B5557;
+    --stamp:#E4735E; --stamp-bg:#3A2320;
+    --r-parent:#7FB6A5; --r-desk:#C7A85F; --r-psych:#8CA4D6;
+    --r-couns:#C68FB5; --r-dir:#D5906A; --r-admin:#96A3B1;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#161B1D; --surface:#1F2527; --band:#1A2022;
+  --ink:#E4E4DC; --ink-2:#A5AFB0; --ink-3:#7B8587;
+  --rule:#333B3D; --rule-2:#4B5557;
+  --stamp:#E4735E; --stamp-bg:#3A2320;
+  --r-parent:#7FB6A5; --r-desk:#C7A85F; --r-psych:#8CA4D6;
+  --r-couns:#C68FB5; --r-dir:#D5906A; --r-admin:#96A3B1;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--f-body); font-weight:400;
+  line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+/* ── masthead: 조사 서식 ───────────────────────── */
+.mast{border-bottom:2px solid var(--ink);padding:44px 0 0}
+.mast-tag{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;
+  color:var(--stamp);text-transform:uppercase;
+}
+.mast h1{
+  font-family:var(--f-display);font-weight:400;
+  font-size:clamp(34px,5.6vw,62px);line-height:1.12;
+  margin:10px 0 6px;text-wrap:balance;letter-spacing:-.01em;
+}
+.mast .lede{
+  font-size:16px;color:var(--ink-2);max-width:62ch;margin:0 0 26px;
+  font-weight:300;
+}
+.mast-fields{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  border-top:1px solid var(--rule);
+}
+.fld{padding:11px 14px 12px;border-right:1px solid var(--rule)}
+.fld:last-child{border-right:0}
+.fld dt{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink-3);margin:0 0 3px;
+}
+.fld dd{margin:0;font-size:13.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ── sections ───────────────────────────────── */
+section{margin:0}
+.sec-head{
+  display:flex;align-items:baseline;gap:14px;
+  border-bottom:1px solid var(--rule-2);
+  padding-bottom:8px;margin:64px 0 22px;
+}
+.sec-no{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;
+  color:var(--stamp);flex:none;padding-top:5px;
+}
+.sec-head h2{
+  font-family:var(--f-display);font-weight:400;font-size:27px;
+  margin:0;line-height:1.3;flex:1;
+}
+.sec-head p{margin:0;font-size:13px;color:var(--ink-3);text-align:right;max-width:34ch}
+
+/* ── role legend ────────────────────────────── */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:1px;background:var(--rule)}
+.role{background:var(--surface);padding:16px 17px 17px;display:flex;gap:13px;align-items:flex-start}
+.role-ic{
+  flex:none;width:42px;height:42px;border-radius:50%;
+  display:grid;place-items:center;color:var(--rc);
+  border:1.5px solid var(--rc);
+}
+.role[data-ext="1"] .role-ic{border-style:dashed}
+.role-ic svg{width:24px;height:24px}
+.role h3{margin:0 0 1px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.role .who{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--rc)}
+.role p{margin:5px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+/* ── swimlane ───────────────────────────────── */
+.swim-scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+.swim{min-width:1190px}
+.gridrow{
+  display:grid;
+  grid-template-columns:118px repeat(6,minmax(160px,1fr));
+  column-gap:9px;
+}
+.swim-head{
+  position:sticky;top:0;z-index:3;background:var(--surface);
+  border-bottom:1.5px solid var(--ink);padding:12px 12px 10px;
+}
+.hcol{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.hcol .role-ic{width:34px;height:34px}
+.hcol .role-ic svg{width:20px;height:20px}
+.hcol b{font-size:12.5px;font-weight:600;line-height:1.3}
+.hcol span{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;color:var(--ink-3)}
+.hspacer{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3);align-self:end;padding-bottom:4px}
+
+.stage{padding:14px 12px 15px;border-top:1px solid var(--rule);align-items:start}
+.stage:nth-of-type(even){background:var(--band)}
+.stage > *{grid-row:1}
+.stage > .handoff{grid-row:2}
+.st-head{grid-row:1 / span 2 !important;padding-right:6px}
+.st-no{
+  font-family:var(--f-mono);font-size:22px;font-weight:700;
+  color:var(--rule-2);line-height:1;display:block;
+}
+.st-head b{display:block;font-size:13.5px;font-weight:600;margin-top:5px;line-height:1.35}
+.st-head em{
+  display:block;font-style:normal;font-family:var(--f-mono);
+  font-size:10px;color:var(--ink-3);margin-top:5px;
+}
+.col{display:flex;flex-direction:column;gap:7px}
+.cell{
+  background:var(--surface);border:1px solid var(--rule);
+  border-top:2px solid var(--rc);border-radius:2px;
+  padding:8px 9px 9px;
+}
+.stage:nth-of-type(even) .cell{background:var(--surface)}
+.cell p{margin:0;font-size:12.5px;line-height:1.5;letter-spacing:-.005em}
+.cell .sub{margin-top:4px;font-size:11px;color:var(--ink-2);line-height:1.5}
+.cell .quote{
+  margin-top:5px;font-size:11px;color:var(--ink-2);line-height:1.5;
+  border-left:2px solid var(--rule-2);padding-left:7px;font-style:italic;
+}
+.cell-foot{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center}
+.dur{
+  font-family:var(--f-mono);font-size:9.5px;color:var(--ink-2);
+  border:1px solid var(--rule-2);border-radius:2px;padding:1px 4px;
+  font-variant-numeric:tabular-nums;
+}
+.flag{
+  font-family:var(--f-mono);font-size:9.5px;font-weight:700;
+  color:var(--stamp);background:var(--stamp-bg);
+  border:1px solid var(--stamp);border-radius:2px;padding:0 4px;
+}
+.visit{
+  font-family:var(--f-mono);font-size:9.5px;font-weight:700;
+  color:var(--r-parent);border:1px solid var(--r-parent);
+  border-radius:2px;padding:0 4px;
+}
+.handoff{
+  margin-top:9px;display:flex;align-items:center;gap:7px;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink-2);
+}
+.handoff::before,.handoff::after{
+  content:"";flex:1;height:0;border-top:1px dashed var(--rule-2);
+}
+.handoff b{font-weight:400;white-space:nowrap}
+.handoff.hot b{color:var(--stamp)}
+.handoff.hot::before,.handoff.hot::after{border-top-color:var(--stamp)}
+
+/* ── figures ────────────────────────────────── */
+.figs{display:grid;gap:26px}
+figure{
+  margin:0;background:var(--surface);border:1px solid var(--rule);
+  padding:20px 20px 16px;
+}
+figure svg{width:100%;height:auto;display:block;color:var(--ink)}
+figcaption{
+  margin-top:13px;padding-top:11px;border-top:1px solid var(--rule);
+  font-size:12.5px;color:var(--ink-2);line-height:1.6;
+}
+figcaption b{color:var(--ink);font-weight:600}
+.fig-title{
+  font-family:var(--f-display);font-size:18px;margin:0 0 14px;
+  font-weight:400;display:flex;align-items:baseline;gap:10px;
+}
+.fig-title span{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;color:var(--stamp);
+}
+
+/* ── patterns ───────────────────────────────── */
+.pats{display:grid;grid-template-columns:repeat(auto-fit,minmax(226px,1fr));gap:1px;background:var(--rule)}
+.pat{background:var(--surface);padding:17px 17px 18px}
+.pat .flag{font-size:11px;padding:1px 6px}
+.pat h3{font-family:var(--f-display);font-weight:400;font-size:18px;margin:9px 0 6px}
+.pat p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.pat ul{margin:9px 0 0;padding-left:15px;font-size:11.5px;color:var(--ink-3);line-height:1.65}
+
+/* ── footer ─────────────────────────────────── */
+footer{
+  margin:66px 0 0;border-top:2px solid var(--ink);
+  padding:18px 0 60px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;
+}
+footer h4{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink-3);margin:0 0 6px;font-weight:400;
+}
+footer p,footer li{font-size:12px;color:var(--ink-2);line-height:1.65;margin:0}
+footer ul{margin:0;padding-left:15px}
+
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  .sec-head{flex-direction:column;gap:4px}
+  .sec-head p{text-align:left}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <g id="g-head">
+    <circle cx="8.5" cy="7.6" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M2.4 19.6c0-3.5 2.7-5.3 6.1-5.3s6.1 1.8 6.1 5.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <symbol id="ic-parent" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <circle cx="18" cy="12.4" r="2.3" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M14.4 19.6c0-2.3 1.7-3.5 3.6-3.5s3.6 1.2 3.6 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-desk" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <path d="M3.6 8.4a4.9 4.9 0 0 1 9.8 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <rect x="2.2" y="8.1" width="2.2" height="3.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <rect x="12.6" y="8.1" width="2.2" height="3.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <path d="M13.7 11.5v1.6a1.2 1.2 0 0 1-1.2 1.2h-1.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M17.4 6.4h4.2M17.4 9.4h4.2M17.4 12.4h2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-psych" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <rect x="15.4" y="7.4" width="6.9" height="9.4" rx="1.1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <rect x="17.5" y="5.9" width="2.7" height="2.6" rx=".8" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <path d="M17.2 11.4h3.3M17.2 13.8h3.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-couns" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <path d="M18.6 15.9c-3.6-2-4.5-4-3.4-5.4 1-1.2 2.7-.8 3.4.5.7-1.3 2.4-1.7 3.4-.5 1.1 1.4.2 3.4-3.4 5.4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-dir" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <circle cx="18.3" cy="9.4" r="3.6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M16.1 12.5L15.3 18l3-1.7 3 1.7-.8-5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-admin" viewBox="0 0 24 24">
+    <use href="#g-head"/>
+    <path d="M18.4 5.6v3.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="15.4" y="8.7" width="6" height="4.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M14.3 14.6h8.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="18.4" cy="10.9" r="1.1" fill="currentColor"/>
+  </symbol>
+  <marker id="ah" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 1.2L9 5L0 8.8z" fill="var(--ink)"/>
+  </marker>
+  <marker id="ah-r" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 1.2L9 5L0 8.8z" fill="var(--stamp)"/>
+  </marker>
+  <marker id="ah-g" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 1.2L9 5L0 8.8z" fill="var(--r-parent)"/>
+  </marker>
+</defs></svg>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="mast-tag">현장 조사 정리 · AS-IS</p>
+  <h1>도입 이전, 상담은<br>이렇게 흘러갔다</h1>
+  <p class="lede">심리상담·발달재활 센터에서 문의 한 통이 종결까지 가는 동안, 누가 무엇을 몇 번 적었는지를 역할별로 펼쳐 놓은 지도. 리빙랩 3차, 현장 시스템 실사, 센터 피드백에서 나온 진술만 담았다.</p>
+  <dl class="mast-fields">
+    <div class="fld"><dt>조사 자료</dt><dd>리빙랩 노트 18건</dd></div>
+    <div class="fld"><dt>현장 녹취</dt><dd>2026-08-10 실사 2건</dd></div>
+    <div class="fld"><dt>대상 역할</dt><dd>6개 (외부 2)</dd></div>
+    <div class="fld"><dt>단계</dt><dd>01 – 10</dd></div>
+    <div class="fld"><dt>정리일</dt><dd>2026-09-08</dd></div>
+  </dl>
+</header>
+
+<!-- ══ 역할 ══════════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-no">A</span>
+    <h2>흐름에 등장하는 사람</h2>
+    <p>점선 테두리는 센터 밖 사람 — 시스템 접근 권한이 없다</p>
+  </div>
+  <div class="roles">
+    <div class="role" style="--rc:var(--r-parent)" data-ext="1">
+      <span class="role-ic"><svg><use href="#ic-parent"/></svg></span>
+      <div>
+        <h3>보호자 · 내담자</h3><span class="who">EXTERNAL</span>
+        <p>같은 초기기록지를 센터를 옮길 때마다 다시 쓰고, 오늘 무엇을 했는지 10분 구두로만 듣는다.</p>
+      </div>
+    </div>
+    <div class="role" style="--rc:var(--r-desk)">
+      <span class="role-ic"><svg><use href="#ic-desk"/></svg></span>
+      <div>
+        <h3>센터 실장 · 데스크</h3><span class="who">FRONT DESK</span>
+        <p>문의·서류·일정·상태값·환불이 전부 여기로 모이지만, 도구는 데스크 PC 한 대뿐이다.</p>
+      </div>
+    </div>
+    <div class="role" style="--rc:var(--r-psych)">
+      <span class="role-ic"><svg><use href="#ic-psych"/></svg></span>
+      <div>
+        <h3>임상심리사</h3><span class="who">ASSESSMENT</span>
+        <p>검사를 하고 채점하고 종합보고서를 쓴다. 보고서 한 건에 8시간에서 이틀이 든다.</p>
+      </div>
+    </div>
+    <div class="role" style="--rc:var(--r-couns)">
+      <span class="role-ic"><svg><use href="#ic-couns"/></svg></span>
+      <div>
+        <h3>상담사 · 치료사</h3><span class="who">SESSION</span>
+        <p>하루 6~8회기를 돌리고, 같은 회기를 내부 일지와 바우처 양식으로 두 번 쓴다.</p>
+      </div>
+    </div>
+    <div class="role" style="--rc:var(--r-dir)">
+      <span class="role-ic"><svg><use href="#ic-dir"/></svg></span>
+      <div>
+        <h3>센터장 · 원장</h3><span class="who">DIRECTOR</span>
+        <p>보고서를 전수 검토하고, 수백 페이지 공고에서 제출 서류를 직접 골라내고, 급여를 산정한다.</p>
+      </div>
+    </div>
+    <div class="role" style="--rc:var(--r-admin)" data-ext="1">
+      <span class="role-ic"><svg><use href="#ic-admin"/></svg></span>
+      <div>
+        <h3>바우처 주무관 · 행정기관</h3><span class="who">EXTERNAL</span>
+        <p>효과성 점수와 서명 시각만 본다. 치료사가 쓴 소견은 이 사람의 관심사가 아니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 스윔레인 ══════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-no">B</span>
+    <h2>10단계 역할별 흐름</h2>
+    <p>빨간 표식은 다섯 가지 고장 패턴 — 아래 D절에 정의</p>
+  </div>
+
+  <div class="swim-scroll">
+  <div class="swim">
+
+    <div class="gridrow swim-head">
+      <div class="hspacer">단계</div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-parent);border-style:dashed"><svg><use href="#ic-parent"/></svg></span><b>보호자·내담자</b><span>EXTERNAL</span></div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-desk)"><svg><use href="#ic-desk"/></svg></span><b>센터 실장</b><span>FRONT DESK</span></div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-psych)"><svg><use href="#ic-psych"/></svg></span><b>임상심리사</b><span>ASSESSMENT</span></div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-couns)"><svg><use href="#ic-couns"/></svg></span><b>상담사·치료사</b><span>SESSION</span></div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-dir)"><svg><use href="#ic-dir"/></svg></span><b>센터장·원장</b><span>DIRECTOR</span></div>
+      <div class="hcol"><span class="role-ic" style="--rc:var(--r-admin);border-style:dashed"><svg><use href="#ic-admin"/></svg></span><b>바우처 주무관</b><span>EXTERNAL</span></div>
+    </div>
+
+    <!-- 01 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">01</span><b>문의 · 접수</b><em>D-1 21:00 확정</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>홈페이지 · 카톡 · 전화로 문의</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>출근 직후 CRM을 열고 당일 일정과 상담실 배정을 확인</p>
+          <p class="sub">예약은 전날 21시에 확정되고 실제 처리는 다음날 오전</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>통화하면서 동시에 수기 기록</p>
+          <p class="sub">데스크 PC가 켜져 있을 때만 녹음·이력 조회. CID가 꺼지면 부재중 확인 자체가 불가 → 응대 누락</p>
+          <div class="cell-foot"><span class="flag">휘발</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>단체 유입 시 카톡으로 명단을 받아 엑셀로 옮기고 한 명씩 등록</p>
+          <div class="cell-foot"><span class="flag">이중</span></div>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:2 / 4"><b>→ 카톡 · 전화 · 홈페이지 폼 (기록은 채널마다 따로)</b></div>
+    </div>
+
+    <!-- 02 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">02</span><b>방문 전 서류</b><em>PAPER</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>예약금 선결제</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>초기상담기록지 · 상담동의서 작성</p>
+          <p class="sub">센터를 옮길 때마다 사실상 같은 내용을 처음부터 다시 작성. 초기상담비도 매번 재지불</p>
+          <div class="cell-foot"><span class="dur">약 20만 원</span><span class="flag">이중</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>기록지와 동의서를 개별 전송하고 개별 회수</p>
+          <p class="sub">일부 센터는 구글 시트로 동의서를 받음 — 보안·체계성 취약</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:2 / 4"><b>← 문자 · 메일 · 구글 시트 (양식이 센터마다 다름)</b></div>
+    </div>
+
+    <!-- 03 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">03</span><b>초기면담 ·<br>검사 결정</b><em>HANDOFF ×3</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>센터 첫 방문</p>
+          <div class="cell-foot"><span class="visit">방문 ①</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>신상 정보 + 주호소 문제 접수</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>검사 일정 배정</p>
+          <p class="sub">상담사 휴가·브레이크타임은 개인이 따로 알려줘야 해서 중복예약·누락 발생</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>초기면담 — 행동관찰 + 가족·대인·직업·문제상황 질문</p>
+          <p class="sub">지정된 초기면담지가 있는 센터도, 없는 센터도 있음</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>필요 검사를 정해 <b>검사 오더지를 지류로 제출</b></p>
+          <p class="sub">종이라 나중에 검색이 안 됨</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:3 / 5"><b>→ 구두 전달 &nbsp;·&nbsp; ← 지류 오더지</b></div>
+    </div>
+
+    <!-- 04 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">04</span><b>검사 시행</b><em>OFFLINE</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>검사받으러 센터 방문</p>
+          <p class="sub">분리가 어려운 어린 아동은 1주 전 또는 전날 별도로 한 번 더 방문해 보호자 설문을 미리 작성</p>
+          <div class="cell-foot"><span class="visit">방문 ②</span><span class="visit">사전 방문</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>아동이 검사받는 동안 보호자는 대기실에서 설문 작성</p>
+          <p class="sub">문항 의도를 이해 못 해 중간에 포기하거나 오답 가능</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>초기상담기록지를 출력해 검사자에게 전달</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>BGT → 지능 → 로샤 → TAT → HTP → KFD</p>
+          <p class="sub">인지 과제를 먼저 두고 라포 형성 후 투사검사로. 조합은 대부분 센터 패키지 고정</p>
+          <div class="cell-foot"><span class="dur">지능 1~1.5h</span><span class="dur">카스 30m</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>행동관찰을 검사별로 구분해 수기 기록</p>
+          <p class="sub">BGT 시행시간은 휴대폰 초시계로 재느라 도형마다 시작·종료를 정확히 누르지 못함</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:7">
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>사전검사는 경기도 지원단 <b>별도 사이트</b>에서만</p>
+          <p class="sub">센터 계정으로만 로그인 가능. 담당 치료사 계정으로는 열리지 않음</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:4 / 8"><b>→ 별도 로그인 · 결과는 자동으로 넘어오지 않음</b></div>
+    </div>
+
+    <!-- 05 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">05</span><b>채점 ·<br>종합보고서</b><em>최대 병목</em></div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>완성된 보고서를 메일로 수령</p>
+          <p class="sub">암호를 건 파일이 오가며 누락되고, 나중에 검색이 안 됨</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>로샤를 엑셀로 채점</p>
+          <p class="sub">일부만 웹사이트 활용. 기존 상용 채점 서비스는 오답을 정답으로 응답해 검토 시간이 더 듦</p>
+          <div class="cell-foot"><span class="dur">코딩 40분</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>반응을 워드·엑셀로 <b>다시 옮기고</b> 지침서와 대조</p>
+          <div class="cell-foot"><span class="dur">3시간+</span><span class="flag">이중</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>과거 보고서 파일의 틀을 복사 → 내용만 지우고 새로 채움</p>
+          <p class="sub">그래프는 한글에 스크린샷으로 붙여넣기. 가장 어려운 건 개별 해석이 아니라 전체를 일관되게 종합하는 것</p>
+          <div class="cell-foot"><span class="dur">8시간~2일</span><span class="flag">표준</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>표현을 찾으려 이전 보고서 · 타 전문가 보고서 · 책을 다시 뒤짐</p>
+          <p class="sub">문장 다듬기에 GPT를 쓰는 관행이 이미 존재 — 보호자 동의 절차 없이</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:6">
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>상담사별 퀄리티 편차가 커서 전수 검토</p>
+          <p class="sub">검토 이력도 메일에만 남음</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+      </div>
+      <div class="handoff hot" style="grid-column:3 / 7"><b>→ 암호 건 메일 왕복 (상담사 ↔ 실장 ↔ 원장)</b></div>
+    </div>
+
+    <!-- 06 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">06</span><b>해석상담</b><em>검사 +1~2주</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>결과를 들으러 센터에 다시 방문</p>
+          <div class="cell-foot"><span class="visit">방문 ③</span><span class="dur">50분</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>해석상담 일정을 다시 조율</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>보고서 내용만으로 50분을 채우기 어려움</p>
+          <p class="sub">전문용어를 풀어 설명해야 하는데, 참고할 회기 맥락이 손에 없음</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">07</span><b>회기 진행 ·<br>일지</b><em>주 1회 반복</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>주 1회 방문</p>
+          <p class="sub">월 단위 결제라 결석 시 보강·이월이 어렵고, 보강 일정을 직접 확인할 방법이 없음. 결석 통보는 전화·문자</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>내담자 상태값을 수동 변경 (설문완료 / 검사지 제출 / 노쇼)</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>출퇴근은 눈도장·지문 → 실시간 근태 확인 불가</p>
+          <p class="sub">상담실은 고정 배정이 없어 매일 데스크에서 당일 배정을 확인</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:5">
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>하루 6~8회기</p>
+          <p class="quote">기록이 밀리면 기억이 흐려지고, 안 밀리려면 퇴근이 늦다</p>
+          <div class="cell-foot"><span class="dur">6~8회기/일</span><span class="flag">휘발</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>일지 — 엑셀 · 종이 · 메일 · 한글파일 제각각</p>
+          <p class="sub">같은 센터에 근무하는 치료사들 사이에도 정해진 틀이 없음</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>지난 회기 내용을 회기마다 다시 파악</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:6">
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>센터 공지는 카톡 또는 구두</p>
+          <p class="sub">따로 일하던 사람들이 공유할 통합 채널이 없음</p>
+          <div class="cell-foot"><span class="flag">휘발</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">08</span><b>부모 피드백</b><em>40분 + 10분</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>대기실에서 10분 구두 피드백</p>
+          <p class="sub">오늘 무엇을 했는지 확인할 방법이 없어, <b>60~70%가 가방에 녹음기를 넣어 보냄</b></p>
+          <div class="cell-foot"><span class="dur">10분</span><span class="flag">휘발</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>상담사가 남긴 손글씨 메모를 보고 다음 일정을 예약</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:5">
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>40분 교육 + 10분 부모상담</p>
+          <p class="sub">발달장애 아동은 활동보조사가 데려와 부모 대면 자체가 불발 → 저녁에 몰아서 전화. 다음 아이 준비 때문에 시간도 없음</p>
+          <div class="cell-foot"><span class="flag">휘발</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>일지를 부모에게 주는 센터는 거의 없음</p>
+          <p class="sub">작성 수준 편차 · 쓸 시간 부족 · 아이가 숨기고 싶은 내용까지 전달될 우려, 세 가지가 겹침</p>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:3 / 6"><b>← 손글씨 메모 · 구두</b></div>
+    </div>
+
+    <!-- 09 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">09</span><b>행정 · 정산 ·<br>바우처</b><em>가장 무거움</em></div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>노쇼 환불은 센터 정책에 맞춰 수기 기록</p>
+          <p class="sub">사전 취소와 당일 노쇼는 상담사 페이 정산이 다른데 구분되지 않음</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>매출은 EAP 콘솔을 따로 사용</p>
+          <p class="sub">통계는 월별·3개월 추이만</p>
+          <div class="cell-foot"><span class="flag">분산</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>전마투 · EAP · 바우처마다 제출 서류가 다름</p>
+          <p class="sub">바우처 사업이 포함되면 수기 제출. 전마투는 사전·사후검사를 모두 제출</p>
+          <div class="cell-foot"><span class="flag">표준</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:5">
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p><b>같은 회기를 두 번 씀</b> — 센터 내부 일지 + 바우처 제출 양식</p>
+          <p class="sub">내용은 같은데 형식이 달라 그대로 낼 수 없음</p>
+          <div class="cell-foot"><span class="flag">이중</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-couns)">
+          <p>회기·검사 건수를 직접 세서 원장에게 제출</p>
+          <p class="sub">이 숫자에 맞춰 급여가 산정됨</p>
+          <div class="cell-foot"><span class="flag">이중</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:6">
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>제출받은 건수로 급여 산정</p>
+          <p class="sub">내담자 지각으로 재량 진행한 수업은 집계에서 빠져 실장이 따로 수기 입력</p>
+          <div class="cell-foot"><span class="flag">이중</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>수백 페이지 공고에서 조건 · 단가 · 제출서류를 직접 골라냄</p>
+          <p class="sub">사업별 챙길 일정도 전부 다름</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:7">
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>디지털행정시스템 = 종이 서식을 그대로 옮긴 것</p>
+          <p class="quote">수기로 한 걸 그냥 디지털화한 것뿐. 치료사들이 해야 되는 건 여전히 똑같다 — 하나도 변한 게 없다</p>
+          <div class="cell-foot"><span class="flag">감사</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>서명 도장 시각이 수업시간 ±30분을 벗어나면 부정수급으로 플래그</p>
+          <p class="sub">서명일이 서비스 개시일보다 늦어도 적발. 그래서 치료사가 수업 중간중간 휴대폰으로 입력</p>
+          <div class="cell-foot"><span class="flag">감사</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>2개월 무실적 = 자격 상실. 중도 중단을 신고하지 않으면 센터가 환수</p>
+        </div>
+      </div>
+      <div class="handoff" style="grid-column:5 / 7"><b>→ 종이 · 엑셀 건수표</b></div>
+      <div class="handoff hot" style="grid-column:6 / 8;grid-row:3"><b>→ 복사 · 붙여넣기</b></div>
+    </div>
+
+    <!-- 10 -->
+    <div class="gridrow stage">
+      <div class="st-head"><span class="st-no">10</span><b>종결 · 사후</b><em>추적 불가</em></div>
+      <div class="col" style="grid-column:2">
+        <div class="cell" style="--rc:var(--r-parent)">
+          <p>진전 여부를 확인할 객관적 지표가 없음</p>
+          <p class="sub">상담사 주관 판단에 의존. 종결 판단은 의사가 하지만 결국 불안한 보호자가 결정</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:3">
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>회기권 임박 · 종결 예정을 직접 확인해 연락</p>
+          <p class="sub">놓치면 그대로 이탈</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-desk)">
+          <p>아동 A / 모 B / 부 C를 각각 다른 내담자로 관리</p>
+          <p class="sub">가족 단위 회기 차감이 통합되지 않음</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:4">
+        <div class="cell" style="--rc:var(--r-psych)">
+          <p>재평가 시 이전 검사 자료를 다시 찾기 어려움</p>
+          <p class="sub">권장 재평가 주기는 6개월</p>
+        </div>
+      </div>
+      <div class="col" style="grid-column:6">
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>회기권을 보유한 장기 미방문자를 찾아낼 방법이 없음</p>
+        </div>
+        <div class="cell" style="--rc:var(--r-dir)">
+          <p>개인정보 파기 미이행</p>
+          <p class="quote">버리고 싶은데 파기해서 버리는 게 귀찮아서 그냥 갖고 있다</p>
+          <div class="cell-foot"><span class="flag">감사</span></div>
+        </div>
+      </div>
+      <div class="col" style="grid-column:7">
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>사후검사 → 점수만 확인</p>
+          <p class="sub">치료사가 쓴 소견은 보지 않음. 사전·사후 효과성 수치만 봄</p>
+          <div class="cell-foot"><span class="flag">감사</span></div>
+        </div>
+        <div class="cell" style="--rc:var(--r-admin)">
+          <p>만족도 조사 QR — 반기 1회</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</section>
+
+<!-- ══ 고장 메커니즘 확대도 ═══════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-no">C</span>
+    <h2>고장 메커니즘 확대도</h2>
+    <p>스윔레인에서 반복되는 네 개의 구조를 따로 떼어 그림</p>
+  </div>
+  <div class="figs">
+
+  <!-- FIG 1 -->
+  <figure>
+    <p class="fig-title"><span>도해 1</span> 같은 내용을 두 번 쓰는 두 개의 회로</p>
+    <svg viewBox="0 0 920 330" role="img" aria-label="회기 한 건이 센터 내부 일지와 바우처 제출 양식으로 두 번 작성되고, 지원단 사이트의 검사 점수는 소견을 붙여 디지털행정시스템으로 복사·붙여넣기된다">
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="12.5" fill="currentColor">
+
+        <text x="0" y="16" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)" letter-spacing="1.4">회로 A · 일지</text>
+
+        <rect x="0" y="30" width="168" height="56" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="84" y="54" text-anchor="middle">회기 1건 종료</text>
+        <text x="84" y="72" text-anchor="middle" font-size="11" fill="var(--ink-2)">상담사 · 치료사</text>
+
+        <path d="M168 58 L214 58 L214 32 L262 32" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+        <path d="M168 58 L214 58 L214 92 L262 92" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+
+        <rect x="268" y="8" width="196" height="48" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="366" y="28" text-anchor="middle">센터 내부 일지</text>
+        <text x="366" y="45" text-anchor="middle" font-size="11" fill="var(--ink-2)">엑셀·종이·메일·한글 제각각</text>
+
+        <rect x="268" y="68" width="196" height="48" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="366" y="88" text-anchor="middle">바우처 제출 양식</text>
+        <text x="366" y="105" text-anchor="middle" font-size="11" fill="var(--ink-2)">사업마다 서식이 다름</text>
+
+        <path d="M480 14 L490 14 L490 110 L480 110" fill="none" stroke="var(--stamp)" stroke-width="1.4"/>
+        <text x="502" y="52" font-size="12" fill="var(--stamp)">내용은 같고 형식만 다름</text>
+        <text x="502" y="70" font-size="12" fill="var(--stamp)">→ 그대로 낼 수 없어 작성 2회</text>
+        <text x="502" y="94" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">하루 6~8회기 × 2</text>
+
+        <line x1="0" y1="152" x2="920" y2="152" stroke="var(--rule)" stroke-width="1"/>
+
+        <text x="0" y="180" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)" letter-spacing="1.4">회로 B · 검사 결과</text>
+
+        <rect x="0" y="196" width="196" height="62" rx="2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+        <text x="98" y="220" text-anchor="middle">지원단 별도 사이트</text>
+        <text x="98" y="237" text-anchor="middle" font-size="11" fill="var(--ink-2)">사전·사후 검사 실시</text>
+        <text x="98" y="252" text-anchor="middle" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">센터 계정만 접근</text>
+
+        <path d="M196 227 L246 227" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+        <text x="221" y="216" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">점수</text>
+
+        <rect x="252" y="196" width="186" height="62" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="345" y="222" text-anchor="middle">임상심리사가</text>
+        <text x="345" y="240" text-anchor="middle">소견을 직접 작성</text>
+
+        <path d="M438 227 L514 227" fill="none" stroke="var(--stamp)" stroke-width="1.8" marker-end="url(#ah-r)"/>
+        <text x="476" y="216" text-anchor="middle" font-size="11" fill="var(--stamp)" font-weight="500">복사</text>
+        <text x="476" y="247" text-anchor="middle" font-size="11" fill="var(--stamp)" font-weight="500">붙여넣기</text>
+
+        <rect x="520" y="196" width="196" height="62" rx="2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+        <text x="618" y="220" text-anchor="middle">디지털행정시스템</text>
+        <text x="618" y="237" text-anchor="middle" font-size="11" fill="var(--ink-2)">감사 대비 기록</text>
+        <text x="618" y="252" text-anchor="middle" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">종이 서식 그대로</text>
+
+        <text x="736" y="222" font-size="12" fill="var(--stamp)">두 시스템은</text>
+        <text x="736" y="240" font-size="12" fill="var(--stamp)">연결되어 있지 않음</text>
+
+        <text x="0" y="300" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">점선 상자 = 센터가 소유하지 않은 외부 시스템</text>
+      </g>
+    </svg>
+    <figcaption><b>이중 입력은 게으름이 아니라 배관 문제다.</b> 회로 A는 양식이 달라서, 회로 B는 시스템이 끊겨서 사람이 중간 배관 노릇을 한다. 두 회로 모두 원본이 이미 존재하는데도 사람이 손으로 옮긴다.</figcaption>
+  </figure>
+
+  <!-- FIG 2 -->
+  <figure>
+    <p class="fig-title"><span>도해 2</span> 검사 한 번에 내담자가 움직이는 거리</p>
+    <svg viewBox="0 0 920 250" role="img" aria-label="내담자는 사전 방문, 검사 방문, 해석상담 방문으로 최대 세 번 센터를 오가고 그 사이 1~2주를 대기한다">
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="12.5" fill="currentColor">
+        <line x1="40" y1="104" x2="880" y2="104" stroke="var(--rule-2)" stroke-width="1.5"/>
+
+        <g>
+          <circle cx="120" cy="104" r="9" fill="none" stroke="var(--r-parent)" stroke-width="1.6" stroke-dasharray="3 2.6"/>
+          <text x="120" y="82" text-anchor="middle" font-size="11" fill="var(--ink-2)">사전 방문</text>
+          <text x="120" y="132" text-anchor="middle" font-size="12">보호자 설문 작성</text>
+          <text x="120" y="149" text-anchor="middle" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">분리 어려운 아동만</text>
+        </g>
+
+        <g>
+          <circle cx="360" cy="104" r="10" fill="var(--r-parent)"/>
+          <text x="360" y="82" text-anchor="middle" font-size="11" fill="var(--ink-2)">방문 ①</text>
+          <text x="360" y="132" text-anchor="middle" font-size="12">검사 시행</text>
+          <text x="360" y="149" text-anchor="middle" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">지능 1~1.5h · 카스 30m</text>
+        </g>
+
+        <g>
+          <circle cx="760" cy="104" r="10" fill="var(--r-parent)"/>
+          <text x="760" y="82" text-anchor="middle" font-size="11" fill="var(--ink-2)">방문 ②</text>
+          <text x="760" y="132" text-anchor="middle" font-size="12">해석상담</text>
+          <text x="760" y="149" text-anchor="middle" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">50분</text>
+        </g>
+
+        <rect x="400" y="34" width="320" height="44" rx="2" fill="none" stroke="var(--stamp)" stroke-width="1.3"/>
+        <text x="560" y="52" text-anchor="middle" font-size="12" fill="var(--stamp)">대기 1~2주</text>
+        <text x="560" y="69" text-anchor="middle" font-size="11" fill="var(--stamp)">채점 3시간+ · 종합보고서 8시간~2일</text>
+        <path d="M560 78 L560 100" stroke="var(--stamp)" stroke-width="1.3" stroke-dasharray="3 3"/>
+
+        <path d="M370 104 L750 104" stroke="var(--r-parent)" stroke-width="2.4"/>
+        <path d="M130 104 L350 104" stroke="var(--r-parent)" stroke-width="2.4" stroke-dasharray="5 4"/>
+
+        <text x="40" y="204" font-size="12" fill="var(--ink-2)">이 구간에서 내담자가 받는 것은</text>
+        <text x="40" y="222" font-size="12">종이 보고서 한 부와 50분의 설명뿐 — 그 사이에 무슨 일이 있었는지는 보이지 않는다</text>
+
+        <text x="880" y="188" text-anchor="end" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">실선 = 모든 사례 · 점선 = 일부 사례</text>
+      </g>
+    </svg>
+    <figcaption><b>왕복 2회는 결과가 늦어서가 아니라 채점이 사람 손에 있어서 생긴다.</b> 검사받으러 한 번, 결과 들으러 한 번. 어린 아동은 보호자 설문 때문에 한 번을 더 온다.</figcaption>
+  </figure>
+
+  <!-- FIG 3 -->
+  <figure>
+    <p class="fig-title"><span>도해 3</span> 하루치 정보가 새는 네 지점</p>
+    <svg viewBox="0 0 920 300" role="img" aria-label="회기 관찰, 10분 부모 피드백, 보호자 통화, 센터 공지 중 세 가지가 기록으로 남지 않고 사라진다">
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="12.5" fill="currentColor">
+        <text x="0" y="16" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)" letter-spacing="1.4">하루 동안 생기는 정보</text>
+
+        <rect x="0" y="30" width="200" height="52" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="100" y="52" text-anchor="middle">회기 중 행동 관찰</text>
+        <text x="100" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">치료사의 머릿속</text>
+
+        <rect x="228" y="30" width="200" height="52" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="328" y="52" text-anchor="middle">10분 부모 피드백</text>
+        <text x="328" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">대기실에서 구두로</text>
+
+        <rect x="456" y="30" width="200" height="52" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="556" y="52" text-anchor="middle">보호자 통화</text>
+        <text x="556" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">데스크 PC · 수기 메모</text>
+
+        <rect x="684" y="30" width="200" height="52" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="784" y="52" text-anchor="middle">센터 공지 · 인수인계</text>
+        <text x="784" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">카톡 · 구두</text>
+
+        <path d="M100 82 L100 152" stroke="var(--stamp)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ah-r)"/>
+        <path d="M328 82 L328 152" stroke="var(--stamp)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ah-r)"/>
+        <path d="M556 82 L556 152" stroke="var(--stamp)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ah-r)"/>
+        <path d="M784 82 L784 152" stroke="var(--stamp)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ah-r)"/>
+
+        <rect x="0" y="158" width="884" height="52" rx="2" fill="none" stroke="var(--stamp)" stroke-width="1.5"/>
+        <text x="442" y="182" text-anchor="middle" font-size="14" fill="var(--stamp)">기록으로 남지 않음</text>
+        <text x="442" y="200" text-anchor="middle" font-size="11" fill="var(--stamp)">밀리면 기억이 흐려지고, 안 밀리려면 퇴근이 늦다 — 어느 쪽이든 비용은 사람이 낸다</text>
+
+        <rect x="228" y="238" width="428" height="48" rx="2" fill="none" stroke="var(--r-parent)" stroke-width="1.4"/>
+        <text x="442" y="258" text-anchor="middle" font-size="12" fill="var(--r-parent)">보호자의 대응 — 가방에 녹음기를 넣어 보냄</text>
+        <text x="442" y="276" text-anchor="middle" font-size="11" fill="var(--r-parent)">현장 추정 60~70%</text>
+        <path d="M328 210 L328 236" stroke="var(--r-parent)" stroke-width="1.3" marker-end="url(#ah-g)"/>
+      </g>
+    </svg>
+    <figcaption><b>보호자가 몰래 녹음하는 건 불신이 아니라 대체재다.</b> 네 지점 중 어디에도 다시 읽을 수 있는 형태로 남는 것이 없으니, 정보를 원하는 쪽이 스스로 기록 장치를 들고 온다.</figcaption>
+  </figure>
+
+  <!-- FIG 4 -->
+  <figure>
+    <p class="fig-title"><span>도해 4</span> 한 아이를 둘러싼 다섯 사람이 연결되지 않는 방식</p>
+    <svg viewBox="0 0 920 380" role="img" aria-label="회기 일지를 필요로 하는 의사, 슈퍼바이저, 교사, 보호자가 치료사와 카톡으로만 연결되어 있고 그 대화는 사라진다">
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="12.5" fill="currentColor">
+
+        <rect x="360" y="158" width="200" height="64" rx="2" fill="none" stroke="var(--r-couns)" stroke-width="1.8"/>
+        <text x="460" y="184" text-anchor="middle" font-size="13.5" fill="var(--r-couns)">회기 일지</text>
+        <text x="460" y="203" text-anchor="middle" font-size="11" fill="var(--ink-2)">치료사의 개인 파일에만 존재</text>
+
+        <rect x="60" y="30" width="180" height="56" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="150" y="52" text-anchor="middle">소아정신과 의사</text>
+        <text x="150" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">약물 조절 근거가 필요</text>
+
+        <rect x="680" y="30" width="180" height="56" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="770" y="52" text-anchor="middle">슈퍼바이저</text>
+        <text x="770" y="70" text-anchor="middle" font-size="11" fill="var(--ink-2)">일지를 봐야 지도가 가능</text>
+
+        <rect x="60" y="294" width="180" height="56" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="150" y="316" text-anchor="middle">조기교실 교사</text>
+        <text x="150" y="334" text-anchor="middle" font-size="11" fill="var(--ink-2)">개별↔그룹 연계가 필요</text>
+
+        <rect x="680" y="294" width="180" height="56" rx="2" fill="none" stroke="var(--r-parent)" stroke-width="1.3" stroke-dasharray="4 3"/>
+        <text x="770" y="316" text-anchor="middle" fill="var(--r-parent)">보호자</text>
+        <text x="770" y="334" text-anchor="middle" font-size="11" fill="var(--r-parent)">진전 여부를 알고 싶음</text>
+
+        <path d="M240 62 L340 62 L340 156" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4" opacity=".45"/>
+        <path d="M680 62 L580 62 L580 156" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4" opacity=".45"/>
+        <path d="M240 322 L340 322 L340 224" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4" opacity=".45"/>
+        <path d="M680 322 L580 322 L580 224" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4" opacity=".45"/>
+
+        <rect x="368" y="88" width="184" height="44" rx="2" fill="none" stroke="var(--stamp)" stroke-width="1.5"/>
+        <text x="460" y="108" text-anchor="middle" font-size="12" fill="var(--stamp)">실제로 오가는 유일한 경로</text>
+        <text x="460" y="125" text-anchor="middle" font-size="12.5" fill="var(--stamp)" font-weight="500">카 톡</text>
+        <path d="M460 132 L460 156" stroke="var(--stamp)" stroke-width="1.4" marker-end="url(#ah-r)"/>
+
+        <text x="600" y="112" font-size="11" fill="var(--stamp)">수업 중에 알림이 오고,</text>
+        <text x="600" y="129" font-size="11" fill="var(--stamp)">답하고 나면 그대로 사라진다</text>
+
+        <text x="0" y="372" font-size="10.5" font-family="Nanum Gothic Coding, monospace" fill="var(--ink-3)">흐린 점선 = 필요하지만 존재하지 않는 연결</text>
+      </g>
+    </svg>
+    <figcaption><b>일지 하나를 네 사람이 필요로 하는데, 그 일지는 한 사람의 파일에만 있다.</b> 그래서 나머지는 치료사에게 개별로 묻고, 그 답은 카톡에 흩어진 뒤 사라진다. 새로 맡은 사람에게는 아무것도 넘겨줄 것이 없다.</figcaption>
+  </figure>
+
+  </div>
+</section>
+
+<!-- ══ 패턴 ══════════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-no">D</span>
+    <h2>반복되는 다섯 가지 고장 패턴</h2>
+    <p>스윔레인의 빨간 표식이 가리키는 분류</p>
+  </div>
+  <div class="pats">
+    <div class="pat">
+      <span class="flag">이중</span>
+      <h3>이중 입력</h3>
+      <p>원본이 이미 있는데 사람이 손으로 옮긴다.</p>
+      <ul>
+        <li>일지 2회 (내부 · 바우처)</li>
+        <li>로샤 반응을 워드로 재입력 — 3시간+</li>
+        <li>검사 점수 사이트 간 복붙</li>
+        <li>건수를 세서 원장에게 제출</li>
+        <li>센터를 옮길 때마다 초기기록지 재작성</li>
+      </ul>
+    </div>
+    <div class="pat">
+      <span class="flag">분산</span>
+      <h3>채널 분산</h3>
+      <p>어디에도 원본이 없어 매번 찾아다닌다.</p>
+      <ul>
+        <li>카톡 · 전화 · 홈페이지 · 메일 · 구글 시트</li>
+        <li>검사 오더지는 지류 → 검색 불가</li>
+        <li>매출은 EAP 콘솔 별도</li>
+        <li>사전검사는 지원단 별도 사이트</li>
+      </ul>
+    </div>
+    <div class="pat">
+      <span class="flag">휘발</span>
+      <h3>휘발</h3>
+      <p>말로 오간 것은 그 자리에서 끝난다.</p>
+      <ul>
+        <li>10분 부모 피드백</li>
+        <li>보호자 통화 · 부재중</li>
+        <li>카톡 공지 · 구두 인수인계</li>
+        <li>기록이 밀리면 기억이 흐려짐</li>
+      </ul>
+    </div>
+    <div class="pat">
+      <span class="flag">표준</span>
+      <h3>표준 부재</h3>
+      <p>같은 일을 사람마다 다른 방식으로 한다.</p>
+      <ul>
+        <li>일지 양식이 치료사마다 다름</li>
+        <li>보고서 퀄리티 편차 → 전수 검토</li>
+        <li>초기면담지가 있는 센터, 없는 센터</li>
+        <li>BGT 시행시간 측정이 제각각</li>
+      </ul>
+    </div>
+    <div class="pat">
+      <span class="flag">감사</span>
+      <h3>행정용 기록 ≠ 임상용 기록</h3>
+      <p>감사 통과가 목적이라 내용이 평준화된다.</p>
+      <ul>
+        <li>주무관은 결제·서명 시각만 확인</li>
+        <li>소견은 읽히지 않고 점수만 집계</li>
+        <li>기록을 다섯 개 보면 다 비슷해짐</li>
+        <li>재방문 시 참고 가치가 남지 않음</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <h4>자료 출처</h4>
+    <ul>
+      <li>리빙랩 1차 — 실장 / 전문가 / 학부모 그룹</li>
+      <li>리빙랩 2차 — 4개 팀 + 종합 피드백</li>
+      <li>리빙랩 3차 — 3개 팀 + 슬랙 정리본</li>
+      <li>2026-08-10 전문가 사용 프로그램 관련 회의 (현장 실사 녹취 2건)</li>
+      <li>어린이미래활짝센터 · 임호찬 교수 미팅 · 마인드스코프 기능정리</li>
+    </ul>
+  </div>
+  <div>
+    <h4>읽을 때 주의</h4>
+    <p>1차 리빙랩은 순수 AS-IS 조사, 2·3차는 프로토타입 검증이라 성격이 다르다. 1차 노트의 등록일(2026-01-15)은 실제 조사 시점이 아니라 워크스페이스에 뒤늦게 옮긴 날짜다.</p>
+  </div>
+  <div>
+    <h4>인용문 처리</h4>
+    <p>기울임체 인용은 2026-08-10 현장 녹취에서 가져왔다. 원문이 STT라 고유명사 오탈자가 많아 의미 단위로 복원했으며, 수치와 주장은 원문 그대로 유지했다.</p>
+  </div>
+  <div>
+    <h4>범위</h4>
+    <p>MOEUM 워크스페이스 산출물 440건 중 AS-IS 관련 22건을 근거로 정리. 제품이 이미 해결한 항목과 미해결 항목을 구분하지 않았다 — 이 문서는 도입 이전 상태만 기술한다.</p>
+  </div>
+</footer>
+
+</div>

@@ -1,0 +1,99 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "cores": 8,
+  "results": [
+    {
+      "name": "1080p30_gop60.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 1479.5,
+        "fps": 203,
+        "realtime_x": 6.8,
+        "out_mbps": 13.9
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 535.7,
+        "fps": 168,
+        "realtime_x": 5.6,
+        "out_mbps": 14.1
+      },
+      "enc_p2": {
+        "encoders": 2,
+        "frames": 300,
+        "ms": 1486.2,
+        "fps": 202,
+        "realtime_x": 6.7
+      },
+      "enc_p4": {
+        "encoders": 4,
+        "frames": 300,
+        "ms": 1509.1,
+        "fps": 199,
+        "realtime_x": 6.6
+      }
+    },
+    {
+      "name": "1080p60_gop120.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 1478.6,
+        "fps": 203,
+        "realtime_x": 3.4,
+        "out_mbps": 20.9
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 391.8,
+        "fps": 230,
+        "realtime_x": 3.8,
+        "out_mbps": 19.6
+      },
+      "enc_p2": {
+        "encoders": 2,
+        "frames": 300,
+        "ms": 1472.4,
+        "fps": 204,
+        "realtime_x": 3.4
+      },
+      "enc_p4": {
+        "encoders": 4,
+        "frames": 300,
+        "ms": 1486.9,
+        "fps": 202,
+        "realtime_x": 3.4
+      }
+    },
+    {
+      "name": "4k30_gop60.mp4",
+      "enc_hw": {
+        "frames": 300,
+        "ms": 5377,
+        "fps": 56,
+        "realtime_x": 1.9,
+        "out_mbps": 50.2
+      },
+      "enc_sw": {
+        "frames": 90,
+        "ms": 1719.1,
+        "fps": 52,
+        "realtime_x": 1.7,
+        "out_mbps": 50
+      },
+      "enc_p2": {
+        "encoders": 2,
+        "frames": 300,
+        "ms": 5373.1,
+        "fps": 56,
+        "realtime_x": 1.9
+      },
+      "enc_p4": {
+        "encoders": 4,
+        "frames": 300,
+        "ms": 5394.5,
+        "fps": 56,
+        "realtime_x": 1.9
+      }
+    }
+  ]
+}

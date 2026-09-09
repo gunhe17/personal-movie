@@ -1,0 +1,314 @@
+<!doctype html><meta charset="utf-8"><title>export/render bench</title>
+<style>
+ body{font:12px/1.5 ui-monospace,monospace;background:#111;color:#ddd;padding:16px;margin:0}
+ table{border-collapse:collapse;margin-top:12px;font-size:11px;width:100%}
+ th,td{border:1px solid #333;padding:3px 7px;text-align:right;white-space:nowrap}
+ th{background:#1c1c1c;text-align:center} td:first-child,th:first-child{text-align:left}
+ .g{color:#6c6} .y{color:#dc6} .r{color:#e66} .dim{color:#777}
+ #log{color:#888;max-height:220px;overflow:auto;white-space:pre-wrap;font-size:11px;margin-top:12px}
+ button{font:inherit;background:#252525;color:#ddd;border:1px solid #555;padding:5px 11px;cursor:pointer}
+</style>
+<h3>export / render bench</h3>
+<button id="go">실행</button> <span class="dim" id="env"></span>
+<div id="out"></div><pre id="log"></pre>
+
+<script src="mp4box.all.min.js"></script>
+<script src="mp4-muxer.min.js"></script>
+<script>
+const Q=new URLSearchParams(location.search);
+// bufFrames: how many decoded frames we hold in RAM for the encode-only loop.
+// 4K frames are ~12MB each, so the buffer shrinks as resolution grows.
+const SOURCES=[
+  {name:'1080p30_gop60.mp4',  w:1920,h:1080,fps:30,bitrate:15e6,codec:'avc1.640029',buf:60,limit:24},
+  {name:'1080p60_gop120.mp4', w:1920,h:1080,fps:60,bitrate:20e6,codec:'avc1.64002a',buf:60,limit:24},
+  {name:'4k30_gop60.mp4',     w:3840,h:2160,fps:30,bitrate:50e6,codec:'avc1.640033',buf:20,limit:8},
+];
+const ENC_ONLY_N=300, ENC_SW_N=90, MREC_N=150;
+
+const $=s=>document.querySelector(s), LOG=$('#log');
+const log=s=>{LOG.textContent+=s+'\n';LOG.scrollTop=1e9;fetch('/progress',{method:'POST',body:s}).catch(()=>{});};
+addEventListener('unhandledrejection',e=>log('UNHANDLED: '+String(e.reason&&e.reason.stack||e.reason)));
+$('#env').textContent=`${navigator.hardwareConcurrency} cores`;
+const withTimeout=(p,ms,w)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('TIMEOUT '+w)),ms))]);
+const rt=(frames,fps,ms)=>+((frames/fps)/(ms/1000)).toFixed(1);   // realtime multiple
+
+// ponytail: this copy predates bench-core.js, which now holds the shared version.
+// Left as-is because this page is validated; new pages should use bench-core.js.
+function demux(buf){
+  return new Promise((resolve,reject)=>{
+    const file=MP4Box.createFile(); const chunks=[]; let cfg=null,total=0;
+    file.onError=e=>reject(new Error('mp4box: '+e));
+    file.onReady=info=>{
+      const tr=info.videoTracks[0]; total=tr.nb_samples;
+      const trak=file.getTrackById(tr.id); let desc=null;
+      for(const e of trak.mdia.minf.stbl.stsd.entries){
+        const box=e.avcC||e.hvcC||e.vpcC||e.av1C;
+        if(box){const st=new DataStream(undefined,0,DataStream.BIG_ENDIAN);box.write(st);desc=new Uint8Array(st.buffer,8);break;}
+      }
+      cfg={codec:tr.codec,codedWidth:tr.video.width,codedHeight:tr.video.height,description:desc,
+           hardwareAcceleration:'prefer-hardware',optimizeForLatency:true};
+      file.setExtractionOptions(tr.id,null,{nbSamples:1e6}); file.start();
+    };
+    file.onSamples=(id,u,samples)=>{
+      for(const s of samples) chunks.push(new EncodedVideoChunk({type:s.is_sync?'key':'delta',
+        timestamp:1e6*s.cts/s.timescale,duration:1e6*s.duration/s.timescale,data:s.data}));
+      if(chunks.length>=total) resolve({cfg,chunks});
+    };
+    setTimeout(()=>reject(new Error('demux stalled')),25000);
+    const b=buf.slice(0); b.fileStart=0; file.appendBuffer(b); file.flush();
+  });
+}
+
+const encCfg=(s,hw)=>({codec:s.codec,width:s.w,height:s.h,bitrate:s.bitrate,framerate:s.fps,
+                       hardwareAcceleration:hw,avc:{format:'avc'},latencyMode:'quality'});
+
+// backpressure gate: never let more than `limit` frames sit between decoder and encoder
+function gate(limit){
+  let inflight=0, waiter=null;
+  return {
+    async acquire(){ if(inflight>=limit) await new Promise(r=>waiter=r); inflight++; },
+    release(){ inflight--; if(waiter&&inflight<limit){const w=waiter;waiter=null;w();} },
+  };
+}
+
+// ---------- 1&2. encode-only throughput (hardware vs software) ----------
+async function encodeOnly(s,frames,n,hw){
+  const cfg=encCfg(s,hw);
+  const sup=await VideoEncoder.isConfigSupported(cfg);
+  if(!sup.supported) return {error:'config 미지원'};
+  let out=0,bytes=0;
+  const g=gate(s.limit);
+  const enc=new VideoEncoder({output:c=>{out++;bytes+=c.byteLength;g.release();},error:e=>log('  enc: '+e)});
+  enc.configure(cfg);
+  const t0=performance.now();
+  for(let i=0;i<n;i++){
+    await g.acquire();
+    const src=frames[i%frames.length];
+    const f=new VideoFrame(src,{timestamp:Math.round(i*1e6/s.fps),duration:Math.round(1e6/s.fps)});
+    enc.encode(f,{keyFrame:i%(s.fps*2)===0});
+    f.close();
+  }
+  await enc.flush();
+  const ms=performance.now()-t0;
+  enc.close();
+  return {frames:out, ms:+ms.toFixed(1), fps:+(out/(ms/1000)).toFixed(0), realtime_x:rt(out,s.fps,ms),
+          out_mbps:+((bytes*8/1e6)/(out/s.fps)).toFixed(1)};
+}
+
+// ---------- 2b. do concurrent encoders add throughput, or is 200fps a hardware ceiling? ----------
+async function encodeParallel(s,frames,nTotal,k){
+  const per=Math.floor(nTotal/k);
+  const t0=performance.now();
+  const runs=await Promise.all(Array.from({length:k},async()=>{
+    let out=0;
+    const g=gate(Math.max(4,Math.floor(s.limit/k)));
+    const enc=new VideoEncoder({output:()=>{out++;g.release();},error:e=>log('  enc: '+e)});
+    enc.configure(encCfg(s,'prefer-hardware'));
+    for(let i=0;i<per;i++){
+      await g.acquire();
+      const f=new VideoFrame(frames[i%frames.length],
+        {timestamp:Math.round(i*1e6/s.fps),duration:Math.round(1e6/s.fps)});
+      enc.encode(f,{keyFrame:i%(s.fps*2)===0}); f.close();
+    }
+    await enc.flush(); enc.close(); return out;
+  }));
+  const ms=performance.now()-t0;
+  const total=runs.reduce((a,b)=>a+b,0);
+  return {encoders:k, frames:total, ms:+ms.toFixed(1), fps:+(total/(ms/1000)).toFixed(0),
+          realtime_x:rt(total,s.fps,ms)};
+}
+
+// ---------- 3. transcode: decode -> encode, pipelined ----------
+async function transcode(s,decCfg,chunks){
+  const g=gate(s.limit);
+  let out=0,bytes=0; const muxChunks=[]; let meta=null;
+  const enc=new VideoEncoder({output:(c,m)=>{out++;bytes+=c.byteLength;if(m&&m.decoderConfig)meta=m;
+                                             muxChunks.push(c);g.release();},error:e=>log('  enc: '+e)});
+  enc.configure(encCfg(s,'prefer-hardware'));
+  let i=0;
+  const dec=new VideoDecoder({output:f=>{
+    const nf=new VideoFrame(f,{timestamp:Math.round(i*1e6/s.fps),duration:Math.round(1e6/s.fps)});
+    enc.encode(nf,{keyFrame:i%(s.fps*2)===0}); nf.close(); f.close(); i++;
+  },error:e=>log('  dec: '+e)});
+  dec.configure(decCfg);
+  const t0=performance.now();
+  for(const c of chunks){ await g.acquire(); dec.decode(c); }
+  await dec.flush(); await enc.flush();
+  const ms=performance.now()-t0;
+  dec.close(); enc.close();
+  return {r:{frames:out, ms:+ms.toFixed(1), fps:+(out/(ms/1000)).toFixed(0), realtime_x:rt(out,s.fps,ms)},
+          muxChunks, meta, bytes};
+}
+
+// ---------- 4. the real editor path: decode -> canvas composite -> encode ----------
+async function canvasPipeline(s,decCfg,chunks){
+  const cv=new OffscreenCanvas(s.w,s.h);
+  const ctx=cv.getContext('2d',{alpha:false,desynchronized:true});
+  const g=gate(s.limit);
+  let out=0; let drawMs=0;
+  const enc=new VideoEncoder({output:()=>{out++;g.release();},error:e=>log('  enc: '+e)});
+  enc.configure(encCfg(s,'prefer-hardware'));
+  let i=0;
+  const dec=new VideoDecoder({output:f=>{
+    const t=performance.now();
+    ctx.drawImage(f,0,0);
+    ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(40,40,s.w*0.25,60);   // a stand-in overlay layer
+    const nf=new VideoFrame(cv,{timestamp:Math.round(i*1e6/s.fps),duration:Math.round(1e6/s.fps)});
+    drawMs+=performance.now()-t;
+    enc.encode(nf,{keyFrame:i%(s.fps*2)===0}); nf.close(); f.close(); i++;
+  },error:e=>log('  dec: '+e)});
+  dec.configure(decCfg);
+  const t0=performance.now();
+  for(const c of chunks){ await g.acquire(); dec.decode(c); }
+  await dec.flush(); await enc.flush();
+  const ms=performance.now()-t0;
+  dec.close(); enc.close();
+  return {frames:out, ms:+ms.toFixed(1), fps:+(out/(ms/1000)).toFixed(0), realtime_x:rt(out,s.fps,ms),
+          composite_ms_per_frame:+(drawMs/out).toFixed(2)};
+}
+
+// ---------- 5. mux ----------
+function mux(s,muxChunks,meta){
+  const t0=performance.now();
+  const target=new Mp4Muxer.ArrayBufferTarget();
+  const m=new Mp4Muxer.Muxer({target,video:{codec:'avc',width:s.w,height:s.h},fastStart:'in-memory'});
+  for(const c of muxChunks) m.addVideoChunk(c,meta);
+  m.finalize();
+  const ms=performance.now()-t0;
+  return {ms:+ms.toFixed(1), mb:+(target.buffer.byteLength/1048576).toFixed(1),
+          ms_per_frame:+(ms/muxChunks.length).toFixed(3)};
+}
+
+// ---------- 6. MediaRecorder: is it locked to realtime? ----------
+async function mediaRecorder(s,frames){
+  const cv=document.createElement('canvas'); cv.width=s.w; cv.height=s.h;
+  const ctx=cv.getContext('2d');
+  const stream=cv.captureStream(0);                      // 0 = frames pushed manually
+  const track=stream.getVideoTracks()[0];
+  if(!track.requestFrame) return {error:'requestFrame 미지원'};
+  const mime=['video/mp4;codecs=avc1.640029','video/webm;codecs=vp9','video/webm']
+             .find(t=>MediaRecorder.isTypeSupported(t));
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:s.bitrate});
+  const parts=[]; rec.ondataavailable=e=>parts.push(e.data);
+  rec.start();
+  const t0=performance.now();
+  for(let i=0;i<MREC_N;i++){
+    ctx.drawImage(frames[i%frames.length],0,0);
+    track.requestFrame();
+    await new Promise(r=>requestAnimationFrame(r));      // one push per compositor frame
+  }
+  const pushMs=performance.now()-t0;
+  await new Promise(r=>{rec.onstop=r;rec.stop();});
+  const ms=performance.now()-t0;
+  const blob=new Blob(parts,{type:mime});
+  // what duration did the recording actually get?
+  const v=document.createElement('video'); v.src=URL.createObjectURL(blob); v.muted=true;
+  const dur=await new Promise(res=>{
+    v.onloadedmetadata=()=>{ if(isFinite(v.duration)) return res(v.duration);
+      v.currentTime=1e6; v.ontimeupdate=()=>{v.ontimeupdate=null;res(v.duration);}; };
+    setTimeout(()=>res(null),4000);
+  });
+  return {mime, frames:MREC_N, push_ms:+pushMs.toFixed(1), total_ms:+ms.toFixed(1),
+          realtime_x:rt(MREC_N,s.fps,ms), expected_duration_s:+(MREC_N/s.fps).toFixed(2),
+          actual_duration_s:dur==null?null:+dur.toFixed(2), mb:+(blob.size/1048576).toFixed(1)};
+}
+
+// ---------- 7. ffmpeg.wasm (software, for comparison) ----------
+// -t 5: rate metrics (fps, realtime x) are comparable on a 5s slice, and a full 20s
+// software encode of 4K would dominate the whole run.
+const FF_SECONDS=5;
+let ffWorker=null, ffLoadMs=null;
+async function ffmpegWasm(s,buf){
+  const ask=(msg,transfer)=>new Promise((res,rej)=>{
+    ffWorker.onmessage=e=>e.data.ok?res(e.data):rej(new Error(e.data.error+' | '+(e.data.log||[]).join(' / ')));
+    ffWorker.onerror=e=>rej(new Error('worker: '+e.message));
+    ffWorker.postMessage(msg,transfer||[]);
+  });
+  if(!ffWorker){
+    ffWorker=new Worker('ffmpeg-worker.js');
+    const r=await ask({cmd:'load',coreURL:location.origin+'/core/ffmpeg-core.js',
+                       wasmURL:location.origin+'/core/ffmpeg-core.wasm'});
+    ffLoadMs=+r.load_ms.toFixed(0);
+  }
+  const copy=buf.slice(0);
+  const r=await ask({cmd:'run',buf:copy,args:['-i','in.mp4','-t',String(FF_SECONDS),
+    '-c:v','libx264','-preset','veryfast','-b:v',String(s.bitrate),'-an','-y','out.mp4']},[copy]);
+  const frameLine=(r.log||[]).find(l=>/frame=\s*\d+/.test(l))||'';
+  const m=frameLine.match(/frame=\s*(\d+)/);
+  const n=m?+m[1]:Math.round(FF_SECONDS*s.fps);
+  return {core_load_ms:ffLoadMs, seconds:FF_SECONDS, frames:n, exit:r.exit,
+          ms:+r.exec_ms.toFixed(0), fps:+(n/(r.exec_ms/1000)).toFixed(1),
+          realtime_x:rt(n,s.fps,r.exec_ms), mb:+(r.bytes/1048576).toFixed(1),
+          frames_from_log:!!m};
+}
+
+// ---------- runner ----------
+const ROWS=[];
+const COLS=[['소스',r=>r.name],
+  ['인코드(HW)',r=>x(r.enc_hw)],['인코드(SW)',r=>x(r.enc_sw)],['인코드×2',r=>x(r.enc_p2)],['인코드×4',r=>x(r.enc_p4)],
+  ['트랜스코드',r=>x(r.transcode)],['캔버스 파이프라인',r=>x(r.pipeline)],
+  ['합성/프레임',r=>r.pipeline&&r.pipeline.composite_ms_per_frame!=null?r.pipeline.composite_ms_per_frame+'ms':'-'],
+  ['먹싱',r=>r.mux&&r.mux.ms!=null?r.mux.ms+'ms ('+r.mux.mb+'MB)':'-'],
+  ['MediaRecorder',r=>x(r.mediarecorder)],
+  ['ffmpeg.wasm',r=>x(r.ffmpeg)]];
+function x(o){
+  if(!o) return '-';
+  if(o.error) return '<span class="dim">'+o.error+'</span>';
+  if(o.realtime_x==null) return '-';
+  const c=o.realtime_x>=5?'g':o.realtime_x>=1?'y':'r';
+  return `<span class="${c}">${o.realtime_x}×</span> <span class="dim">${o.fps||''}${o.fps?'fps':''}</span>`;
+}
+function render(){
+  $('#out').innerHTML='<table><tr>'+COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+
+    ROWS.map(r=>'<tr>'+COLS.map(c=>'<td>'+(()=>{try{return c[1](r)??'-'}catch(e){return '-'}})()+'</td>').join('')+'</tr>').join('')+
+    '</table><p class="dim">× = 실시간 대비 배수. 초록 ≥5× · 노랑 ≥1× · 빨강 &lt;1×(실시간보다 느림)</p>';
+}
+
+async function run(){
+  for(const s of SOURCES){
+    const r={name:s.name}; ROWS.push(r); render();
+    log('=== '+s.name);
+    const step=async(k,label,fn,to)=>{ log(' > '+label);
+      try{ r[k]=await withTimeout(fn(),to,label); log('   '+label+' '+JSON.stringify(r[k])); }
+      catch(e){ r[k]={error:String(e.message||e)}; log('   '+label+' FAILED '+r[k].error); }
+      render(); };
+
+    const buf=await (await fetch(s.name)).arrayBuffer();
+    const {cfg:decCfg,chunks}=await demux(buf);
+
+    // decode a small buffer of real frames to feed the encode-only tests
+    const frames=[];
+    await new Promise(async res=>{
+      const d=new VideoDecoder({output:f=>{frames.length<s.buf?frames.push(f):f.close();},error:()=>{}});
+      d.configure(decCfg);
+      for(let i=0;i<Math.min(chunks.length,s.buf*3);i++) d.decode(chunks[i]);
+      await d.flush(); d.close(); res();
+    });
+    log('   decoded buffer: '+frames.length+' frames');
+
+    await step('enc_hw','encode-only(HW)',()=>encodeOnly(s,frames,ENC_ONLY_N,'prefer-hardware'),180000);
+    await step('enc_sw','encode-only(SW)',()=>encodeOnly(s,frames,ENC_SW_N,'prefer-software'),300000);
+    await step('enc_p2','encode x2',()=>encodeParallel(s,frames,ENC_ONLY_N,2),300000);
+    await step('enc_p4','encode x4',()=>encodeParallel(s,frames,ENC_ONLY_N,4),300000);
+
+    let tr=null;
+    if(Q.get('only')==='parallel'){ frames.forEach(f=>f.close()); render(); continue; }
+    await step('transcode','transcode',async()=>{tr=await transcode(s,decCfg,chunks); return tr.r;},300000);
+    if(tr&&tr.muxChunks&&tr.muxChunks.length)
+      await step('mux','mux',async()=>mux(s,tr.muxChunks,tr.meta),60000);
+    tr=null;
+
+    await step('pipeline','canvas pipeline',()=>canvasPipeline(s,decCfg,chunks),300000);
+    await step('mediarecorder','MediaRecorder',()=>mediaRecorder(s,frames),120000);
+    await step('ffmpeg','ffmpeg.wasm',()=>ffmpegWasm(s,buf),900000);
+
+    frames.forEach(f=>f.close());
+    render();
+  }
+  fetch('/render-result',{method:'POST',body:JSON.stringify(
+    {ua:navigator.userAgent,cores:navigator.hardwareConcurrency,results:ROWS},null,2)}).catch(()=>{});
+  log('DONE');
+}
+$('#go').onclick=run;
+if(Q.has('auto')) run();
+</script>

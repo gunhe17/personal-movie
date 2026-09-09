@@ -1,0 +1,260 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "results": {
+    "e1": [
+      {
+        "name": "1080p30_gop60.mp4",
+        "frames": 600,
+        "src_mb": 37.9,
+        "failed": "Timestamps must be monotonically increasing (DTS went from 133334 to 66667)"
+      },
+      {
+        "name": "nobf_1080p30.mp4",
+        "frames": 600,
+        "ms": 16.7,
+        "fps": 35928,
+        "realtime_x": 1197.6,
+        "mb": 24,
+        "src_mb": 24,
+        "verify": {
+          "playable": true,
+          "duration": 20,
+          "w": 1920,
+          "h": 1080
+        }
+      }
+    ],
+    "e2": [
+      {
+        "name": "4k30_gop60.mp4",
+        "fps": 30,
+        "dims": "3840×2160",
+        "step": {
+          "n": 60,
+          "min": 15.7,
+          "med": 51.2,
+          "p95": 89.9,
+          "max": 91.3
+        },
+        "seek": {
+          "n": 30,
+          "min": 16.7,
+          "med": 55.1,
+          "p95": 100,
+          "max": 349.7
+        }
+      },
+      {
+        "name": "proxy1080_from4k.mp4",
+        "fps": 30,
+        "dims": "1920×1080",
+        "step": {
+          "n": 60,
+          "min": 15.7,
+          "med": 16.7,
+          "p95": 34.3,
+          "max": 34.4
+        },
+        "seek": {
+          "n": 30,
+          "min": 16.5,
+          "med": 16.7,
+          "p95": 33.3,
+          "max": 33.4
+        }
+      }
+    ],
+    "e3": [
+      {
+        "gop": 60,
+        "mb": 23.3,
+        "keyframes": 10,
+        "step": {
+          "n": 60,
+          "min": 15.4,
+          "med": 16.8,
+          "p95": 33.7,
+          "max": 34.4
+        },
+        "seek": {
+          "n": 30,
+          "min": 16.6,
+          "med": 31.9,
+          "p95": 34.3,
+          "max": 34.3
+        },
+        "jump": {
+          "n": 12,
+          "min": 6,
+          "med": 18.6,
+          "p95": 28.5,
+          "max": 28.5
+        }
+      },
+      {
+        "gop": 30,
+        "mb": 24,
+        "keyframes": 20,
+        "step": {
+          "n": 60,
+          "min": 15.6,
+          "med": 16.7,
+          "p95": 17.6,
+          "max": 17.7
+        },
+        "seek": {
+          "n": 30,
+          "min": 15.7,
+          "med": 16.7,
+          "p95": 33.3,
+          "max": 33.4
+        },
+        "jump": {
+          "n": 12,
+          "min": 5.4,
+          "med": 14,
+          "p95": 20.6,
+          "max": 20.6
+        }
+      },
+      {
+        "gop": 15,
+        "mb": 25.4,
+        "keyframes": 40,
+        "step": {
+          "n": 60,
+          "min": 15.6,
+          "med": 16.7,
+          "p95": 17.6,
+          "max": 17.7
+        },
+        "seek": {
+          "n": 30,
+          "min": 16,
+          "med": 16.7,
+          "p95": 16.8,
+          "max": 17.3
+        },
+        "jump": {
+          "n": 12,
+          "min": 9.2,
+          "med": 14.2,
+          "p95": 18.1,
+          "max": 18.1
+        }
+      },
+      {
+        "gop": 6,
+        "mb": 28.7,
+        "keyframes": 100,
+        "step": {
+          "n": 60,
+          "min": 15.7,
+          "med": 16.7,
+          "p95": 17.6,
+          "max": 17.7
+        },
+        "seek": {
+          "n": 30,
+          "min": 15.6,
+          "med": 16.7,
+          "p95": 17.5,
+          "max": 17.7
+        },
+        "jump": {
+          "n": 12,
+          "min": 5.2,
+          "med": 6.5,
+          "p95": 9.9,
+          "max": 9.9
+        }
+      },
+      {
+        "gop": 1,
+        "mb": 46.7,
+        "keyframes": 600,
+        "step": {
+          "n": 60,
+          "min": 14.7,
+          "med": 16.7,
+          "p95": 17.7,
+          "max": 18.6
+        },
+        "seek": {
+          "n": 30,
+          "min": 15.7,
+          "med": 16.7,
+          "p95": 17.1,
+          "max": 17.1
+        },
+        "jump": {
+          "n": 12,
+          "min": 4.2,
+          "med": 4.4,
+          "p95": 7.1,
+          "max": 7.1
+        }
+      }
+    ],
+    "e4": {
+      "video_seek_ms": 3045,
+      "video_seek_per_thumb": 30.4,
+      "webcodecs_ms": 388,
+      "webcodecs_per_thumb": 3.9,
+      "thumbs": 100,
+      "decoded_frames": 600,
+      "drawn": 100,
+      "speedup": 7.8
+    },
+    "e5": [
+      {
+        "bitrate": 50000000,
+        "mode": "quality",
+        "frames": 120,
+        "fps": 55,
+        "realtime_x": 1.8,
+        "out_mbps": 50
+      },
+      {
+        "bitrate": 50000000,
+        "mode": "realtime",
+        "frames": 120,
+        "fps": 25,
+        "realtime_x": 0.8,
+        "out_mbps": 49
+      },
+      {
+        "bitrate": 20000000,
+        "mode": "quality",
+        "frames": 120,
+        "fps": 55,
+        "realtime_x": 1.8,
+        "out_mbps": 20.1
+      },
+      {
+        "bitrate": 20000000,
+        "mode": "realtime",
+        "frames": 120,
+        "fps": 50,
+        "realtime_x": 1.7,
+        "out_mbps": 19.3
+      },
+      {
+        "bitrate": 8000000,
+        "mode": "quality",
+        "frames": 120,
+        "fps": 56,
+        "realtime_x": 1.9,
+        "out_mbps": 8.1
+      },
+      {
+        "bitrate": 8000000,
+        "mode": "realtime",
+        "frames": 118,
+        "fps": 50,
+        "realtime_x": 1.7,
+        "out_mbps": 7.7
+      }
+    ]
+  }
+}
