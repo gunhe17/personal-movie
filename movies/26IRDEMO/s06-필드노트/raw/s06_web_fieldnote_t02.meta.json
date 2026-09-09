@@ -1,0 +1,158 @@
+{
+  "id": "s06_web_fieldnote_t02",
+  "scene": "s06-필드노트",
+  "device": "web",
+  "action": "fieldnote",
+  "take": "t02",
+  "captured_at": "2026-09-09T21:44:07.623Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/schedule/field-notes/3f940926-c634-4f0a-b5b2-cb0e501b68e3",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 53,
+      "appended": 726,
+      "dupped": 678,
+      "notReady": 0,
+      "ticks": 726,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10b.json",
+    "sha256": "37c15eccb292dd4ecf2277f72ba18caadc1b26b1972230df385f20fcfc385757"
+  },
+  "script": {
+    "file": "_scripts/s06-fieldnote-web.mjs",
+    "sha256": "eb34aefdd6534df295d466108e7497c138f56071d4d268f8fd57eaca073cbed3"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "필드노트 — 30분 · 회기에 연결됨"
+    },
+    {
+      "t": 4.22,
+      "kind": "hold",
+      "target": "2000",
+      "note": "누가 언제 남겼는지가 머리에 있다"
+    },
+    {
+      "t": 4.47,
+      "kind": "scroll",
+      "target": "500",
+      "note": "전사로"
+    },
+    {
+      "t": 5.62,
+      "kind": "beat",
+      "target": "",
+      "note": "화자별 대화 — 상담사 / 내담자"
+    },
+    {
+      "t": 8.12,
+      "kind": "hold",
+      "target": "2500",
+      "note": "분 단위 타임스탬프가 붙어 있다"
+    },
+    {
+      "t": 8.32,
+      "kind": "scroll",
+      "target": "500",
+      "note": "더 아래로"
+    },
+    {
+      "t": 9.47,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 후반 — 다음 주 과제까지 남아 있다"
+    },
+    {
+      "t": 10.98,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 10.98,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.22,
+      "note": "시간 축을 따라 — 머릿속에 있던 것이 남는다",
+      "end": 9.47
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "확정 시드 조합 09-10b로 재촬영",
+  "result": {
+    "file": "raw/s06_web_fieldnote_t02.mov",
+    "duration": 12.1,
+    "ok": true,
+    "error": null
+  }
+}

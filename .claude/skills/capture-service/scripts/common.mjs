@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 export const HERE = path.dirname(fileURLToPath(import.meta.url))
 export const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
-export const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? '/Users/gunhee/workspace/codespace/domain/imomtae/imomtae-v3/TF/saas-center-platform'
+export const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform')
 export const SCK_SRC = path.join(HERE, 'sckcap.swift'), SCK_BIN = path.join(HERE, 'sckcap')
 
 export function ensureSck() {

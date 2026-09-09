@@ -1,15 +1,19 @@
 // sckcap — ScreenCaptureKit 캡처러. capture.mjs가 컴파일해서 쓴다.
 //   sckcap --bundle-id com.google.chrome.for.testing --rect x,y,w,h(points) --scale 2 --fps 60 --codec h264|prores --out file.mov
 //   sckcap ... --still out.png            첫 프레임 한 장만 PNG로 (크롭 보정용)
-//   stdin에 'q' 또는 SIGINT → 마무리. stdout: 첫 프레임에 "READY", 끝에 통계 JSON 한 줄.
+//   stdin: 'q' → 마무리 · 'm <x> <y> <shape>' → 커서 위치(캡처 사각형 기준 points, shape=arrow|ibeam|pointer)
+//   stdout: 첫 프레임에 "READY", 끝에 통계 JSON 한 줄.
 //
-// 왜 SCK인가: 앱 필터라 다른 창이 앞에 있어도 안 잡히고, 커서를 명시적으로 끄고, 60Hz 타이머로 CFR을 보장한다.
+// 왜 SCK인가: 앱 필터라 다른 창이 앞에 있어도 안 잡히고, OS 커서를 구조적으로 빼고, 60Hz 타이머로 CFR을 보장한다.
+// 커서(--cursor on): OS 커서 대신 NSCursor의 진짜 커서 이미지를 우리가 프레임에 그린다. 좌표는 러너가 stdin으로 준다 —
+// 페이지 안 오버레이(v2)의 세 결함(내비게이션마다 좌상단으로 튐 · CSS transition 지연 · 모양 고정)이 구조적으로 사라진다.
 import Foundation
 import AppKit
 import ScreenCaptureKit
 import AVFoundation
 import CoreMedia
 import CoreImage
+import Metal
 import ImageIO
 import UniformTypeIdentifiers
 
@@ -18,6 +22,7 @@ var it = CommandLine.arguments.dropFirst().makeIterator()
 while let a = it.next() { if a.hasPrefix("--") { opts[String(a.dropFirst(2))] = it.next() ?? "" } }
 let bundleId = opts["bundle-id"] ?? "com.google.chrome.for.testing"
 let pidOpt = opts["pid"].flatMap { Int32($0) }
+let rectGiven = opts["rect"] != nil
 let rp = (opts["rect"] ?? "0,0,1600,900").split(separator: ",").compactMap { Double($0) }
 let rect = CGRect(x: rp[0], y: rp[1], width: rp[2], height: rp[3])
 let scale = Double(opts["scale"] ?? "2") ?? 2
@@ -28,6 +33,10 @@ let outPath = opts["out"] ?? "out.mov"
 let stillPath = opts["still"]
 let windowTitle = opts["window-title"]                      // 창 모드: 이 문자열을 제목에 포함한 창 하나를 잡는다 (예: "iPhone")
 let trimTop = Double(opts["trim-top"] ?? "28") ?? 28        // 창 모드에서 위에서 잘라낼 타이틀바 높이(points)
+// independent: 창 하나를 위치와 무관하게 잡는다(시뮬레이터). 창에 붙은 팝업(번역 풍선 등)도 같이 합성된다.
+// display: 그 창만 포함해 화면 좌표로 잘라낸다. 붙은 팝업이 빠진다 — 브라우저 촬영은 이쪽.
+let winMode = opts["window-mode"] ?? "independent"
+let cursorOn = (opts["cursor"] ?? "off") == "on"
 var outW = Int(rect.width * scale), outH = Int(rect.height * scale)
 
 func log(_ s: String) { FileHandle.standardError.write((s + "\n").data(using: .utf8)!) }
@@ -46,6 +55,51 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
   var stopping = false
   let q = DispatchQueue(label: "sckcap.frames")
 
+  // ── 커서 합성 ──
+  var curX = -1.0, curY = -1.0, curShape = "arrow"
+  var pool: CVPixelBufferPool?
+  var composed: CVPixelBuffer?          // 마지막 합성 결과 — 소스·커서가 그대로면 재사용한다(복제 틱이 대부분이라 이득이 크다)
+  var composedKey: (CVPixelBuffer, Double, Double, String)?
+  lazy var ciCtx: CIContext = MTLCreateSystemDefaultDevice().map { CIContext(mtlDevice: $0) } ?? CIContext()
+  var cursorCache: [String: (CIImage, CGPoint, CGSize)] = [:]   // 이미지 · hotSpot(points) · 크기(points)
+
+  /// stdin 한 줄: "m <x> <y> <shape>" — 캡처 사각형 왼쪽 위 원점, points
+  func setCursor(_ line: String) {
+    let f = line.split(separator: " ")
+    guard f.count >= 3, let x = Double(f[1]), let y = Double(f[2]) else { return }
+    q.async { self.curX = x; self.curY = y; if f.count >= 4 { self.curShape = String(f[3]) } }
+  }
+
+  func cursorImage(_ name: String) -> (CIImage, CGPoint, CGSize)? {
+    if let c = cursorCache[name] { return c }
+    let ns: NSCursor = name == "ibeam" ? .iBeam : name == "pointer" ? .pointingHand : .arrow
+    var r = CGRect(x: 0, y: 0, width: ns.image.size.width, height: ns.image.size.height)
+    guard let cg = ns.image.cgImage(forProposedRect: &r, context: nil, hints: nil) else { return nil }
+    let v = (CIImage(cgImage: cg), ns.hotSpot, ns.image.size)
+    cursorCache[name] = v
+    return v
+  }
+
+  /// 소스 프레임 위에 커서를 그려 새 버퍼를 돌려준다. 그릴 게 없으면 nil (소스를 그대로 쓴다)
+  func withCursor(_ src: CVPixelBuffer) -> CVPixelBuffer? {
+    guard cursorOn, curX >= 0, let (img, hot, ptSize) = cursorImage(curShape), let pool = pool else { return nil }
+    if let k = composedKey, k.0 === src, k.1 == curX, k.2 == curY, k.3 == curShape { return composed }
+    var outPB: CVPixelBuffer?
+    guard CVPixelBufferPoolCreatePixelBuffer(nil, pool, &outPB) == kCVReturnSuccess, let dst = outPB else { return nil }
+
+    // NSCursor 이미지는 points 기준이고 cgImage는 그보다 클 수 있다(Retina 표현) — points→픽셀로 다시 맞춘다
+    let wantW = ptSize.width * scale
+    let k = wantW / img.extent.width
+    let cur = img.transformed(by: CGAffineTransform(scaleX: k, y: k))
+    // 화면 좌표(왼쪽 위 원점) → CoreImage 좌표(왼쪽 아래 원점)
+    let x = (curX - hot.x) * scale
+    let yTop = (curY - hot.y) * scale
+    let placed = cur.transformed(by: CGAffineTransform(translationX: x, y: Double(outH) - yTop - cur.extent.height))
+    ciCtx.render(placed.composited(over: CIImage(cvPixelBuffer: src)), to: dst)
+    composed = dst; composedKey = (src, curX, curY, curShape)
+    return dst
+  }
+
   func start() async throws {
     let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
     guard let display = content.displays.first else { throw err("디스플레이 없음") }
@@ -53,11 +107,27 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     var srcRect = rect
     if let title = windowTitle {
       // 창 모드 — iOS 시뮬레이터처럼 화면이 창 하나에 담긴 경우. sourceRect는 창 기준 좌표(points), --trim-top으로 타이틀바를 뺀다.
-      guard let win = content.windows.first(where: { ($0.owningApplication?.bundleIdentifier == bundleId) && ($0.title ?? "").contains(title) })
-      else { throw err("창 없음: \(bundleId) 제목에 '\(title)' 포함") }
-      filter = SCContentFilter(desktopIndependentWindow: win)
+      // 창 모드는 창이 뒤에 있어도·다른 Space에 있어도 그 창만 잡는다 — 전체화면도 포커스도 필요 없다.
+      let cands = content.windows.filter { w in
+        let owner = pidOpt != nil ? (w.owningApplication?.processID == pidOpt!) : (w.owningApplication?.bundleIdentifier == bundleId)
+        return owner && (title.isEmpty || (w.title ?? "").contains(title)) && w.frame.width > 100 && w.frame.height > 100
+      }.sorted { $0.frame.width * $0.frame.height > $1.frame.width * $1.frame.height }
+      guard let win = cands.first
+      else { throw err("창 없음: \(pidOpt.map { "pid \($0)" } ?? bundleId)\(title.isEmpty ? "" : " 제목에 '\(title)' 포함")") }
       let f = win.frame
-      srcRect = CGRect(x: 0, y: trimTop, width: f.width, height: f.height - trimTop)
+      if winMode == "display" {
+        // 그 창만 그린다 — 앞의 다른 창도, 이 창에 붙은 팝업도 안 들어온다. 좌표는 화면 기준.
+        filter = SCContentFilter(display: display, including: [win])
+        srcRect = CGRect(x: f.origin.x + (rectGiven ? rect.origin.x : 0), y: f.origin.y + trimTop,
+                         width: rectGiven ? rect.width : f.width,
+                         height: rectGiven ? rect.height : f.height - trimTop)
+      } else {
+        filter = SCContentFilter(desktopIndependentWindow: win)
+        // --rect가 있으면 그 크기를 창 기준으로 쓴다(크롬 높이는 --trim-top). 없으면 타이틀바만 뺀 창 전체.
+        srcRect = CGRect(x: rectGiven ? rect.origin.x : 0, y: trimTop,
+                         width: rectGiven ? rect.width : f.width,
+                         height: rectGiven ? rect.height : f.height - trimTop)
+      }
       outW = Int(srcRect.width * scale); outH = Int(srcRect.height * scale)
       log("window '\(win.title ?? "")' frame=\(f) → src=\(srcRect)")
     } else {
@@ -100,6 +170,13 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     guard w.startWriting() else { throw w.error ?? err("writer 시작 실패") }
     w.startSession(atSourceTime: .zero)
     writer = w; input = inp; adaptor = ad
+    if cursorOn {
+      let attrs: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                                  kCVPixelBufferWidthKey as String: outW, kCVPixelBufferHeightKey as String: outH,
+                                  kCVPixelBufferMetalCompatibilityKey as String: true]
+      CVPixelBufferPoolCreate(nil, [kCVPixelBufferPoolMinimumBufferCountKey as String: 6] as CFDictionary, attrs as CFDictionary, &pool)
+      if pool == nil { log("커서 합성용 버퍼 풀 생성 실패 — 커서 없이 계속") }
+    }
   }
 
   func stream(_ stream: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
@@ -119,12 +196,13 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     let t = DispatchSource.makeTimerSource(queue: q)
     t.schedule(deadline: .now(), repeating: 1.0 / Double(fps), leeway: .milliseconds(1))
     t.setEventHandler { [unowned self] in
-      guard !stopping, let pb = latest, let inp = input, let ad = adaptor else { return }
+      guard !stopping, let src = latest, let inp = input, let ad = adaptor else { return }
       guard inp.isReadyForMoreMediaData else { notReady += 1; tick += 1; return }
+      let pb = withCursor(src) ?? src
       if ad.append(pb, withPresentationTime: CMTime(value: tick, timescale: fps)) {
         appended += 1
-        if lastAppended === pb { dupped += 1 }
-        lastAppended = pb
+        if lastAppended === src { dupped += 1 }
+        lastAppended = src
       } else { log("append 실패: \(writer?.error?.localizedDescription ?? "?")") }
       tick += 1
     }
@@ -169,7 +247,10 @@ Task {
 }
 if stillPath == nil {
   DispatchQueue.global().async {
-    while let line = readLine() { if line.hasPrefix("q") { rec.finish(); return } }
+    while let line = readLine() {
+      if line.hasPrefix("q") { rec.finish(); return }
+      if line.hasPrefix("m ") { rec.setCursor(line) }
+    }
     rec.finish()   // stdin EOF도 종료 신호
   }
 } else {

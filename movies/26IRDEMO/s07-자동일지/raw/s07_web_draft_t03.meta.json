@@ -1,0 +1,141 @@
+{
+  "id": "s07_web_draft_t03",
+  "scene": "s07-자동일지",
+  "device": "web",
+  "action": "draft",
+  "take": "t03",
+  "captured_at": "2026-09-09T21:49:28.918Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/7b9d6e01-87d0-4e5c-a303-e3aed38e3560?session=bc6f3cce-ecb4-4b69-8923-8937eef7c339",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 569,
+      "appended": 589,
+      "dupped": 52,
+      "notReady": 0,
+      "ticks": 589,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10b.json",
+    "sha256": "37c15eccb292dd4ecf2277f72ba18caadc1b26b1972230df385f20fcfc385757"
+  },
+  "script": {
+    "file": "_scripts/s07-draft.mjs",
+    "sha256": "8119f6a417d1c8bf30569c01af14f4ca37a9b4c33366061a406d2b60ff4c509e"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.22,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 녹음은 있고 일지는 비어 있다"
+    },
+    {
+      "t": 3.52,
+      "kind": "click",
+      "target": "button:has-text(\"일지 초안 생성\")",
+      "note": "일지 초안 생성"
+    },
+    {
+      "t": 6.61,
+      "kind": "until",
+      "target": "text=초안으로 채웠어요",
+      "note": "전사 분석 중… → 칸이 채워졌다 (+2.7s)"
+    },
+    {
+      "t": 7.31,
+      "kind": "beat",
+      "target": "",
+      "note": "채워진 일지 — 상담 목표 · 진행 내용 · 다음 상담 내용"
+    },
+    {
+      "t": 8.81,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 8.81,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.22,
+      "note": "초안 생성 → 빈 칸이 채워진다",
+      "end": 6.61
+    }
+  ],
+  "retake_of": "t02",
+  "retake_reason": "확정 시드 조합 09-10b · 이벤트 워커 올린 뒤",
+  "result": {
+    "file": "raw/s07_web_draft_t03.mov",
+    "duration": 9.82,
+    "ok": true,
+    "error": null
+  }
+}

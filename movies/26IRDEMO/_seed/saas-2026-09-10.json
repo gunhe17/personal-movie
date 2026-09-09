@@ -1,0 +1,109 @@
+{
+    "app": "saas-center-platform",
+    "seed": "scripts.seed.develop",
+    "rooms": [
+        {
+            "id": "03adc566-8498-4d24-ada5-1ed3165f7a7d",
+            "name": "상담실 1"
+        }
+    ],
+    "center": [
+        {
+            "id": "191643cb-ab7d-4457-92cf-9385c70d29f0",
+            "name": "마인드스코프 아동심리상담센터"
+        }
+    ],
+    "clients": [
+        {
+            "id": "a354dc0a-5f1b-46d3-8c77-0c1d492c3ad5",
+            "name": "김민준",
+            "role": "client",
+            "birth": "2019-03-10"
+        },
+        {
+            "id": "02eaa8a2-44bb-4127-b47b-518860a9daeb",
+            "name": "김서연",
+            "role": "client",
+            "birth": "2021-06-15"
+        },
+        {
+            "id": "71895801-da76-4cfb-bff0-8280d0794102",
+            "name": "김영희",
+            "role": "both",
+            "birth": "1990-08-25"
+        },
+        {
+            "id": "17623e2b-fee5-44fd-b1a0-049689384c94",
+            "name": "김철수",
+            "role": "guardian",
+            "birth": "1988-12-03"
+        },
+        {
+            "id": "ea43c3bb-3f99-457c-bbe5-b8a6eadbf2bc",
+            "name": "박지우",
+            "role": "client",
+            "birth": "1991-02-14"
+        },
+        {
+            "id": "677a3792-0591-4cfa-868c-2e9393721880",
+            "name": "이수진",
+            "role": "guardian",
+            "birth": "1985-04-18"
+        },
+        {
+            "id": "134adcf3-1b48-462d-a350-a2fef9bcdda1",
+            "name": "이하준",
+            "role": "client",
+            "birth": "2016-09-22"
+        }
+    ],
+    "members": [
+        {
+            "id": "ef883c5e-ef20-4b92-ae11-01937d0944a1",
+            "name": "김원장"
+        },
+        {
+            "id": "b51037b7-abb0-498a-951b-a754e1b44a79",
+            "name": "박접수"
+        },
+        {
+            "id": "7a664185-e1c8-4be2-9d09-978e468a61b4",
+            "name": "이사무"
+        },
+        {
+            "id": "7d52949a-d9fd-4878-abf9-cfdf11bfc937",
+            "name": "정상담"
+        },
+        {
+            "id": "ca54f55c-f7bc-499b-ab38-1267d5dfebff",
+            "name": "최치료"
+        }
+    ],
+    "programs": [
+        {
+            "id": "b9c163d2-5a07-44d5-b5ed-f6538939344d",
+            "name": "개인상담"
+        },
+        {
+            "id": "7d72c4ba-f00d-4860-af5f-f5d2e7c09ee4",
+            "name": "놀이치료"
+        }
+    ],
+    "field_notes": 3,
+    "assessment_cases": [
+        {
+            "id": "c62efff0-441f-4300-80ce-e9ed40c5176e",
+            "code": "AC0001"
+        }
+    ],
+    "counseling_cases": [
+        {
+            "id": "bda93913-af31-4868-b680-61e43c0681d9",
+            "code": "C00001"
+        },
+        {
+            "id": "c4236e75-e289-4e59-9847-0ca0ba38c890",
+            "code": "C00002"
+        }
+    ]
+}

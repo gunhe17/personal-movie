@@ -14,3 +14,4 @@ lab/bench/*.mp4
 # OS / 에디터
 .DS_Store
 node_modules/
+_mocks/.stt-clip.wav

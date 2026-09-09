@@ -1,0 +1,198 @@
+{
+  "id": "s01_web_intake_t03",
+  "scene": "s01-접수",
+  "device": "web",
+  "action": "intake",
+  "take": "t03",
+  "captured_at": "2026-09-09T19:50:48.109Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 1436,
+      "appended": 2667,
+      "dupped": 1344,
+      "notReady": 0,
+      "ticks": 2667,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10.json",
+    "sha256": "da811077256b620ec45066400e84d5e3e601576a3703fad1e283fe30e57050f1"
+  },
+  "script": {
+    "file": "_scripts/s01-intake.mjs",
+    "sha256": "8cf122954bd954cf66e9bcd83996bc903de89e4fe837e838711b89748a1c5980"
+  },
+  "mock": {
+    "file": "_mocks/s01-intake.json",
+    "sha256": "127e3089ea84ceee407545b318b3f9c69bc99831263f3d09bb3bf740266c0aa3",
+    "title": "s01 접수 — 통화하면서 최소 정보만으로 단체 검사 접수 (로르샤흐 + 스마트폰중독검사)",
+    "turns": 2
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.22,
+      "kind": "beat",
+      "target": "",
+      "note": "에이전트 화면"
+    },
+    {
+      "t": 7.89,
+      "kind": "type",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "통화 중 요청"
+    },
+    {
+      "t": 8.35,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 12.65,
+      "kind": "hold",
+      "target": "3500",
+      "note": "필수 정보만 되묻는다"
+    },
+    {
+      "t": 18.45,
+      "kind": "type",
+      "target": "textarea[placeholder=\"답변을 입력하세요...\"]",
+      "note": "최소 정보 입력"
+    },
+    {
+      "t": 18.86,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 26.66,
+      "kind": "hold",
+      "target": "7000",
+      "note": "답변 → 이동 → 기관·명단 prefill"
+    },
+    {
+      "t": 27.86,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 진행 2/3 — 검사 항목만 남았다"
+    },
+    {
+      "t": 29.49,
+      "kind": "click",
+      "target": "button:has-text(\"로르샤흐\")",
+      "note": "검사 항목 — 로르샤흐(투사·대면) → s02"
+    },
+    {
+      "t": 31.9,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "검사 항목 — 스마트폰중독검사(온라인) → s04"
+    },
+    {
+      "t": 33.9,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 버튼 활성"
+    },
+    {
+      "t": 35.5,
+      "kind": "click",
+      "target": "role=button[name=\"등록\"]",
+      "note": "등록 — 여기서 내담자 3명이 실제로 생성된다"
+    },
+    {
+      "t": 40.3,
+      "kind": "hold",
+      "target": "4000",
+      "note": "내담자 3명 생성 + 케이스 등록 → 검사 현황"
+    },
+    {
+      "t": 41.8,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 41.8,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 12.65,
+      "note": "답변 → 검사 접수 폼 · 명단 3명",
+      "end": 26.66
+    },
+    {
+      "start": 33.9,
+      "note": "접수 → 검사 현황",
+      "end": 40.3
+    }
+  ],
+  "result": {
+    "file": "raw/s01_web_intake_t03.mov",
+    "duration": 44.45,
+    "ok": true,
+    "error": null
+  }
+}

@@ -1,12 +1,46 @@
 {
-  "base": "http://localhost:3503",
+  "note": "로컬 개발 서버 시드 계정. 실계정 아님. 두 제품이 같은 배역을 쓴다 — 정본은 saas-center-platform develop 시드, 마인드봄은 scripts/cast.py가 그걸 따른다. 상태 파일은 이 폴더의 local-<app>-<key>.json",
   "password": "test1234",
-  "note": "로컬 개발 서버(:3503) 센터 직원 계정. 실계정 아님. 상태 파일은 이 폴더의 local-<key>.json",
+  "apps": {
+    "saas": {
+      "base": "http://localhost:3503",
+      "api": "http://localhost:3502",
+      "seed": "cd apps/api && uv run python -m scripts.seed.develop",
+      "db_container": "saas-postgres"
+    },
+    "mindbom": {
+      "base": "http://localhost:4503",
+      "api": "http://localhost:4502",
+      "seed": "cd apps/api && uv run python -m scripts.seed",
+      "db_container": "mindbom-postgres",
+      "note": "로그인 후 /select-institution을 거친다. 검사는 전부 정상담(counselor1) 담당 — clinician은 본인 검사만 보인다"
+    }
+  },
   "accounts": {
-    "admin":      { "email": "admin@mindscope.com",      "name": "김원장", "role": "ADMIN 관리자" },
-    "manager":    { "email": "manager@mindscope.com",    "name": "이사무", "role": "MANAGER 매니저" },
-    "staff":      { "email": "staff@mindscope.com",      "name": "박접수", "role": "STAFF 직원" },
-    "counselor1": { "email": "counselor1@mindscope.com", "name": "정상담", "role": "COUNSELOR 전문가" },
-    "counselor2": { "email": "counselor2@mindscope.com", "name": "최치료", "role": "COUNSELOR 전문가" }
+    "admin": {
+      "email": "admin@mindscope.com",
+      "name": "김원장",
+      "role": "ADMIN 관리자 / mindbom admin"
+    },
+    "manager": {
+      "email": "manager@mindscope.com",
+      "name": "이사무",
+      "role": "MANAGER 매니저 / mindbom admin"
+    },
+    "staff": {
+      "email": "staff@mindscope.com",
+      "name": "박접수",
+      "role": "STAFF 직원 / mindbom researcher"
+    },
+    "counselor1": {
+      "email": "counselor1@mindscope.com",
+      "name": "정상담",
+      "role": "COUNSELOR 전문가 / mindbom clinician"
+    },
+    "counselor2": {
+      "email": "counselor2@mindscope.com",
+      "name": "최치료",
+      "role": "COUNSELOR 전문가 / mindbom clinician"
+    }
   }
 }

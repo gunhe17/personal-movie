@@ -1,0 +1,164 @@
+{
+  "id": "s09_web_noshow_t01",
+  "scene": "s09-회기정산",
+  "device": "web",
+  "action": "noshow",
+  "take": "t01",
+  "captured_at": "2026-09-09T19:56:06.015Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/c4236e75-e289-4e59-9847-0ca0ba38c890?session=4fe2eea2-0f03-4067-b712-cb00e788edf6",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 270,
+      "appended": 1403,
+      "dupped": 1138,
+      "notReady": 0,
+      "ticks": 1403,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10.json",
+    "sha256": "da811077256b620ec45066400e84d5e3e601576a3703fad1e283fe30e57050f1"
+  },
+  "script": {
+    "file": "_scripts/s09-noshow.mjs",
+    "sha256": "14d43e9155af3e40aa53338d4a7e4c4e42fae71bf6c3eb0c6f3e0789828fdb61"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 어제 5회기"
+    },
+    {
+      "t": 5.93,
+      "kind": "click",
+      "target": "button:has-text(\"노쇼했어요\")",
+      "note": "노쇼로 표시"
+    },
+    {
+      "t": 7.73,
+      "kind": "modal",
+      "target": "",
+      "note": "이하준님을 노쇼로 변경할까요?"
+    },
+    {
+      "t": 9.23,
+      "kind": "hold",
+      "target": "1500",
+      "note": "회기 차감 — 이번 노쇼를 남은 회기 1회 사용으로 처리해요"
+    },
+    {
+      "t": 10.83,
+      "kind": "click",
+      "target": "[aria-label=\"회기 차감 여부\"]",
+      "note": "회기 차감 켜기"
+    },
+    {
+      "t": 12.83,
+      "kind": "hold",
+      "target": "1200",
+      "note": "켜졌다"
+    },
+    {
+      "t": 14.44,
+      "kind": "click",
+      "target": "getByRole('button', { name: '변경' }).last()",
+      "note": "변경"
+    },
+    {
+      "t": 16.44,
+      "kind": "beat",
+      "target": "",
+      "note": "노쇼 처리됨 — 회기가 잠긴다"
+    },
+    {
+      "t": 18.94,
+      "kind": "hold",
+      "target": "2500",
+      "note": "차감 배지와 바우처 잔여"
+    },
+    {
+      "t": 20.45,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 20.45,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 12.83,
+      "note": "변경 → 차감 → 잔여가 준다",
+      "end": 18.94
+    }
+  ],
+  "result": {
+    "file": "raw/s09_web_noshow_t01.mov",
+    "duration": 23.38,
+    "ok": true,
+    "error": null
+  }
+}

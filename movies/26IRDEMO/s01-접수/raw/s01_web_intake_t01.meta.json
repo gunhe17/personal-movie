@@ -1,0 +1,192 @@
+{
+  "id": "s01_web_intake_t01",
+  "scene": "s01-접수",
+  "device": "web",
+  "action": "intake",
+  "take": "t01",
+  "captured_at": "2026-09-09T13:55:56.614Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 1688,
+      "appended": 2506,
+      "dupped": 858,
+      "notReady": 0,
+      "ticks": 2506,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-09.json",
+    "sha256": "b7bb6ab8f75d2897dfbe98aa88b1665c5a3a7840ebbe028803997918f991053a"
+  },
+  "script": {
+    "file": "_scripts/s01-intake.mjs",
+    "sha256": "db8294644f18dec44731cafd6042420f0d8a91254d755abd80c8e5af2b10423e"
+  },
+  "mock": {
+    "file": "_mocks/s01-intake.json",
+    "sha256": "e65e4fc85a28ee2d63f1b787cd3a71077e96d85b1e4dc37a05543e018f778948",
+    "title": "s01 접수 — 통화하면서 최소 정보만으로 단체 검사 접수",
+    "turns": 2
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "에이전트 화면"
+    },
+    {
+      "t": 7.74,
+      "kind": "type",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "통화 중 요청"
+    },
+    {
+      "t": 8.16,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 12.46,
+      "kind": "hold",
+      "target": "3500",
+      "note": "필수 정보만 되묻는다"
+    },
+    {
+      "t": 18.21,
+      "kind": "type",
+      "target": "textarea[placeholder=\"답변을 입력하세요...\"]",
+      "note": "최소 정보 입력"
+    },
+    {
+      "t": 18.62,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 26.42,
+      "kind": "hold",
+      "target": "7000",
+      "note": "답변 → 이동 → 기관·명단 prefill"
+    },
+    {
+      "t": 27.62,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 진행 2/3 — 검사 항목만 남았다"
+    },
+    {
+      "t": 29.22,
+      "kind": "click",
+      "target": "button:has-text(\"행동평가척도\")",
+      "note": "검사 항목 선택"
+    },
+    {
+      "t": 31.22,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 버튼 활성"
+    },
+    {
+      "t": 32.9,
+      "kind": "click",
+      "target": "role=button[name=\"등록\"]",
+      "note": "등록 — 여기서 내담자 3명이 실제로 생성된다"
+    },
+    {
+      "t": 37.7,
+      "kind": "hold",
+      "target": "4000",
+      "note": "내담자 3명 생성 + 케이스 등록 → 검사 현황"
+    },
+    {
+      "t": 39.2,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 39.2,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 12.46,
+      "note": "답변 → 검사 접수 폼 · 명단 3명",
+      "end": 26.42
+    },
+    {
+      "start": 31.22,
+      "note": "접수 → 검사 현황",
+      "end": 37.7
+    }
+  ],
+  "result": {
+    "file": "raw/s01_web_intake_t01.mov",
+    "duration": 41.77,
+    "ok": true,
+    "error": null
+  }
+}

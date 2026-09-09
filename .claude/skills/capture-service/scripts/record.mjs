@@ -10,8 +10,7 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
-const APP_WEB = process.env.CAPTURE_APP_ROOT ? path.join(process.env.CAPTURE_APP_ROOT, 'apps/web/package.json')
-  : '/Users/gunhee/workspace/codespace/domain/imomtae/imomtae-v3/TF/saas-center-platform/apps/web/apps/web/package.json'.replace('/apps/web/apps/web/', '/apps/web/')
+const APP_WEB = path.join(process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform'), 'apps/web/package.json')
 const a = parseArgs(process.argv.slice(2))
 for (const k of ['scene', 'account', 'url']) if (!a[k]) die(`--${k} 필요`)
 

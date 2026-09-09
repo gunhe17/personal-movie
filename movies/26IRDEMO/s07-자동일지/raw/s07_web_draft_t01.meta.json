@@ -1,0 +1,104 @@
+{
+  "id": "s07_web_draft_t01",
+  "scene": "s07-자동일지",
+  "device": "web",
+  "action": "draft",
+  "take": "t01",
+  "captured_at": "2026-09-09T19:53:45.567Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/c4236e75-e289-4e59-9847-0ca0ba38c890?session=6b73fc1c-13ce-4efd-af33-5539665e96f3",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 41,
+      "appended": 2045,
+      "dupped": 2011,
+      "notReady": 0,
+      "ticks": 2045,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10.json",
+    "sha256": "da811077256b620ec45066400e84d5e3e601576a3703fad1e283fe30e57050f1"
+  },
+  "script": {
+    "file": "_scripts/s07-draft.mjs",
+    "sha256": "4d58b1051d9bb996f887e9a0c831569a22337302ad2e4178dadc87902da01f52"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 필드노트가 붙은 1회기"
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.21,
+      "note": "초안 생성 → 본문 끝에 이어붙는다"
+    }
+  ],
+  "result": {
+    "file": "raw/s07_web_draft_t01.mov",
+    "duration": 34.08,
+    "ok": false,
+    "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"일지 초안 생성\")').first() to be visible\n"
+  }
+}

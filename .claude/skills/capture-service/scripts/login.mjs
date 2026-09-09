@@ -8,7 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const DEMO_ROOT = path.resolve(fileURLToPath(import.meta.url), '../../../../../movies/26IRDEMO')
-const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? '/Users/gunhee/workspace/codespace/domain/imomtae/imomtae-v3/TF/saas-center-platform'
+const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform')
 const { chromium } = createRequire(process.env.CAPTURE_PLAYWRIGHT_FROM ?? path.join(APP_ROOT, 'apps/web/package.json'))('playwright')
 
 const a = Object.fromEntries(process.argv.slice(2).join(' ').split('--').filter(Boolean).map((s) => { const [k, ...v] = s.trim().split(' '); return [k, v.join(' ') || true] }))
@@ -28,6 +28,14 @@ await page.waitForLoadState('networkidle').catch(() => {})
 if (page.url().includes('/welcome')) {
   const row = a.center ? page.locator(`text=${a.center}`).locator('xpath=ancestor::*[.//button][1]') : page.locator('main, body')
   await Promise.all([page.waitForURL((u) => !u.pathname.startsWith('/welcome'), { timeout: 15000 }), row.locator('button', { hasText: '참여' }).first().click()])
+  await page.waitForLoadState('networkidle').catch(() => {})
+}
+// 마인드봄은 /select-institution을 거친다. 기관이 하나면 페이지가 알아서 /dashboard로 보내지만
+// 그때는 기관 쿠키가 안 붙어 API가 403 "기관이 선택되지 않았습니다"가 된다 — 버튼이 있으면 반드시 누른다.
+if (page.url().includes('/select-institution')) {
+  const pick = a.center ? page.locator('button', { hasText: a.center }) : page.locator('button:has(p)').first()
+  await pick.first().click().catch(() => {})
+  await page.waitForURL((u) => !u.pathname.startsWith('/select-institution'), { timeout: 15000 }).catch(() => {})
   await page.waitForLoadState('networkidle').catch(() => {})
 }
 fs.mkdirSync(path.dirname(out), { recursive: true })

@@ -1,0 +1,128 @@
+{
+  "id": "s01_web_cursorprobe_t01",
+  "scene": "s01-접수",
+  "device": "web",
+  "action": "cursorprobe",
+  "take": "t01",
+  "captured_at": "2026-09-09T13:33:20.023Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 639,
+      "appended": 668,
+      "dupped": 48,
+      "notReady": 0,
+      "ticks": 668,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-09.json",
+    "sha256": "b7bb6ab8f75d2897dfbe98aa88b1665c5a3a7840ebbe028803997918f991053a"
+  },
+  "script": {
+    "file": "_scripts/_probe-cursor.mjs",
+    "sha256": "70f1c1301818ab14e3d5e2cf1d733d6e0e009c8230966c4c8c4e210157a6ce96"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 3.02,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.23,
+      "kind": "beat",
+      "target": "",
+      "note": "첫 화면"
+    },
+    {
+      "t": 5.35,
+      "kind": "hover",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "입력창 위 — I-beam이어야 한다"
+    },
+    {
+      "t": 6.55,
+      "kind": "hold",
+      "target": "1200",
+      "note": "멈춤"
+    },
+    {
+      "t": 7.54,
+      "kind": "hover",
+      "target": "button:has-text(\"새로운 대화\")",
+      "note": "버튼 위 — 손가락이어야 한다"
+    },
+    {
+      "t": 8.74,
+      "kind": "hold",
+      "target": "1200",
+      "note": "멈춤"
+    },
+    {
+      "t": 8.74,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [],
+  "result": {
+    "file": "raw/s01_web_cursorprobe_t01.mov",
+    "duration": 11.13,
+    "ok": true,
+    "error": null
+  }
+}

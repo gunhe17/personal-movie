@@ -1,0 +1,18 @@
+// s06 · 필드노트 — 앱 절반(전문가 앱). 녹음을 켜기 직전까지만 찍는다.
+// 시뮬레이터에 마이크 입력이 없어 실시간 전사는 돌지 않는다 — 결과는 웹 절반이 보여준다.
+// 전제: 정상담으로 로그인된 상태. p: tap(label|{x,y}) · type · swipe · scrollUp · beat · hold · nocutStart/End
+export default async function steps(p) {
+  await p.beat('홈 — 오늘 1개의 일정')
+  await p.hold(1500, '정상담님, 좋은 오후예요')
+
+  p.nocutStart('홈 → 필드노트 홈')
+  await p.tap('필드노트 홈 열기', '필드노트 홈')
+  await p.beat('오늘 기록할 일정 1건')
+  await p.hold(2000, '최근 노트 3건 — 지난 회기들이 남아 있다')
+  p.nocutEnd()
+
+  // 녹음은 켜지 않는다. 버튼이 거기 있다는 것까지가 이 컷이다.
+  await p.tap('바로 녹음', '바로 녹음에 손')
+  await p.beat('녹음 화면')
+  await p.hold(1500, '끝')
+}

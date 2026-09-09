@@ -2,3 +2,41 @@ file,scene,device,action,take,in,out,use,note
 raw/s02_web_receive-entry_t01.mov,s02-검사실시,web,receive-entry,t01,,,,시험 촬영: 검사 탭 → 검사 접수 버튼까지
 raw/s02_web_receive-entry_t02.mov,s02-검사실시,web,receive-entry,t02,,,,SCK 캡처러 첫 시험
 raw/s05_phone_smoke_t01.mov,s05-일정,phone,smoke,t01,,,,폰 러너 시험 (홈 화면)
+raw/s01_web_cursorprobe_t01.mov,s01-접수,web,cursorprobe,t01,,,,커서 합성 확인용 (v3 검증)
+raw/s01_web_intake_t01.mov,s01-접수,web,intake,t01,,,,통화 중 최소 정보로 단체 검사 접수 (v3 첫 본촬영)
+raw/s01_web_intake_t02.mov,s01-접수,web,intake,t02,,,,2차 시험 촬영 (v3)
+raw/s01_web_cursorprobe_t02.mov,s01-접수,web,cursorprobe,t02,,,,번역 풍선 제거 확인 (lang 라우트)
+raw/s03_web_mindbom-probe_t01.mov,s03-채점보고서,web,mindbom-probe,t01,,,,마인드봄 촬영 시험 — 대시보드→검사 현황
+raw/s03_web_mindbom-probe_t02.mov,s03-채점보고서,web,mindbom-probe,t02,,,,마인드봄 촬영 시험 2차
+raw/s01_web_intake_t03.mov,s01-접수,web,intake,t03,,,,통화 중 최소 정보로 단체 검사 접수 (로르샤흐+스마트폰중독검사)
+raw/s04_web_sendlink_t01.mov,s04-바로링크,web,sendlink,t01,,,,바로링크 전송 → 전송 내역
+raw/s05_web_approve_t01.mov,s05-일정,web,approve,t01,,,,변경 요청 승인 → 캘린더 반영
+raw/s06_web_fieldnote_t01.mov,s06-필드노트,web,fieldnote,t01,,,,전사·화자 분리 시간축 열람 (웹 절반)
+raw/s07_web_draft_t01.mov,s07-자동일지,web,draft,t01,,,,일지 초안 생성 — 본문 끝에 이어붙는다
+raw/s08_web_careboard_t01.mov,s08-케어보드,web,careboard,t01,,,,케어보드 — 네 곳이 한 화면에
+raw/s07_web_draft_t02.mov,s07-자동일지,web,draft,t02,,,,일지 초안 생성 — s06가 녹음한 그 회기
+raw/s09_web_noshow_t01.mov,s09-회기정산,web,noshow,t01,,,,노쇼 → 회기 차감 → 잠긴다
+raw/s02_web_collect_t01.mov,s02-검사실시,web,collect,t01,,,,마인드봄 — 검사 현황 → 로샤 실시
+raw/s03_web_report_t01.mov,s03-채점보고서,web,report,t01,,,,마인드봄 — 종합보고서(배터리 3종 확정)
+raw/s06_phone_fieldnote-app_t01.mov,s06-필드노트,phone,fieldnote-app,t01,,,,전문가 앱 — 필드노트 홈 · 바로 녹음(녹음은 켜지 않는다)
+raw/s01_web_intake_t04.mov,s01-접수,web,intake,t04,,,,통화 중 최소 정보로 단체 검사 접수 (v4 리듬)
+raw/s01_web_intake_t05.mov,s01-접수,web,intake,t05,,,,통화 중 한 마디로 단체 검사 접수 (v4 · 1턴)
+raw/s01_web_intake_t06.mov,s01-접수,web,intake,t06,,,,통화 중 한 마디로 단체 검사 접수 (v4 · 1턴)
+raw/s02_web_collect_t02.mov,s02-검사실시,web,collect,t02,,,,마인드봄 로샤 실시 — 채점지 한 줄이 채워진다
+raw/s04_web_sendlink_t02.mov,s04-바로링크,web,sendlink,t02,,,,바로링크 전송 → 전송 내역 (v4 리듬)
+raw/s03_web_report_t02.mov,s03-채점보고서,web,report,t02,,,,마인드봄 종합보고서 — 누가 썼는지가 갈려 있다
+raw/s05_web_approve_t02.mov,s05-일정,web,approve,t02,,,,변경 요청 확인 → 캘린더에서 요청 날짜 확인 → 승인 → 반영
+raw/s05_web_approve_t03.mov,s05-일정,web,approve,t03,,,,요청 확인 → 스케줄 일간·주간·월간 확인 → 배너에서 승인 → 반영
+raw/s05_web_approve_t04.mov,s05-일정,web,approve,t04,,,,요청 확인 → 일간·주간·월간 확인 → 월간에서 승인 → 반영
+raw/s01_web_intake_t07.mov,s01-접수,web,intake,t07,,,,
+raw/s04_web_sendlink_t03.mov,s04-바로링크,web,sendlink,t03,,,,
+raw/s05_web_approve_t05.mov,s05-일정,web,approve,t05,,,,
+raw/s02_web_collect_t03.mov,s02-검사실시,web,collect,t03,,,,
+raw/s02_web_collect_t04.mov,s02-검사실시,web,collect,t04,,,,
+raw/s06_web_fieldnote_t02.mov,s06-필드노트,web,fieldnote,t02,,,,
+raw/s07_web_draft_t03.mov,s07-자동일지,web,draft,t03,,,,
+raw/s08_web_careboard_t02.mov,s08-케어보드,web,careboard,t02,,,,
+raw/s09_web_noshow_t02.mov,s09-회기정산,web,noshow,t02,,,,
+raw/s02_web_collect_t05.mov,s02-검사실시,web,collect,t05,,,,
+raw/s03_web_draft_t01.mov,s03-채점보고서,web,draft,t01,,,,
+raw/s03_web_aireview_t01.mov,s03-채점보고서,web,aireview,t01,,,,

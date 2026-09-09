@@ -1,0 +1,39 @@
+// s05 · 회기 일정 (웹만) — 요청을 확인하고, 스케줄에서 그 시각이 비는지 보고, 승인한다.
+// scenes9 §05: "웹 예약 화면에 요청이 쌓인다. 상담사는 **스케줄을 확인하고** 승인 또는 거절한다."
+// 내담자 앱은 촬영 대상이 아니다 — 요청은 준비 단계(_scripts/s05-setup.sql)에서 데이터로 만들고,
+// 확인부터 승인·반영까지는 전부 제품이 진짜로 처리한다.
+// 배역: 회기 축 — 이하준(C00002 4회기) · 보호자 이수진 · 담당 정상담
+// 시작 URL: /schedule/reservations
+export default async function steps(page, h) {
+  // ① 요청이 왔다 — 기존 9/17 10:00 → 변경 9/18 16:00, 사유까지 한 줄에
+  await h.beat('변경 요청 — 대기 한 줄')
+  await h.reveal('text=이하준', '누가 · 언제에서 언제로 · 왜')
+
+  // ② 바로 누르지 않는다. 그 시각이 비는지 스케줄에서 본다
+  h.nocutStart('요청 → 스케줄에서 확인 → 승인')
+  // 사이드바의 캘린더 링크는 href='/schedule', 라벨은 '일정'이다(옆의 '변경 요청'에 대기 배지가 붙는다)
+  await h.click('a[href="/schedule"]', '스케줄로')
+  await h.until('text=요청 날짜 보기', '캘린더 — 요청이 배너로 떠 있다')
+
+  await h.click('button:has-text("요청 날짜 보기")', '요청 날짜 보기')
+  await h.until('text=2026-09-18', '9/18 일간 뷰 — 요청한 시각의 하루')
+  await h.beat('일간 — 16:00이 비어 있다')
+
+  // 세 축척으로 같은 시각을 본다. 일간·주간은 시간축이라 고스트 블록이 얹히고,
+  // 월간은 칩이라 그 자리를 상단 배너가 대신한다(+page.svelte:183-185).
+  await h.click('button:has-text("주간")', '주간 — 그 주에 겹치는 것이 없다')
+  await h.beat('주간')
+  await h.click('button:has-text("월간")', '월간 — 그 달 전체')
+  await h.beat('월간 — 넓게 봐도 겹치는 것이 없다')
+
+  // ③ 일간 → 주간 → 월간으로 좁은 데서 넓은 데까지 다 본 그 자리에서 확정한다.
+  //    월간은 칩이라 시간축이 없고, 그래서 배너가 요청 시각·충돌을 대신 진다(+page.svelte:183-185).
+  await h.click('button:has-text("승인")', '승인')
+  await h.modal('요청한 시간으로 일정을 변경할까요?')
+  await h.click(page.getByRole('button', { name: '확인' }).last(), '확인')
+  await h.until('text=일정을 변경했어요', '회기가 그 자리로 옮겨진다')
+  h.nocutEnd()
+
+  await h.beat('캘린더에 반영된 회기')
+  await h.hold(600, '끝')
+}

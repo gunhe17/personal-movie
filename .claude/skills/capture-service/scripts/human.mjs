@@ -2,21 +2,55 @@
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const easeOut = (t) => 1 - Math.pow(1 - t, 3)
 
-export function human(page, T, clock, park = { x: 40, y: 40 }) {
+// send: sckcap stdin으로 커서 좌표를 흘리는 함수 (없으면 커서 없이 동작).
+// 커서는 캡처러가 프레임에 그린다 — 페이지 안 오버레이가 아니라서 내비게이션에도 위치가 유지되고 지연이 없다.
+export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
   let pos = { ...park }
+  let shape = 'arrow'
+  const emit = () => send?.(`m ${pos.x.toFixed(1)} ${pos.y.toFixed(1)} ${shape}`)
+  emit()
   const marks = []
   const nocut = []
   const mark = (kind, target, note) =>
     marks.push({ t: +clock.now().toFixed(2), kind, target: String(target ?? ''), ...(note ? { note } : {}) })
 
-  async function moveTo(x, y) {
-    const n = T.moveSteps, dt = T.move / n, sx = pos.x, sy = pos.y
+  async function moveTo(x, y, nextShape = 'arrow') {
+    const sx = pos.x, sy = pos.y
+    // 거리에 비례한 시간 — 가까운 버튼으로 먼 거리와 같은 시간을 들여 날아가지 않게(v4)
+    const dist = Math.hypot(x - sx, y - sy)
+    const dur = T.moveMin == null ? T.move
+      : Math.min(T.moveMax, T.moveMin + dist * T.movePerPx)
+    const n = T.moveSteps, dt = dur / n
     for (let i = 1; i <= n; i++) {
       const k = easeOut(i / n)
-      await page.mouse.move(sx + (x - sx) * k, sy + (y - sy) * k)
+      pos = { x: sx + (x - sx) * k, y: sy + (y - sy) * k }
+      await page.mouse.move(pos.x, pos.y)
+      emit()
       await sleep(dt)
     }
     pos = { x, y }
+    shape = nextShape          // 도착해서 모양이 바뀐다 — 실제 커서가 요소 위에서 바뀌는 것과 같은 자리
+    emit()
+  }
+
+  // 그 좌표의 요소가 요구하는 커서 모양 — 진짜 커서와 같은 모양을 그리기 위해
+  async function shapeAt(x, y) {
+    return page.evaluate(([px, py]) => {
+      const el = document.elementFromPoint(px, py)
+      if (!el) return 'arrow'
+      const c = getComputedStyle(el).cursor
+      return c.includes('text') ? 'ibeam' : c.includes('pointer') ? 'pointer' : 'arrow'
+    }, [x, y]).catch(() => 'arrow')
+  }
+
+  // 비활성 요소를 누르면 브라우저는 조용히 무시한다 — 조작은 성공한 것처럼 보이고 아무 일도 안 일어난다.
+  // 촬영에서 이보다 나쁜 실패가 없으므로 여기서 깨뜨린다.
+  async function assertEnabled(el, sel) {
+    const state = await el.evaluate((n) => {
+      const b = n.closest('button,input,select,textarea,[role=button]') ?? n
+      return { disabled: b.disabled === true, aria: b.getAttribute('aria-disabled') === 'true' }
+    }).catch(() => ({ disabled: false, aria: false }))
+    if (state.disabled || state.aria) throw new Error(`비활성 요소를 눌렀다: ${sel}`)
   }
 
   async function center(sel) {
@@ -32,8 +66,11 @@ export function human(page, T, clock, park = { x: 40, y: 40 }) {
   return {
     marks, nocut,
     async click(sel, note) {
+      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+      await el.waitFor({ state: 'visible' })
+      await assertEnabled(el, typeof sel === 'string' ? sel : 'locator')
       const { x, y } = await center(sel)
-      await moveTo(x, y)
+      await moveTo(x, y, await shapeAt(x, y))
       await sleep(T.preClick)
       await page.mouse.down(); await sleep(90); await page.mouse.up()
       mark('click', sel, note)
@@ -41,7 +78,7 @@ export function human(page, T, clock, park = { x: 40, y: 40 }) {
     },
     async type(sel, text, note) {
       const { x, y } = await center(sel)
-      await moveTo(x, y)
+      await moveTo(x, y, await shapeAt(x, y))
       await sleep(T.preClick)
       await page.mouse.click(x, y)
       await page.keyboard.type(text, { delay: T.type })
@@ -57,7 +94,7 @@ export function human(page, T, clock, park = { x: 40, y: 40 }) {
     },
     async hover(sel, note) {
       const { x, y } = await center(sel)
-      await moveTo(x, y)
+      await moveTo(x, y, await shapeAt(x, y))
       mark('hover', sel, note)
     },
     async beat(note) {
@@ -67,6 +104,70 @@ export function human(page, T, clock, park = { x: 40, y: 40 }) {
       mark('beat', '', note)
     },
     async modal(note) { await sleep(T.modal); mark('modal', '', note) },
+    /**
+     * 조건이 될 때까지만 기다린다 — 제품이 걸리는 만큼만. 고정 hold의 대체(v4).
+     * sel이 보이면 settle 만큼만 더 두고 지나간다. 안 오면 timeout에서 던진다.
+     */
+    async until(sel, note, timeout = 20000) {
+      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+      const t0 = clock.now()
+      await el.waitFor({ state: 'visible', timeout })
+      await sleep(T.settle)
+      mark('until', sel, `${note ?? ''}${note ? ' ' : ''}(+${(clock.now() - t0).toFixed(1)}s)`)
+    },
+    /**
+     * 캔버스 위에 다각형을 그린다 — 로샤 영역 지정처럼 마우스로 그려야 하는 곳.
+     * pts는 요소 박스 기준 0..1 비율. 커서가 실제로 지나가는 게 보인다.
+     */
+    async drawOnCanvas(sel, pts, note) {
+      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+      await el.waitFor({ state: 'visible' })
+      const b = await el.boundingBox()
+      if (!b) throw new Error(`캔버스 boundingBox 없음: ${sel}`)
+      const at = ([fx, fy]) => ({ x: b.x + b.width * fx, y: b.y + b.height * fy })
+      const first = at(pts[0])
+      await moveTo(first.x, first.y)
+      await sleep(T.preClick)
+      await page.mouse.down()
+      for (const p of pts.slice(1)) { const q = at(p); await moveTo(q.x, q.y) }
+      await moveTo(first.x, first.y)
+      await page.mouse.up()
+      mark('draw', `${pts.length}점`, note)
+      await sleep(T.postClick)
+    },
+    /**
+     * 문단 한 줄을 드래그로 선택한다 — 마우스로 긋는 그 동작 그대로.
+     * `execCommand`나 Range API로 선택하면 mouseup이 안 나서, 선택을 듣는 기능이 안 열린다.
+     */
+    async selectText(sel, note) {
+      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+      await el.waitFor({ state: 'visible' })
+      const b = await el.boundingBox()
+      if (!b) throw new Error(`선택할 요소의 boundingBox 없음: ${sel}`)
+      const y = b.y + Math.min(b.height / 2, 12)   // 첫 줄 위에서 긋는다
+      await moveTo(b.x + 4, y)
+      await sleep(T.preClick)
+      await page.mouse.down()
+      await moveTo(b.x + b.width - 4, y)
+      await page.mouse.up()
+      mark('select', sel, note)
+      await sleep(T.postClick)
+    },
+    /** 화면 밖 요소를 천천히 끌어올려 보여준다 — 폼 아래쪽을 청자에게 인식시킬 때(v4) */
+    async reveal(sel, note) {
+      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+      await el.waitFor({ state: 'visible' })
+      const box = await el.boundingBox()
+      if (box) {
+        const target = box.y + box.height / 2
+        const dy = Math.round(target - 450)     // 뷰포트 중앙(900/2)으로
+        if (Math.abs(dy) > 60) await this.scroll(dy, null)
+      }
+      mark('reveal', sel, note)
+      await sleep(T.beat)
+    },
+    // 키 입력. 목 에이전트 다음 턴은 F9 — 화면에 조작 흔적이 남지 않는다 (MockAgentController)
+    async key(k, note) { await page.keyboard.press(k); mark('key', k, note); await sleep(T.postClick) },
     async hold(ms, note) { await sleep(ms); mark('hold', ms, note) },
     // 6초 노컷 후보 구간 표시 — 시작에 한 번, 끝에 한 번
     nocutStart(note) { nocut.push({ start: +clock.now().toFixed(2), note }) },
@@ -74,7 +175,7 @@ export function human(page, T, clock, park = { x: 40, y: 40 }) {
   }
 }
 
-// 페이지 안에 그리는 커서 — Playwright 마우스는 OS 커서를 움직이지 않으므로 오버레이로 대신 보여준다.
+// (v2 유물) 페이지 안에 그리던 커서. v3부터는 sckcap이 프레임에 직접 그린다 — 남겨둔 것은 되돌릴 때를 위해서다.
 export const CURSOR_INIT = `
 (() => {
   if (window.__capCursor) return

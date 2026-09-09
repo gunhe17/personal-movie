@@ -1,0 +1,43 @@
+{
+  "title": "s01 접수 — 통화 중 한 번의 요청으로 단체 검사 접수",
+  "turns": [
+    {
+      "label": "한 번에 받아 접수 화면을 열고 기관·명단을 얹는다",
+      "leadMs": 400,
+      "progress": "요청을 확인하고 있습니다...",
+      "reply": "햇살지역아동센터로 세 아이를 명단에 올렸어요. 검사 항목만 고르고 등록을 눌러 주세요.",
+      "tools": [
+        {
+          "name": "page.navigate",
+          "args": {
+            "path": "/assessment/receive"
+          }
+        },
+        {
+          "name": "page.set_fields",
+          "args": {
+            "fields": {
+              "organization": {
+                "name": "햇살지역아동센터"
+              },
+              "group_members": [
+                {
+                  "name": "윤도현",
+                  "birthDate": "2014-05-08"
+                },
+                {
+                  "name": "장서아",
+                  "birthDate": "2015-11-21"
+                },
+                {
+                  "name": "홍시우",
+                  "birthDate": "2016-02-13"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,8 @@
 //
 //   node capture.mjs --scene s05-일정 --device web --action approve \
 //        --url http://localhost:3503/schedule/reservations --state _state/local-admin.json \
-//        --script _scripts/s05-approve.mjs --seed _seed/2026-09-10.json [--calibrate] [--retake-of t01 --reason "..."]
+//        --script _scripts/s05-approve.mjs --seed _seed/2026-09-10.json \
+//        [--mock _mocks/s01-intake.json] [--calibrate] [--retake-of t01 --reason "..."]
 //   node capture.mjs --manual raw/s05_phone_request_t01.mov --scene s05-일정 --device phone --action request --seed _seed/x.json
 //
 import { spawn, execSync } from 'node:child_process'
@@ -12,20 +13,15 @@ import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
-import { human, CURSOR_INIT } from './human.mjs'
+import { human } from './human.mjs'
 
 // ── SPEC ──────────────────────────────────────────────────────────────────
-export const SPEC = {
-  version: 2,
-  viewport: { width: 1600, height: 900, dpr: 2 },           // CSS px · 16:9 · 캡처 3200×1800
-  park: { x: 1576, y: 876 },                                // 커서 대기 위치 — 우하단, 툴팁을 띄우는 요소가 없는 곳
-  theme: 'light',
-  capture: { tool: 'sckcap (ScreenCaptureKit, 앱 필터)', fps: 60, codec: 'h264', bitrate: 40_000_000, cursor: 'overlay (OS 커서 제외)', audio: false },
-  timing: { lead: 3000, tail: 3000, move: 700, moveSteps: 28, preClick: 500, postClick: 800, type: 70, afterType: 400, scrollStep: 120, scrollEvery: 60, afterScroll: 1000, beat: 1200, modal: 1000 }
-}
+export { SPEC } from './spec.mjs'
+import { SPEC } from './spec.mjs'
+import { ensureWav, sttArgs, installStt } from './stt.mjs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
-const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? '/Users/gunhee/workspace/codespace/domain/imomtae/imomtae-v3/TF/saas-center-platform'
+const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform')
 const PLAYWRIGHT_FROM = process.env.CAPTURE_PLAYWRIGHT_FROM ?? path.join(APP_ROOT, 'apps/web/package.json')
 const SCK_SRC = path.join(HERE, 'sckcap.swift'), SCK_BIN = path.join(HERE, 'sckcap')
 const TOP_BORDER_PT = 1       // 전체화면 툴바 하단 경계선 — 보정 프레임 픽셀로 측정 (Chromium 1243 · macOS 26)
@@ -54,50 +50,150 @@ if (!fs.existsSync(scriptPath)) die(`스크립트 없음: ${scriptPath}`)
 const scriptSha = sha256(fs.readFileSync(scriptPath))
 const steps = (await import(pathToFileURL(scriptPath).href)).default
 if (typeof steps !== 'function') die('스크립트는 export default async function steps(page, h) 여야 한다')
+
+// 목 에이전트 — saas-center-platform의 mock-capture 스킬 스크립트를 그대로 싣는다.
+// 편집기(/lab/agent-mock)를 손으로 거치지 않고 sessionStorage에 직접 건다. 키는 store.svelte.ts의 KEY.
+let mock = null
+if (args.mock) {
+  const mockPath = path.join(DEMO_ROOT, args.mock)
+  if (!fs.existsSync(mockPath)) die(`목 스크립트 없음: ${mockPath}`)
+  const buf = fs.readFileSync(mockPath)
+  mock = { file: args.mock, sha256: sha256(buf), script: JSON.parse(buf) }
+  if (!Array.isArray(mock.script.turns)) die('목 스크립트에 turns 배열이 필요하다')
+}
 ensureSck()
 
-const { chromium } = createRequire(PLAYWRIGHT_FROM)('playwright')
-const browser = await chromium.launch({ headless: false, args: ['--window-position=120,80', '--hide-crash-restore-bubble', '--disable-infobars'] })
+let chromium
+try { ({ chromium } = createRequire(PLAYWRIGHT_FROM)('playwright')) }
+catch { die(`playwright를 못 찾음 (${PLAYWRIGHT_FROM} 기준) — 앱에 의존성부터 깔 것: cd ${APP_ROOT} && pnpm install. 다른 사본을 쓰려면 CAPTURE_APP_ROOT 또는 CAPTURE_PLAYWRIGHT_FROM.`) }
+// 가려진 창은 macOS/Chromium이 렌더를 멈춘다 — 창 뒤에서 촬영하려면 그 절전을 전부 꺼야 한다
+const stt = args.stt ? JSON.parse(fs.readFileSync(path.join(DEMO_ROOT, args.stt), 'utf8')) : null
+const sttWav = stt ? ensureWav(path.join(DEMO_ROOT, '_mocks/.stt-clip.wav')) : null
+
+const browser = await chromium.launch({
+  headless: false,
+  args: ['--window-position=80,60', '--hide-crash-restore-bubble', '--disable-infobars',
+    '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding',
+    '--disable-background-timer-throttling',
+    // 번역 풍선은 브라우저 UI인데 콘텐츠 위에 뜬다 — 프레임에 들어오므로 끈다
+    // MacWebContentsOcclusion — macOS에서 창이 가려지면 렌더를 멈추는 그 기능. 이게 켜져 있으면 가려진 순간 프레임이 검게 나온다
+    '--disable-features=MacWebContentsOcclusion,CalculateNativeWinOcclusion,Translate,TranslateUI',
+    '--no-first-run', '--no-default-browser-check', '--lang=ko-KR',
+    ...(sttWav ? sttArgs(sttWav) : [])]
+})
 const context = await browser.newContext({
   viewport: { width: SPEC.viewport.width, height: SPEC.viewport.height },
   deviceScaleFactor: SPEC.viewport.dpr,
   colorScheme: SPEC.theme,
   locale: 'ko-KR', timezoneId: 'Asia/Seoul',
+  ...(stt ? { permissions: ['microphone'] } : {}),
   ...(args.state ? { storageState: path.join(DEMO_ROOT, args.state) } : {})
 })
-await context.addInitScript(CURSOR_INIT)
+if (stt) await installStt(context, stt.clips)
+if (mock) {
+  // 모든 내비게이션에서 돌기 때문에 이미 있으면 건드리지 않는다 — 덮으면 턴 커서가 0으로 되감긴다
+  await context.addInitScript((s) => {
+    try { if (!sessionStorage.getItem('agent-mock:v2')) sessionStorage.setItem('agent-mock:v2', JSON.stringify({ active: true, script: s, cursor: 0 })) } catch { /* 프라이빗 모드 — 목 없이 진행 */ }
+  }, mock.script)
+  log(`목 에이전트: ${mock.file} — ${mock.script.title ?? ''} (턴 ${mock.script.turns.length})`)
+}
+// 번역 풍선 죽이기 — 제품 app.html이 <html lang="en">이라 Chromium이 한국어 페이지를 영어로 보고 번역을 권한다.
+// 그 풍선은 창에 붙는 별도 창이라 창 필터로도 안 빠지고, --disable-features=Translate·--disable-translate·--lang 전부 안 먹는다(실측).
+// 파싱 시점의 lang 선언이 유일하게 듣는 신호라, 문서 응답만 가로채 그 한 글자를 바꾼다. 화면에 보이는 것은 아무것도 안 바뀐다.
+await context.route('**/*', async (route) => {
+  if (route.request().resourceType() !== 'document') return route.fallback()
+  try {
+    const res = await route.fetch()
+    let body = await res.text()
+    body = /<html[^>]*\slang=/i.test(body)
+      ? body.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="ko"')
+      : body.replace(/<html/i, '<html lang="ko"')
+    await route.fulfill({ response: res, body })
+  } catch { await route.fallback() }
+})
 const page = await context.newPage()
 // networkidle은 쓰지 않는다 — 알림 폴링 때문에 영원히 오지 않는다
 await page.goto(args.url, { waitUntil: 'load' }).catch((e) => log(`goto 경고: ${e.message}`))
 await sleep(1500)
 
-// 네이티브 전체화면 — 페이지가 화면 좌상단에 붙어 크롭이 결정적이다. (SCK 앱 필터라 다른 창 간섭은 어차피 없다)
+// 전체화면도 포커스도 쓰지 않는다 — 창 필터로 잡으므로 창은 뒤에 있어도 되고, 사용자는 하던 일을 계속한다.
+// 창 높이 = 뷰포트 + 브라우저 크롬 + 여유(아래 둥근 모서리를 캡처 사각형 밖으로 밀어낸다)
 const cdp = await context.newCDPSession(page)
 const { windowId } = await cdp.send('Browser.getWindowForTarget')
-await cdp.send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'fullscreen' } })
-await page.bringToFront()
-await sleep(5000)                       // 전환 애니메이션 + Chromium "전체 화면 종료: Esc" 풍선(Chromium 소유 창이라 필터에 잡힌다)이 사라질 때까지
+// 창을 특정하는 표식 — 창 제목은 페이지 제목이다. 캡처 사각형은 크롬 아래부터라 프레임엔 안 들어간다.
+// SCK는 시작할 때 창을 한 번 잡으므로, 잡힌 뒤엔 페이지가 제목을 바꿔도 상관없다.
+const WIN_MARK = `CAP-${id}`
+// 앱이 하이드레이션·라우팅하며 document.title을 덮어쓴다 — sckcap을 띄우기 직전마다 다시 박는다
+const markWindow = async () => {
+  await page.evaluate((t) => { document.title = t }, WIN_MARK).catch(() => {})
+  await sleep(350)
+}
+await markWindow()
+// 창 위쪽 브라우저 크롬의 높이. 계산으로는 못 얻는다 —
+// outerHeight-innerHeight는 7pt 틀리고, window.screenY는 뷰포트 에뮬레이션 때문에 0이 나온다.
+// 그래서 페이지 맨 위에 마젠타 띠를 한 줄 넣고 창 전체를 한 장 찍어 그 줄이 몇 픽셀에 있는지 센다.
+async function measureChromePt() {
+  await page.evaluate(() => {
+    const d = document.createElement('div'); d.id = '__capTop'
+    d.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:2px;background:#FF00FF;z-index:2147483647;pointer-events:none'
+    document.documentElement.appendChild(d)
+  }).catch(() => {})
+  await sleep(250)
+  const probe = path.join(stillDir, '.probe.png')
+  // 제목을 바꿔도 SCK의 창 목록에 반영되기까지 시간이 걸린다 — 한 번에 못 잡으면 더 기다렸다 다시 (실측: 간헐적)
+  let sckErr = ''
+  for (const wait of [0, 700, 1500]) {
+    await sleep(wait)
+    await markWindow()
+    const r = spawnSync(SCK_BIN, ['--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--scale', String(SPEC.viewport.dpr), '--trim-top', '0', '--still', probe])
+    if (fs.existsSync(probe)) break
+    sckErr = r.stderr || r.stdout
+  }
+  await page.evaluate(() => document.getElementById('__capTop')?.remove()).catch(() => {})
+  if (!fs.existsSync(probe)) { log(`크롬 높이 측정: 창 스냅샷이 나오지 않았다 — 창 제목 '${WIN_MARK}' 매칭 실패\n${sckErr}`); return null }
+  let px = null
+  try {
+    const raw = execSync(`ffmpeg -v error -i "${probe}" -vf "crop=1:ih:20:0" -f rawvideo -pix_fmt rgb24 -`, { maxBuffer: 1 << 26 })
+    for (let y = 0; y * 3 + 2 < raw.length; y++) {
+      if (raw[y * 3] > 200 && raw[y * 3 + 1] < 80 && raw[y * 3 + 2] > 200) { px = y; break }
+    }
+  } catch (e) { log(`크롬 높이 측정 실패: ${e.message}`) }
+  fs.unlinkSync(probe)
+  return px == null ? null : px / SPEC.viewport.dpr
+}
+
+await cdp.send('Browser.setWindowBounds', {
+  windowId,
+  bounds: { left: 80, top: 60, width: SPEC.viewport.width, height: SPEC.viewport.height + 140, windowState: 'normal' }
+})
+await sleep(1200)
+const inner = await page.evaluate(() => [window.innerWidth, window.innerHeight])
+if (inner[0] !== SPEC.viewport.width || inner[1] !== SPEC.viewport.height)
+  log(`경고: 뷰포트 ${inner[0]}×${inner[1]} — SPEC ${SPEC.viewport.width}×${SPEC.viewport.height}과 다르다`)
 await page.mouse.move(SPEC.park.x, SPEC.park.y)
 await sleep(300)
 
-const geom = () => page.evaluate(() => ({ sx: window.screenX, sy: window.screenY, ow: window.outerWidth, oh: window.outerHeight }))
-let g = await geom()
-if (g.sx !== 0) {   // 전환이 씹히는 경우가 있다 — 한 번 더
-  log(`전체화면 재시도 (창 x=${g.sx})`)
-  await cdp.send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'fullscreen' } })
-  await sleep(5000); await page.mouse.move(SPEC.park.x, SPEC.park.y); await sleep(300)
-  g = await geom()
-  if (g.sx !== 0) die(`전체화면이 되지 않음 — 창 x=${g.sx}. 다른 앱이 전체화면 전환을 막고 있는지 확인`)
-}
-const rect = { x: g.sx, y: g.sy + TOP_BORDER_PT, w: SPEC.viewport.width, h: SPEC.viewport.height }   // points
-log(`전체화면 outer=${g.ow}×${g.oh} at (${g.sx},${g.sy})  → rect ${rect.w}×${rect.h}+${rect.x}+${rect.y} pt`)
-const sckArgs = ['--rect', `${rect.x},${rect.y},${rect.w},${rect.h}`, '--scale', String(SPEC.viewport.dpr), '--fps', String(SPEC.capture.fps),
-  '--codec', SPEC.capture.codec, '--bitrate', String(SPEC.capture.bitrate), '--bundle-id', CHROMIUM_BUNDLE_ID]
+const chromeH = await measureChromePt()
+if (chromeH == null) die('브라우저 크롬 높이를 재지 못했다 — 창 캡처가 되는지(화면 기록 권한) 확인')
 
+const rect = { x: 0, y: chromeH, w: SPEC.viewport.width, h: SPEC.viewport.height }   // 창 기준 points
+log(`창 모드 '${WIN_MARK}' 크롬높이=${chromeH}pt → rect ${rect.w}×${rect.h}+${rect.x}+${rect.y}`)
+const sckArgs = ['--rect', `${rect.x},${rect.y},${rect.w},${rect.h}`, '--trim-top', String(rect.y),
+  '--scale', String(SPEC.viewport.dpr), '--fps', String(SPEC.capture.fps),
+  '--codec', SPEC.capture.codec, '--bitrate', String(SPEC.capture.bitrate),
+  '--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--cursor', 'on']
+
+// 캡처 직전에 한 번 더 앞으로 — 웹 모드는 디스플레이 기준 캡처라(앱 필터 + sourceRect)
+// 전체화면 Chromium의 Space가 내려가 있으면 통째로 흰 프레임이 잡힌다. 조용히 망하는 실패라 여기서 막는다.
+await page.bringToFront()
+await sleep(800)
+
+await markWindow()
 if (args.calibrate) {
   const out = path.join(stillDir, 'calibrate.png')
+  fs.rmSync(out, { force: true })   // 지우고 시작한다 — 남아 있으면 캡처가 실패해도 옛 프레임을 성공으로 읽는다
   const r = spawnSync(SCK_BIN, [...sckArgs, '--still', out])
-  if (!fs.existsSync(out)) die(`보정 실패\n${r.stderr}`)
+  if (!fs.existsSync(out)) { await browser.close(); die(`보정 실패 — 화면 기록 권한 확인\n${r.stderr || r.stdout}`) }
   log(`보정 이미지: ${out}  rect=${JSON.stringify(rect)}`)
   await browser.close(); process.exit(0)
 }
@@ -110,9 +206,10 @@ let capOut = '', capErr = ''
 cap.stderr.on('data', (d) => { capErr += d })
 const ready = new Promise((res) => { cap.stdout.on('data', (d) => { capOut += d; if (capOut.includes('READY')) res(true) }); cap.on('close', () => res(false)); setTimeout(() => res(false), 8000) })
 if (!(await ready)) { await browser.close(); die(`캡처러가 첫 프레임을 내지 못함 — 화면 기록 권한 확인\n${capErr.slice(-800)}`) }
+await page.evaluate(() => { document.title = document.title.startsWith('CAP-') ? '' : document.title }).catch(() => {})
 const t0 = Date.now()
 const clock = { now: () => (Date.now() - t0) / 1000 }
-const h = human(page, SPEC.timing, clock, SPEC.park)
+const h = human(page, SPEC.timing, clock, SPEC.park, (line) => { try { cap.stdin.write(line + '\n') } catch { /* 캡처러가 이미 닫혔다 */ } })
 
 let ok = true, err = null
 try {
@@ -138,10 +235,12 @@ writeMeta({
   captured_at: new Date().toISOString(), spec_version: SPEC.version, captured_by: 'skill:capture-service',
   app: { url: args.url, env: args.env ?? guessEnv(args.url), commit: appCommit },
   viewport: { css: [SPEC.viewport.width, SPEC.viewport.height], dpr: SPEC.viewport.dpr, pixels: [rect.w * SPEC.viewport.dpr, rect.h * SPEC.viewport.dpr], theme: SPEC.theme },
-  capture: { ...SPEC.capture, rect_pt: rect, stats },
+  capture: { ...SPEC.capture, mode: 'window', chrome_pt: chromeH, rect_pt: rect, stats },
   timing: SPEC.timing,
   seed: { file: args.seed ?? null, sha256: args.seed ? sha256(fs.readFileSync(path.join(DEMO_ROOT, args.seed))) : null },
   script: { file: args.script, sha256: scriptSha },
+  stt: stt ? { file: args.stt, clips: stt.clips } : null,
+  mock: mock ? { file: mock.file, sha256: mock.sha256, title: mock.script.title ?? null, turns: mock.script.turns.length } : null,
   steps: h.marks, nocut: h.nocut,
   ...(args['retake-of'] ? { retake_of: args['retake-of'], retake_reason: args.reason ?? '' } : {}),
   result: { file: path.relative(sceneDir, outFile), duration, ok, error: err }

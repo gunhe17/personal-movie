@@ -1,0 +1,193 @@
+{
+  "id": "s02_web_collect_t02",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t02",
+  "captured_at": "2026-09-09T20:39:17.833Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/dc9aecb0-3bc9-4ed3-b275-08ae08e6b262/collect",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 516,
+      "appended": 1064,
+      "dupped": 604,
+      "notReady": 0,
+      "ticks": 1064,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10.json",
+    "sha256": "c1bfef1d732a6b73204295af6774c51b583bf6a08dad77e2c04c4ebe458d2572"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "c94cfe6e20ecd42cdd167f6da372c31a0cd144421494f5a7ad54f090c684810f"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "로샤 실시 — 카드 I"
+    },
+    {
+      "t": 3.56,
+      "kind": "click",
+      "target": "button:has-text(\"추가\")",
+      "note": "반응 추가 — 채점지 한 줄"
+    },
+    {
+      "t": 4.65,
+      "kind": "beat",
+      "target": "",
+      "note": "반응 1"
+    },
+    {
+      "t": 6.26,
+      "kind": "type",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "자유반응"
+    },
+    {
+      "t": 8.45,
+      "kind": "type",
+      "target": "textarea[placeholder=\"어디가 그렇게 보였는지\"]",
+      "note": "질문 답변"
+    },
+    {
+      "t": 9.37,
+      "kind": "beat",
+      "target": "",
+      "note": "한 줄이 찼다"
+    },
+    {
+      "t": 10.15,
+      "kind": "click",
+      "target": "button:has-text(\"추가\")",
+      "note": "반응 2"
+    },
+    {
+      "t": 11.85,
+      "kind": "type",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "자유반응 2"
+    },
+    {
+      "t": 13.07,
+      "kind": "click",
+      "target": "button:has-text(\"촉구\")",
+      "note": "촉구 — 이 카드에서 있었나"
+    },
+    {
+      "t": 14.16,
+      "kind": "beat",
+      "target": "",
+      "note": "촉구가 이 카드에 남는다"
+    },
+    {
+      "t": 15.29,
+      "kind": "click",
+      "target": "button:has-text(\"카드 II\")",
+      "note": "카드 II"
+    },
+    {
+      "t": 16.37,
+      "kind": "beat",
+      "target": "",
+      "note": "카드 II — 새 잉크반점"
+    },
+    {
+      "t": 16.97,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 16.97,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.65,
+      "note": "자유반응 → 질문 → 위치, 한 줄이 채워진다",
+      "end": 8.67
+    },
+    {
+      "start": 14.16,
+      "note": "카드 I → 카드 II",
+      "end": 16.37
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "실시 화면에서 시작해 실제 절차(반응 추가 → 자유반응 → 질문 → 촉구 → 다음 카드)로 · SPEC v4",
+  "result": {
+    "file": "raw/s02_web_collect_t02.mov",
+    "duration": 17.73,
+    "ok": true,
+    "error": null
+  }
+}

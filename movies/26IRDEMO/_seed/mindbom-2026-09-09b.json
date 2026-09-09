@@ -1,0 +1,138 @@
+{
+    "app": "mindbom",
+    "seed": "scripts.seed (cast.py 배역)",
+    "clients": [
+        {
+            "id": "3708975e-3eff-44f9-845d-4fbee4468799",
+            "name": "김민준",
+            "birth": "2019-03-10"
+        },
+        {
+            "id": "c7045584-65a5-4469-8ab7-08e9801b5c7c",
+            "name": "김서연",
+            "birth": "2021-06-15"
+        },
+        {
+            "id": "b84e8725-9852-4b8d-9edf-7734b70f4649",
+            "name": "김영희",
+            "birth": "1990-08-25"
+        },
+        {
+            "id": "991d8639-9802-490c-8014-ca1a45cd4963",
+            "name": "박지우",
+            "birth": "1991-02-14"
+        },
+        {
+            "id": "5e07a4d5-6e43-418e-975b-142d714621c1",
+            "name": "이하준",
+            "birth": "2016-09-22"
+        }
+    ],
+    "members": [
+        {
+            "id": "7145c2de-d143-480c-9a1b-15d4ec7d5f6d",
+            "name": "김원장",
+            "role": "admin"
+        },
+        {
+            "id": "917f0c75-93b1-4054-850e-f9916d00928a",
+            "name": "박접수",
+            "role": "researcher"
+        },
+        {
+            "id": "0df66c82-925d-4a0a-95fe-e19873b60449",
+            "name": "이사무",
+            "role": "admin"
+        },
+        {
+            "id": "3cb66939-c19b-405c-9db4-abac89babfb2",
+            "name": "정상담",
+            "role": "clinician"
+        },
+        {
+            "id": "8d6bb85a-319a-4420-9e4e-9bd00fd7e4d1",
+            "name": "최치료",
+            "role": "clinician"
+        }
+    ],
+    "institution": [
+        {
+            "id": "832836ce-6b8a-42cc-a030-642ff70f707d",
+            "name": "마인드스코프 아동심리상담센터"
+        }
+    ],
+    "examinations": [
+        {
+            "id": "f9c3b853-3298-48a6-a8ef-039f16494904",
+            "note": "seed:next-htp",
+            "type": "htp",
+            "status": "created"
+        },
+        {
+            "id": "dc9aecb0-3bc9-4ed3-b275-08ae08e6b262",
+            "note": "seed:next-rorschach",
+            "type": "rorschach",
+            "status": "created"
+        },
+        {
+            "id": "c054991a-b23b-432a-846a-fc1bc8b30673",
+            "note": "seed:next-sct",
+            "type": "sct",
+            "status": "created"
+        },
+        {
+            "id": "0cd3a6b9-0f35-45b5-8af8-f179745cda3f",
+            "note": "seed:next-sct-2",
+            "type": "sct",
+            "status": "created"
+        },
+        {
+            "id": "e1078f62-3e46-47df-9a1a-9097e230d619",
+            "note": "seed:now-htp",
+            "type": "htp",
+            "status": "in_progress"
+        },
+        {
+            "id": "8a946184-caa7-49ed-a68b-13d8692b2c34",
+            "note": "seed:now-sct",
+            "type": "sct",
+            "status": "in_progress"
+        },
+        {
+            "id": "1b0e18db-8dd2-49b8-b17b-33ac021d4e8a",
+            "note": "seed:past-htp",
+            "type": "htp",
+            "status": "report_generated"
+        },
+        {
+            "id": "49cc97a7-3674-4756-9765-72ea391489a3",
+            "note": "seed:past-rorschach",
+            "type": "rorschach",
+            "status": "report_generated"
+        },
+        {
+            "id": "b059e116-5537-4ad6-a16d-9504f676ca10",
+            "note": "seed:past-sct",
+            "type": "sct",
+            "status": "confirmed"
+        },
+        {
+            "id": "b82ef271-2799-4343-b9db-168eb3dff380",
+            "note": "seed:tray-htp",
+            "type": "htp",
+            "status": "ai_draft_ready"
+        },
+        {
+            "id": "b7f26bb7-927b-46ef-b9ab-01f2de54f575",
+            "note": "seed:tray-htp-2",
+            "type": "htp",
+            "status": "ai_draft_ready"
+        },
+        {
+            "id": "38f3c17d-4fef-42d9-b012-390803a144d5",
+            "note": "seed:tray-rorschach",
+            "type": "rorschach",
+            "status": "under_review"
+        }
+    ]
+}

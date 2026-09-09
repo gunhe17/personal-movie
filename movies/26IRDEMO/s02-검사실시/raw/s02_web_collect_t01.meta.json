@@ -1,0 +1,152 @@
+{
+  "id": "s02_web_collect_t01",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t01",
+  "captured_at": "2026-09-09T19:56:37.903Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 192,
+      "appended": 1253,
+      "dupped": 1115,
+      "notReady": 0,
+      "ticks": 1253,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10.json",
+    "sha256": "c1bfef1d732a6b73204295af6774c51b583bf6a08dad77e2c04c4ebe458d2572"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "e5ab4793a1624e6d08253e7589c88f4bf06255ee144e978f1a51c2361363f825"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 3.01,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.22,
+      "kind": "beat",
+      "target": "",
+      "note": "검사 현황 — 센터 전체가 한 화면에"
+    },
+    {
+      "t": 6.72,
+      "kind": "hold",
+      "target": "2500",
+      "note": "총 14건 · 내담자 · 검사자 · 유형 · 상태"
+    },
+    {
+      "t": 8.43,
+      "kind": "click",
+      "target": "locator('.cursor-pointer').filter({ hasText: '김영희' }).filter({ hasText: '로샤' }).first()",
+      "note": "김영희 로샤를 연다"
+    },
+    {
+      "t": 10.44,
+      "kind": "beat",
+      "target": "",
+      "note": "실시 화면 — /collect"
+    },
+    {
+      "t": 12.94,
+      "kind": "hold",
+      "target": "2500",
+      "note": "왼쪽 3단계: 실시 · 채점하기 · 결과 보기(잠김)"
+    },
+    {
+      "t": 14.55,
+      "kind": "click",
+      "target": "text=카드 II",
+      "note": "카드 II로"
+    },
+    {
+      "t": 16.56,
+      "kind": "beat",
+      "target": "",
+      "note": "카드 II"
+    },
+    {
+      "t": 18.06,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 18.07,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 6.72,
+      "note": "목록 → 실시 화면",
+      "end": 12.94
+    }
+  ],
+  "result": {
+    "file": "raw/s02_web_collect_t01.mov",
+    "duration": 20.88,
+    "ok": true,
+    "error": null
+  }
+}

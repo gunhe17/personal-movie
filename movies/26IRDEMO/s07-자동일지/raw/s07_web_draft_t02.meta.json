@@ -1,0 +1,136 @@
+{
+  "id": "s07_web_draft_t02",
+  "scene": "s07-자동일지",
+  "device": "web",
+  "action": "draft",
+  "take": "t02",
+  "captured_at": "2026-09-09T19:55:20.778Z",
+  "spec_version": 3,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/c4236e75-e289-4e59-9847-0ca0ba38c890?session=2c476316-80de-43c6-b3fd-3c56e02bae75",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 1168,
+      "appended": 1228,
+      "dupped": 94,
+      "notReady": 0,
+      "ticks": 1228,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "move": 700,
+    "moveSteps": 28,
+    "preClick": 500,
+    "postClick": 800,
+    "type": 70,
+    "afterType": 400,
+    "scrollStep": 120,
+    "scrollEvery": 60,
+    "afterScroll": 1000,
+    "beat": 1200,
+    "modal": 1000
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10.json",
+    "sha256": "da811077256b620ec45066400e84d5e3e601576a3703fad1e283fe30e57050f1"
+  },
+  "script": {
+    "file": "_scripts/s07-draft.mjs",
+    "sha256": "4d58b1051d9bb996f887e9a0c831569a22337302ad2e4178dadc87902da01f52"
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 3.01,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.22,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 필드노트가 붙은 1회기"
+    },
+    {
+      "t": 5.99,
+      "kind": "click",
+      "target": "button:has-text(\"일지 초안 생성\")",
+      "note": "일지 초안 생성"
+    },
+    {
+      "t": 14.79,
+      "kind": "hold",
+      "target": "8000",
+      "note": "전사 분석 중… → 칸이 채워진다"
+    },
+    {
+      "t": 16,
+      "kind": "beat",
+      "target": "",
+      "note": "채워진 일지"
+    },
+    {
+      "t": 17.5,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 17.5,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.22,
+      "note": "초안 생성 → 본문 끝에 이어붙는다",
+      "end": 14.79
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "케이스 id가 세션과 어긋나 회기 상세가 안 열림",
+  "result": {
+    "file": "raw/s07_web_draft_t02.mov",
+    "duration": 20.47,
+    "ok": true,
+    "error": null
+  }
+}
