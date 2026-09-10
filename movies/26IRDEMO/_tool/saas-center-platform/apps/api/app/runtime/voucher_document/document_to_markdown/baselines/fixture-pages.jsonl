@@ -1,0 +1,1 @@
+{"pdf": "fixtures/p-007+011+149.png", "prompt_version": "image-to-md-v1", "model": "google/gemini-3.1-pro-preview", "pages": 3, "pages_ok": ["p-001", "p-002", "p-003"], "pages_failed": [], "markers_left": {}, "cost_usd": 0.06764400000000001, "chars": {"p-001": 5135, "p-002": 2259, "p-003": 2758}}

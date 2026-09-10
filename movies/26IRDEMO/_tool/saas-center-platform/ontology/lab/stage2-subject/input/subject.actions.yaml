@@ -1,0 +1,21 @@
+# harness 입력 — 온톨로지를 참조하는 액션 선언
+# (백엔드의 "yaml 분기"가 별도 원장이 아니라 ontology/ 참조로 수렴하는 형태)
+concept: subject                  # → ontology/bindings.json: clients 테이블
+source:
+  attributes: ontology/attributes.json#subject     # 필드·3분류·nullable
+  identity:   ontology/catalog.json#subject        # D1: 기관 내 유일 (이름+생년 휴리스틱)
+  states:     ontology/attributes.json#subject.states  # active→inactive→archived
+
+actions:
+  - name: create
+    params: core + record         # 온톨로지 3분류에서 파라미터 유도
+    validations:
+      - core_required             # D2: 이름 필수 등
+      - identity_duplicate_check  # D1 휴리스틱 → 중복 차단 코드 생성
+    custom_note: "code 발번은 SPI(발번기), 아바타 배정은 after_create 훅"
+
+  - name: update
+    params: record + variable     # 코어 중 이름은 수정 가능, 식별 코드는 불변
+
+  - name: transition              # 상태 전이 3종을 states 정의에서 일괄 생성
+    from_states: true             # activate / deactivate / archive + 전이 가드

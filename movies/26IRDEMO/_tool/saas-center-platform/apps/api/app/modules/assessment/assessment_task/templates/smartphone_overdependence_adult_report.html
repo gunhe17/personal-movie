@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>스마트폰 과의존 성인·고령층 척도 결과보고서</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      }
+      body {
+        background-color: #f0f0f0;
+        line-height: 1.35;
+      }
+      .page {
+        width: 210mm;
+        height: 297mm;
+        padding: 10mm 7mm 8mm 7mm;
+        margin: 0 auto;
+        background: white;
+        position: relative;
+        overflow: hidden;
+      }
+      .page-1 {
+        background: linear-gradient(
+          180deg,
+          #ffffff 0%,
+          #e8eaf6 30%,
+          #fff8e1 100%
+        );
+      }
+
+      /* 헤더 영역 */
+      .header {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .header-text {
+        vertical-align: bottom;
+        padding-bottom: 6px;
+      }
+      .header-text h1 {
+        font-size: 18px;
+        color: #464c53;
+        font-weight: normal;
+        margin-bottom: 2px;
+      }
+      .header-text h2 {
+        font-size: 30px;
+        font-weight: 900;
+        color: #333;
+        letter-spacing: -2px;
+      }
+      .header-badge {
+        text-align: right;
+        vertical-align: bottom;
+        padding-bottom: 10px;
+      }
+      .age-group-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        background: #5c6bc0;
+      }
+
+      /* 정보 섹션 */
+      .info-container {
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        display: table;
+        width: 100%;
+      }
+      .user-info-cell {
+        display: table-cell;
+        vertical-align: middle;
+      }
+      .info-row {
+        display: table;
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      .info-row:last-child {
+        margin-bottom: 0;
+      }
+      .info-item {
+        display: table-cell;
+        width: 33.33%;
+      }
+      .badge {
+        display: inline-block;
+        width: 58px;
+        padding: 3px 0;
+        text-align: center;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+      .bg-blue {
+        background: #bbdefb;
+        color: #0d47a1;
+      }
+      .bg-green {
+        background: #c8e6c9;
+        color: #1b5e20;
+      }
+      .bg-pink {
+        background: #f8bbd0;
+        color: #880e4f;
+      }
+      .bg-purple {
+        background: #d1c4e9;
+        color: #4a148c;
+      }
+      .val {
+        font-size: 13px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      /* 결과 박스 */
+      .section-box {
+        background: white;
+        border: 2px solid #5c6bc0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+      .section-header {
+        background: #5c6bc0;
+        color: white;
+        text-align: center;
+        padding: 7px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .result-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .result-left {
+        width: 180px;
+        text-align: center;
+        padding: 12px 8px;
+        border-right: 1px solid #eee;
+        vertical-align: middle;
+      }
+      .result-right {
+        padding: 12px 14px;
+        vertical-align: top;
+      }
+      .test-title {
+        font-size: 15px;
+        font-weight: 900;
+        color: #3949ab;
+        margin-bottom: 8px;
+      }
+      .test-content {
+        font-size: 11px;
+        line-height: 1.65;
+        color: #555;
+        text-align: justify;
+      }
+
+      /* 게이지 차트 */
+      .gauge-wrapper {
+        width: 130px;
+        height: 80px;
+        margin: 0 auto;
+      }
+      .score-display {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
+      }
+      .score-display b {
+        font-size: 20px;
+        color: #222;
+      }
+      .status-badge {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 4px 14px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 11px;
+      }
+      .status-high {
+        background: #ffebee;
+        color: #c62828;
+        border: 2px solid #c62828;
+      }
+      .status-moderate {
+        background: #fff3e0;
+        color: #e65100;
+        border: 2px solid #e65100;
+      }
+      .status-low {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+      }
+
+      /* 하위척도 섹션 */
+      .subscale-section {
+        margin: 0 8px 6px 8px;
+      }
+      .subscale-title {
+        font-size: 12px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+        padding: 5px 0 3px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .subscale-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .subscale-table td {
+        padding: 3px 6px;
+        font-size: 11px;
+        vertical-align: middle;
+      }
+      .subscale-name {
+        width: 90px;
+        font-weight: bold;
+        color: #333;
+      }
+      .subscale-bar-bg {
+        background: #f0f0f0;
+        border-radius: 6px;
+        height: 16px;
+        overflow: hidden;
+      }
+      .subscale-bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        background: #5c6bc0;
+        min-width: 2px;
+      }
+      .subscale-score {
+        width: 70px;
+        text-align: right;
+        font-weight: bold;
+        color: #555;
+      }
+      .subscale-interp {
+        font-size: 10px;
+        color: #666;
+        padding: 1px 6px 4px 6px;
+        line-height: 1.4;
+      }
+
+      /* 알림 박스 */
+      .alert-box {
+        background: #fffde7;
+        border: 1px solid #fff59d;
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin: 0 8px 8px 8px;
+        font-size: 11px;
+        color: #f57f17;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      /* 채점 기준표 */
+      .scoring-section {
+        margin-bottom: 8px;
+      }
+      .scoring-header {
+        background: #455a64;
+        color: white;
+        text-align: center;
+        padding: 7px;
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+        font-size: 13px;
+      }
+      .scoring-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #cfd8dc;
+      }
+      .scoring-table th {
+        background: #eceff1;
+        padding: 4px 6px;
+        font-size: 11px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        border: 1px solid #cfd8dc;
+      }
+      .scoring-table td {
+        padding: 4px 6px;
+        font-size: 10px;
+        color: #555;
+        text-align: center;
+        border: 1px solid #e0e0e0;
+        line-height: 1.5;
+      }
+      .scoring-table td.left-align {
+        text-align: left;
+        padding-left: 8px;
+      }
+
+      /* 실천 방안 */
+      .practice-header {
+        background: #455a64;
+        color: white;
+        text-align: center;
+        padding: 7px;
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+        font-size: 13px;
+      }
+      .practice-container {
+        background: white;
+        border: 1px solid #cfd8dc;
+        border-radius: 0 0 10px 10px;
+        padding: 8px;
+      }
+      .practice-item {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 7px 10px;
+        margin-bottom: 6px;
+      }
+      .practice-item:last-child {
+        margin-bottom: 0;
+      }
+      .practice-item h4 {
+        font-size: 12px;
+        font-weight: 900;
+        color: #333;
+        margin-bottom: 4px;
+        border-left: 3px solid #5c6bc0;
+        padding-left: 6px;
+      }
+      .practice-item li {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 2px;
+        list-style: none;
+        position: relative;
+        padding-left: 12px;
+        line-height: 1.5;
+      }
+      .practice-item li:before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: #5c6bc0;
+        font-weight: bold;
+      }
+
+      .footer {
+        margin-top: 8px;
+        text-align: center;
+        font-size: 9px;
+        color: #aaa;
+        border-top: 1px solid #eee;
+        padding-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page page-1">
+      <!-- 헤더 -->
+      <div class="header">
+        <table class="header-table">
+          <tr>
+            <td class="header-text">
+              <h1>스마트폰 과의존 척도</h1>
+              <h2>결과보고서</h2>
+            </td>
+            <td class="header-badge">
+              {% if age_group == 'elderly' %}
+              <span class="age-group-badge">고령층 (만60세 이상)</span>
+              {% else %}
+              <span class="age-group-badge">성인 (만20세~59세)</span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 내담자 정보 -->
+      <div class="info-container">
+        <div class="user-info-cell">
+          <div class="info-row">
+            <div class="info-item">
+              <span class="badge bg-green">이름</span
+              ><span class="val">{{ student_name|default('') }}</span>
+            </div>
+            <div class="info-item">
+              <span class="badge bg-blue">생년월일</span
+              ><span class="val">{{ birth_date|default('') }}</span>
+            </div>
+            <div class="info-item">
+              <span class="badge bg-pink">성별</span
+              ><span class="val">{{ gender|default('') }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-item">
+              <span class="badge bg-purple">검사일</span
+              ><span class="val">{{ completed_at|default('') }}</span>
+            </div>
+            <div class="info-item">
+              <span class="badge bg-purple">연령대</span
+              ><span class="val"
+                >{% if age_group == 'elderly' %}고령층{% else %}성인{% endif
+                %}</span
+              >
+            </div>
+            <div class="info-item"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 검사 결과 -->
+      <div class="section-box">
+        <div class="section-header">스마트폰 과의존 척도 검사 결과</div>
+        <table class="result-table">
+          <tr>
+            <td class="result-left">
+              <div class="gauge-wrapper">
+                <svg viewBox="0 0 200 120">
+                  <path
+                    d="M20,100 A80,80 0 0,1 66,28"
+                    fill="none"
+                    stroke="#66BB6A"
+                    stroke-width="20"
+                  />
+                  <path
+                    d="M66,28 A80,80 0 0,1 134,28"
+                    fill="none"
+                    stroke="#FFA726"
+                    stroke-width="20"
+                  />
+                  <path
+                    d="M134,28 A80,80 0 0,1 180,100"
+                    fill="none"
+                    stroke="#EF5350"
+                    stroke-width="20"
+                  />
+                  <circle cx="100" cy="100" r="6" fill="#333" />
+                  <text
+                    x="15"
+                    y="118"
+                    font-size="10"
+                    fill="#66BB6A"
+                    font-weight="bold"
+                  >
+                    일반
+                  </text>
+                  <text
+                    x="72"
+                    y="15"
+                    font-size="10"
+                    fill="#FFA726"
+                    font-weight="bold"
+                  >
+                    잠재적위험
+                  </text>
+                  <text
+                    x="155"
+                    y="118"
+                    font-size="10"
+                    fill="#EF5350"
+                    font-weight="bold"
+                  >
+                    고위험
+                  </text>
+                </svg>
+              </div>
+              <div class="score-display">
+                총점 <b>{{ total_score|default(0)|int }}</b> / {{
+                max_total_score|default(40) }}
+              </div>
+              <div class="status-badge status-{{ risk_level|default('low') }}">
+                ● {{ risk_label|default('일반사용자군') }}
+              </div>
+            </td>
+            <td class="result-right">
+              <h3 class="test-title">
+                {{ risk_label|default('일반사용자군') }}
+              </h3>
+              <div class="test-content">{{ description|default('') }}</div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- 하위척도 -->
+        <div class="subscale-section">
+          <div class="subscale-title">요인별 분석</div>
+          <table class="subscale-table">
+            {% for name, subscale in subscales.items() %}
+            <tr>
+              <td class="subscale-name">{{ name }}</td>
+              <td class="subscale-bar-cell">
+                <div class="subscale-bar-bg">
+                  <div
+                    class="subscale-bar-fill"
+                    style="width: {{ (subscale.raw_score / subscale.max_score * 100)|round(0)|int }}%"
+                  ></div>
+                </div>
+              </td>
+              <td class="subscale-score">
+                {{ subscale.raw_score|int }} / {{ subscale.max_score }}
+              </td>
+            </tr>
+            {% if subscale_interpretations and subscale_interpretations[name] %}
+            <tr>
+              <td colspan="3" class="subscale-interp">
+                → {{ subscale_interpretations[name] }}
+              </td>
+            </tr>
+            {% endif %} {% endfor %}
+          </table>
+        </div>
+
+        <!-- 알림 박스 -->
+        <div class="alert-box">
+          {% if risk_level == 'high' %} 스마트폰 과의존 경향성이 매우 높으므로
+          관련 기관의 전문적인 지원과 도움이 요청됩니다. {% elif risk_level ==
+          'moderate' %} 스마트폰 과의존에 대한 주의가 요망됩니다. 스스로
+          조절하고 계획적으로 사용하도록 노력해야 합니다. {% else %} 스마트폰을
+          건전하게 활용하기 위해 지속적으로 자기 점검을 해야 합니다. {% endif %}
+        </div>
+      </div>
+
+      <!-- 채점 기준표 -->
+      <div class="scoring-section">
+        <div class="scoring-header">채점 방법 및 결과 해석 기준</div>
+        <table class="scoring-table">
+          <tr>
+            <th rowspan="2" style="width: 60px">채점<br />방법</th>
+            <th style="width: 80px">문항별</th>
+            <td class="left-align" colspan="2">
+              전혀 그렇지 않다: 1점, 그렇지 않다: 2점, 그렇다: 3점, 매우 그렇다:
+              4점
+            </td>
+          </tr>
+          <tr>
+            <th>총점</th>
+            <td class="left-align" colspan="2">
+              문항 1~10번 합계 (만점: 40점)
+            </td>
+          </tr>
+          <tr>
+            <th rowspan="3">결과<br />해석</th>
+            <th>고위험<br />사용자군</th>
+            <td style="width: 120px">성인 ≥ 29점<br />고령층 ≥ 28점</td>
+            <td class="left-align">
+              스마트폰 사용에 대한 통제력을 상실한 상태
+            </td>
+          </tr>
+          <tr>
+            <th>잠재적위험<br />사용자군</th>
+            <td>성인 24~28점<br />고령층 24~27점</td>
+            <td class="left-align">조절이 약화된 상태이며 주의 요망</td>
+          </tr>
+          <tr>
+            <th>일반<br />사용자군</th>
+            <td>성인 ≤ 23점<br />고령층 ≤ 23점</td>
+            <td class="left-align">
+              조절된 형태로 사용, 지속적 자기 점검 권장
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 실천 방안 -->
+      <div>
+        <div class="practice-header">건전한 스마트폰 활용 가이드</div>
+        <div class="practice-container">
+          <div class="practice-item">
+            <h4>1. 스마트폰 사용 시간 관리</h4>
+            <ul>
+              <li>하루 스마트폰 사용 시간을 정하고 지키세요.</li>
+              <li>사용 시간 알림 기능을 활용하여 자기 조절을 실천하세요.</li>
+            </ul>
+          </div>
+          <div class="practice-item">
+            <h4>2. 건강한 대안 활동</h4>
+            <ul>
+              <li>산책, 운동, 독서 등 오프라인 활동을 늘려보세요.</li>
+              <li>가족, 친구와 직접 만나 소통하는 시간을 가지세요.</li>
+            </ul>
+          </div>
+          <div class="practice-item">
+            <h4>3. 디지털 웰빙 실천</h4>
+            <ul>
+              <li>취침 1시간 전에는 스마트폰 사용을 자제하세요.</li>
+              <li>식사 시간에는 스마트폰을 내려놓고 주변과 소통하세요.</li>
+              {% if age_group == 'elderly' %}
+              <li>눈 건강을 위해 30분마다 휴식을 취하고 먼 곳을 바라보세요.</li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        @copyright 한국지능정보사회진흥원 「인터넷·스마트폰 과의존 예방·해소
+        사업」 및 스마트쉼센터
+      </div>
+    </div>
+  </body>
+</html>

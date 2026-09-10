@@ -1,0 +1,419 @@
+{
+  "meta": {
+    "measured_at": "2026-08-13",
+    "status": "draft — 검사축 초안 동반 실측",
+    "method": "agent 코드 실측 (models·services·handlers·engine)"
+  },
+  "concepts": {
+    "instrument": {
+      "table": "assessments (전역 — center_id 없음)",
+      "attributes": [
+        {
+          "onto": "code",
+          "class": "core",
+          "column": "code",
+          "type": "String(50)",
+          "nullable": false,
+          "note": "활성 행 기준 유일 (partial unique)"
+        },
+        {
+          "onto": "버전",
+          "class": "core",
+          "column": "version",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "⚠ default '1.0' — 유니크 미포함, 표시 라벨뿐. AS-1(개정판=새 행) 요건 미달"
+        },
+        {
+          "onto": "이름",
+          "class": "core",
+          "column": "kor_name · eng_name",
+          "type": "String(255)",
+          "nullable": false
+        },
+        {
+          "onto": "분류",
+          "class": "core",
+          "column": "assessment_type",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "projective|intelligence|objective|developmental — 투사가 이미 분류에 존재"
+        },
+        {
+          "onto": "워크플로",
+          "class": "core",
+          "column": "workflow_type",
+          "type": "String(30)",
+          "nullable": false,
+          "note": "self_report|external_service 2값 — AS-2 4축의 압축 캐시"
+        },
+        {
+          "onto": "온라인 가능",
+          "class": "core",
+          "column": "supports_online",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "task.execution_method(onsite|online)의 유일한 유도원 — 사용자 선택축 아님"
+        },
+        {
+          "onto": "문항 정의",
+          "class": "core",
+          "column": "definition",
+          "type": "JSONB",
+          "nullable": false,
+          "note": "불가침 — 단 definition 기반 채점은 TODO 미구현, 실채점은 engine 플러그인"
+        },
+        {
+          "onto": "공개 범위",
+          "class": "variable",
+          "column": "status",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "private|public — 수명주기 아닌 공개 범위"
+        },
+        {
+          "onto": "(미등재)",
+          "class": "record?",
+          "column": "duration · age · description · external_url",
+          "type": "—",
+          "nullable": true,
+          "note": "age는 자유 문자열(구조화 안 됨)"
+        }
+      ],
+      "states": {
+        "field": "status",
+        "values": [
+          "private",
+          "public"
+        ],
+        "note": "전이 서비스 없음 — 운영자 PATCH 값 변경만"
+      },
+      "cardinality": [
+        {
+          "to": "adoption",
+          "rel": "1 — N center_assessments",
+          "evidence": ""
+        },
+        {
+          "to": "administration",
+          "rel": "1 — N tasks",
+          "evidence": "task.assessment_id NOT NULL"
+        }
+      ],
+      "birth": [
+        "플랫폼 운영자 POST /assessments (platform_admin — 센터는 카탈로그 소비만)"
+      ],
+      "gaps": [
+        "AS-1 실측 갭: version은 라벨 — code 활성 유일이라 개정판 병존·계보 추적 불가. 마인드봄 카탈로그 설계 시 (code, version) 복합 유일 필요"
+      ]
+    },
+    "adoption": {
+      "table": "center_assessments",
+      "attributes": [
+        {
+          "onto": "테넌트",
+          "class": "core",
+          "column": "center_id",
+          "type": "String(36)",
+          "nullable": false
+        },
+        {
+          "onto": "검사 참조",
+          "class": "core",
+          "column": "assessment_id",
+          "type": "String(36)",
+          "nullable": false,
+          "note": "(center, assessment) 유니크 — 단 partial 아님(soft delete 재생성 충돌 잠재)"
+        },
+        {
+          "onto": "활성",
+          "class": "variable",
+          "column": "is_active",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "agent query에선 활성-고정"
+        }
+      ],
+      "states": {
+        "field": "is_active",
+        "values": [
+          "true",
+          "false"
+        ],
+        "note": "토글뿐 — 상태 enum 없음"
+      },
+      "cardinality": [
+        {
+          "to": "org",
+          "rel": "center 1 — N 채택",
+          "evidence": ""
+        }
+      ],
+      "birth": [
+        "센터 개설 승인 시 일괄 시드 (approve_center_application)",
+        "플랫폼 운영자 개별 할당 (assign/toggle/unassign)"
+      ],
+      "gaps": [
+        "채택 시점 스냅샷(가격·버전 고정) 없음 — 순수 on/off. AS-1 버전 도입 시 채택이 어느 버전을 가리키는지 결정 필요"
+      ]
+    },
+    "assessCase": {
+      "table": "assessment_cases",
+      "attributes": [
+        {
+          "onto": "케이스 코드",
+          "class": "core",
+          "column": "case_code",
+          "type": "String(50)",
+          "nullable": false,
+          "note": "순번 발급, (center, case_code) 유니크 — partial 아님(assessments.code와 비대칭)"
+        },
+        {
+          "onto": "담당자",
+          "class": "core",
+          "column": "counselor_id",
+          "type": "String(36)",
+          "nullable": false,
+          "note": "→members"
+        },
+        {
+          "onto": "검사 목록 스냅샷",
+          "class": "record",
+          "column": "assessment_summary",
+          "type": "JSONB(list)",
+          "nullable": false,
+          "note": "접수 시점 비정규화"
+        },
+        {
+          "onto": "기관 스냅샷",
+          "class": "record",
+          "column": "institution_summary",
+          "type": "JSONB",
+          "nullable": true,
+          "note": "단체 접수 시 — extInst의 JSONB 사본 소비 실례"
+        },
+        {
+          "onto": "종합보고서 요건",
+          "class": "core",
+          "column": "is_final_report_required",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "true면 전 task 완료여도 documents 없으면 processing 유지"
+        },
+        {
+          "onto": "상태",
+          "class": "variable",
+          "column": "status",
+          "type": "String(20)",
+          "nullable": false
+        },
+        {
+          "onto": "(미등재)",
+          "class": "record?",
+          "column": "documents · tags · set_summary",
+          "type": "JSONB/ARRAY",
+          "nullable": true
+        }
+      ],
+      "states": {
+        "field": "status",
+        "values": [
+          "pending",
+          "processing",
+          "completed",
+          "cancelled"
+        ],
+        "note": "이중 경로: 직접 전이(cancel: completed 불가 / complete / revert_cancel: →pending 고정) + task 합산 유도(sync_case_status — 전건 completed→completed, 전건 종결∧completed 0→cancelled, 진행 중→processing)"
+      },
+      "cardinality": [
+        {
+          "to": "administration",
+          "rel": "1 — N (케이스 내 검사당 task 1개)",
+          "evidence": "(case_id, assessment_id) partial unique"
+        },
+        {
+          "to": "subject",
+          "rel": "1 — N 참여자 (다형 client|assistant)",
+          "evidence": "(case,type,id) 유니크"
+        },
+        {
+          "to": "sendLink",
+          "rel": "1 — N 발송 링크",
+          "evidence": ""
+        }
+      ],
+      "birth": [
+        "개인 접수 (create_individual_assessment — has_schedule 시 schedule+session 동시 생성)",
+        "단체 접수 (create_batch_assessment — client별 1케이스 + institution_summary)"
+      ],
+      "gaps": [
+        "case_code 유니크 partial 아님 — soft delete 후 동일 코드 재생성 충돌 잠재"
+      ]
+    },
+    "administration": {
+      "table": "assessment_tasks",
+      "attributes": [
+        {
+          "onto": "케이스·검사",
+          "class": "core",
+          "column": "case_id · assessment_id",
+          "type": "String(36)",
+          "nullable": false,
+          "note": "(case, assessment) partial unique"
+        },
+        {
+          "onto": "실시 방식",
+          "class": "core",
+          "column": "execution_method",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "onsite|online — supports_online에서 자동 유도(사용자 선택 아님)"
+        },
+        {
+          "onto": "응답·진행",
+          "class": "record",
+          "column": "process",
+          "type": "JSONB",
+          "nullable": false,
+          "note": "responses·progress·submitted_at·previous_status(revert 스택)·cancelled/refused 사유"
+        },
+        {
+          "onto": "결과 payload",
+          "class": "record",
+          "column": "report_payload",
+          "type": "JSONB",
+          "nullable": true,
+          "note": "{scoring: ScoringResult, interpretation: InterpretationResult, scored_at}"
+        },
+        {
+          "onto": "결과 문서",
+          "class": "record",
+          "column": "report_document_id",
+          "type": "String(36)",
+          "nullable": true,
+          "note": "self_report=PDF 자동생성 / external=업로드 필수(제출 시 강제)"
+        },
+        {
+          "onto": "소견",
+          "class": "record",
+          "column": "opinion",
+          "type": "Text",
+          "nullable": true,
+          "note": "검사자 소견 — 마인드봄에 대응물 없음(경계 갭)"
+        },
+        {
+          "onto": "보호자 열람",
+          "class": "variable",
+          "column": "is_report_visible_to_guardian",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "default false(기본 비공개) — 군 프로필에서 존재 변환 제거 대상"
+        },
+        {
+          "onto": "상태",
+          "class": "variable",
+          "column": "status",
+          "type": "String(20)",
+          "nullable": false
+        },
+        {
+          "onto": "세션 연결",
+          "class": "record",
+          "column": "session_id",
+          "type": "String(36)",
+          "nullable": true,
+          "note": "0..1 — 복수 task가 한 session 공유 가능"
+        }
+      ],
+      "states": {
+        "field": "status",
+        "values": [
+          "pending",
+          "in_progress",
+          "submitted",
+          "completed",
+          "refused",
+          "cancelled"
+        ],
+        "note": "start: pending→in_progress / submit_with_workflow: 재제출 허용 →submitted / complete: completed·cancelled 외 전부→completed(previous_status 보존) / refuse: pending·in_progress만 / cancel: cancelled여도 사유 갱신(모바일 즉시 중단 UX) / revert: completed→previous_status / revert_cancel: cancelled→previous_status. 세션은 별도 4종(scheduled→attended|no_show|cancelled)"
+      },
+      "cardinality": [
+        {
+          "to": "subject",
+          "rel": "수검자 — case 참여자 경유 (기관 스코프 참조, A1)",
+          "evidence": ""
+        },
+        {
+          "to": "instrument",
+          "rel": "N — 1",
+          "evidence": "assessment_id NOT NULL"
+        }
+      ],
+      "birth": [
+        "케이스 접수 시 일괄 (create_tasks_for_case — 기존 행 재사용)",
+        "케이스 수정으로 검사 추가",
+        "공개 링크 제출(submit_link_task, 4자리 코드) → SubmitTaskPipelineService 수렴: 자가응답형은 채점→PDF→자동 완료→sync_case_status"
+      ],
+      "gaps": [
+        "수동 complete는 채점 없이 완료 가능 (definition 기반 채점 TODO)"
+      ]
+    },
+    "scoringRule": {
+      "table": null,
+      "attributes": [
+        {
+          "onto": "계약",
+          "class": "core",
+          "column": "engine/protocol.py",
+          "type": "Protocol",
+          "nullable": false,
+          "note": "code·validate_responses·calculate_scores·interpret"
+        },
+        {
+          "onto": "구현",
+          "class": "record",
+          "column": "engine/plugins/",
+          "type": "code",
+          "nullable": false,
+          "note": "현재 2종(스마트폰 중독·과의존 성인). 미등록 code는 자동채점 불가 raise"
+        }
+      ],
+      "states": null,
+      "cardinality": [
+        {
+          "to": "instrument",
+          "rel": "0..1 per code",
+          "evidence": "registry key=assessment.code"
+        }
+      ],
+      "birth": [
+        "코드 배포로만 — DB 아님"
+      ],
+      "gaps": [
+        "AS-3 실측 확정: 컷(절단 기준)은 plugins/*.py interpret() 하드코딩(예: 고위험 총점≥45 OR 하위척도 컷) — definition에는 컷 없음. 마인드봄 이관 시에도 컷=코드(검사 정의 짝) 원칙 유지"
+      ]
+    }
+  },
+  "result_contract": {
+    "scoring": [
+      "total_score: float",
+      "max_total_score: int",
+      "subscales: {name, code, raw_score, max_score}",
+      "metadata: dict"
+    ],
+    "interpretation": [
+      "risk_level: low|moderate|high",
+      "risk_label (실측: 일반사용자군|잠재적위험 사용자군|고위험 사용자군)",
+      "summary",
+      "description",
+      "recommendations[]",
+      "subscales{}"
+    ],
+    "note": "risk_label이 이미 어휘 하드코딩 — AS-3의 프로필 소유(어휘)로 이전 대상. 엔진은 risk_level(중립)만 방출해야"
+  },
+  "gap_notes_vs_draft": {
+    "AS-1": "부분 갭 확정 — version 컬럼 존재하나 라벨뿐(code 활성 유일). 개정판 병존 불가 → 마인드봄 카탈로그가 (code, version) 복합 유일로 신설해야",
+    "AS-2": "갭 확정 — 응답 주체(본인|보호자|교사) 축 전무(grep 0건). 실시 채널도 supports_online 자동 유도라 선택축 아님. 4축은 전부 신설 선언",
+    "AS-3": "실측 확정 — 컷은 engine 플러그인 하드코딩. risk_label(한국어)이 엔진에 있음 → 어휘는 프로필로 이전, 엔진은 중립 3단계만"
+  }
+}

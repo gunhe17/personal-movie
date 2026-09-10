@@ -1,0 +1,33 @@
+{
+  "name": "학교",
+  "loop": "검사용",
+  "vocab": {
+    "subject": "학생",
+    "guardianRel": "학부모",
+    "staff": "상담교사",
+    "org": "학교",
+    "extInst": "의뢰처",
+    "orgUnit": "학급",
+    "child": "학생",
+    "sibling": null
+  },
+  "exists": {
+    "guardianRel": true,
+    "orgUnit": true
+  },
+  "variable": {
+    "subject": [
+      "학년·반·번호 (매년 변동)",
+      "담임"
+    ]
+  },
+  "hierarchy": "학년 > 반",
+  "identifier": {
+    "type": "학번 = 번호+연도 (매년 재사용)",
+    "temporal": "periodic"
+  },
+  "guardian_note": "학부모 — 내담 참여자라기보다 동의·통지의 주체.",
+  "sections": {
+    "sibling": false
+  }
+}

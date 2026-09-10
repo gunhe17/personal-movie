@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mindbom-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mindbom
+      POSTGRES_PASSWORD: mindbom_dev
+      POSTGRES_DB: mindbom
+    ports:
+      - "4501:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mindbom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: mindbom-api
+    restart: unless-stopped
+    ports:
+      - "4502:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mindbom:mindbom_dev@postgres:5432/mindbom
+      DEBUG: "true"
+      APP_ENV: development
+      AI_SERVICE_ENABLED: "false"
+    volumes:
+      - ./apps/api:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: mindbom-web
+    restart: unless-stopped
+    ports:
+      - "4503:5173"
+    environment:
+      VITE_API_URL: http://localhost:4502
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    command: pnpm dev --host 0.0.0.0 --port 5173
+
+volumes:
+  postgres_data:
+    driver: local

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구독 시스템 아키텍처 설계도</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #3b82f6;
+    --accent2: #8b5cf6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --orange: #f97316;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 40px 24px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 48px; }
+  h2 {
+    font-size: 20px;
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  h3 { font-size: 16px; margin: 24px 0 12px; color: var(--cyan); }
+
+  /* ── Diagram Boxes ── */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .box.blue { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.4); color: #93bbfc; }
+  .box.purple { background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.4); color: #c4b5fd; }
+  .box.green { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4); color: #86efac; }
+  .box.yellow { background: rgba(234,179,8,.15); border: 1px solid rgba(234,179,8,.4); color: #fde047; }
+  .box.red { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4); color: #fca5a5; }
+  .box.orange { background: rgba(249,115,22,.15); border: 1px solid rgba(249,115,22,.4); color: #fdba74; }
+  .box.cyan { background: rgba(6,182,212,.15); border: 1px solid rgba(6,182,212,.4); color: #67e8f9; }
+  .box.pink { background: rgba(236,72,153,.15); border: 1px solid rgba(236,72,153,.4); color: #f9a8d4; }
+  .box.gray { background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.3); color: var(--text-dim); }
+  .box.new { position: relative; }
+  .box.new::after {
+    content: 'NEW';
+    position: absolute;
+    top: -8px; right: -8px;
+    background: var(--red);
+    color: white;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .arrow { color: var(--text-dim); font-size: 16px; }
+  .arrow-down { color: var(--text-dim); font-size: 14px; text-align: center; padding: 4px 0; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--surface2);
+  }
+  th {
+    background: var(--surface);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td { color: var(--text); }
+  tr:hover td { background: rgba(59,130,246,.05); }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag.new-tag { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .tag.exist-tag { background: rgba(34,197,94,.2); color: #86efac; }
+  .tag.modify-tag { background: rgba(234,179,8,.2); color: #fde047; }
+
+  /* ── Entity Diagram ── */
+  .entity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .entity-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .entity-card.new-entity { border-color: var(--red); }
+  .entity-card.existing { border-color: var(--green); }
+  .entity-card.modified { border-color: var(--yellow); }
+  .entity-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .entity-card.new-entity .entity-header { background: rgba(239,68,68,.1); }
+  .entity-card.existing .entity-header { background: rgba(34,197,94,.1); }
+  .entity-card.modified .entity-header { background: rgba(234,179,8,.1); }
+  .entity-fields {
+    padding: 8px 16px 16px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  .entity-fields .field {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(71,85,105,.3);
+  }
+  .entity-fields .field:last-child { border-bottom: none; }
+  .field-name { color: var(--text); }
+  .field-type { color: var(--text-dim); }
+  .field-pk { color: var(--accent); font-weight: 700; }
+  .field-fk { color: var(--orange); }
+  .field-new { color: var(--red); }
+
+  /* ── Discussion Items ── */
+  .discussion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .discussion-header {
+    padding: 14px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .discussion-header .priority {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .priority.critical { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .priority.important { background: rgba(249,115,22,.2); color: #fdba74; }
+  .priority.normal { background: rgba(59,130,246,.2); color: #93c5fd; }
+  .discussion-body {
+    padding: 0 20px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .discussion-body ul { padding-left: 20px; }
+  .discussion-body li { margin: 6px 0; }
+  .discussion-body strong { color: var(--text); }
+  .discussion-body code {
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--cyan);
+  }
+
+  /* ── Phase Timeline ── */
+  .timeline {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .phase-card {
+    flex: 1;
+    min-width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .phase-card h4 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phase-card h4 .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .phase-card ul { padding-left: 18px; font-size: 13px; color: var(--text-dim); }
+  .phase-card li { margin: 6px 0; }
+  .phase-card.active { border-color: var(--accent); }
+  .phase-card.active h4 .badge { background: rgba(59,130,246,.2); color: #93c5fd; }
+  .phase-card.future h4 .badge { background: rgba(148,163,184,.15); color: var(--text-dim); }
+
+  /* ── Connection Lines (ASCII-style) ── */
+  .conn-diagram {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    padding: 24px;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--text-dim);
+  }
+  .conn-diagram .hl { color: var(--accent); font-weight: 700; }
+  .conn-diagram .hl2 { color: var(--green); font-weight: 700; }
+  .conn-diagram .hl3 { color: var(--yellow); font-weight: 700; }
+  .conn-diagram .hl4 { color: var(--red); font-weight: 700; }
+  .conn-diagram .hl5 { color: var(--cyan); font-weight: 700; }
+  .conn-diagram .dim { color: var(--surface2); }
+
+  .note {
+    background: rgba(234,179,8,.08);
+    border-left: 3px solid var(--yellow);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .note strong { color: var(--yellow); }
+
+  .separator { border: none; border-top: 1px dashed var(--surface2); margin: 48px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>구독 시스템 <span>아키텍처 설계도</span></h1>
+<p class="subtitle">
+  구독(Subscription) → 크레딧(Credit) → AI Gateway 연결 구조 &nbsp;|&nbsp; 2026-04-23 &nbsp;|&nbsp; 검토용 초안
+</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">1</span> 현재 구조 vs 목표 구조</h2>
+<!-- ============================================================ -->
+
+<h3>AS-IS (현재)</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box gray">관리자가 수동으로</span>
+    <span class="arrow">→</span>
+    <span class="box yellow">POST /credit</span>
+    <span class="arrow">→</span>
+    <span class="box yellow">plan_type="pro" (하드코딩)</span>
+    <span class="arrow">→</span>
+    <span class="box green">CreditBalance 생성</span>
+  </div>
+  <div class="note">
+    <strong>문제:</strong> plan_type의 출처가 없음. 센터가 실제로 어떤 플랜을 구독 중인지 관리하는 주체가 없고,
+    관리자가 API를 직접 호출해야만 크레딧이 생성됨.
+  </div>
+</div>
+
+<h3>TO-BE (목표)</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box blue new">Subscription</span>
+    <span class="arrow">→</span>
+    <span class="box purple">plan 변경 이벤트</span>
+    <span class="arrow">→</span>
+    <span class="box green">CreditBalance 자동 생성/갱신</span>
+  </div>
+  <div class="flow">
+    <span class="box blue new">Subscription</span>
+    <span class="arrow">→</span>
+    <span class="box purple">JWT에 plan 포함</span>
+    <span class="arrow">→</span>
+    <span class="box cyan">@require_plan 데코레이터</span>
+    <span class="arrow">→</span>
+    <span class="box green">기능 접근 제어</span>
+  </div>
+  <div class="flow">
+    <span class="box blue new">Subscription</span>
+    <span class="arrow">→</span>
+    <span class="box purple">quota 관리</span>
+    <span class="arrow">→</span>
+    <span class="box orange">내담자/상담사 수 제한</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">2</span> 전체 시스템 연결도</h2>
+<!-- ============================================================ -->
+
+<div class="diagram">
+  <div class="conn-diagram"><span class="dim">┌─────────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="dim">│</span>                              <span class="hl4">[ 신규 모듈 ]</span>                                      <span class="dim">│</span>
+<span class="dim">│</span>                                                                                 <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">┌─────────────────────────────────────────────┐</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│          Subscription Module                │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│                                             │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│  models.py    Subscription                  │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│               SubscriptionHistory            │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│  plan_config  PlanType Enum + 기능/한도 정의  │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│  facade       SubscriptionFacade             │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">│  services     Upgrade/Downgrade/Expire       │</span>                              <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl4">└──────────┬──────────────┬───────────────────┘</span>                              <span class="dim">│</span>
+<span class="dim">│</span>              │              │                                                    <span class="dim">│</span>
+<span class="dim">│</span>     <span class="hl3">플랜 변경 시</span>       <span class="hl5">JWT 발급 시</span>                                          <span class="dim">│</span>
+<span class="dim">│</span>     <span class="hl3">크레딧 연동</span>        <span class="hl5">plan 포함</span>                                           <span class="dim">│</span>
+<span class="dim">│</span>              │              │                                                    <span class="dim">│</span>
+<span class="dim">│</span>              ▼              ▼                                                    <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">┌──────────────┐</span>  <span class="hl5">┌──────────────┐</span>   <span class="hl">┌───────────────────────────┐</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│ Credit Module │</span>  <span class="hl5">│  Auth Module  │</span>   <span class="hl">│      AI Gateway           │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│              │</span>  <span class="hl5">│              │</span>   <span class="hl">│                           │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│ plan_type ◄──┤──┤─ JWT.plan   │</span>   <span class="hl">│  QuotaCheck → LLM/STT    │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│ credit_limit │</span>  <span class="hl5">│ @require_plan│</span>   <span class="hl">│  → RecordCall → Deduct   │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│ credit_used  │</span>  <span class="hl5">└──────────────┘</span>   <span class="hl">│                           │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">│ AIPurpose ◄──┤────────────────────┤── purpose 검증             │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="hl2">└──────────────┘</span>                    <span class="hl">└───────────────────────────┘</span>   <span class="dim">│</span>
+<span class="dim">│</span>                                                                                 <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">┌──────────────┐</span>  <span class="dim">┌──────────────┐</span>   <span class="dim">┌───────────────────────────┐</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">│   Center     │</span>  <span class="dim">│   Billing    │</span>   <span class="dim">│     Domain Modules        │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">│  (tenant)    │</span>  <span class="dim">│  (B2C 청구)   │</span>   <span class="dim">│  Agent / FieldNote /      │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">│              │</span>  <span class="dim">│              │</span>   <span class="dim">│  Counseling / Assessment  │</span>   <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">└──────────────┘</span>  <span class="dim">└──────────────┘</span>   <span class="dim">└───────────────────────────┘</span>   <span class="dim">│</span>
+<span class="dim">│</span>                                                                                 <span class="dim">│</span>
+<span class="dim">└─────────────────────────────────────────────────────────────────────────────────┘</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">3</span> 데이터 모델</h2>
+<!-- ============================================================ -->
+
+<div class="entity-grid">
+
+  <!-- Subscription (NEW) -->
+  <div class="entity-card new-entity">
+    <div class="entity-header">
+      Subscription
+      <span class="tag new-tag">NEW</span>
+    </div>
+    <div class="entity-fields">
+      <div class="field"><span class="field-pk">id</span><span class="field-type">UUID PK</span></div>
+      <div class="field"><span class="field-fk">center_id</span><span class="field-type">UUID FK (unique)</span></div>
+      <div class="field"><span class="field-name">plan</span><span class="field-type">PlanType Enum</span></div>
+      <div class="field"><span class="field-name">status</span><span class="field-type">SubStatus Enum</span></div>
+      <div class="field"><span class="field-name">current_period_start</span><span class="field-type">DateTime</span></div>
+      <div class="field"><span class="field-name">current_period_end</span><span class="field-type">DateTime</span></div>
+      <div class="field"><span class="field-name">trial_end</span><span class="field-type">DateTime?</span></div>
+      <div class="field"><span class="field-name">cancelled_at</span><span class="field-type">DateTime?</span></div>
+      <div class="field"><span class="field-name">is_quota_exceeded</span><span class="field-type">Boolean</span></div>
+      <div class="field"><span class="field-name">quota_grace_end</span><span class="field-type">DateTime?</span></div>
+      <div class="field"><span class="field-name">created_at / updated_at</span><span class="field-type">DateTime</span></div>
+      <div class="field"><span class="field-name">deleted_at</span><span class="field-type">DateTime? (soft)</span></div>
+    </div>
+  </div>
+
+  <!-- SubscriptionHistory (NEW) -->
+  <div class="entity-card new-entity">
+    <div class="entity-header">
+      SubscriptionHistory
+      <span class="tag new-tag">NEW</span>
+    </div>
+    <div class="entity-fields">
+      <div class="field"><span class="field-pk">id</span><span class="field-type">UUID PK</span></div>
+      <div class="field"><span class="field-fk">subscription_id</span><span class="field-type">UUID FK</span></div>
+      <div class="field"><span class="field-name">from_plan</span><span class="field-type">PlanType?</span></div>
+      <div class="field"><span class="field-name">to_plan</span><span class="field-type">PlanType</span></div>
+      <div class="field"><span class="field-name">changed_by</span><span class="field-type">user|admin|system</span></div>
+      <div class="field"><span class="field-name">reason</span><span class="field-type">String</span></div>
+      <div class="field"><span class="field-name">changed_at</span><span class="field-type">DateTime</span></div>
+    </div>
+  </div>
+
+  <!-- CreditBalance (EXISTING - MODIFIED) -->
+  <div class="entity-card modified">
+    <div class="entity-header">
+      CreditBalance
+      <span class="tag modify-tag">MODIFY</span>
+    </div>
+    <div class="entity-fields">
+      <div class="field"><span class="field-pk">id</span><span class="field-type">UUID PK</span></div>
+      <div class="field"><span class="field-fk">center_id</span><span class="field-type">UUID (unique active)</span></div>
+      <div class="field"><span class="field-name">plan_type</span><span class="field-type">String(20)</span></div>
+      <div class="field"><span class="field-name">credit_limit</span><span class="field-type">Integer</span></div>
+      <div class="field"><span class="field-name">credit_used</span><span class="field-type">Integer</span></div>
+      <div class="field"><span class="field-name">period_start / period_end</span><span class="field-type">DateTime</span></div>
+      <div class="field"><span class="field-new">subscription_id</span><span class="field-type">UUID FK? (NEW)</span></div>
+    </div>
+  </div>
+
+  <!-- Center (EXISTING) -->
+  <div class="entity-card existing">
+    <div class="entity-header">
+      Center
+      <span class="tag exist-tag">EXISTING</span>
+    </div>
+    <div class="entity-fields">
+      <div class="field"><span class="field-pk">id</span><span class="field-type">UUID PK</span></div>
+      <div class="field"><span class="field-name">name, code</span><span class="field-type">String</span></div>
+      <div class="field"><span class="field-name">is_active</span><span class="field-type">Boolean</span></div>
+      <div class="field"><span class="field-name">deleted_at</span><span class="field-type">DateTime?</span></div>
+    </div>
+  </div>
+
+</div>
+
+<h3>ER 관계</h3>
+<div class="diagram">
+  <div class="conn-diagram">
+  <span class="hl2">Center</span> ──── 1:1 ──── <span class="hl4">Subscription</span> ──── 1:N ──── <span class="hl4">SubscriptionHistory</span>
+    │                      │
+    │                      │ <span class="hl3">플랜 변경 시 크레딧 자동 init</span>
+    │                      ▼
+    └──── 1:1 ──── <span class="hl2">CreditBalance</span> ◄──── <span class="hl">AIGateway (차감)</span>
+                        │
+                        └──── <span class="dim">period별 soft-delete 순환</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">4</span> 플랜 구성 (코드 관리)</h2>
+<!-- ============================================================ -->
+
+<table>
+  <thead>
+    <tr>
+      <th>플랜</th>
+      <th>가격</th>
+      <th>내담자</th>
+      <th>상담사</th>
+      <th>AI 크레딧</th>
+      <th>AI 기능</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="box gray" style="font-size:12px">Free</span></td>
+      <td>₩0</td>
+      <td>10명</td>
+      <td>1명</td>
+      <td>0</td>
+      <td>&#10005;</td>
+      <td>센터 생성 시 자동 할당</td>
+    </tr>
+    <tr>
+      <td><span class="box blue" style="font-size:12px">Starter</span></td>
+      <td>₩29,000/월</td>
+      <td>50명</td>
+      <td>3명</td>
+      <td>300</td>
+      <td>기본 AI</td>
+      <td>필드노트 요약까지</td>
+    </tr>
+    <tr>
+      <td><span class="box purple" style="font-size:12px">Pro</span></td>
+      <td>₩99,000/월</td>
+      <td>무제한</td>
+      <td>무제한</td>
+      <td>1,500</td>
+      <td>전체 AI</td>
+      <td>종단 분석, 에이전트 포함</td>
+    </tr>
+    <tr>
+      <td><span class="box orange" style="font-size:12px">Enterprise</span></td>
+      <td>협의</td>
+      <td>커스텀</td>
+      <td>커스텀</td>
+      <td>커스텀</td>
+      <td>전체 + API</td>
+      <td>별도 계약</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>기존 PLAN_CREDIT_LIMITS와의 관계:</strong>
+  현재 <code>llm/credit/plan_config.py</code>의 <code>PLAN_CREDIT_LIMITS</code>는
+  구독 모듈의 <code>PlanConfig</code>으로 통합. 크레딧 모듈은 구독 모듈에서 한도를 받아오는 구조.
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">5</span> 핵심 플로우</h2>
+<!-- ============================================================ -->
+
+<h3>5-1. 센터 생성 → Free 구독 자동 생성</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box blue">POST /centers</span>
+    <span class="arrow">→</span>
+    <span class="box purple">CreateCenterHandler</span>
+    <span class="arrow">→</span>
+    <span class="box green">Center 생성</span>
+  </div>
+  <div class="arrow-down">↓ 같은 트랜잭션</div>
+  <div class="flow">
+    <span class="box purple">CreateCenterHandler</span>
+    <span class="arrow">→</span>
+    <span class="box red new">SubscriptionFacade.create_free()</span>
+    <span class="arrow">→</span>
+    <span class="box red new">Subscription(plan=free)</span>
+  </div>
+  <div class="note">
+    <strong>포인트:</strong> Free 플랜은 AI 크레딧 0이므로 CreditBalance를 생성하지 않음.
+    크레딧 레코드 없음 = 무제한이 아니라, AI 기능 자체가 플랜 레벨에서 차단됨.
+  </div>
+</div>
+
+<h3>5-2. 플랜 업그레이드 → 크레딧 자동 연동</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box blue">POST /subscription/upgrade</span>
+    <span class="arrow">→</span>
+    <span class="box purple">UpgradeHandler</span>
+  </div>
+  <div class="arrow-down">↓</div>
+  <div class="flow">
+    <span class="box red new">SubscriptionFacade.upgrade()</span>
+    <span class="arrow">→</span>
+    <span class="box red new">Subscription.plan = "pro"</span>
+  </div>
+  <div class="arrow-down">↓ 같은 UoW 내</div>
+  <div class="flow">
+    <span class="box red new">SubscriptionFacade</span>
+    <span class="arrow">→</span>
+    <span class="box green">CreditFacade.init_credit(plan_type, period)</span>
+    <span class="arrow">→</span>
+    <span class="box green">CreditBalance 생성</span>
+  </div>
+  <div class="arrow-down">↓</div>
+  <div class="flow">
+    <span class="box cyan">JWT 재발급 (plan 필드 포함)</span>
+  </div>
+</div>
+
+<h3>5-3. AI 호출 시 이중 게이팅</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box blue">AI 기능 요청</span>
+    <span class="arrow">→</span>
+    <span class="box cyan new">@require_plan("pro")</span>
+    <span class="arrow">→</span>
+    <span class="box green">CheckQuotaService</span>
+    <span class="arrow">→</span>
+    <span class="box green">AIGateway</span>
+  </div>
+  <div style="font-size:13px; color: var(--text-dim); margin-top: 12px;">
+    <strong style="color:var(--cyan)">Layer 1</strong> — 플랜 레벨 체크 (JWT의 plan 필드) → 402 Payment Required<br>
+    <strong style="color:var(--green)">Layer 2</strong> — 크레딧 잔량 체크 (CreditBalance) → QuotaExceededException
+  </div>
+</div>
+
+<h3>5-4. Lazy Reset과 구독 기간 연동</h3>
+<div class="diagram">
+  <div class="conn-diagram">
+  <span class="hl3">현재 (독립)</span>                           <span class="hl4">목표 (연동)</span>
+
+  CreditBalance.period_end 만료          Subscription.current_period_end 만료
+        │                                       │
+        ▼                                       ▼
+  LazyResetCreditService                  LazyResetCreditService
+  (이전과 동일 길이로 갱신)                 (Subscription에서 period 조회 후 갱신)
+        │                                       │
+        ▼                                       ▼
+  새 CreditBalance 생성                    새 CreditBalance 생성
+  (plan_type 유지)                         (Subscription.plan 반영)</div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">6</span> 모듈 구조 (디렉터리)</h2>
+<!-- ============================================================ -->
+
+<div class="diagram">
+  <div class="conn-diagram">
+  <span class="hl4">apps/api/app/modules/subscription/</span>        <span class="dim">← NEW 모듈</span>
+  ├── __init__.py
+  ├── <span class="hl4">models.py</span>              Subscription, SubscriptionHistory
+  ├── <span class="hl4">schemas.py</span>             Request/Response DTOs
+  ├── <span class="hl4">repository.py</span>          SubscriptionRepository
+  ├── <span class="hl4">plan_config.py</span>         PlanType Enum, PLAN_CONFIGS, 한도/기능 정의
+  ├── <span class="hl4">router.py</span>              API 엔드포인트
+  ├── <span class="hl4">handlers/</span>
+  │   ├── get_subscription.py
+  │   ├── upgrade_plan.py
+  │   └── get_plans.py
+  ├── <span class="hl4">services/</span>
+  │   ├── create_subscription.py    센터 생성 시 Free 구독 생성
+  │   ├── upgrade_plan.py           플랜 업그레이드 + 크레딧 연동
+  │   ├── check_quota.py            리소스 한도 체크 (내담자/상담사 수)
+  │   └── expire_subscription.py    만료 처리
+  └── <span class="hl4">facade/</span>
+      ├── __init__.py
+      └── subscription_facade.py    Application + Module Handler용
+
+  <span class="hl3">apps/api/app/modules/llm/credit/</span>           <span class="dim">← 수정</span>
+  └── plan_config.py               <span class="hl3">PLAN_CREDIT_LIMITS → subscription/plan_config 참조</span>
+
+  <span class="hl5">apps/api/app/core/</span>                          <span class="dim">← 수정</span>
+  └── <span class="hl5">require_plan.py</span>            @require_plan 데코레이터 (JWT plan 체크)</div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">7</span> 기존 모듈과의 의존성</h2>
+<!-- ============================================================ -->
+
+<table>
+  <thead>
+    <tr>
+      <th>연결 지점</th>
+      <th>방향</th>
+      <th>방법</th>
+      <th>상태</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Center 생성 → Subscription 생성</td>
+      <td>Center → Subscription</td>
+      <td>Center Handler에서 <code>SubscriptionFacade.create_free()</code> 호출</td>
+      <td><span class="tag new-tag">구현 필요</span></td>
+    </tr>
+    <tr>
+      <td>플랜 업그레이드 → Credit 초기화</td>
+      <td>Subscription → Credit</td>
+      <td><code>SubscriptionFacade</code>에서 <code>CreditFacade.init_credit()</code> 호출</td>
+      <td><span class="tag new-tag">구현 필요</span></td>
+    </tr>
+    <tr>
+      <td>JWT에 plan 필드 포함</td>
+      <td>Subscription → Auth</td>
+      <td>토큰 생성 시 <code>SubscriptionFacade.get_plan()</code> 조회</td>
+      <td><span class="tag new-tag">구현 필요</span></td>
+    </tr>
+    <tr>
+      <td>AI 기능 접근 제어</td>
+      <td>Auth → Domain</td>
+      <td><code>@require_plan("starter")</code> 데코레이터</td>
+      <td><span class="tag new-tag">구현 필요</span></td>
+    </tr>
+    <tr>
+      <td>내담자/상담사 수 제한</td>
+      <td>Subscription → Client/Member</td>
+      <td>생성 전 <code>SubscriptionFacade.check_quota()</code> 호출</td>
+      <td><span class="tag new-tag">구현 필요</span></td>
+    </tr>
+    <tr>
+      <td>Lazy Reset 시 구독 참조</td>
+      <td>Credit → Subscription</td>
+      <td><code>LazyResetCreditService</code>가 구독 기간/플랜 조회</td>
+      <td><span class="tag modify-tag">수정 필요</span></td>
+    </tr>
+    <tr>
+      <td>크레딧 한도 참조</td>
+      <td>Credit → Subscription</td>
+      <td><code>PLAN_CREDIT_LIMITS</code>를 구독 모듈 PlanConfig에서 조회</td>
+      <td><span class="tag modify-tag">수정 필요</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2><span class="num">8</span> 구현 단계</h2>
+<!-- ============================================================ -->
+
+<div class="timeline">
+
+  <div class="phase-card active">
+    <h4>
+      Phase 1 — MVP
+      <span class="badge">NOW</span>
+    </h4>
+    <ul>
+      <li>Subscription 모델 + 마이그레이션</li>
+      <li>PlanType Enum + PlanConfig 정의</li>
+      <li>SubscriptionFacade 기본 구현</li>
+      <li>센터 생성 시 Free 구독 자동 생성</li>
+      <li>플랜 업그레이드 API (수동, PG 없이)</li>
+      <li>크레딧 자동 초기화 연동</li>
+      <li>JWT plan 필드 추가</li>
+      <li><code>@require_plan</code> 데코레이터</li>
+      <li>기존 센터 마이그레이션 스크립트</li>
+    </ul>
+  </div>
+
+  <div class="phase-card future">
+    <h4>
+      Phase 2 — 결제 연동
+      <span class="badge">NEXT</span>
+    </h4>
+    <ul>
+      <li>PG 연동 (토스페이먼츠)</li>
+      <li>SubscriptionPayment 모델</li>
+      <li>결제 실패 → Grace Period</li>
+      <li>자동 갱신 (만료 시 결제)</li>
+      <li>Trial 기능 (14일 Pro 체험)</li>
+      <li>다운그레이드 지원</li>
+    </ul>
+  </div>
+
+  <div class="phase-card future">
+    <h4>
+      Phase 3 — 고도화
+      <span class="badge">LATER</span>
+    </h4>
+    <ul>
+      <li>리소스 Quota 강제 (내담자/상담사 수)</li>
+      <li>사용량 기반 과금 옵션</li>
+      <li>구독 통계/분석 대시보드</li>
+      <li>일별 정산 Cron Job</li>
+      <li>엔터프라이즈 커스텀 플랜</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">9</span> 논의 필요 사항</h2>
+<!-- ============================================================ -->
+
+<!-- Discussion 1 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority critical">CRITICAL</span>
+    D-1. Free 플랜에서 AI 차단 방식
+  </div>
+  <div class="discussion-body">
+    <p>현재 크레딧 레코드가 없으면 <strong>무제한 허용</strong>입니다 (<code>CheckQuotaService</code>: <code>if row is None: return</code>). 구독 도입 후 Free 플랜은 AI를 완전 차단해야 합니다.</p>
+    <ul>
+      <li><strong>방안 A:</strong> <code>@require_plan("starter")</code> 데코레이터로 라우터 레벨에서 차단 (JWT 기반)</li>
+      <li><strong>방안 B:</strong> <code>CheckQuotaService</code>에서 크레딧 레코드 없음 = 차단으로 변경</li>
+      <li><strong>권장:</strong> 둘 다 적용 (이중 게이팅). A가 1차 방어, B가 2차 방어</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 2 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority critical">CRITICAL</span>
+    D-2. 기존 센터 데이터 마이그레이션
+  </div>
+  <div class="discussion-body">
+    <p>이미 운영 중인 센터들에 대한 처리:</p>
+    <ul>
+      <li>기존 센터에 Subscription 레코드가 없음 → 어떤 플랜으로 할당할 것인가?</li>
+      <li><strong>방안 A:</strong> 모두 <code>Pro</code>로 마이그레이션 (기존 기능 유지, 추후 정리)</li>
+      <li><strong>방안 B:</strong> 모두 <code>Free</code>로 마이그레이션 (기존 AI 기능 즉시 차단 위험)</li>
+      <li><strong>방안 C:</strong> CreditBalance가 있는 센터는 해당 <code>plan_type</code>으로, 없는 센터는 <code>Free</code>로</li>
+      <li><strong>권장:</strong> C — 기존 크레딧 데이터를 존중하면서 자연스러운 전환</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 3 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority critical">CRITICAL</span>
+    D-3. PLAN_CREDIT_LIMITS 소유권 이동
+  </div>
+  <div class="discussion-body">
+    <p>현재 <code>llm/credit/plan_config.py</code>에 있는 <code>PLAN_CREDIT_LIMITS</code>를 어디로 옮길 것인가:</p>
+    <ul>
+      <li><strong>방안 A:</strong> <code>subscription/plan_config.py</code>로 이동 — 구독 모듈이 플랜의 모든 것을 소유</li>
+      <li><strong>방안 B:</strong> 크레딧 모듈에 유지하되, 구독 모듈에서 참조 — 결합도 최소화</li>
+      <li><strong>권장:</strong> A — PlanConfig에 <code>credit_limit</code>, <code>client_limit</code>, <code>member_limit</code>, <code>features</code>를 한 곳에서 관리</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 4 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority important">IMPORTANT</span>
+    D-4. Subscription → Credit 연동 방식
+  </div>
+  <div class="discussion-body">
+    <p>구독 플랜 변경 시 크레딧을 어떻게 연동할 것인가:</p>
+    <ul>
+      <li><strong>방안 A (동기):</strong> <code>SubscriptionFacade.upgrade()</code>에서 <code>CreditFacade.init_credit()</code>을 같은 UoW에서 호출</li>
+      <li><strong>방안 B (비동기):</strong> 플랜 변경 이벤트 발행 → Credit 모듈이 구독해서 처리</li>
+      <li><strong>권장:</strong> Phase 1은 A (단순), Phase 2에서 이벤트 기반으로 전환 가능</li>
+    </ul>
+    <p style="margin-top: 8px;">
+      <strong>주의:</strong> Facade 협력 규칙상 <code>SubscriptionFacade</code>에서 <code>CreditFacade</code>를 직접 호출은 금지.
+      <strong>Handler에서 두 Facade를 순차 호출</strong>하거나, 공통 Service를 사용해야 함.
+    </p>
+  </div>
+</div>
+
+<!-- Discussion 5 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority important">IMPORTANT</span>
+    D-5. JWT plan 필드 — 실시간성 vs 성능
+  </div>
+  <div class="discussion-body">
+    <p>JWT에 plan 정보를 포함하면 토큰 만료까지 변경이 반영되지 않음:</p>
+    <ul>
+      <li><strong>방안 A:</strong> 짧은 토큰 만료 (15분) + 업그레이드 시 즉시 토큰 재발급</li>
+      <li><strong>방안 B:</strong> DB 조회 캐싱 (60초) — 크리티컬 기능만 DB 체크</li>
+      <li><strong>권장:</strong> Phase 1은 A — 이미 token refresh 인프라가 있으므로 활용</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 6 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority important">IMPORTANT</span>
+    D-6. 업그레이드 시 크레딧 잔량 처리
+  </div>
+  <div class="discussion-body">
+    <p>Starter(300) → Pro(1500) 업그레이드 시 이미 사용한 크레딧은?</p>
+    <ul>
+      <li><strong>방안 A:</strong> 리셋 — 새 플랜 기준 1500 크레딧으로 초기화 (단순, 사용자 유리)</li>
+      <li><strong>방안 B:</strong> 이월 — 사용량 유지, 한도만 1500으로 증가 (정확하지만 복잡)</li>
+      <li><strong>방안 C:</strong> 비례 배분 — 남은 기간 비율로 새 한도 계산 (가장 공정)</li>
+      <li><strong>권장:</strong> Phase 1은 A (사용자 경험 우선, 구현 단순)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 7 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority normal">NORMAL</span>
+    D-7. Phase 1에서 결제 없이 업그레이드하는 방법
+  </div>
+  <div class="discussion-body">
+    <p>PG 연동 없이 Phase 1을 진행하려면:</p>
+    <ul>
+      <li><strong>방안 A:</strong> 관리자(Admin) 전용 API — 관리자가 수동으로 플랜 변경</li>
+      <li><strong>방안 B:</strong> 플랫폼 관리자(SuperAdmin) 전용 — 내부 운영팀이 변경</li>
+      <li><strong>방안 C:</strong> 둘 다 — Admin은 요청, SuperAdmin이 승인</li>
+      <li><strong>권장:</strong> B — Phase 1은 내부 운영으로 관리, Phase 2에서 셀프서비스 추가</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Discussion 8 -->
+<div class="discussion">
+  <div class="discussion-header">
+    <span class="priority normal">NORMAL</span>
+    D-8. 프론트엔드 구독 UI 범위 (Phase 1)
+  </div>
+  <div class="discussion-body">
+    <p>Phase 1에서 프론트엔드에 어디까지 노출할 것인가:</p>
+    <ul>
+      <li>현재 플랜 표시 (사이드바/설정 페이지)</li>
+      <li>플랜별 기능 차단 UI (402 → "Pro 플랜으로 업그레이드하세요" 안내)</li>
+      <li>플랜 비교 페이지 (가격표)</li>
+      <li><strong>권장:</strong> 최소 — 현재 플랜 표시 + 차단 안내만. 결제 UI는 Phase 2</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="separator">
+
+<div style="text-align: center; color: var(--text-dim); font-size: 13px; padding: 20px 0;">
+  검토 후 각 논의 항목(D-1 ~ D-8)에 대한 결정을 알려주시면 구현을 시작하겠습니다.
+</div>
+
+</div>
+</body>
+</html>

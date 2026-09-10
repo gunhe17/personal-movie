@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mindSCOPE 평가 진행 가이드 — 기능 항목 24종</title>
+<style>
+  :root{
+    --ink:#181b22; --sub:#5b6472; --line:#e6e9ee; --bg:#f7f8fa; --card:#fff;
+    --blue:#2f6fed; --blue-bg:#eaf1fe; --mint:#0e9488; --mint-bg:#e6f5f3;
+    --red:#d94141; --red-bg:#fdeeee; --amber:#b57a10; --amber-bg:#fdf6e8;
+    --green:#1d8a4e; --green-bg:#e9f6ee;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.6;}
+  .wrap{max-width:880px; margin:0 auto; padding:44px 32px 120px;}
+  h1{font-size:24px; font-weight:800; letter-spacing:-0.6px;}
+  .meta{font-size:13px; color:var(--sub); margin:6px 0 8px;}
+  .howto{background:var(--blue-bg); border-radius:12px; padding:14px 18px; font-size:13.5px; margin:16px 0 30px; line-height:1.7;}
+  h2{font-size:18px; font-weight:800; margin:44px 0 6px; scroll-margin-top:16px;}
+  h2 .cnt{font-size:13px; color:var(--sub); font-weight:600; margin-left:8px;}
+  .sect-desc{font-size:13px; color:var(--sub); margin-bottom:14px;}
+
+  .item{background:var(--card); border:1px solid var(--line); border-radius:14px; margin-bottom:14px; overflow:hidden; break-inside:avoid;}
+  .item-head{display:flex; align-items:center; gap:10px; padding:13px 18px; border-bottom:1px solid var(--line); background:#fbfcfd; flex-wrap:wrap;}
+  .item-head .no{width:26px; height:26px; border-radius:8px; background:var(--ink); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .item-head .name{font-size:15.5px; font-weight:800;}
+  .app{font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:12px;}
+  .app.web{background:var(--blue-bg); color:var(--blue);}
+  .app.mob{background:var(--mint-bg); color:var(--mint);}
+  .check{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); font-weight:700;}
+  .check input{width:17px; height:17px; accent-color:var(--green); cursor:pointer;}
+  .item-body{padding:14px 18px 16px;}
+  .row{display:flex; gap:10px; margin-bottom:10px;}
+  .row .k{width:86px; flex-shrink:0; font-size:11.5px; font-weight:800; color:var(--sub); text-transform:uppercase; letter-spacing:0.3px; padding-top:2px;}
+  .row .v{flex:1; font-size:13.5px;}
+  .row .v code{font-family:"SF Mono",Menlo,monospace; font-size:11.5px; background:#eef0f4; padding:1px 6px; border-radius:5px; color:#3a4150;}
+  ol.steps{padding-left:20px;}
+  ol.steps li{font-size:13.5px; margin-bottom:4px;}
+  ul.points{padding-left:4px; list-style:none;}
+  ul.points li{font-size:13px; padding-left:20px; position:relative; margin-bottom:3px; color:#2c333e;}
+  ul.points li::before{content:"✓"; position:absolute; left:2px; color:var(--green); font-weight:800;}
+  .limit{background:var(--amber-bg); border-radius:9px; padding:9px 14px; font-size:12.5px; margin-top:4px;}
+  .limit b{color:var(--amber);}
+  .limit.hard{background:var(--red-bg);} .limit.hard b{color:var(--red);}
+  .memo{margin-top:12px; border-top:1px dashed var(--line); padding-top:10px;}
+  .memo .k2{font-size:11.5px; font-weight:800; color:var(--sub); margin-bottom:6px;}
+  .memo .lines{height:52px; background:repeating-linear-gradient(to bottom, transparent 0 25px, var(--line) 25px 26px); border-radius:4px;}
+  @media print{
+    body{background:#fff;} .wrap{padding:10px 0;}
+    .item{page-break-inside:avoid; border-color:#bbb;}
+    .howto{display:none;}
+  }
+  @media (max-width:640px){ .wrap{padding:24px 16px 80px;} .row{flex-direction:column; gap:2px;} .row .k{width:auto;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>mindSCOPE 평가 진행 가이드 — 기능 항목 24종</h1>
+<div class="meta">「프로그램 평가 및 보완계획」의 평가 항목을 실제 화면·순서로 안내합니다 · 시각화 버전: <a href="./리빙랩-평가항목-시각화.html" style="color:var(--blue); font-weight:700;">준비도 대시보드</a></div>
+
+<div class="howto">
+  <b>사용법</b> — 각 항목마다 ① <b>어디서</b>(진입 경로) ② <b>이렇게 해보세요</b>(사용 시나리오) ③ <b>확인 포인트</b>(평가 관점) 순으로 진행하고, 평가 양식의 [평가 결과 | 보완할 사항]에 기록해 주세요. <b style="color:var(--amber)">노란 상자</b>는 알려진 제한(사전 고지)으로, 평가 대상이 아니라 참고 사항입니다. 이 페이지는 인쇄해도 체크리스트로 쓸 수 있습니다.
+</div>
+
+<!-- ============ A. 내담자 관리 7종 ============ -->
+<h2>A. 내담자 관리 프로그램<span class="cnt">7종 · 1차 검증(기본 준비 과정) 중점</span></h2>
+<div class="sect-desc">내담자 등록 → 검사 발송 → 센터 운영의 기본 준비가 목적에 맞게 되는지.</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">1</span><span class="name">주간/월간 스케줄 관리 + 스케줄 통계</span><span class="app web">웹</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>스케줄</code> 메뉴(첫 화면) · 모바일 <code>일정</code> 탭</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>웹에서 월간 → 주간 → 일간 뷰를 전환하고, 일간에서 장소별↔담당자별 타임라인을 바꿔봅니다</li>
+      <li>프로그램·담당자·내담자 필터를 조합해 원하는 일정만 봅니다</li>
+      <li>빈 시간대를 클릭해 등록 선택 모달(내담자/상담/검사)이 뜨는지 확인합니다</li>
+      <li>모바일 일정 탭에서 월간/주간/<b>통계</b> 뷰를 전환합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>하루/한 주의 센터 일정이 한눈에 파악되는가</li><li>일정 색·상태(예정/완료/취소/노쇼) 구분이 직관적인가</li><li>통계가 운영 판단(가동률 등)에 도움이 되는가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 웹의 통계 화면(대시보드&gt;분석)은 이번 차수에서 준비 중입니다 — 통계는 모바일 일정 탭 기준으로 평가해 주세요.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">2</span><span class="name">내담자 조회 / 관계 관리</span><span class="app web">웹</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>내담자</code> 메뉴 · 모바일 <code>내담자</code> 탭</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>내담자 등록: 아동 내담자 + 보호자 2명을 함께 등록해 봅니다 (웹 등록 폼 / 모바일 단계형 등록)</li>
+      <li>목록에서 검색·역할 탭(전체/보호자/아동)·회기임박순 정렬을 사용해 봅니다</li>
+      <li>내담자 상세에서 보호자(관계)를 클릭해 해당 인물로 이동해 봅니다</li>
+      <li>모바일에서 자주 보는 내담자를 즐겨찾기(하트)하고, 행의 전화/문자 버튼을 눌러봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>아동+보호자 가족 구조가 자연스럽게 입력·표시되는가</li><li>현장(모바일)에서 내담자를 빨리 찾고 연락할 수 있는가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 관계(보호자) 정보 수정은 웹의 내담자 수정 화면에서 이뤄집니다(모바일은 조회).</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">3</span><span class="name">검사 진행 현황 조회</span><span class="app web">웹</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>검사</code> 메뉴 · 모바일 내 정보 &gt; <code>검사 현황</code></div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>상태 탭(진행전/진행중/완료)과 담당자·날짜 필터로 목록을 좁혀봅니다</li>
+      <li>케이스를 열어 검사 항목별 진행 상태(진행률 N/M)를 확인합니다</li>
+      <li>전송 내역 화면에서 링크가 언제 누구에게 발송됐는지 추적해 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>"어느 내담자 검사가 어디까지 왔나"를 즉시 알 수 있는가</li><li>미제출·만료 케이스를 놓치지 않게 되어 있는가</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">4</span><span class="name">검사의 시작부터 결과까지 (바로링크)</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 검사 접수 → 발송 → (내담자 휴대폰) → 결과 확인</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>검사 접수(단일 또는 세트)를 만들고 검사 링크를 문자/카카오/QR로 발송합니다</li>
+      <li>내담자 입장에서 링크를 열어 로그인 → 이름·생년월일 확인 → 검사를 수행·제출합니다</li>
+      <li>제출 알림을 받고, 검사 상세에서 결과를 확인합니다</li>
+      <li>결과 링크를 보호자에게 발송 → 인증번호 4자리 입력 → 보고서를 내려받아 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>비대면 검사 전달이 전화 안내 없이 자연스럽게 완결되는가</li><li>보호자의 결과 확인(인증번호)이 어렵지 않은가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 내담자 검사용 계정은 운영팀이 사전 세팅해 드립니다. 결과 다운로드 링크는 1시간 유효입니다.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">5</span><span class="name">푸시 알림</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">모바일 내 정보 &gt; <code>알림설정</code> + 실제 이벤트 발생</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>알림설정에서 일정 리마인드·검사 제출·공지 토글을 켭니다</li>
+      <li>내담자가 검사를 제출하면 푸시가 오고 앱 아이콘에 뱃지가 붙는지 확인합니다</li>
+      <li>알림을 눌러 해당 검사/상담 화면으로 바로 이동되는지 확인합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>중요한 사건(제출·일정)을 실시간으로 놓치지 않는가</li><li>알림 → 해당 화면 이동이 정확한가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 웹은 화면 안 알림(약 30초 주기 갱신)이며 브라우저 푸시는 제공하지 않습니다.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">6</span><span class="name">청구 관리</span><span class="app web">웹</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>청구</code> 메뉴 · 모바일 내 정보 &gt; <code>청구 현황</code></div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>회기를 완료한 뒤 청구 화면 상단의 "미청구 세션" 배너에서 원클릭으로 청구를 만들어 봅니다</li>
+      <li>바우처를 연결해 지원금·본인부담이 자동 계산되는지 확인합니다</li>
+      <li>납부를 부분(예: 50%)으로 등록하고 미수금이 추적되는지 봅니다</li>
+      <li>상담 상세에서 패키지 선결제(여러 회기 일괄 청구 + 할인)도 만들어 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>세션→청구 누락이 구조적으로 방지되는가</li><li>바우처·지원금 계산이 센터 실무와 맞는가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 환불·납부 기록 정정은 이번 차수에 포함되지 않습니다(발견 시 보완사항에 기록해 주세요).</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">7</span><span class="name">최신 바우처 정보 알림</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>대시보드</code>의 바우처 신호 카드</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>잔여 회기가 2회 이하인 내담자를 만들어 "소진 임박" 신호가 뜨는지 확인합니다</li>
+      <li>유효기간 14일 이내 바우처의 "만료 임박" 신호를 확인합니다</li>
+      <li>신호 카드를 눌러 내담자 목록으로 이동해 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>바우처 소진·만료를 놓치지 않게 해주는가</li><li>센터에서 기대하는 "바우처 정보 알림"의 범위와 맞는가 (의견 주시면 반영)</li></ul></div></div>
+  </div>
+</div>
+
+<!-- ============ B. 관리자/전문가 17종 ============ -->
+<h2>B. 관리자 / 전문가 프로그램<span class="cnt">17종</span></h2>
+<div class="sect-desc">센터 운영·상담 진행·기록·AI 보조 전반. A와 겹치는 항목(스케줄·내담자·바로링크·청구·푸시)은 위 시나리오를 관리자 관점(전체 데이터·설정 포함)으로 반복해 주세요.</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">3</span><span class="name">내담자의 모든 기록 (케어보드)</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 내담자 상세 = <b>케어보드에 해당하는 화면</b> (<code>내담자 &gt; 이름 클릭</code>)</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>진행 현황 탭에서 상담·검사 이력 요약을 봅니다</li>
+      <li>사전기록지 탭에서 템플릿 작성 요청을 보내고, 제출된 답변을 열람합니다</li>
+      <li>문서 탭에서 파일을 올리고 미리보기·다운로드합니다</li>
+      <li>바우처 탭에서 회기 사용 현황·사용 내역을 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>한 내담자의 기록이 흩어지지 않고 모이는가</li><li>상담 준비(직전 훑어보기)에 충분한가 — 부족한 기록 종류가 있으면 보완사항에</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">4</span><span class="name">스마트 일괄 회기 추가</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>상담 &gt; 상담 접수하기</code>의 일정 단계 · 상담 상세의 회기 추가</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>접수에서 매주 같은 요일·시간으로 날짜 여러 개를 선택합니다 (간격 패턴 자동 채움 확인)</li>
+      <li>"프로그램 소요시간 적용"으로 종료시간이 자동 계산되는지 봅니다</li>
+      <li>겹치는 일정이 있을 때 경고가 뜨는지, 진행 여부를 선택할 수 있는지 확인합니다</li>
+      <li>진행 중 케이스의 마지막 회기가 다가올 때 "회기 추가" 배너로 연장해 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>10회기 케이스 세팅이 몇 번의 클릭으로 끝나는가</li><li>중복 일정 경고가 실무에서 신뢰할 수준인가</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">5</span><span class="name">AI 기반 상담일지 초안</span><span class="app mob">모바일</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">모바일 <code>필드노트</code>(녹음) → 분석 완료 후 <code>상담일지 초안 만들기</code></div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>회기를 선택해 녹음하고 종료합니다 (자동으로 전사·분석 진행)</li>
+      <li>분석 완료 후 "상담일지 초안 만들기"를 눌러 일지에 초안이 채워지는지 봅니다</li>
+      <li>서식(기본/SOAP/DAP 등)을 바꿔 초안을 다시 생성해 봅니다</li>
+      <li>초안을 수정·저장하고, 웹 상담 상세에서도 같은 일지가 보이는지 확인합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>초안이 실제 일지 작성 시간을 줄여주는가</li><li>임상적으로 부적절한 표현(과잉 해석 등)이 없는가</li></ul></div></div>
+    <div class="limit hard"><b>사전 확인:</b> AI 기능은 리빙랩 전용 환경에서 활성화됩니다 — 평가 시작 전 담당자가 사용 가능 여부를 안내드립니다.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">6</span><span class="name">검사 결과 통합 관리 (18종)</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>설정 &gt; 검사 관리</code>(취급 검사·세트) + <code>검사</code> 상세(결과)</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>검사 관리에서 센터가 쓰는 검사를 켜고 끄고, 자주 쓰는 조합으로 세트를 만들어 봅니다</li>
+      <li>검사 상세에서 항목별 점수·의견을 입력하고 상태를 완료 처리합니다</li>
+      <li>전문가용/내담자용 보고서 파일을 업로드해 관리합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>센터가 쓰는 검사 구성이 유연하게 관리되는가</li><li>여러 검사 결과가 케이스 단위로 정리되는가</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">7·8</span><span class="name">AI 기반 검사 해석 보조 · AI 검사 보고서 작성</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>자기보고식 검사(예: 스마트폰 과의존)를 내담자가 제출하면 자동 채점·보고서(PDF)가 생성되는지 확인합니다</li>
+    </ol></div></div>
+    <div class="limit hard"><b>사전 확인:</b> AI 해석 보조는 이번 차수 제공 범위를 확정 중입니다 — 평가 시작 전 담당자가 범위를 안내드립니다. 자동 채점·보고서 생성(자기보고식)은 평가 가능합니다.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">10</span><span class="name">전문가 학력/경력/자격 · 인증 뱃지</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>내 정보 &gt; 자격·학력·경력</code></div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>학력/경력/자격을 입력하고 증빙 파일과 함께 인증을 신청합니다</li>
+      <li>승인되면 알림이 오고 프로필에 인증 뱃지가 붙는지 확인합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>전문가 신뢰 표시로서 뱃지가 의미 있는가</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">12·13</span><span class="name">바우처 납부 증빙 · 바우처 서류 자동 생성</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>바우처 &gt; 내담자 &gt; 상세</code>(사용 내역) · <code>설정 &gt; 바우처 관리</code></div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>바우처 상세에서 회기 사용 내역·월별 사용 현황을 확인합니다</li>
+      <li>"작성 필요 서류"에서 서식을 연결해 작성 흐름을 확인합니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>기관 제출용 증빙으로 어떤 형식(서류·출력)이 필요한지 의견을 남겨주세요 — 반영 예정</li></ul></div></div>
+    <div class="limit hard"><b>사전 확인:</b> 서류 <b>자동 생성</b>은 이번 차수 제공 범위를 확정 중입니다.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">14</span><span class="name">운영 업무 자동화 (AI 에이전트)</span><span class="app web">웹</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 <code>에이전트</code> (리빙랩 환경에서 활성화)</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>"김민수 내담자 다음 주 화요일 3시에 상담 잡아줘"처럼 말로 요청해 봅니다</li>
+      <li>에이전트가 폼을 채워가는 과정(내담자 검색→일정→확인)을 지켜보고 승인/수정합니다</li>
+      <li>내담자 등록, 운영 일정 등록도 대화로 시켜봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>반복 행정 업무가 실제로 줄어드는가</li><li>에이전트가 잘못 이해했을 때 바로잡기 쉬운가</li></ul></div></div>
+    <div class="limit hard"><b>사전 확인:</b> AI 기능 — 리빙랩 환경 활성화 후 평가.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">15</span><span class="name">AI 기반 현장 비서 (필드노트)</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">모바일 우측 하단 <code>필드노트</code> 플로팅 버튼</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>오늘 회기를 선택해 녹음을 시작하고, 중간에 일시정지/재개해 봅니다</li>
+      <li>종료 후 전사·화자분리·분석이 자동 진행되는 것을 확인합니다</li>
+      <li>전사에서 특정 문장을 눌러 그 지점부터 다시 들어봅니다</li>
+      <li>검사 회기에서는 검사 항목(예: HTP)별로 나눠 녹음해 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>상담 중 조작이 방해되지 않는가 (한 손, 눈길 최소)</li><li>전사·분석 품질이 실무에 쓸 수준인가</li></ul></div></div>
+    <div class="limit"><b>알려진 제한:</b> 녹음 중 앱을 벗어나는 경우의 안정성은 함께 검증 중입니다 — 이상 발생 시 상황(기기·시점)을 기록해 주세요.</div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="no">17</span><span class="name">다중센터 전환</span><span class="app web">웹</span><span class="app mob">모바일</span><label class="check"><input type="checkbox">완료</label></div>
+  <div class="item-body">
+    <div class="row"><div class="k">어디서</div><div class="v">웹 상단 센터 이름 · 모바일 내 정보 &gt; 센터 선택</div></div>
+    <div class="row"><div class="k">해보세요</div><div class="v"><ol class="steps">
+      <li>두 번째 센터로 전환해 데이터(내담자·일정)가 완전히 분리되는지 확인합니다</li>
+      <li>전환 후 알림·권한이 새 센터 기준으로 바뀌는지 봅니다</li>
+    </ol></div></div>
+    <div class="row"><div class="k">확인 포인트</div><div class="v"><ul class="points"><li>겸직(여러 센터 소속) 상담사의 실무 흐름과 맞는가</li></ul></div></div>
+  </div>
+</div>
+
+<div class="item" style="border-style:dashed;">
+  <div class="item-body">
+    <div class="memo"><div class="k2">종합 의견 메모</div><div class="lines"></div></div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

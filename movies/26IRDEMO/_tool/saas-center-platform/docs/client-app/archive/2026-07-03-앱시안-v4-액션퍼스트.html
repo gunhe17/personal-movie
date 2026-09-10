@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내담자 앱 v4 시안 — 액션 퍼스트 (토스 레퍼런스)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; }
+  body { background:#1a1d21; color:#e8eaed; padding:48px 32px 96px; }
+
+  /* ===== 페이지 레이아웃 ===== */
+  .page-header { max-width:1280px; margin:0 auto 12px; }
+  .page-header h1 { font-size:26px; font-weight:800; color:#fff; }
+  .page-header p { margin-top:8px; font-size:14px; color:#9aa0a6; line-height:1.7; }
+  .page-header .doc-ref { color:#6b9fff; }
+  .section { max-width:1280px; margin:56px auto 0; }
+  .section > h2 { font-size:18px; font-weight:700; color:#fff; padding-bottom:12px; border-bottom:1px solid #33373d; }
+  .section > h2 .num { color:#6b9fff; margin-right:8px; }
+  .section > .section-desc { margin-top:10px; font-size:13.5px; color:#9aa0a6; line-height:1.7; }
+  .frames { display:flex; gap:40px; margin-top:28px; flex-wrap:wrap; align-items:flex-start; }
+  .frame-col { width:300px; }
+  .caption { margin-top:14px; font-size:12.5px; line-height:1.7; color:#9aa0a6; }
+  .caption b { color:#d7dade; font-weight:700; }
+  .caption .principle { display:inline-block; margin-top:6px; padding:2px 8px; border-radius:6px; background:#26313f; color:#8ab4f8; font-size:11px; font-weight:600; }
+
+  /* ===== 폰 프레임 ===== */
+  .phone { width:300px; height:640px; background:#F2F4F6; border-radius:36px; border:6px solid #2c2f33; overflow:hidden; position:relative; display:flex; flex-direction:column; box-shadow:0 24px 48px rgba(0,0,0,.4); }
+  .phone.white-bg { background:#fff; }
+  .statusbar { flex:none; height:34px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:11px; font-weight:600; color:#191F28; }
+  .screen { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+  .scroll { flex:1; overflow:hidden; padding:0 16px; }
+
+  /* ===== 토스 토큰 ===== */
+  .t-title { font-size:20px; font-weight:800; color:#191F28; line-height:1.35; letter-spacing:-0.3px; }
+  .t-sub { font-size:13px; color:#8B95A1; line-height:1.6; }
+  .t-blue { color:#3182F6; }
+  .card { background:#fff; border-radius:18px; padding:16px; margin-bottom:10px; }
+  .btn { display:block; width:100%; padding:13px 0; border-radius:12px; background:#3182F6; color:#fff; font-size:14.5px; font-weight:700; text-align:center; border:none; }
+  .btn.ghost { background:#F2F4F6; color:#4E5968; }
+  .btn.sm { display:inline-block; width:auto; padding:8px 14px; font-size:12.5px; border-radius:9px; }
+  .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+  .chip.person { background:#EAF3FE; color:#3182F6; }
+  .chip.center { background:#F2F4F6; color:#8B95A1; }
+
+  /* 앱 상단바 */
+  .appbar { flex:none; display:flex; align-items:center; justify-content:space-between; padding:10px 18px 6px; }
+  .appbar .logo { font-size:16px; font-weight:800; color:#191F28; letter-spacing:-0.3px; }
+  .appbar .logo span { color:#3182F6; }
+  .appbar .icons { font-size:16px; color:#4E5968; }
+
+  /* 탭바 */
+  .tabbar { flex:none; display:flex; background:#fff; border-top:1px solid #EEF0F2; padding:8px 0 14px; }
+  .tabbar .tab { flex:1; text-align:center; font-size:10px; color:#B0B8C1; font-weight:600; }
+  .tabbar .tab .ico { display:block; font-size:17px; margin-bottom:2px; }
+  .tabbar .tab.on { color:#3182F6; }
+
+  /* 할 일 카드 */
+  .todo { background:#fff; border-radius:18px; padding:15px 16px; margin-bottom:9px; display:flex; align-items:center; gap:12px; }
+  .todo .ico { flex:none; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .todo .body { flex:1; min-width:0; }
+  .todo .body .tt { font-size:13.5px; font-weight:700; color:#191F28; line-height:1.4; }
+  .todo .body .ss { font-size:11.5px; color:#8B95A1; margin-top:2px; }
+  .todo .act { flex:none; }
+  .todo .act .btn.sm { background:#EAF3FE; color:#3182F6; }
+  .ico.c-blue { background:#EAF3FE; }
+  .ico.c-green { background:#E8F7EF; }
+  .ico.c-purple { background:#F1EDFE; }
+  .ico.c-yellow { background:#FFF6E0; }
+  .ico.c-gray { background:#F2F4F6; }
+
+  .sec-label { font-size:12px; font-weight:700; color:#8B95A1; margin:16px 4px 8px; }
+
+  /* 히어로 */
+  .hero { background:#3182F6; border-radius:20px; padding:18px; color:#fff; margin-bottom:9px; }
+  .hero .hd { font-size:11.5px; font-weight:600; opacity:.85; }
+  .hero .main { font-size:18px; font-weight:800; margin-top:5px; line-height:1.35; letter-spacing:-0.3px; }
+  .hero .meta { font-size:12px; opacity:.85; margin-top:4px; }
+  .hero .attach { margin-top:12px; background:rgba(255,255,255,.16); border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; }
+  .hero .attach .tx { font-size:12px; font-weight:600; }
+  .hero .attach .go { font-size:11.5px; font-weight:700; background:#fff; color:#3182F6; padding:6px 11px; border-radius:8px; }
+
+  /* 완료 상태 */
+  .calm { text-align:center; padding:34px 16px 22px; }
+  .calm .emoji { font-size:40px; }
+  .calm .tt { font-size:18px; font-weight:800; color:#191F28; margin-top:12px; letter-spacing:-0.3px; }
+  .calm .ss { font-size:12.5px; color:#8B95A1; margin-top:6px; line-height:1.6; }
+
+  /* 문자 화면 */
+  .sms-screen { background:#fff; }
+  .sms-head { flex:none; text-align:center; padding:8px 0 12px; border-bottom:1px solid #F2F4F6; }
+  .sms-head .avatar { width:40px; height:40px; border-radius:50%; background:#E8F7EF; display:inline-flex; align-items:center; justify-content:center; font-size:18px; }
+  .sms-head .name { font-size:12px; font-weight:600; color:#191F28; margin-top:4px; }
+  .bubble { max-width:82%; background:#F2F4F6; border-radius:4px 18px 18px 18px; padding:12px 14px; margin:14px 0 0 16px; font-size:12.5px; color:#333D4B; line-height:1.65; }
+  .bubble .link { display:block; margin-top:8px; color:#3182F6; font-weight:700; text-decoration:underline; }
+  .sms-time { font-size:10px; color:#B0B8C1; margin:6px 0 0 20px; }
+
+  /* 인증/온보딩 */
+  .ob { padding:26px 22px 0; }
+  .ob .t-title { font-size:21px; }
+  .ob .t-sub { margin-top:8px; }
+  .input-line { margin-top:26px; border-bottom:2px solid #3182F6; padding-bottom:8px; font-size:22px; font-weight:700; color:#191F28; letter-spacing:1px; }
+  .input-line .ph { color:#D1D6DB; }
+  .otp-row { display:flex; gap:8px; margin-top:26px; }
+  .otp-row .d { width:40px; height:50px; border-radius:12px; background:#F2F4F6; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#191F28; }
+  .otp-row .d.empty { color:#D1D6DB; }
+  .bottom-cta { margin-top:auto; padding:14px 18px 22px; }
+  .keyboard { flex:none; height:150px; background:#D1D5DB; display:grid; grid-template-columns:repeat(3,1fr); gap:5px; padding:8px; border-radius:6px 6px 0 0; }
+  .keyboard .k { background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:#191F28; }
+  .keyboard .k.f { background:transparent; }
+
+  /* 연결 확인 카드 */
+  .confirm-card { margin-top:24px; background:#F9FAFB; border:1px solid #EEF0F2; border-radius:18px; padding:18px; }
+  .confirm-card .row { display:flex; justify-content:space-between; padding:7px 0; font-size:13px; }
+  .confirm-card .row .k { color:#8B95A1; }
+  .confirm-card .row .v { color:#191F28; font-weight:700; }
+  .verify-note { margin-top:14px; font-size:11.5px; color:#8B95A1; line-height:1.6; }
+
+  /* 완료 화면 */
+  .done-hero { text-align:center; padding:52px 22px 0; }
+  .done-hero .ring { width:72px; height:72px; border-radius:50%; background:#EAF3FE; display:inline-flex; align-items:center; justify-content:center; font-size:32px; }
+
+  /* 미연동 프리뷰 블러 */
+  .preview-blur { position:relative; border-radius:18px; overflow:hidden; margin-bottom:9px; }
+  .preview-blur .inner { filter:blur(4px); opacity:.65; }
+  .preview-blur .overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(255,255,255,.35); }
+  .preview-blur .overlay .tx { font-size:12px; font-weight:700; color:#4E5968; }
+
+  /* QR 화면 */
+  .qr-box { margin:22px auto 0; width:150px; height:150px; border-radius:16px; background:#fff; border:1px solid #EEF0F2; display:flex; align-items:center; justify-content:center; }
+  .qr-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:110px; height:110px; }
+  .qr-grid i { background:#191F28; border-radius:1px; }
+  .qr-grid i.o { background:transparent; }
+
+  .flow-arrow { align-self:center; color:#5f6368; font-size:22px; margin-top:-80px; }
+  .note-block { max-width:1280px; margin:20px auto 0; background:#22262b; border:1px solid #33373d; border-radius:14px; padding:18px 22px; font-size:13px; color:#b6bcc4; line-height:1.8; }
+  .note-block b { color:#e8eaed; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>내담자 앱 v4 시안 — 액션 퍼스트</h1>
+  <p>기준 문서: <span class="doc-ref">2026-07-03-내담자앱-기획-v4-액션퍼스트.md</span> · 레퍼런스: 토스 (할 일 스택 홈, 흰 카드 · #3182F6 · Pretendard)<br>
+  v3 시안 3종(CLEAN/VIVID/CALM)은 폐기. 프레임: "무엇이 오나"(수신 피드) → <b style="color:#fff">"무엇을 해야 하나"(할 일 스택)</b>.</p>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">①</span>온보딩 — 경로 1 (주경로): 문자 편승 초대</h2>
+  <div class="section-desc">이미 나가는 예약 확정 문자에 토큰 링크 자동 탑재 → 탭 → 본인인증 → 연결 확인 → 첫 홈. <b style="color:#d7dade">센터 직원 노동 제로, 자동 매칭 없음(토큰=확인만), 목표: 1분 안에 첫 할 일이 보이는 홈 도착.</b></div>
+  <div class="frames">
+
+    <!-- 1. 문자 수신 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>10:24</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen sms-screen">
+          <div class="sms-head">
+            <div class="avatar">&#127793;</div>
+            <div class="name">마음샘아동발달센터</div>
+          </div>
+          <div class="scroll">
+            <div class="bubble">
+              [마음샘아동발달센터]<br>
+              지우님, 7/5(금) 오후 3:00 언어치료 예약이 확정되었습니다.<br><br>
+              &#128241; 예약 확인과 준비를 앱에서 한 번에:
+              <span class="link">mindscope.app/i/Xk29fA</span>
+            </div>
+            <div class="sms-time">오전 10:24</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>기존 예약 확정 문자 + 토큰 링크 한 줄.</b> 링크의 토큰(Xk29fA)이 이미 보호자 Client 레코드를 가리킴 — 앱은 "검색"이 아니라 "확인"만 한다. AssessmentSendLink 발송 패턴의 확장.</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- 2. 본인인증 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>10:24</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="ob">
+            <div class="t-title">마음샘아동발달센터에서<br>초대장이 도착했어요</div>
+            <div class="t-sub">본인 확인을 위해<br>휴대폰 번호를 인증해주세요</div>
+            <div class="input-line">010-4821-<span class="ph">&#9679;&#9679;&#9679;&#9679;</span></div>
+          </div>
+          <div class="bottom-cta"><div class="btn">인증번호 받기</div></div>
+          <div class="keyboard">
+            <div class="k">1</div><div class="k">2</div><div class="k">3</div>
+            <div class="k">4</div><div class="k">5</div><div class="k">6</div>
+            <div class="k">7</div><div class="k">8</div><div class="k">9</div>
+            <div class="k f"></div><div class="k">0</div><div class="k f">&#9003;</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>토큰 + 본인인증 이중 게이트.</b> 입력 번호가 토큰의 발송 대상 번호와 일치해야 통과. 소셜로그인은 인증 직후 계정 생성 단계에서 연결(화면 생략). 실패 횟수 제한·유효기간·revoke는 기존 패턴 재사용.</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- 3. 연결 확인 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>10:25</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="ob">
+            <div class="t-title">지우 님의 보호자,<br>맞으신가요?</div>
+            <div class="t-sub">확인을 위해 지우 님의 생년월일을 입력해주세요</div>
+            <div class="confirm-card">
+              <div class="row"><span class="k">센터</span><span class="v">마음샘아동발달센터</span></div>
+              <div class="row"><span class="k">등록된 관계</span><span class="v">보호자 (주보호자)</span></div>
+              <div class="row"><span class="k">생년월일 확인</span><span class="v t-blue">2019.  __.  __</span></div>
+            </div>
+            <div class="verify-note">&#128274; 번호 오등록·재사용 대비 교차확인 1개 필드. 틀리면 센터에 문의하도록 안내 — 승인 대기 큐 없음.</div>
+          </div>
+          <div class="bottom-cta"><div class="btn">연결하기</div></div>
+        </div>
+      </div>
+      <div class="caption"><b>오매칭 방지 교차확인.</b> 생년월일 1개 필드만. ClientRelation을 따라 아동 Profile 연결을 제안하고, 검증 성공 시 CenterLink 생성.</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- 4. 연결 완료 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>10:25</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="done-hero">
+            <div class="ring">&#129309;</div>
+            <div class="t-title" style="margin-top:18px">지우의 여정이<br>연결되었어요</div>
+            <div class="t-sub" style="margin-top:10px">마음샘아동발달센터에서 오는<br>예약 · 검사 · 안내를 이곳에서 챙길 수 있어요</div>
+            <div class="confirm-card" style="text-align:left">
+              <div class="row"><span class="k">&#128197; 다가오는 예약</span><span class="v">7/5(금) 15:00 언어치료</span></div>
+              <div class="row"><span class="k">&#128221; 지금 할 일</span><span class="v t-blue">사전 설문 1개</span></div>
+            </div>
+          </div>
+          <div class="bottom-cta"><div class="btn">첫 할 일 보러 가기</div></div>
+        </div>
+      </div>
+      <div class="caption"><b>1분 착지 완료.</b> "이 센터가 주는 것"을 긍정문으로 + 첫 할 일이 이미 보임(C5: 최소 1개 할 일 보장). 설치→홈 도착까지 화면 3장.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">②</span>홈 = 할 일 스택 (3상태)</h2>
+  <div class="section-desc">토스 홈처럼 "지금 할 일"이 위에서부터 쌓인다. P1 카드는 전부 센터의 기존 운영 데이터 파생(상담사 신규 노동 제로) + 유저 자립형 2종. 축은 긴급도, 사람·센터는 태그.</div>
+  <div class="frames">
+
+    <!-- 홈 A: 할 일 N개 -->
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo">mind<span>scope</span></div><div class="icons">&#128276;</div></div>
+          <div class="scroll">
+            <div class="hero">
+              <div class="hd">내일 &#183; 마음샘아동발달센터</div>
+              <div class="main">오후 3:00 언어치료</div>
+              <div class="meta">지우 &#183; 김수현 선생님 &#183; 3치료실</div>
+              <div class="attach">
+                <span class="tx">&#128221; 사전 설문이 아직 남아있어요</span>
+                <span class="go">작성</span>
+              </div>
+            </div>
+            <div class="sec-label">할 일 3</div>
+            <div class="todo">
+              <div class="ico c-purple">&#128203;</div>
+              <div class="body">
+                <div class="tt">발달 설문 실시하기 <span style="color:#8B95A1;font-weight:500">&#183; 10분</span></div>
+                <div class="ss"><span class="chip person">지우</span> K-CDI &#183; 7/8까지</div>
+              </div>
+              <div class="act"><span class="btn sm">시작</span></div>
+            </div>
+            <div class="todo">
+              <div class="ico c-green">&#128196;</div>
+              <div class="body">
+                <div class="tt">검사 결과지가 도착했어요</div>
+                <div class="ss"><span class="chip person">서준</span> 지능검사 &#183; 밝은숲심리센터</div>
+              </div>
+              <div class="act"><span class="btn sm">확인</span></div>
+            </div>
+            <div class="todo">
+              <div class="ico c-yellow">&#127915;</div>
+              <div class="body">
+                <div class="tt">바우처가 2회 남았어요</div>
+                <div class="ss"><span class="chip person">지우</span> 언어치료 회기권</div>
+              </div>
+              <div class="act"><span class="btn sm ghost" style="background:#F2F4F6;color:#8B95A1">보기</span></div>
+            </div>
+            <div class="sec-label">이번 주 기록</div>
+            <div class="todo">
+              <div class="ico c-blue">&#128247;</div>
+              <div class="body">
+                <div class="tt">지우의 순간 남기기</div>
+                <div class="ss">사진 &#183; 짧은 메모로 충분해요</div>
+              </div>
+              <div class="act"><span class="btn sm">기록</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>상태 A — 할 일 있음.</b> 히어로 = 지금 제일 중요한 하나(임박 예약 + 딸린 할 일). 아래로 할 일 카드 스택 — 다자녀는 Account 통합 스택 + 사람 칩(지우/서준). 배지·빨간색 없음.<br><span class="principle">죄책감 금지 · 축=긴급도 · 사람=태그</span></div>
+    </div>
+
+    <!-- 홈 B: 0개 -->
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>17:20</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo">mind<span>scope</span></div><div class="icons">&#128276;</div></div>
+          <div class="scroll">
+            <div class="card calm">
+              <div class="emoji">&#9728;&#65039;</div>
+              <div class="tt">이번 주는 다 챙기셨어요</div>
+              <div class="ss">설문 1 &#183; 결과지 1 &#183; 기록 1을 완료했어요</div>
+            </div>
+            <div class="sec-label">다음 일정</div>
+            <div class="todo">
+              <div class="ico c-blue">&#128197;</div>
+              <div class="body">
+                <div class="tt">7/12(금) 오후 3:00 언어치료</div>
+                <div class="ss"><span class="chip person">지우</span> 마음샘아동발달센터</div>
+              </div>
+            </div>
+            <div class="sec-label">최근 기록</div>
+            <div class="todo">
+              <div class="ico c-green">&#128196;</div>
+              <div class="body">
+                <div class="tt">서준 지능검사 결과지</div>
+                <div class="ss">어제 확인함 &#183; 기록에 보관됨</div>
+              </div>
+              <div class="act"><span class="btn sm ghost" style="background:#F2F4F6;color:#8B95A1">열기</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>상태 B — 할 일 0.</b> 빈 홈 = 실패가 아니라 평온. 집계는 긍정문만("완료했어요"), 미완료 카운트는 어디에도 없음. 채우기용 콘텐츠 없음.<br><span class="principle">가짜 어포던스 금지 · 완료=기록 전환이 보상</span></div>
+    </div>
+
+    <!-- 홈 C: 미연동 -->
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo">mind<span>scope</span></div><div class="icons">&#128276;</div></div>
+          <div class="scroll">
+            <div class="sec-label">이번 주 기록</div>
+            <div class="todo">
+              <div class="ico c-blue">&#128247;</div>
+              <div class="body">
+                <div class="tt">지우의 순간 남기기</div>
+                <div class="ss">다음 상담에서 이야기할 재료가 돼요</div>
+              </div>
+              <div class="act"><span class="btn sm">기록</span></div>
+            </div>
+            <div class="todo">
+              <div class="ico c-gray">&#128172;</div>
+              <div class="body">
+                <div class="tt">다음 세션에 물어볼 것</div>
+                <div class="ss">떠오를 때 적어두세요</div>
+              </div>
+              <div class="act"><span class="btn sm ghost" style="background:#F2F4F6;color:#8B95A1">메모</span></div>
+            </div>
+            <div class="sec-label">센터와 연결되면</div>
+            <div class="preview-blur">
+              <div class="inner">
+                <div class="todo" style="margin:0 0 6px">
+                  <div class="ico c-blue">&#128197;</div>
+                  <div class="body"><div class="tt">내일 오후 3:00 언어치료</div><div class="ss">예약이 자동으로 떠요</div></div>
+                </div>
+                <div class="todo" style="margin:0">
+                  <div class="ico c-green">&#128196;</div>
+                  <div class="body"><div class="tt">검사 결과지 도착</div><div class="ss">종이 대신 여기로</div></div>
+                </div>
+              </div>
+              <div class="overlay">
+                <span class="tx">연결되면 예약 &#183; 검사 &#183; 안내가 여기로 와요</span>
+                <span class="btn sm">우리 센터에 알리기</span>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>상태 C — 미연동.</b> 자립형 할 일(관찰기록·질문 메모)만으로 성립하는 홈 + 블러 프리뷰 + [우리 센터에 알리기](익명 집계 리드). 수기 일정은 격하 유지.<br><span class="principle">자립형 바닥 · 성장 레버</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">③</span>보조 연결 경로 (경로 2 · 3)</h2>
+  <div class="frames">
+
+    <!-- QR -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>14:02</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="ob" style="text-align:center">
+            <div class="t-title">데스크의 QR을<br>찍으셨네요</div>
+            <div class="t-sub">마음샘아동발달센터 방문 중</div>
+            <div class="qr-box">
+              <div class="qr-grid">
+                <i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i>
+                <i class="o"></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i>
+                <i></i><i class="o"></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i>
+                <i></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i>
+                <i class="o"></i><i></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i></i>
+                <i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i>
+                <i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i class="o"></i>
+                <i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i>
+              </div>
+            </div>
+            <div class="verify-note" style="text-align:center">이 센터 안에서만 번호를 대조해요.<br>안 되면 그 자리에서 직원이 바로 도와드려요.</div>
+          </div>
+          <div class="bottom-cta"><div class="btn">휴대폰 번호로 확인하기</div></div>
+        </div>
+      </div>
+      <div class="caption"><b>경로 2 — 데스크 QR.</b> 센터가 특정된 상태의 스코프 내 대조라 오매칭 급감. 실패 착지 = 대기 큐가 아니라 눈앞의 직원(web 현장 연결 보조 화면과 페어).</div>
+    </div>
+
+    <!-- 가족 초대 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>20:15</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="ob">
+            <div class="t-title">가족을 초대할까요?</div>
+            <div class="t-sub">초대받은 가족도 지우의 예약과 할 일을<br>함께 챙길 수 있어요</div>
+            <div class="confirm-card">
+              <div class="row"><span class="k">대상</span><span class="v">지우</span></div>
+              <div class="row"><span class="k">초대 방법</span><span class="v">카카오톡 &#183; 문자 링크</span></div>
+              <div class="row"><span class="k">보이는 범위</span><span class="v">나와 동일</span></div>
+            </div>
+            <div class="verify-note">초대 링크도 받는 사람의 휴대폰 인증을 거쳐요. 센터에 요청할 필요 없이 바로 연결됩니다.</div>
+          </div>
+          <div class="bottom-cta">
+            <div class="btn" style="background:#FEE500;color:#191F28">카카오톡으로 초대</div>
+            <div class="btn ghost" style="margin-top:8px">문자로 초대</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>경로 3 — 가족 초대.</b> 아빠·조부모 문제의 정공법: 센터 노동 0 · 대기 0. 주보호자(is_primary)가 초대 권한, 열람은 초대자와 동일(차등은 P2).</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note-block">
+  <b>이 시안이 담지 않은 것 (다음 라운드):</b> 일정 탭 · 기록 탭(원장) 상세 · 마이 · 푸시 도착 순간(잠금화면 중립 문구) · 예약 변경/휴강 대응 카드(백엔드 보강 후) · P1.5(브리핑 확인 카드 · 퀘스트 카드).<br>
+  <b>디자인 토큰:</b> 배경 #F2F4F6 / 카드 #fff r18 / 액션 #3182F6 / 텍스트 #191F28 · #8B95A1 / Pretendard. 빨간색은 팔레트에 없음(죄책감 금지) — 최긴급(휴강)도 노랑·파랑으로 처리 예정.
+</div>
+
+</body>
+</html>

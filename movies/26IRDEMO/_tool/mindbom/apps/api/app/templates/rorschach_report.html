@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* ============================================================
+     마인드봄 — 로르샤하 검사 보고서
+     디자인 시스템: brand #2563eb / sidebar #34363d / gray scale
+     ============================================================ */
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-size: 9px;
+      color: #9ca3af;
+    }
+    @bottom-right {
+      content: "마인드봄";
+      font-size: 9px;
+      color: #9ca3af;
+    }
+  }
+
+  /* 표지 페이지: 여백 없이 풀블리드 */
+  @page cover {
+    size: A4;
+    margin: 0;
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "NanumGothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 10px;
+    color: #2d333b;
+    line-height: 1.55;
+  }
+
+  /* ===== 표지 (Cover) ===== */
+  .cover {
+    page: cover;
+    width: 100%;
+    height: 297mm;
+    background: linear-gradient(180deg, #34363d 0%, #232830 100%);
+    color: #fff;
+    position: relative;
+    page-break-after: always;
+  }
+  .cover-inner {
+    padding: 50mm 25mm 30mm 25mm;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-brand {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #93c5fd;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cover-brand-ko {
+    font-size: 14px;
+    color: #d1d5db;
+    margin-bottom: 60px;
+  }
+  .cover-divider {
+    width: 50px;
+    height: 3px;
+    background: #2563eb;
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -1px;
+  }
+  .cover-subtitle {
+    font-size: 13px;
+    color: #aab2be;
+    margin-bottom: 70px;
+    letter-spacing: 1px;
+  }
+  .cover-info-block {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 30px;
+  }
+  .cover-info-row {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cover-info-row:last-child { border-bottom: none; }
+  .cover-info-label {
+    width: 100px;
+    color: #aab2be;
+    font-size: 11px;
+  }
+  .cover-info-value {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .cover-spacer { flex: 1; }
+  .cover-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 9.5px;
+    color: #aab2be;
+  }
+  .cover-footer .badge {
+    display: inline-block;
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid #2563eb;
+    color: #93c5fd;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== 본문 공통 ===== */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2563eb;
+  }
+  .page-header .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3a8a;
+  }
+  .page-header .meta {
+    font-size: 9px;
+    color: #7d848f;
+    text-align: right;
+  }
+  .page-header .meta .name { font-weight: 600; color: #2d333b; font-size: 10px; }
+
+  /* ===== Info Table (기본 정보 요약, 본문 상단) ===== */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 10px;
+    border: 1px solid #e2e5e9;
+  }
+  .info-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .info-table tr:last-child td { border-bottom: none; }
+  .info-table .label {
+    background: #f7f8f8;
+    font-weight: 600;
+    color: #464f58;
+    width: 88px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+    padding: 8px 14px;
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Two-column grid (요약 카드) ===== */
+  .grid-2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .grid-2 > .card {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 0;
+    border: 1px solid #e2e5e9;
+    border-radius: 5px;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .card-header {
+    padding: 6px 11px;
+    background: #f7f8f8;
+    border-bottom: 1px solid #e2e5e9;
+    font-weight: 600;
+    font-size: 10px;
+    color: #1e3a8a;
+  }
+  .card-body { padding: 9px 11px; }
+
+  /* ===== Stat Tables ===== */
+  .stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+  }
+  .stat-table td {
+    padding: 3px 6px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .stat-table td.k {
+    color: #7d848f;
+    width: 50%;
+  }
+  .stat-table td.v {
+    text-align: right;
+    font-weight: 600;
+    color: #2d333b;
+  }
+  .stat-table tr:last-child td { border-bottom: none; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 16px;
+    font-size: 9.5px;
+  }
+  .stat-grid .item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef1f3;
+    padding: 2px 0;
+  }
+  .stat-grid .item .k { color: #7d848f; }
+  .stat-grid .item .v { font-weight: 600; color: #2d333b; }
+
+  /* ===== Special Indices ===== */
+  .special-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+  }
+  .special-table td {
+    padding: 6px 10px;
+    border: 1px solid #e2e5e9;
+  }
+  .special-table .name {
+    background: #f7f8f8;
+    font-weight: 600;
+    width: 110px;
+    color: #464f58;
+  }
+  .special-table .pos {
+    background: #fef2f2;
+    color: #b91c1c;
+    font-weight: 700;
+    text-align: center;
+  }
+  .special-table .neg {
+    text-align: center;
+    color: #aab2be;
+  }
+  /* 판정 근거 — "몇 개 해당 · 어떤 규칙으로 판정했나" */
+  .special-table .rule {
+    font-weight: 400;
+    font-size: 8.5px;
+    color: #6b7480;
+  }
+
+  /* 해당 항목 나열 — 양성 판정의 근거를 지면에 남긴다 */
+  .index-detail {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 5px 10px;
+    background: #fafbfc;
+    border-left: 3px solid #cbd2da;
+    font-size: 8.5px;
+    line-height: 1.5;
+    page-break-inside: avoid;
+  }
+  .index-detail .k {
+    flex: 0 0 100px;
+    font-weight: 600;
+    color: #464f58;
+  }
+  .index-detail .v {
+    flex: 1;
+    color: #6b7480;
+  }
+
+  /* ===== 카드별 응답 (Phase 5 — 핵심) ===== */
+  .card-block {
+    margin-bottom: 14px;
+    border: 1px solid #e2e5e9;
+    border-radius: 6px;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .card-block-header {
+    background: #1e3a8a;
+    color: #fff;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-block-header .roman {
+    background: #fff;
+    color: #1e3a8a;
+    font-weight: 800;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    min-width: 30px;
+    text-align: center;
+  }
+  .card-block-header .label {
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .card-block-header .count {
+    margin-left: auto;
+    font-size: 9.5px;
+    color: #93c5fd;
+  }
+
+  .response-row {
+    padding: 10px 14px;
+    border-top: 1px solid #eef1f3;
+  }
+  .response-row:first-of-type { border-top: none; }
+  .response-row .response-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-size: 9px;
+    color: #7d848f;
+  }
+  .response-row .region-pill {
+    background: #eff6ff;
+    color: #1e3a8a;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+  }
+  .response-row .ts {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+  }
+  .response-row .ai-tag {
+    background: #fef9ee;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    padding: 0px 5px;
+    border-radius: 2px;
+    font-size: 8px;
+    font-weight: 600;
+  }
+  .response-row .response-text {
+    font-size: 10px;
+    color: #2d333b;
+    margin-bottom: 6px;
+    line-height: 1.6;
+    background: #f7f8f8;
+    padding: 7px 10px;
+    border-radius: 4px;
+    border-left: 3px solid #d1d5db;
+  }
+  .response-row .response-text.empty {
+    color: #aab2be;
+    font-style: italic;
+  }
+  .response-row .coding {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 9.5px;
+  }
+  .response-row .coding .k {
+    color: #7d848f;
+    font-weight: 500;
+  }
+  .response-row .coding .v {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    background: #eff6ff;
+    color: #1e3a8a;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .response-row .memo {
+    font-size: 9px;
+    color: #606a74;
+    margin-top: 4px;
+    padding-left: 1px;
+  }
+  .response-row .memo .k { color: #aab2be; margin-right: 4px; }
+  .response-row .ai-reasoning {
+    margin-top: 6px;
+    padding: 6px 9px;
+    background: #fafbfc;
+    border: 1px solid #eef1f3;
+    border-radius: 3px;
+    font-size: 8.5px;
+    color: #606a74;
+    line-height: 1.5;
+  }
+  .response-row .ai-reasoning .k {
+    color: #2563eb;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  /* ===== 고지 / 푸터 ===== */
+  .disclaimer {
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: #fafbfc;
+    border: 1px solid #e2e5e9;
+    border-left: 4px solid #2563eb;
+    border-radius: 3px;
+    font-size: 9px;
+    color: #464f58;
+    line-height: 1.6;
+    page-break-inside: avoid;
+  }
+  .disclaimer strong {
+    color: #1e3a8a;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+
+  .report-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e5e9;
+    font-size: 8.5px;
+    color: #aab2be;
+    text-align: center;
+  }
+
+  /* ===== 프로토콜 봉인 (해석 불가) =====
+     화면(Results.svelte)의 주황 배너와 같은 역할이다. 화면에만 있고 PDF에
+     없으면, PDF만 받는 사람에게는 봉인 신호가 0이 된다. */
+  .validity-banner {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    border-left: 4px solid #ea580c;
+    border-radius: 3px;
+    page-break-inside: avoid;
+  }
+  .validity-banner .vb-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #7c2d12;
+    margin-bottom: 4px;
+  }
+  .validity-banner .vb-body {
+    font-size: 9.5px;
+    color: #9a3412;
+    line-height: 1.6;
+  }
+  /* 봉인된 섹션의 본문 대체 — 제목은 남긴다.
+     섹션을 통째로 지우면 "PDF 생성이 실패했다"로 읽힌다. */
+  .sealed-body {
+    padding: 16px 14px;
+    background: #fff7ed;
+    border: 1px dashed #fdba74;
+    border-radius: 4px;
+    font-size: 9.5px;
+    color: #9a3412;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+
+  /* ===== 빈 상태 ===== */
+  .empty-state {
+    padding: 22px;
+    text-align: center;
+    color: #aab2be;
+    font-size: 10px;
+    background: #fafbfc;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- =================================================================== -->
+<!-- ===== 표지 (Cover Page) ===== -->
+<!-- =================================================================== -->
+<section class="cover">
+  <div class="cover-inner">
+    <div class="cover-brand">MINDBOM</div>
+    <div class="cover-brand-ko">마인드봄 · 투사적 심리검사 해석 보조 시스템</div>
+
+    <div class="cover-divider"></div>
+    <div class="cover-title">로르샤하 검사 보고서</div>
+    <div class="cover-subtitle">Rorschach Inkblot Test &middot; Exner Comprehensive System</div>
+
+    <div class="cover-info-block">
+      <div class="cover-info-row">
+        <div class="cover-info-label">내담자</div>
+        <div class="cover-info-value">{{ client_name or "미등록" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">성별 / 생년월일</div>
+        <div class="cover-info-value">{{ gender_label }} &nbsp;·&nbsp; {{ birth_date or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사일</div>
+        <div class="cover-info-value">{{ exam_date }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사자</div>
+        <div class="cover-info-value">{{ examiner_name or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">총 응답 (R)</div>
+        <div class="cover-info-value">{{ summary.R }}개</div>
+      </div>
+    </div>
+
+    <div class="cover-spacer"></div>
+
+    <div class="cover-footer">
+      <div>
+        <div class="badge">SaMD CLASS Ⅱ</div>
+        <div>임상의사결정지원시스템 (CDSS)</div>
+      </div>
+      <div style="text-align: right;">
+        <div>보고서 생성일</div>
+        <div style="color: #fff; font-weight: 500; margin-top: 2px;">{{ report_date_short }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================== -->
+<!-- ===== 본문 시작 ===== -->
+<!-- =================================================================== -->
+
+<div class="page-header">
+  <div class="title">검사 정보</div>
+  <div class="meta">
+    <div class="name">{{ client_name or "미등록" }}</div>
+    <div>{{ exam_date }}</div>
+  </div>
+</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">내담자</td>
+    <td>{{ client_name or "미등록" }}</td>
+    <td class="label">성별</td>
+    <td>{{ gender_label }}</td>
+    <td class="label">생년월일</td>
+    <td>{{ birth_date or "-" }}</td>
+  </tr>
+  <tr>
+    <td class="label">검사일</td>
+    <td>{{ exam_date }}</td>
+    <td class="label">검사자</td>
+    <td>{{ examiner_name or "-" }}</td>
+    <td class="label">보고서 생성</td>
+    <td>{{ report_date }}</td>
+  </tr>
+  <tr>
+    <td class="label">총 응답</td>
+    <td colspan="5"><strong style="color:#1e3a8a;">R = {{ summary.R }}</strong> &nbsp;&middot;&nbsp; 영역 {{ total_responses }}개</td>
+  </tr>
+</table>
+
+<!-- ===== 프로토콜 타당성 게이트 =====
+     R<14면 백엔드가 하단 클러스터·특수지표를 비워 보낸다(scoring.py의
+     MIN_INTERPRETABLE_R 주석). 그 빈 값은 전부 0이라, 게이트 없이 찍으면
+     "Lambda 0 / XA% 0 / S-CON 정상 범위(0/8)"처럼 **측정된 값으로 읽힌다.**
+     해석하지 않기로 봉인한 프로토콜에서 자살지표가 음성으로 인쇄되는 셈이다.
+     상단 집계(§1·§2)는 그대로 보인다 — 몇 개 나왔는지 봐야 재실시를 판단한다. -->
+{% set validity = summary.get('validity', 'valid') %}
+{% set interpretable = validity == 'valid' %}
+{% if not interpretable %}
+<div class="validity-banner">
+  {% if validity == 'not_scored' %}
+  <div class="vb-title">⚠ 채점된 반응이 없습니다</div>
+  <div class="vb-body">
+    아직 채점이 완료되지 않아 구조 요약을 산출하지 않았습니다.
+    <strong>하단 클러스터(§3)와 특수 지표(§4)는 비어 있습니다.</strong>
+    채점을 마친 뒤 보고서를 다시 생성하십시오.
+  </div>
+  {% else %}
+  <div class="vb-title">⚠ 해석 불가 프로토콜 — 반응 수 {{ summary.R }}개</div>
+  <div class="vb-body">
+    Exner CS는 반응이 14개 미만이면 해석하지 않고 재실시하도록 합니다.
+    반응이 적으면 비율이 크게 흔들려 지표를 신뢰할 수 없기 때문입니다.
+    <strong>하단 클러스터(§3)와 특수 지표(§4)는 산출하지 않았습니다.</strong>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- ===== 1. Upper Section ===== -->
+<div class="section">
+  <div class="section-title">1. Upper Section — 위치 / 결정인 / 형태질</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">위치 (Location)</div>
+      <div class="card-body">
+        <div class="stat-grid">
+          {% for k in ['W','D','Dd','S'] %}
+          <div class="item"><span class="k">{{ k }}</span><span class="v">{{ summary.location.get(k, 0) }}</span></div>
+          {% endfor %}
+          <div class="item"><span class="k">Zf</span><span class="v">{{ summary.Zf }}</span></div>
+          <div class="item"><span class="k">ZSum</span><span class="v">{{ '%.1f'|format(summary.ZSum) }}</span></div>
+          <div class="item"><span class="k">ZEst</span><span class="v">{{ '%.1f'|format(summary.ZEst) }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">발달질 (DQ)</div>
+      <div class="card-body">
+        <div class="stat-grid" style="grid-template-columns: repeat(2, 1fr);">
+          {% for k, label in [('+','+'), ('o','o'), ('v/+','v/+'), ('v','v')] %}
+          <div class="item"><span class="k">{{ label }}</span><span class="v">{{ summary.dq.get(k, 0) }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">형태질 (Form Quality)</div>
+      <div class="card-body">
+        <div class="stat-grid">
+          {% for k in ['+','o','u','-','none'] %}
+          <div class="item"><span class="k">{{ k }}</span><span class="v">{{ summary.fq.get(k, 0) }}</span></div>
+          {% endfor %}
+        </div>
+        <div class="stat-grid" style="margin-top:6px;">
+          <div class="item"><span class="k">X+%</span><span class="v">{{ '%.1f'|format(summary.X_plus_pct) }}</span></div>
+          <div class="item"><span class="k">X-%</span><span class="v">{{ '%.1f'|format(summary.X_minus_pct) }}</span></div>
+          <div class="item"><span class="k">Xu%</span><span class="v">{{ '%.1f'|format(summary.X_u_pct) }}</span></div>
+          <div class="item"><span class="k">F+%</span><span class="v">{{ '%.1f'|format(summary.F_plus_pct) }}</span></div>
+          <div class="item"><span class="k">P%</span><span class="v">{{ '%.1f'|format(summary.P_pct) }}</span></div>
+          <div class="item"><span class="k">P</span><span class="v">{{ summary.P }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">결정인 (Determinants)</div>
+      <div class="card-body">
+        <div class="stat-grid">
+          {% for k, v in summary.determinants.items() %}
+          <div class="item"><span class="k">{{ k }}</span><span class="v">{{ v }}</span></div>
+          {% endfor %}
+        </div>
+        {% if summary.blends %}
+        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #eef1f3;">
+          <div style="color:#7d848f; font-size:9px; margin-bottom:3px;">혼합반응 (Blends, {{ summary.blends_count }})</div>
+          <div style="font-size:9px;">{{ summary.blends | join(', ') }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">반응 내용 (Contents)</div>
+      <div class="card-body">
+        <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+          {% for k, v in summary.contents.items() %}
+            {% if v > 0 %}
+            <div class="item"><span class="k">{{ k }}</span><span class="v">{{ v }}</span></div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">특수 점수 (Special Scores)</div>
+      <div class="card-body">
+        <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+          {% for k, v in summary.special_scores.items() %}
+            {% if v > 0 %}
+            <div class="item"><span class="k">{{ k }}</span><span class="v">{{ v }}</span></div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 2. 핵심 비율 ===== -->
+<div class="section">
+  <div class="section-title">2. 핵심 비율 (Core Ratios)</div>
+  <table class="stat-table" style="border:1px solid #e2e5e9;">
+    <tr>
+      <!-- Lambda는 R=F면 정의되지 않는다(scoring._lambda). null을 0.00으로
+           찍으면 "순수 형태반응이 하나도 없다"는 정반대 소견이 인쇄된다. -->
+      <td class="k">Lambda</td>
+      <td class="v">
+        {%- if summary.Lambda is none -%}∞{%- else -%}{{ '%.2f'|format(summary.Lambda) }}{%- endif -%}
+      </td>
+      <td class="k">EA</td><td class="v">{{ '%.1f'|format(summary.EA) }}</td>
+      <td class="k">es</td><td class="v">{{ summary.es }}</td>
+    </tr>
+    <tr>
+      <td class="k">SumM</td><td class="v">{{ summary.SumM }}</td>
+      <td class="k">WSumC</td><td class="v">{{ '%.1f'|format(summary.WSumC) }}</td>
+      <td class="k">SumShading</td><td class="v">{{ summary.SumShading }}</td>
+    </tr>
+    <tr>
+      <td class="k">FM</td><td class="v">{{ summary.FM }}</td>
+      <td class="k">m</td><td class="v">{{ summary.m }}</td>
+      <td class="k">SumC'</td><td class="v">{{ summary.SumC_prime }}</td>
+    </tr>
+    <tr>
+      <td class="k">SumT</td><td class="v">{{ summary.SumT }}</td>
+      <td class="k">SumV</td><td class="v">{{ summary.SumV }}</td>
+      <td class="k">SumY</td><td class="v">{{ summary.SumY }}</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ===== 3. Lower Section ===== -->
+{% if summary.lower_section %}
+<div class="section">
+  <div class="section-title">3. Lower Section — 7개 클러스터</div>
+  {% if not interpretable %}
+  <div class="sealed-body">
+    {% if validity == 'not_scored' %}
+      채점된 반응이 없어 클러스터를 산출하지 않았습니다.
+    {% else %}
+      해석 기준 미달(R = {{ summary.R }} &lt; 14)로 클러스터를 산출하지 않았습니다.
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="grid-2">
+    {% for cluster_name, cluster in summary.lower_section.items() %}
+    <div class="card">
+      <div class="card-header">{{ cluster_name }}</div>
+      <div class="card-body">
+        <table class="stat-table">
+          {% for k, v in cluster.items() %}
+          <tr>
+            <td class="k">{{ k }}</td>
+            <td class="v">
+              {%- if v is number -%}
+                {%- if v is integer -%}{{ v }}{%- else -%}{{ '%.2f'|format(v) }}{%- endif -%}
+              {%- else -%}
+                {{ v }}
+              {%- endif -%}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- ===== 4. Special Indices =====
+     **판정은 백엔드가 한다.** 예전에는 여기에 임계값 표를 두고
+     `체크 수 >= 임계`로 판정했는데, 원전(워크북 137쪽)의 HVI는 "1번 필수 +
+     나머지 4개", OBS는 "4개 복합 규칙 중 하나"라 그 형태로 판정할 수 없다.
+     라벨도 백엔드가 낸다 — 여기서 따로 적으면 계산과 갈린다. -->
+{% if summary.special_indices %}
+{% set INDEX_ORDER = ['sConstellation', 'depi', 'cdi', 'pti', 'hvi', 'obs'] %}
+<div class="section">
+  <div class="section-title">4. 특수 지표 (Special Indices)</div>
+  {% if not interpretable %}
+  <div class="sealed-body">
+    {% if validity == 'not_scored' %}
+      채점된 반응이 없어 특수 지표를 산출하지 않았습니다.
+    {% else %}
+      해석 기준 미달(R = {{ summary.R }} &lt; 14)로 특수 지표를 산출하지 않았습니다.
+      <strong>S-CON(자살 지표)을 포함해 어떤 지표도 판정하지 않았습니다.</strong>
+    {% endif %}
+  </div>
+  {% else %}
+  <table class="special-table">
+    {% for key in INDEX_ORDER %}
+      {% if key in summary.special_indices %}
+        {% set idx = summary.special_indices[key] %}
+        {% set met = idx["items"] | selectattr("met") | list | length %}
+        <tr>
+          <td class="name">{{ idx["label"] }}</td>
+          {% if idx["positive"] %}
+          <td class="pos">⚠ 양성 &nbsp;<span class="rule">{{ met }}개 해당 · {{ idx["rule"] }}</span></td>
+          {% else %}
+          <td class="neg">정상 범위 &nbsp;<span class="rule">{{ met }}개 해당 · {{ idx["rule"] }}</span></td>
+          {% endif %}
+        </tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+
+  <!--
+    **해당 항목을 지면에 남긴다.** 예전에는 "8개 중 3개"라는 숫자만 찍혀서,
+    보고서를 받은 사람이 어느 항목이 켜졌는지 알 수 없었다 — 양성이 나와도
+    근거를 되짚을 수 없으면 임상가가 그 판정을 검토할 수 없다.
+  -->
+  {% for key in INDEX_ORDER %}
+    {% if key in summary.special_indices %}
+      {% set idx = summary.special_indices[key] %}
+      {% set met_items = idx["items"] | selectattr("met") | list %}
+      {% if met_items %}
+      <div class="index-detail">
+        <span class="k">{{ idx["label"] }}</span>
+        <span class="v">{{ met_items | map(attribute="label") | join(" · ") }}</span>
+      </div>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- ===== 5. 카드별 응답 & 채점 (핵심) ===== -->
+<div class="section">
+  <div class="section-title">5. 카드별 반응 및 채점 결과</div>
+
+  {% if cards_grouped %}
+    {% for card in cards_grouped %}
+    <div class="card-block">
+      <div class="card-block-header">
+        <span class="roman">{{ card.card_label }}</span>
+        <span class="label">카드 {{ card.card_label }}</span>
+        <span class="count">{{ card.regions | length }}개 반응</span>
+      </div>
+
+      {% for r in card.regions %}
+      <div class="response-row">
+        <div class="response-meta">
+          <span class="region-pill">{{ r.label }}</span>
+          {% if r.timestamp %}<span class="ts">{{ r.timestamp }}</span>{% endif %}
+          {% if r.is_ai_only %}<span class="ai-tag">AI 초안</span>{% endif %}
+        </div>
+
+        <div class="response-text {% if not r.response_text %}empty{% endif %}">
+          {{ r.response_text or "응답 텍스트가 기록되지 않았습니다." }}
+        </div>
+
+        <div class="coding">
+          <span class="k">코딩</span>
+          <span class="v">{{ r.coding_str }}</span>
+        </div>
+
+        {% if r.memo %}
+        <div class="memo"><span class="k">메모</span>{{ r.memo }}</div>
+        {% endif %}
+
+        {% if r.is_ai_only and r.ai_reasoning %}
+        <div class="ai-reasoning">
+          <span class="k">AI 근거</span>{{ r.ai_reasoning }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">기록된 반응이 없습니다.</div>
+  {% endif %}
+</div>
+
+<!-- ===== 고지 사항 ===== -->
+<div class="disclaimer">
+  <strong>[CDSS 임상의사결정지원시스템 고지]</strong><br>
+  본 보고서는 AI 기반 임상의사결정지원시스템(CDSS)이 생성한 Exner CS 채점 초안을 바탕으로 임상가가 검토 및 확인한 결과입니다.
+  AI 채점 결과는 참고 자료이며, 최종 임상적 판단은 담당 전문가의 책임 하에 이루어졌습니다.
+  본 시스템은 SaMD 2등급 의료기기 소프트웨어로서, 독립적인 진단 도구가 아닌 임상가의 판단을 보조하는 도구입니다.
+</div>
+
+<div class="report-footer">
+  마인드봄 (MindBom) &middot; 투사적 심리검사 해석 보조 시스템 &middot; 보고서 생성: {{ report_date }}
+</div>
+
+</body>
+</html>

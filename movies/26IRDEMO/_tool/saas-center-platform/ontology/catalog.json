@@ -1,0 +1,157 @@
+{
+  "$schema_note": "온톨로지 개념 카탈로그 v2 — layer가 밴드 배치를, relations의 cardinality·required가 엣지 문법을 결정. label=공통 이름(쉬운 말), plain=처음 보는 사람용 한 줄, desc=모델 판정 근거",
+  "version": "v2 (2026-08-12)",
+  "concepts": {
+    "person": {
+      "label": "사람",
+      "plain": "여러 역할 뒤에 있는 사람 한 명. 앱 계정을 만들 때 생긴다.",
+      "color": "#64748b",
+      "layer": "global",
+      "desc": "앱 계정을 만든 사람에게만 생긴다. 센터가 달라도 같은 사람인지 자동으로 잇지 않는다 — 계정을 연결했을 때만 이어진다. 화면에는 이 이름을 쓰지 않는다.",
+      "decisions": [
+        "A1",
+        "A4",
+        "D2"
+      ]
+    },
+    "extInst": {
+      "label": "외부 기관",
+      "plain": "우리 고객이 아닌 바깥 기관. 학교·병원처럼 의뢰가 오가는 곳.",
+      "color": "#a16207",
+      "layer": "global",
+      "desc": "모든 기관이 함께 보는 목록. 같은 곳인지는 공식 번호(학교코드·요양기관번호)로 가린다. 입력은 자유롭게 치고 비슷한 곳을 제안만 한다.",
+      "decisions": [
+        "D5",
+        "D8",
+        "A1"
+      ]
+    },
+    "org": {
+      "label": "기관",
+      "plain": "우리 서비스를 쓰는 곳. 이 안의 기록은 다른 기관과 섞이지 않는다.",
+      "color": "#0e7490",
+      "layer": "container",
+      "desc": "우리와 계약한 곳이자 그 안의 모든 기록을 담는 그릇. 기관 종류를 적는 칸 하나가 설정 파일과 이어지는 유일한 지점이다.",
+      "decisions": [
+        "D6",
+        "A5",
+        "A7"
+      ]
+    },
+    "subject": {
+      "label": "대상자",
+      "plain": "이 기관이 돌보는 사람. 센터에선 내담자, 학교에선 학생.",
+      "color": "#2456c4",
+      "layer": "tenant",
+      "desc": "이 기관이 돌보는 사람의 기록. 앱 계정이 없어도 만들어진다. 같은 사람인지는 기관이 매긴 번호로 가리고, 이름+생년월일은 참고만 한다.",
+      "decisions": [
+        "D1",
+        "D2",
+        "A2"
+      ]
+    },
+    "guardianRel": {
+      "label": "보호 관계",
+      "plain": "누가 누구를 보호하는지. 보호자는 따로 있는 게 아니라 이 연결이다.",
+      "color": "#b0387a",
+      "layer": "tenant",
+      "desc": "보호자라는 사람이 따로 있는 게 아니라 '누가 누구를 보호한다'는 연결이 있을 뿐이다. 화면도 대상자에 붙은 정보로 보여준다. role 값은 이 연결을 요약해 둔 것.",
+      "decisions": [
+        "D3",
+        "D4",
+        "A3"
+      ]
+    },
+    "staff": {
+      "label": "직원",
+      "plain": "이 기관에서 일하는 사람. 상담사·교사 등.",
+      "color": "#1f6f5c",
+      "layer": "tenant",
+      "desc": "이 기관에서 일하는 사람의 기록. 반드시 계정이 있어야 하고, 이름·연락처는 자기 표에 두지 않고 '사람' 쪽을 본다.",
+      "decisions": [
+        "A4"
+      ]
+    },
+    "orgUnit": {
+      "label": "소속 단위",
+      "plain": "3학년 2반, 1중대 같은 칸. 해마다 새로 생긴다.",
+      "color": "#6d3fc0",
+      "layer": "tenant",
+      "desc": "기관 안을 나누는 칸(3학년 2반, 1중대). 몇 단계로 나뉘는지는 설정 파일이 정한다. 칸은 기간을 가진다 — 2026년 3학년 2반과 2027년 3학년 2반은 다른 칸이다.",
+      "decisions": [
+        "D7",
+        "A3",
+        "A7"
+      ]
+    }
+  },
+  "relations": [
+    {
+      "a": "person",
+      "b": "subject",
+      "label": "연결 (선택)",
+      "required": false,
+      "direction": "ab",
+      "cardA": "1",
+      "cardB": "0..N",
+      "crossBoundary": true,
+      "decisions": [
+        "A1"
+      ],
+      "evidence": "clients.person_id nullable — 앱 계정 연동 시에만"
+    },
+    {
+      "a": "person",
+      "b": "staff",
+      "label": "신원 (필수)",
+      "required": true,
+      "direction": "ab",
+      "cardA": "1",
+      "cardB": "0..N",
+      "crossBoundary": true,
+      "decisions": [],
+      "evidence": "members.person_id NOT NULL — 이름·연락처도 person 위임"
+    },
+    {
+      "a": "subject",
+      "b": "guardianRel",
+      "label": "보호받음 / 보호함",
+      "required": true,
+      "direction": "both",
+      "cardA": "1",
+      "cardB": "0..N",
+      "decisions": [
+        "D3",
+        "D4"
+      ],
+      "evidence": "생성 시 항상 방향쌍 2행 (guardian + 역방향 child)"
+    },
+    {
+      "a": "subject",
+      "b": "orgUnit",
+      "label": "배정 (기간)",
+      "required": false,
+      "direction": "ab",
+      "cardA": "0..N",
+      "cardB": "0..N",
+      "decisions": [
+        "D7"
+      ],
+      "evidence": "미구현 — 조직 단위 자체가 missing"
+    },
+    {
+      "a": "extInst",
+      "b": "subject",
+      "label": "참조·의뢰",
+      "required": false,
+      "direction": "ab",
+      "cardA": "1",
+      "cardB": "0..N",
+      "crossBoundary": true,
+      "decisions": [
+        "D8"
+      ],
+      "evidence": "현재는 JSONB 스냅샷 소비뿐 — institution_id 마커 0건 (partial)"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# DB Migration Job Template
+# Placeholders (replaced by deploy.sh / GitHub Actions):
+#   NAMESPACE        - mindscope-dev, mindscope-staging, or mindscope-prod
+#   ECR_REPO_PREFIX  - mindscope-staging or mindscope-prod
+#   IMAGE_TAG        - Docker image tag
+#   TIMESTAMP        - Unix timestamp for unique job name
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate-TIMESTAMP
+  namespace: NAMESPACE
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/ECR_REPO_PREFIX/api:IMAGE_TAG
+          command:
+            - sh
+            - -c
+            - |
+              alembic upgrade head && \
+              python -m scripts.seed.common.document && \
+              python -m scripts.seed.common.voucher
+          envFrom:
+            - configMapRef:
+                name: mindscope-api-config
+            - secretRef:
+                name: mindscope-api-secret
+      restartPolicy: Never

@@ -1,0 +1,32 @@
+{
+  "name": "병원",
+  "loop": "상담용",
+  "vocab": {
+    "subject": "환자",
+    "guardianRel": "보호자·법정대리인",
+    "staff": "치료사",
+    "org": "병원",
+    "extInst": "의뢰 의원",
+    "orgUnit": "병동"
+  },
+  "exists": {
+    "guardianRel": true,
+    "orgUnit": true
+  },
+  "variable": {
+    "subject": [
+      "등록번호 (평생)",
+      "진료과",
+      "주치의"
+    ]
+  },
+  "hierarchy": "진료과 > 병동",
+  "identifier": {
+    "type": "원내 등록번호 (평생 유지)",
+    "temporal": "stable"
+  },
+  "guardian_note": "법정대리인 — 열람에 법정 요건.",
+  "sections": {
+    "sibling": false
+  }
+}

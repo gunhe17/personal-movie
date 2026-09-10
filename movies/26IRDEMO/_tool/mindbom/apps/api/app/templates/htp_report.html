@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* ============================================================
+     마인드봄 — HTP 검사 보고서
+     디자인 시스템: brand #2563eb / sidebar #34363d / gray scale
+     ============================================================ */
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-size: 9px;
+      color: #9ca3af;
+    }
+    @bottom-right {
+      content: "마인드봄";
+      font-size: 9px;
+      color: #9ca3af;
+    }
+  }
+
+  @page cover {
+    size: A4;
+    margin: 0;
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "NanumGothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 10px;
+    color: #2d333b;
+    line-height: 1.55;
+  }
+
+  /* ===== 표지 ===== */
+  .cover {
+    page: cover;
+    width: 100%;
+    height: 297mm;
+    background: linear-gradient(180deg, #34363d 0%, #232830 100%);
+    color: #fff;
+    position: relative;
+    page-break-after: always;
+  }
+  .cover-inner {
+    padding: 50mm 25mm 30mm 25mm;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-brand {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #93c5fd;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cover-brand-ko {
+    font-size: 14px;
+    color: #d1d5db;
+    margin-bottom: 60px;
+  }
+  .cover-divider {
+    width: 50px;
+    height: 3px;
+    background: #2563eb;
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -1px;
+  }
+  .cover-subtitle {
+    font-size: 13px;
+    color: #aab2be;
+    margin-bottom: 70px;
+    letter-spacing: 1px;
+  }
+  .cover-info-block {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 30px;
+  }
+  .cover-info-row {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cover-info-row:last-child { border-bottom: none; }
+  .cover-info-label {
+    width: 100px;
+    color: #aab2be;
+    font-size: 11px;
+  }
+  .cover-info-value {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .cover-spacer { flex: 1; }
+  .cover-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 9.5px;
+    color: #aab2be;
+  }
+  .cover-footer .badge {
+    display: inline-block;
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid #2563eb;
+    color: #93c5fd;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== 본문 공통 ===== */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2563eb;
+  }
+  .page-header .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3a8a;
+  }
+  .page-header .meta {
+    font-size: 9px;
+    color: #7d848f;
+    text-align: right;
+  }
+  .page-header .meta .name { font-weight: 600; color: #2d333b; font-size: 10px; }
+
+  /* ===== Info Table ===== */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 10px;
+    border: 1px solid #e2e5e9;
+  }
+  .info-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .info-table tr:last-child td { border-bottom: none; }
+  .info-table .label {
+    background: #f7f8f8;
+    font-weight: 600;
+    color: #464f58;
+    width: 88px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+    padding: 8px 14px;
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    margin-bottom: 12px;
+  }
+
+  /* ===== 그림별 페이지 (1장 그림 = 1페이지) =====
+     A4 - 본문 영역 약 261mm 높이. 그림 영역 약 40% (≈ 104mm).
+     각 drawing-page는 page-break-after: always 로 새 페이지 시작 */
+  .drawing-page {
+    page-break-after: always;
+    margin-bottom: 0;
+  }
+  .drawing-page:last-of-type {
+    page-break-after: auto;
+  }
+  .drawing-page-header {
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 12px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 5px 5px 0 0;
+  }
+  .drawing-page-header.house { background: #ea580c; }
+  .drawing-page-header.tree { background: #16a34a; }
+  .drawing-page-header.man { background: #2563eb; }
+  .drawing-page-header.woman { background: #db2777; }
+  .drawing-page-header .set-no {
+    background: rgba(255,255,255,0.25);
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .drawing-page-image {
+    height: 104mm;
+    background: #fafbfc;
+    border: 1px solid #e2e5e9;
+    border-top: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .drawing-page-image img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+  .drawing-page-image .no-image {
+    color: #aab2be;
+    font-size: 11px;
+  }
+  .drawing-page-analysis .subhead {
+    font-weight: 700;
+    font-size: 11px;
+    color: #1e3a8a;
+    padding: 6px 12px;
+    background: #eff6ff;
+    border-left: 3px solid #2563eb;
+    margin-bottom: 8px;
+  }
+
+  /* ===== Analysis Table ===== */
+  .analysis-block-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 5px 0;
+    font-weight: 600;
+    font-size: 10px;
+    color: #2d333b;
+  }
+  .analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e5e9;
+  }
+  .analysis-table th {
+    background: #f7f8f8;
+    font-weight: 600;
+    padding: 5px 9px;
+    border-bottom: 1px solid #e2e5e9;
+    text-align: left;
+    color: #464f58;
+  }
+  .analysis-table td {
+    padding: 4px 9px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .analysis-table tr:last-child td { border-bottom: none; }
+
+  /* ===== Interpretation Table ===== */
+  .interp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e5e9;
+  }
+  .interp-table th {
+    background: #f7f8f8;
+    font-weight: 600;
+    color: #464f58;
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e5e9;
+    text-align: left;
+  }
+  .interp-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #eef1f3;
+    vertical-align: top;
+  }
+  .interp-table tr:last-child td { border-bottom: none; }
+  .interp-table tr.important td {
+    background: #fefce8;
+  }
+  .star { color: #f59e0b; font-weight: bold; }
+
+  .cat-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .cat-badge.house { background: #ea580c; }
+  .cat-badge.tree { background: #16a34a; }
+  .cat-badge.man { background: #2563eb; }
+  .cat-badge.woman { background: #db2777; }
+  .cat-badge.general { background: #7d848f; }
+
+  /* ===== PDI ===== */
+  .pdi-card {
+    margin-bottom: 12px;
+    border: 1px solid #e2e5e9;
+    border-radius: 5px;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .pdi-card-header {
+    padding: 6px 11px;
+    background: #f7f8f8;
+    border-bottom: 1px solid #e2e5e9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 10px;
+    color: #1e3a8a;
+  }
+  .pdi-card-body {
+    padding: 9px 12px;
+  }
+  .pdi-block {
+    padding: 6px 0;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .pdi-block:last-child { border-bottom: none; padding-bottom: 0; }
+  .pdi-block:first-child { padding-top: 0; }
+  .pdi-q {
+    font-weight: 600;
+    color: #2563eb;
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .pdi-a {
+    padding-left: 10px;
+    border-left: 2px solid #dbeafe;
+    color: #2d333b;
+    font-size: 10px;
+  }
+
+  /* ===== 고지 / 푸터 ===== */
+  .disclaimer {
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: #fafbfc;
+    border: 1px solid #e2e5e9;
+    border-left: 4px solid #2563eb;
+    border-radius: 3px;
+    font-size: 9px;
+    color: #464f58;
+    line-height: 1.6;
+    page-break-inside: avoid;
+  }
+  .disclaimer strong {
+    color: #1e3a8a;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+  .report-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e5e9;
+    font-size: 8.5px;
+    color: #aab2be;
+    text-align: center;
+  }
+
+  .empty-state {
+    padding: 12px;
+    text-align: center;
+    color: #aab2be;
+    font-size: 10px;
+    background: #fafbfc;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 표지 ===== -->
+<section class="cover">
+  <div class="cover-inner">
+    <div class="cover-brand">MINDBOM</div>
+    <div class="cover-brand-ko">마인드봄 · 투사적 심리검사 해석 보조 시스템</div>
+
+    <div class="cover-divider"></div>
+    <div class="cover-title">HTP 검사 보고서</div>
+    <div class="cover-subtitle">House-Tree-Person Drawing Test Analysis</div>
+
+    <div class="cover-info-block">
+      <div class="cover-info-row">
+        <div class="cover-info-label">내담자</div>
+        <div class="cover-info-value">{{ client_name or "미등록" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">성별 / 생년월일</div>
+        <div class="cover-info-value">{{ gender_label }} &nbsp;·&nbsp; {{ birth_date or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사일</div>
+        <div class="cover-info-value">{{ exam_date }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사자</div>
+        <div class="cover-info-value">{{ examiner_name or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사 항목</div>
+        <div class="cover-info-value">집 · 나무 · 남자사람 · 여자사람</div>
+      </div>
+    </div>
+
+    <div class="cover-spacer"></div>
+
+    <div class="cover-footer">
+      <div>
+        <div class="badge">SaMD CLASS Ⅱ</div>
+        <div>임상의사결정지원시스템 (CDSS)</div>
+      </div>
+      <div style="text-align: right;">
+        <div>보고서 생성일</div>
+        <div style="color: #fff; font-weight: 500; margin-top: 2px;">{{ report_date_short }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 본문 ===== -->
+<div class="page-header">
+  <div class="title">검사 정보</div>
+  <div class="meta">
+    <div class="name">{{ client_name or "미등록" }}</div>
+    <div>{{ exam_date }}</div>
+  </div>
+</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">내담자</td>
+    <td>{{ client_name or "미등록" }}</td>
+    <td class="label">성별</td>
+    <td>{{ gender_label }}</td>
+    <td class="label">생년월일</td>
+    <td>{{ birth_date or "-" }}</td>
+  </tr>
+  <tr>
+    <td class="label">검사일</td>
+    <td>{{ exam_date }}</td>
+    <td class="label">검사자</td>
+    <td>{{ examiner_name or "-" }}</td>
+    <td class="label">보고서 생성</td>
+    <td>{{ report_date }}</td>
+  </tr>
+</table>
+
+<!-- ===== 1. 그림별 검사 결과 (1 그림 = 1 페이지, 상단 40% 그림 / 하단 분석) ===== -->
+{% for d in drawings %}
+<div class="drawing-page">
+  <div class="drawing-page-header {{ d.category }}">
+    <span class="set-no">{{ loop.index }}</span>
+    <span>{{ d.label }}</span>
+  </div>
+
+  <div class="drawing-page-image">
+    {% if d.image_url %}
+      <img src="{{ d.image_url }}" alt="{{ d.label }}">
+    {% else %}
+      <div class="no-image">이미지 없음</div>
+    {% endif %}
+  </div>
+
+  <div class="drawing-page-analysis">
+    <div class="subhead">객체 분석</div>
+    {% set rows = d.objects | selectattr("main_cond") | list + d.objects | rejectattr("main_cond") | selectattr("sub_cond") | list %}
+    {% if rows %}
+    <table class="analysis-table">
+      <thead>
+        <tr>
+          <th style="width:30%;">분석 요소</th>
+          <th style="width:30%;">분석 조건</th>
+          <th>표현</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in d.objects %}
+          {% if obj.main_cond or obj.sub_cond %}
+          <tr>
+            <td>{{ obj.label }}</td>
+            <td>{{ obj.main_cond or "-" }}</td>
+            <td>{{ obj.sub_cond or "-" }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">분석된 객체가 없습니다.</div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<!-- ===== 해석 결과 ===== -->
+{% for cat in interpretation_categories %}
+<div class="section">
+  <div class="section-title">{{ loop.index + 1 }}. {{ cat.label }}</div>
+  {% if cat.interp_items %}
+  <table class="interp-table">
+    <thead>
+      <tr>
+        <th style="width:26px; text-align:center;"></th>
+        <th style="width:70px;">분류</th>
+        <th style="width:90px;">하위영역</th>
+        <th>해석</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cat.interp_items %}
+      <tr class="{{ 'important' if item.is_important else '' }}">
+        <td style="text-align:center;">{% if item.is_important %}<span class="star">&#9733;</span>{% endif %}</td>
+        <td><span class="cat-badge {{ item.drawing_class }}">{{ item.drawing_label }}</span></td>
+        <td>{{ item.sub_category }}</td>
+        <td>{{ item.sentence }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">해당 영역의 해석이 없습니다.</div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- ===== 사후질문(PDI) ===== -->
+{% set has_pdi = drawings | selectattr("pdi_data") | list | length > 0 %}
+{% if has_pdi %}
+<div class="section">
+  <div class="section-title">{{ interpretation_categories | length + 2 }}. 사후질문 기록 (PDI)</div>
+  {% for d in drawings %}
+    {% if d.pdi_data %}
+    <div class="pdi-card">
+      <div class="pdi-card-header">
+        <span class="cat-badge {{ d.category }}">{{ d.label }}</span>
+      </div>
+      <div class="pdi-card-body">
+        {% for pdi in d.pdi_data %}
+        <div class="pdi-block">
+          <div class="pdi-q">Q. {{ pdi.question }}</div>
+          <div class="pdi-a">{{ pdi.answer or "-" }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ===== 고지 ===== -->
+<div class="disclaimer">
+  <strong>[CDSS 임상의사결정지원시스템 고지]</strong><br>
+  본 보고서는 AI 기반 임상의사결정지원시스템(CDSS)이 생성한 초안을 바탕으로 임상가가 검토 및 확인한 결과입니다.
+  AI 분석 결과는 참고 자료이며, 최종 임상적 판단은 담당 전문가의 책임 하에 이루어졌습니다.
+  본 시스템은 SaMD 2등급 의료기기 소프트웨어로서, 독립적인 진단 도구가 아닌 임상가의 판단을 보조하는 도구입니다.
+</div>
+
+<div class="report-footer">
+  마인드봄 (MindBom) &middot; 투사적 심리검사 해석 보조 시스템 &middot; 보고서 생성: {{ report_date }}
+</div>
+
+</body>
+</html>

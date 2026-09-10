@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Canvas Editor</title>
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-light: #ef4444;
+            --primary-dark: #b91c1c;
+            --secondary: #6b7280;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --info: #0ea5e9;
+            --bg: #ffffff;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --canvas-bg: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Left Panel - Domain Navigator */
+        .left-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100vh;
+            background: #f9fafb;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .panel-header select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text);
+            font: inherit;
+            font-size: 0.8rem;
+            text-transform: none;
+            letter-spacing: normal;
+            cursor: pointer;
+        }
+
+        .domain-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .domain-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            transition: all 0.15s;
+            margin-bottom: 2px;
+        }
+
+        .domain-item:hover {
+            background: var(--border);
+        }
+
+        .domain-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .domain-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        .domain-count {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .domain-item.active .domain-count {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        .panel-actions {
+            padding: 8px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .panel-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+        }
+
+        .panel-btn:hover {
+            background: var(--border);
+        }
+
+        /* Canvas */
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 220px;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background: var(--canvas-bg);
+        }
+
+        .canvas {
+            position: absolute;
+            width: 10000px;
+            height: 10000px;
+            background: var(--canvas-bg);
+            cursor: grab;
+        }
+
+        .canvas.dragging {
+            cursor: grabbing;
+        }
+
+        .canvas.selecting {
+            cursor: crosshair;
+        }
+
+        /* Table Box */
+        .table-box {
+            position: absolute;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+
+        .table-box:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .table-box.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .table-box.editing {
+            z-index: 1000;
+        }
+
+        /* Relations 모드 — 키 필드만 접어 보여준다 (풀 박스는 1100px까지 커져 배치가 무의미) */
+        .table-box.compact {
+            width: 240px;
+        }
+
+        .table-box.compact .table-body {
+            padding: 4px 0;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .table-box.compact .field-block {
+            margin: 0;
+            padding: 2px 10px;
+            border-bottom: none;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-box.compact .field-ref {
+            color: var(--text-muted);
+            opacity: 0.75;
+        }
+
+        .table-box.compact .table-footer {
+            display: none;
+        }
+
+        /* Relation layer */
+        .relation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            display: none;
+        }
+
+        .relation-layer.on {
+            display: block;
+        }
+
+        .panel-btn.on {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .table-header {
+            padding: 8px 10px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: move;
+        }
+
+        .table-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            flex: 1;
+        }
+
+        .table-scope {
+            font-size: 0.8rem;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(0,0,0,0.1);
+            text-transform: uppercase;
+        }
+
+        .table-body {
+            padding: 6px 10px;
+            border-top: 1px solid var(--border);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--text-muted);
+        }
+
+        .table-body .field-block {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .table-body .field-block:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .table-body .field-name-line {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .table-body .field-type-line {
+            color: var(--info);
+        }
+
+        .table-body .field-type-line.is-pk {
+            color: var(--warning);
+        }
+
+        .table-body .field-type-line.is-fk {
+            color: var(--success);
+        }
+
+        .table-body .field-desc-line {
+            color: var(--text-muted);
+        }
+
+        .table-body .field-constraint-line {
+            color: var(--secondary);
+            font-size: 0.82rem;
+        }
+
+        .table-body .table-constraint {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid var(--border);
+            color: var(--warning);
+            font-size: 0.82rem;
+        }
+
+        .table-footer {
+            padding: 5px 10px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .table-footer-btn {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.15s;
+        }
+
+        .table-footer-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .modal-close:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Editor */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .editor-info {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .editor-field {
+            flex: 1;
+        }
+
+        .editor-field label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .editor-field input,
+        .editor-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f9fafb;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .editor-field input:focus,
+        .editor-field select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .editor-textarea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-textarea textarea {
+            flex: 1;
+            min-height: 400px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f9fafb;
+            color: var(--text);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: none;
+        }
+
+        .editor-textarea textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            min-width: 160px;
+            z-index: 3000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: var(--border);
+        }
+
+        .context-menu-item.danger {
+            color: var(--danger);
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
+        }
+
+        /* Import/Export Modal */
+        .import-export-textarea {
+            width: 100%;
+            height: 500px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f9fafb;
+            color: var(--text);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            resize: none;
+        }
+
+        /* 도메인 색은 domainConfig에서 인라인 주입 (생성기가 모듈 목록에서 만든다) */
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 5000;
+            transition: transform 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Kbd */
+        kbd {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Panel -->
+    <div class="left-panel">
+        <div class="panel-header">
+            <select id="viewMode" onchange="setViewMode(this.value)">
+                <option value="canvas">📐 Canvas</option>
+                <option value="relations">🕸️ Relations</option>
+                <option value="design">✏️ Design</option>
+            </select>
+        </div>
+        <div class="domain-list" id="domainList"></div>
+        <div class="panel-actions">
+            <button class="panel-btn" id="addConceptBtn" onclick="addConcept()" title="온톨로지 개념 박스 추가" style="display:none">➕ 개념 추가</button>
+            <button class="panel-btn" onclick="resetLayout()" title="Reset to default layout">🔄 Reset</button>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-container" id="canvasContainer">
+        <div class="canvas" id="canvas">
+            <svg class="relation-layer" id="relationLayer" width="10000" height="10000">
+                <defs>
+                    <marker id="fkArrow" viewBox="0 0 10 10" refX="9" refY="5"
+                            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"></path>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="editModalTitle">Edit Table</div>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="editor-container">
+                    <div class="editor-info">
+                        <div class="editor-field">
+                            <label>Table Name</label>
+                            <input type="text" id="editTableName" placeholder="table_name">
+                        </div>
+                        <div class="editor-field">
+                            <label>Scope</label>
+                            <select id="editTableScope">
+                                <option value="global">global</option>
+                                <option value="center">center</option>
+                            </select>
+                        </div>
+                        <div class="editor-field">
+                            <label>Domain</label>
+                            <select id="editTableDomain"></select>
+                        </div>
+                    </div>
+                    <div class="editor-textarea">
+                        <label>Fields (Markdown Format)</label>
+                        <textarea id="editTableFields" placeholder="id
+int
+...
+@db/PK, auto
+
+name
+varchar(100)
+이름
+@db/not null"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteCurrentTable()" id="deleteTableBtn">Delete Table</button>
+                <div style="flex:1"></div>
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTableEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Import from Markdown</div>
+                <button class="modal-close" onclick="closeImportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem;">
+                    Paste your schema.md content below. This will replace all existing tables.
+                </p>
+                <textarea class="import-export-textarea" id="importTextarea" placeholder="## Auth 도메인
+
+---
+
+domain: accounts
+scope: global
+
+id
+int
+...
+@db/PK, auto
+
+..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="importFromMarkdown()">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Export to Markdown</div>
+                <button class="modal-close" onclick="closeExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+                </div>
+                <textarea class="import-export-textarea" id="exportTextarea" readonly></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExportModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="editSelectedTable()">✏️ Edit</div>
+        <div class="context-menu-item" onclick="duplicateSelectedTable()">📑 Duplicate</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="deleteSelectedTable()">🗑️ Delete</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Domain configuration
+        // 색을 지정하지 않은 도메인은 전부 이 회색. CSS `.domain-*` 값과 쌍으로 맞춰야 한다
+        // (헤더·관계선은 여기서, 왼쪽 패널 점은 CSS 클래스에서 색을 읽는다).
+        const NEUTRAL = '#d1d5db';
+        const domainConfig = {};
+
+        // State
+        let tables = [];
+        let positions = {};
+        let selectedTable = null;
+        let editingTableIndex = null;
+        let zoom = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let isPanning = false;
+        let wasPanning = false;  // 패닝 후 클릭 이벤트 무시용
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragTableStartX = 0;
+        let dragTableStartY = 0;
+        let activeDomain = null;
+        let relationsMode = false;
+        let manualPositions = null;  // relations 모드 진입 전 배치 (토글 off 시 복원)
+        let designMode = false;
+        let schemaSnapshot = null;   // design 모드 진입 전 스키마 (토글 off 시 복원)
+
+        // design = 서버 스키마와 분리된 내 온톨로지 스케치. 서버로 안 올라간다.
+        const DESIGN_KEY = 'schemaCanvasDesign';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            const live = await fetchSchemaData();
+            if (!live) {
+                showToast('서버를 띄우고 /schema-canvas 로 여세요', 'error');
+                const canvas = document.getElementById('canvas');
+                if (canvas) {
+                    canvas.innerHTML = '<div style="padding:48px;color:#6b7280;font:14px system-ui">서버를 띄우고 <code>/schema-canvas</code> 로 여세요.</div>';
+                }
+                return;
+            }
+            loadPositions();
+            renderDomainList();
+            renderTables();
+            setupEventListeners();
+            fitToScreen();
+            showToast(`서버 스키마 반영 — 테이블 ${tables.length}`);
+        });
+
+        // 서버(`GET /schema-data`)에서 로드. file:// 또는 서버 미기동이면 실패.
+        async function fetchSchemaData() {
+            try {
+                const res = await fetch('/schema-data');
+                if (!res.ok) return false;
+                const { markdown, domains } = await res.json();
+                tables = parseSchemaMarkdown(markdown);
+                setDomainConfig(domains);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        // domainConfig는 const 객체 — 통째로 갈아끼우려면 비우고 다시 채운다(남은 키 = 유령 도메인).
+        function setDomainConfig(colorByDomain) {
+            Object.keys(domainConfig).forEach(d => delete domainConfig[d]);
+            Object.entries(colorByDomain).forEach(([d, color]) => domainConfig[d] = { color });
+        }
+
+        function parseSchemaMarkdown(markdown) {
+            const result = [];
+            let currentDomain = '';
+            let currentTable = null;
+            let currentField = null;
+            let fieldLineCount = 0;
+
+            const lines = markdown.split('\n');
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+
+                // Domain header
+                if (trimmed.startsWith('## ') && trimmed.includes('도메인')) {
+                    currentDomain = trimmed.replace('## ', '').replace(' 도메인', '').trim();
+                    if (currentDomain.includes('(')) {
+                        currentDomain = currentDomain.split('(')[0].trim();
+                    }
+                    continue;
+                }
+
+                // Table start
+                if (trimmed.startsWith('domain:')) {
+                    if (currentTable) {
+                        result.push(currentTable);
+                    }
+                    currentTable = {
+                        name: trimmed.replace('domain:', '').trim(),
+                        domain: currentDomain,
+                        scope: 'global',
+                        fields: [],
+                        rawFields: ''
+                    };
+                    currentField = null;
+                    fieldLineCount = 0;
+                    continue;
+                }
+
+                // Scope
+                if (trimmed.startsWith('scope:') && currentTable) {
+                    currentTable.scope = trimmed.replace('scope:', '').trim().split(' ')[0];
+                    continue;
+                }
+
+                // Separator
+                if (trimmed === '---') {
+                    if (currentTable && currentField) {
+                        currentTable.fields.push(currentField);
+                        currentField = null;
+                        fieldLineCount = 0;
+                    }
+                    continue;
+                }
+
+                // 말미의 scope 범례 표 — 4줄 필드로 오파싱되어 유령 필드가 생긴다
+                if (trimmed.startsWith('|')) continue;
+
+                // Table constraint
+                if (trimmed.startsWith('@db/UNIQUE') || trimmed.startsWith('@db/INDEX')) {
+                    if (currentTable) {
+                        currentTable.rawFields += line + '\n';
+                    }
+                    continue;
+                }
+
+                // Field parsing (4-line format)
+                if (currentTable && trimmed && !trimmed.startsWith('##')) {
+                    if (fieldLineCount === 0) {
+                        // New field - save previous if exists
+                        if (currentField) {
+                            currentTable.fields.push(currentField);
+                        }
+                        currentField = {
+                            name: trimmed,
+                            type: '',
+                            description: '',
+                            constraints: ''
+                        };
+                        currentTable.rawFields += line + '\n';
+                        fieldLineCount = 1;
+                    } else if (fieldLineCount === 1) {
+                        currentField.type = trimmed;
+                        currentTable.rawFields += line + '\n';
+                        fieldLineCount = 2;
+                    } else if (fieldLineCount === 2) {
+                        currentField.description = trimmed;
+                        currentTable.rawFields += line + '\n';
+                        fieldLineCount = 3;
+                    } else if (fieldLineCount === 3) {
+                        currentField.constraints = trimmed;
+                        currentTable.rawFields += line + '\n';
+                        fieldLineCount = 0;
+                    }
+                } else if (currentTable && !trimmed) {
+                    // Empty line - finalize current field
+                    if (currentField && currentField.name) {
+                        currentTable.fields.push(currentField);
+                        currentField = null;
+                    }
+                    currentTable.rawFields += '\n';
+                    fieldLineCount = 0;
+                }
+            }
+
+            // Don't forget last table
+            if (currentTable) {
+                if (currentField) {
+                    currentTable.fields.push(currentField);
+                }
+                result.push(currentTable);
+            }
+
+            return result;
+        }
+
+        function loadPositions() {
+            const saved = localStorage.getItem('schemaCanvasPositions');
+            if (saved) {
+                Object.assign(positions, JSON.parse(saved));
+                return;
+            }
+            // 캔버스 모드는 필드를 접지 않아 박스가 3000px를 넘는다 — 실제 필드 수로 행 높이를 잡는다.
+            // (autoLayoutByRelations는 relations 모드의 접힌 높이 기준이라 여기 쓰면 겹친다)
+            let x = 100, y = 100, rowHeight = 0, domain = '';
+            tables.forEach(table => {
+                if (table.domain !== domain) {
+                    if (domain) y += rowHeight + 50;
+                    domain = table.domain;
+                    x = 100;
+                    rowHeight = 0;
+                } else if (x > 100 + 320 * 3) {
+                    x = 100;
+                    y += rowHeight + 30;
+                    rowHeight = 0;
+                }
+                positions[table.name] = { x, y };
+                x += 320;
+                rowHeight = Math.max(rowHeight, 60 + table.fields.length * 70);
+            });
+        }
+
+        function savePositions() {
+            if (designMode) return saveDesign();   // 스케치 배치가 스키마 배치를 덮어쓰지 않게
+            localStorage.setItem('schemaCanvasPositions', JSON.stringify(positions));
+        }
+
+        function resetLayout() {
+            if (confirm('Reset all table positions to default?')) {
+                if (!designMode) localStorage.removeItem('schemaCanvasPositions');
+                positions = {};
+                // Regenerate default positions
+                let currentX = 100;
+                let currentY = 100;
+                let maxHeightInRow = 0;
+                let currentDomain = '';
+                let domainStartX = 100;
+
+                tables.forEach((table, index) => {
+                    const estimatedHeight = 60 + table.fields.length * 70;
+
+                    if (table.domain !== currentDomain) {
+                        if (currentDomain !== '') {
+                            currentY += maxHeightInRow + 50;
+                            maxHeightInRow = 0;
+                        }
+                        currentDomain = table.domain;
+                        currentX = 100;
+                        domainStartX = 100;
+                    }
+
+                    if (currentX > domainStartX + 320 * 3) {
+                        currentX = domainStartX;
+                        currentY += maxHeightInRow + 30;
+                        maxHeightInRow = 0;
+                    }
+
+                    positions[table.name] = { x: currentX, y: currentY };
+                    currentX += 320;
+                    maxHeightInRow = Math.max(maxHeightInRow, estimatedHeight);
+                });
+
+                renderTables();
+                fitToScreen();
+                showToast('Layout reset!', 'success');
+            }
+        }
+
+        function renderDomainList() {
+            const domainList = document.getElementById('domainList');
+            const domainCounts = {};
+
+            tables.forEach(table => {
+                domainCounts[table.domain] = (domainCounts[table.domain] || 0) + 1;
+            });
+
+            // Add "All" option
+            let html = `
+                <div class="domain-item ${!activeDomain ? 'active' : ''}" onclick="filterDomain(null)">
+                    <div class="domain-color" style="background: var(--text-muted)"></div>
+                    <span>All Tables</span>
+                    <span class="domain-count">${tables.length}</span>
+                </div>
+            `;
+
+            Object.keys(domainConfig).forEach(domain => {
+                if (domainCounts[domain]) {
+                    html += `
+                        <div class="domain-item ${activeDomain === domain ? 'active' : ''}" onclick="filterDomain('${domain}')">
+                            <div class="domain-color" style="background: ${domainConfig[domain].color}"></div>
+                            <span>${domain}</span>
+                            <span class="domain-count">${domainCounts[domain]}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            // Populate domain select in edit modal
+            const domainSelect = document.getElementById('editTableDomain');
+            domainSelect.innerHTML = Object.keys(domainConfig).map(d =>
+                `<option value="${d}">${d}</option>`
+            ).join('');
+
+            domainList.innerHTML = html;
+        }
+
+        function filterDomain(domain) {
+            activeDomain = domain;
+            renderDomainList();
+            renderTables();
+
+            // Focus on first table of domain
+            if (domain) {
+                const firstTable = tables.find(t => t.domain === domain);
+                if (firstTable && positions[firstTable.name]) {
+                    const pos = positions[firstTable.name];
+                    panX = -pos.x * zoom + window.innerWidth / 2 - 110;
+                    panY = -pos.y * zoom + window.innerHeight / 2;
+                    updateCanvasTransform();
+                }
+            }
+        }
+
+        function renderTables() {
+            const canvas = document.getElementById('canvas');
+            const tableBoxes = canvas.querySelectorAll('.table-box');
+            tableBoxes.forEach(box => box.remove());
+
+            tables.forEach((table, index) => {
+                if (activeDomain && table.domain !== activeDomain) return;
+
+                const pos = positions[table.name] || { x: 100, y: 100 };
+                const domainColor = domainConfig[table.domain]?.color || NEUTRAL;
+
+                const box = document.createElement('div');
+                box.className = relationsMode ? 'table-box compact' : 'table-box';
+                box.dataset.index = index;
+                box.dataset.name = table.name;
+                box.style.left = pos.x + 'px';
+                box.style.top = pos.y + 'px';
+
+                // Build field blocks with full MD content
+                const fieldBlocksHtml = shownFields(table).map(field => {
+                    if (relationsMode) {
+                        const ref = /FK\s*→\s*([a-z_]+)\./.exec(field.type || '');
+                        return `<div class="field-block">${field.constraints?.includes('PK') ? '🔑 ' : ref ? '🔗 ' : ''}${escapeHtml(field.name)}${ref ? `<span class="field-ref"> → ${escapeHtml(ref[1])}</span>` : ''}</div>`;
+                    }
+                    const isPK = field.constraints?.includes('PK');
+                    const isFK = field.type?.includes('FK');
+                    let typeClass = '';
+                    if (isPK) typeClass = 'is-pk';
+                    else if (isFK) typeClass = 'is-fk';
+
+                    return `<div class="field-block">
+<span class="field-name-line">${isPK ? '🔑 ' : ''}${isFK ? '🔗 ' : ''}${escapeHtml(field.name)}</span>
+<span class="field-type-line ${typeClass}">${escapeHtml(field.type || '')}</span>
+<span class="field-desc-line">${escapeHtml(field.description || '')}</span>
+<span class="field-constraint-line">${escapeHtml(field.constraints || '')}</span>
+</div>`;
+                }).join('');
+
+                // Extract table-level constraints from rawFields
+                const tableConstraints = [];
+                const rawLines = (table.rawFields || '').split('\n');
+                rawLines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith('@db/UNIQUE') || trimmed.startsWith('@db/INDEX')) {
+                        tableConstraints.push(trimmed);
+                    }
+                });
+
+                const tableConstraintsHtml = tableConstraints.length > 0
+                    ? `<div class="table-constraint">${tableConstraints.map(c => escapeHtml(c)).join('\n')}</div>`
+                    : '';
+
+                box.innerHTML = `
+                    <div class="table-header" style="background: ${domainColor}">
+                        <span class="table-name">${table.name}</span>
+                        <span class="table-scope">${table.scope}</span>
+                    </div>
+                    <div class="table-body">${fieldBlocksHtml}${tableConstraintsHtml}</div>
+                    <div class="table-footer">
+                        <button class="table-footer-btn" onclick="openEditModal(${index})">Edit</button>
+                    </div>
+                `;
+
+                // Events
+                box.addEventListener('mousedown', (e) => startDragTable(e, index));
+                box.addEventListener('dblclick', () => openEditModal(index));
+                box.addEventListener('contextmenu', (e) => showContextMenu(e, index));
+
+                canvas.appendChild(box);
+            });
+
+            drawRelations();
+            if (designMode) saveDesign();   // 추가·편집·삭제·복제 전부 여기를 지난다
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ── Relations ──────────────────────────────────────────────
+        // 간선 원천 = 필드 타입의 `(FK → table.id)` 주석. 별도 관계 선언 없음.
+        function rawRelationEdges() {
+            const known = new Set(tables.map(t => t.name));
+            const seen = new Set();
+            const edges = [];
+            tables.forEach(t => (t.fields || []).forEach(f => {
+                const m = /FK\s*→\s*([a-z_]+)\./.exec(f.type || '');
+                if (!m || m[1] === t.name || !known.has(m[1])) return;
+                const key = t.name + '>' + m[1];
+                if (seen.has(key)) return;
+                seen.add(key);
+                edges.push({ from: t.name, to: m[1], field: f.name });
+            }));
+            return edges;
+        }
+
+        // 거의 모든 테이블이 참조하는 테이블(= 테넌트 앵커 centers)은 위치 정보가 0이다.
+        // 배치에 넣으면 전부를 한 점으로 빨아들여 헤어볼이 된다. 이 정보는 헤더 scope 뱃지가 이미 준다.
+        function ubiquitousTables() {
+            const indeg = {};
+            rawRelationEdges().forEach(e => { indeg[e.to] = (indeg[e.to] || 0) + 1; });
+            const cut = tables.length / 3;
+            return new Set(Object.keys(indeg).filter(n => indeg[n] >= cut));
+        }
+
+        function relationEdges() {
+            const hubs = ubiquitousTables();
+            return rawRelationEdges().filter(e => !hubs.has(e.to));
+        }
+
+        // 관계 모드에선 키 필드만 — 전 필드 표시는 박스를 1100px까지 늘려 어떤 배치도 못 읽게 만든다.
+        function shownFields(table) {
+            const fields = table.fields || [];
+            if (!relationsMode) return fields;
+            const keys = fields.filter(f =>
+                f.constraints?.includes('PK') || /FK\s*→/.test(f.type || ''));
+            return keys.length ? keys : fields.slice(0, 1);
+        }
+
+        function estimateBoxHeight(table) {
+            return relationsMode
+                ? 40 + shownFields(table).length * 24
+                : 60 + shownFields(table).length * 70;
+        }
+
+        function boxWidth() {
+            return relationsMode ? 240 : 280;
+        }
+
+        function visibleTables() {
+            return tables.filter(t => !activeDomain || t.domain === activeDomain);
+        }
+
+        // 겹친 사각형을 짧은 축으로 밀어낸다 (x,y = 중심).
+        function separateNodes(nodes, gap, strength) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const a = nodes[i], b = nodes[j];
+                    const ox = (a.w + b.w) / 2 + gap - Math.abs(b.x - a.x);
+                    const oy = (a.h + b.h) / 2 + gap - Math.abs(b.y - a.y);
+                    if (ox <= 0 || oy <= 0) continue;
+                    if (ox < oy) {
+                        const s = (b.x >= a.x ? 1 : -1) * ox * strength / 2;
+                        a.x -= s; b.x += s;
+                    } else {
+                        const s = (b.y >= a.y ? 1 : -1) * oy * strength / 2;
+                        a.y -= s; b.y += s;
+                    }
+                }
+            }
+        }
+
+        // 계층 배치: 열 = 참조 깊이. 사이클이 1개(documents↔document_versions)뿐이라 성립한다.
+        // 왼쪽 = 참조되는 쪽, 오른쪽 = 참조하는 쪽 → "오른쪽으로 갈수록 파생"이라는 읽는 방향이 생긴다.
+        // 세로가 아니라 가로로 층을 쌓는 이유: 박스가 세로로 길어 수직 레이어는 열 하나가 화면을 넘긴다.
+        function autoLayoutByRelations() {
+            const vis = visibleTables();
+            if (!vis.length) return;
+
+            const byName = new Map(vis.map(t => [t.name, t]));
+            const links = relationEdges().filter(e => byName.has(e.from) && byName.has(e.to));
+
+            const parentsOf = {};
+            vis.forEach(t => { parentsOf[t.name] = []; });
+            links.forEach(e => { parentsOf[e.from].push(e.to); });   // from = FK 보유(자식)
+
+            // depth = 부모 최장경로 + 1. 방문중 노드를 다시 만나면 back edge → 0으로 끊는다
+            // (안 끊으면 사이클 쌍이 서로를 끝없이 밀어 열 번호가 폭주한다).
+            const depth = {}, state = {};
+            const resolveDepth = n => {
+                if (state[n] === 2) return depth[n];
+                if (state[n] === 1) return 0;
+                state[n] = 1;
+                const d = parentsOf[n].reduce((max, p) => Math.max(max, resolveDepth(p) + 1), 0);
+                state[n] = 2;
+                return (depth[n] = d);
+            };
+            vis.forEach(t => resolveDepth(t.name));
+
+            const neighbors = {};
+            vis.forEach(t => { neighbors[t.name] = []; });
+            links.forEach(e => { neighbors[e.from].push(e.to); neighbors[e.to].push(e.from); });
+
+            const byDepth = [];
+            vis.forEach(t => {
+                const d = depth[t.name];
+                (byDepth[d] = byDepth[d] || []).push({
+                    name: t.name,
+                    domain: t.domain,
+                    w: boxWidth(),
+                    h: estimateBoxHeight(t),
+                    y: 0
+                });
+            });
+
+            const columns = byDepth.filter(Boolean);   // 빈 깊이 = sparse hole → NaN 유발
+            const GAP_Y = 34, GAP_X = 110;
+            const stackColumn = col => {
+                let y = 0;
+                col.forEach(n => { n.y = y; y += n.h + GAP_Y; });
+            };
+            columns.forEach(stackColumn);
+
+            // barycenter — 인접 열 이웃의 y 무게중심으로 재정렬해 교차를 줄인다.
+            // 동률이면 도메인으로 타이브레이크(같은 색끼리 인접) — 위치는 관계, 색은 도메인.
+            const centerY = {};
+            const syncCenters = () => columns.forEach(col =>
+                col.forEach(n => { centerY[n.name] = n.y + n.h / 2; }));
+            syncCenters();
+            for (let pass = 0; pass < 4; pass++) {
+                columns.forEach(col => {
+                    col.forEach(n => {
+                        const near = neighbors[n.name].filter(m => depth[m] !== depth[n.name]);
+                        n.bary = near.length
+                            ? near.reduce((s, m) => s + centerY[m], 0) / near.length
+                            : centerY[n.name];
+                    });
+                    col.sort((a, b) => a.bary - b.bary || a.domain.localeCompare(b.domain));
+                    stackColumn(col);
+                });
+                syncCenters();
+            }
+
+            const tallest = Math.max(...columns.map(col =>
+                col.reduce((s, n) => s + n.h + GAP_Y, 0)));
+            let x = 100;
+            columns.forEach(col => {
+                const colHeight = col.reduce((s, n) => s + n.h + GAP_Y, 0);
+                const offset = (tallest - colHeight) / 2;   // 열을 세로 가운데 정렬
+                col.forEach(n => {
+                    positions[n.name] = { x: Math.round(x), y: Math.round(100 + offset + n.y) };
+                });
+                x += Math.max(...col.map(n => n.w)) + GAP_X;
+            });
+            savePositions();
+        }
+
+        // 추정 높이로 쌓았으니 실제 렌더 높이로 겹침만 마저 푼다 (추정치 어긋남 흡수).
+        function relaxOverlaps() {
+            const nodes = [];
+            document.querySelectorAll('.table-box').forEach(el => {
+                const pos = positions[el.dataset.name];
+                if (!pos) return;
+                nodes.push({
+                    name: el.dataset.name, el,
+                    w: el.offsetWidth, h: el.offsetHeight,
+                    x: pos.x + el.offsetWidth / 2,
+                    y: pos.y + el.offsetHeight / 2
+                });
+            });
+            for (let step = 0; step < 60; step++) separateNodes(nodes, 30, 1);
+            nodes.forEach(n => {
+                positions[n.name] = { x: Math.round(n.x - n.w / 2), y: Math.round(n.y - n.h / 2) };
+                n.el.style.left = positions[n.name].x + 'px';
+                n.el.style.top = positions[n.name].y + 'px';
+            });
+            savePositions();
+        }
+
+        // 두 박스 중심을 잇는 선이 빠져나가는 변의 중점.
+        function edgeAnchor(a, b) {
+            const ac = { x: a.x + a.w / 2, y: a.y + a.h / 2 };
+            const bc = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+            const dx = bc.x - ac.x, dy = bc.y - ac.y;
+            if (Math.abs(dx) * a.h > Math.abs(dy) * a.w) {
+                return { x: dx > 0 ? a.x + a.w : a.x, y: ac.y };
+            }
+            return { x: ac.x, y: dy > 0 ? a.y + a.h : a.y };
+        }
+
+        function drawRelations() {
+            const svg = document.getElementById('relationLayer');
+            svg.querySelectorAll('.fk-edge').forEach(el => el.remove());
+            if (!relationsMode) return;
+
+            const boxes = {};
+            document.querySelectorAll('.table-box').forEach(el => {
+                const pos = positions[el.dataset.name] || { x: 0, y: 0 };
+                boxes[el.dataset.name] = {
+                    x: pos.x, y: pos.y,
+                    w: el.offsetWidth, h: el.offsetHeight,
+                    domain: tables[el.dataset.index]?.domain
+                };
+            });
+
+            const NS = 'http://www.w3.org/2000/svg';
+            relationEdges().forEach(e => {
+                const a = boxes[e.from], b = boxes[e.to];
+                if (!a || !b) return;
+                const p = edgeAnchor(a, b), q = edgeAnchor(b, a);
+                const line = document.createElementNS(NS, 'line');
+                line.setAttribute('class', 'fk-edge');
+                line.setAttribute('x1', p.x); line.setAttribute('y1', p.y);
+                line.setAttribute('x2', q.x); line.setAttribute('y2', q.y);
+                line.setAttribute('stroke', domainConfig[a.domain]?.color || NEUTRAL);
+                line.setAttribute('stroke-width', '2');
+                line.setAttribute('stroke-opacity', '0.45');
+                line.setAttribute('marker-end', 'url(#fkArrow)');
+                line.appendChild(document.createElementNS(NS, 'title'))
+                    .textContent = `${e.from}.${e.field} → ${e.to}`;
+                svg.appendChild(line);
+            });
+        }
+
+        function toggleRelations() {
+            relationsMode = !relationsMode;
+            document.getElementById('viewMode').value = relationsMode ? 'relations' : 'canvas';
+            document.getElementById('relationLayer').classList.toggle('on', relationsMode);
+
+            if (relationsMode) {
+                manualPositions = JSON.parse(JSON.stringify(positions));
+                autoLayoutByRelations();
+            } else if (manualPositions) {
+                positions = manualPositions;
+                manualPositions = null;
+                savePositions();
+            }
+            renderTables();
+            if (relationsMode) {
+                relaxOverlaps();
+                drawRelations();
+            }
+            fitToScreen();
+
+            const hubs = [...ubiquitousTables()];
+            showToast(relationsMode
+                ? `Relations on — ${relationEdges().length} FK 간선, 참조 깊이順 배치` +
+                  (hubs.length ? ` (허브 ${hubs.join('·')} 제외 — scope 뱃지가 대신함)` : '')
+                : 'Relations off — 이전 배치 복원', 'success');
+        }
+
+        // ── Design ─────────────────────────────────────────────────
+        // 온톨로지 스케치 = 스키마와 별개의 문서. 박스·편집·드래그·Export는 전부 기존 것을 그대로 쓰고,
+        // tables/positions/domainConfig 세 상태만 통째로 갈아끼운다.
+        function toggleDesign() {
+            // relations 해제가 designMode=true 상태에서 돌면 그 안의 renderTables()가
+            // 스키마를 design 슬롯에 저장해버린다 — 플래그보다 먼저 끈다.
+            if (!designMode && relationsMode) toggleRelations();
+
+            designMode = !designMode;
+            document.getElementById('viewMode').value = designMode ? 'design' : 'canvas';
+            document.getElementById('addConceptBtn').style.display = designMode ? '' : 'none';
+
+            if (designMode) {
+                schemaSnapshot = { tables, positions, domains: { ...domainConfig } };
+                const saved = JSON.parse(localStorage.getItem(DESIGN_KEY) || 'null')
+                    || { tables: [], positions: {} };
+                tables = saved.tables;
+                positions = saved.positions;
+            } else {
+                saveDesign();
+                tables = schemaSnapshot.tables;
+                positions = schemaSnapshot.positions;
+                setDomainConfig(Object.fromEntries(
+                    Object.entries(schemaSnapshot.domains).map(([d, v]) => [d, v.color])));
+                schemaSnapshot = null;
+            }
+            if (designMode) syncDesignDomains();
+
+            activeDomain = null;
+            renderDomainList();
+            renderTables();
+            if (tables.length) fitToScreen();
+            showToast(designMode
+                ? (tables.length ? `Design on — 개념 ${tables.length}개` : 'Design on — 빈 캔버스. ➕ 개념 추가로 시작')
+                : 'Design off — 서버 스키마 복원');
+        }
+
+        // 도메인 = 개념 묶음 이름(사용자가 붙인다). 색은 팔레트 순환.
+        function syncDesignDomains() {
+            const palette = ['#2563eb', '#22c55e', '#f59e0b', '#d946ef', '#14b8a6', '#ef4444'];
+            const domains = [...new Set(tables.map(t => t.domain))];
+            setDomainConfig(Object.fromEntries(domains.map((d, i) => [d, palette[i % palette.length]])));
+        }
+
+        function saveDesign() {
+            localStorage.setItem(DESIGN_KEY, JSON.stringify({ tables, positions }));
+        }
+
+        function addConcept() {
+            const name = (prompt('개념 이름 (예: Client)') || '').trim();
+            if (!name) return;
+            if (tables.some(t => t.name === name)) return showToast(`이미 있는 개념: ${name}`, 'error');
+
+            const domain = (prompt('묶음 이름 (도메인)', tables.at(-1)?.domain || '사람·기관') || '미분류').trim();
+            tables.push({ name, domain, scope: 'global', fields: [], rawFields: '' });
+            positions[name] = { x: 120 + (tables.length % 5) * 320, y: 120 + Math.floor(tables.length / 5) * 280 };
+
+            syncDesignDomains();
+            renderDomainList();
+            renderTables();
+            openEditModal(tables.length - 1);
+        }
+
+        function setupEventListeners() {
+            const canvasContainer = document.getElementById('canvasContainer');
+            const canvas = document.getElementById('canvas');
+
+            // Pan with middle mouse or space+drag
+            let spacePressed = false;
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    spacePressed = true;
+                    canvas.classList.add('selecting');
+                }
+                if (e.key === 't' && !e.target.matches('input, textarea')) {
+                    addNewTable();
+                }
+                if (e.key === 'r' && !e.target.matches('input, textarea')) {
+                    resetView();
+                }
+                if (e.key === 'f' && !e.target.matches('input, textarea')) {
+                    fitToScreen();
+                }
+                if (e.key === 'Escape') {
+                    closeEditModal();
+                    closeImportModal();
+                    closeExportModal();
+                    hideContextMenu();
+                    selectedTable = null;
+                    document.querySelectorAll('.table-box.selected').forEach(el => el.classList.remove('selected'));
+                }
+                if (e.key === 'Delete' && selectedTable !== null) {
+                    deleteSelectedTable();
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    spacePressed = false;
+                    canvas.classList.remove('selecting');
+                }
+            });
+
+            canvasContainer.addEventListener('mousedown', (e) => {
+                // 빈 캔버스 영역 좌클릭 드래그 또는 중간 버튼으로 패닝
+                const isCanvasClick = e.target === canvas || e.target === canvasContainer;
+                if (e.button === 1 || (e.button === 0 && (spacePressed || isCanvasClick))) {
+                    isPanning = true;
+                    dragStartX = e.clientX - panX;
+                    dragStartY = e.clientY - panY;
+                    canvas.classList.add('dragging');
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    panX = e.clientX - dragStartX;
+                    panY = e.clientY - dragStartY;
+                    updateCanvasTransform();
+                }
+                if (isDragging && selectedTable !== null) {
+                    const table = tables[selectedTable];
+                    positions[table.name] = {
+                        x: Math.round((e.clientX - dragStartX - panX) / zoom),
+                        y: Math.round((e.clientY - dragStartY - panY) / zoom)
+                    };
+                    const box = document.querySelector(`.table-box[data-index="${selectedTable}"]`);
+                    if (box) {
+                        box.style.left = positions[table.name].x + 'px';
+                        box.style.top = positions[table.name].y + 'px';
+                    }
+                    if (relationsMode) drawRelations();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                wasPanning = isPanning;  // 패닝 중이었으면 기록
+                // 테이블 드래그 종료 시 자동 저장
+                if (isDragging) {
+                    savePositions();
+                }
+                isPanning = false;
+                isDragging = false;
+                canvas.classList.remove('dragging');
+                // 짧은 지연 후 wasPanning 리셋 (click 이벤트가 먼저 발생하도록)
+                setTimeout(() => { wasPanning = false; }, 10);
+            });
+
+            // Zoom with wheel (감도 조절: 0.05 단위로 줌)
+            canvasContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                const newZoom = Math.max(0.25, Math.min(2, zoom + delta));
+
+                // Zoom towards mouse position
+                const rect = canvasContainer.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                panX = mouseX - (mouseX - panX) * (newZoom / zoom);
+                panY = mouseY - (mouseY - panY) * (newZoom / zoom);
+
+                zoom = newZoom;
+                updateCanvasTransform();
+            });
+
+            // Click outside to deselect (패닝 후에는 무시)
+            canvasContainer.addEventListener('click', (e) => {
+                if (wasPanning) return;  // 패닝 후 클릭은 무시
+                if (e.target === canvas || e.target === canvasContainer) {
+                    selectedTable = null;
+                    document.querySelectorAll('.table-box.selected').forEach(el => el.classList.remove('selected'));
+                }
+                hideContextMenu();
+            });
+        }
+
+        function startDragTable(e, index) {
+            if (e.target.matches('button, .table-footer-btn')) return;
+
+            e.stopPropagation();
+
+            // Select table
+            document.querySelectorAll('.table-box.selected').forEach(el => el.classList.remove('selected'));
+            const box = document.querySelector(`.table-box[data-index="${index}"]`);
+            if (box) box.classList.add('selected');
+            selectedTable = index;
+
+            // Start drag
+            isDragging = true;
+            const table = tables[index];
+            const pos = positions[table.name] || { x: 0, y: 0 };
+            dragStartX = e.clientX - pos.x * zoom - panX;
+            dragStartY = e.clientY - pos.y * zoom - panY;
+        }
+
+        function updateCanvasTransform() {
+            const canvas = document.getElementById('canvas');
+            canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            canvas.style.transformOrigin = '0 0';
+        }
+
+        function zoomIn() {
+            zoom = Math.min(2, zoom + 0.1);
+            updateCanvasTransform();
+        }
+
+        function zoomOut() {
+            zoom = Math.max(0.25, zoom - 0.1);
+            updateCanvasTransform();
+        }
+
+        function resetView() {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            updateCanvasTransform();
+        }
+
+        function fitToScreen() {
+            if (tables.length === 0) return;
+
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
+
+            tables.forEach(table => {
+                if (activeDomain && table.domain !== activeDomain) return;
+                const pos = positions[table.name] || { x: 0, y: 0 };
+                const estimatedHeight = 50 + table.fields.length * 60;
+                minX = Math.min(minX, pos.x);
+                minY = Math.min(minY, pos.y);
+                maxX = Math.max(maxX, pos.x + 280);
+                maxY = Math.max(maxY, pos.y + estimatedHeight);
+            });
+
+            if (minX === Infinity) return;
+
+            const canvasContainer = document.getElementById('canvasContainer');
+            const containerWidth = canvasContainer.clientWidth;
+            const containerHeight = canvasContainer.clientHeight;
+
+            const contentWidth = maxX - minX + 100;
+            const contentHeight = maxY - minY + 100;
+
+            zoom = Math.min(
+                containerWidth / contentWidth,
+                containerHeight / contentHeight,
+                1
+            );
+            zoom = Math.max(0.1, Math.min(2, zoom));
+
+            panX = (containerWidth - contentWidth * zoom) / 2 - minX * zoom + 50;
+            panY = (containerHeight - contentHeight * zoom) / 2 - minY * zoom + 50;
+
+            updateCanvasTransform();
+        }
+
+        // Edit Modal
+        function openEditModal(index) {
+            editingTableIndex = index;
+            const table = tables[index];
+
+            document.getElementById('editModalTitle').textContent = `Edit: ${table.name}`;
+            document.getElementById('editTableName').value = table.name;
+            document.getElementById('editTableScope').value = table.scope;
+            document.getElementById('editTableDomain').value = table.domain;
+            document.getElementById('editTableFields').value = table.rawFields.trim();
+            document.getElementById('deleteTableBtn').style.display = 'block';
+
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+            editingTableIndex = null;
+        }
+
+        function saveTableEdit() {
+            const name = document.getElementById('editTableName').value.trim();
+            const scope = document.getElementById('editTableScope').value;
+            const domain = document.getElementById('editTableDomain').value;
+            const rawFields = document.getElementById('editTableFields').value;
+
+            if (!name) {
+                showToast('Table name is required', 'error');
+                return;
+            }
+
+            // Parse fields from raw text
+            const fields = parseRawFields(rawFields);
+
+            if (editingTableIndex !== null) {
+                // Update existing table
+                const oldName = tables[editingTableIndex].name;
+                tables[editingTableIndex] = {
+                    name,
+                    scope,
+                    domain,
+                    fields,
+                    rawFields
+                };
+
+                // Update position key if name changed
+                if (oldName !== name && positions[oldName]) {
+                    positions[name] = positions[oldName];
+                    delete positions[oldName];
+                }
+            } else {
+                // Add new table
+                tables.push({
+                    name,
+                    scope,
+                    domain,
+                    fields,
+                    rawFields
+                });
+                positions[name] = { x: 200, y: 200 };
+            }
+
+            closeEditModal();
+            renderDomainList();
+            renderTables();
+            showToast('Table saved!', 'success');
+        }
+
+        function parseRawFields(rawText) {
+            const fields = [];
+            const lines = rawText.split('\n');
+            let currentField = null;
+            let lineCount = 0;
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+
+                if (trimmed.startsWith('@db/UNIQUE') || trimmed.startsWith('@db/INDEX')) {
+                    continue;
+                }
+
+                if (!trimmed) {
+                    if (currentField && currentField.name) {
+                        fields.push(currentField);
+                        currentField = null;
+                    }
+                    lineCount = 0;
+                    continue;
+                }
+
+                if (lineCount === 0) {
+                    if (currentField && currentField.name) {
+                        fields.push(currentField);
+                    }
+                    currentField = { name: trimmed, type: '', description: '', constraints: '' };
+                    lineCount = 1;
+                } else if (lineCount === 1) {
+                    currentField.type = trimmed;
+                    lineCount = 2;
+                } else if (lineCount === 2) {
+                    currentField.description = trimmed;
+                    lineCount = 3;
+                } else if (lineCount === 3) {
+                    currentField.constraints = trimmed;
+                    lineCount = 0;
+                }
+            }
+
+            if (currentField && currentField.name) {
+                fields.push(currentField);
+            }
+
+            return fields;
+        }
+
+        function deleteCurrentTable() {
+            if (editingTableIndex === null) return;
+
+            if (confirm('Delete this table?')) {
+                const table = tables[editingTableIndex];
+                delete positions[table.name];
+                tables.splice(editingTableIndex, 1);
+                closeEditModal();
+                renderDomainList();
+                renderTables();
+                showToast('Table deleted', 'success');
+            }
+        }
+
+        // Add New Table
+        function addNewTable() {
+            editingTableIndex = null;
+
+            document.getElementById('editModalTitle').textContent = 'Add New Table';
+            document.getElementById('editTableName').value = '';
+            document.getElementById('editTableScope').value = 'center';
+            document.getElementById('editTableDomain').value = activeDomain || 'Center';
+            document.getElementById('editTableFields').value = `id
+int
+...
+@db/PK, auto
+
+created_at
+datetime
+생성 일시
+@db/not null
+
+updated_at
+datetime
+수정 일시
+@db/not null`;
+            document.getElementById('deleteTableBtn').style.display = 'none';
+
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        // Context Menu
+        function showContextMenu(e, index) {
+            e.preventDefault();
+            selectedTable = index;
+
+            document.querySelectorAll('.table-box.selected').forEach(el => el.classList.remove('selected'));
+            const box = document.querySelector(`.table-box[data-index="${index}"]`);
+            if (box) box.classList.add('selected');
+
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.classList.add('show');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+
+        function editSelectedTable() {
+            if (selectedTable !== null) {
+                openEditModal(selectedTable);
+            }
+            hideContextMenu();
+        }
+
+        function duplicateSelectedTable() {
+            if (selectedTable === null) return;
+
+            const original = tables[selectedTable];
+            const newTable = {
+                ...original,
+                name: original.name + '_copy',
+                fields: [...original.fields]
+            };
+
+            const pos = positions[original.name] || { x: 0, y: 0 };
+            positions[newTable.name] = { x: pos.x + 30, y: pos.y + 30 };
+
+            tables.push(newTable);
+            renderDomainList();
+            renderTables();
+            hideContextMenu();
+            showToast('Table duplicated', 'success');
+        }
+
+        function deleteSelectedTable() {
+            if (selectedTable === null) return;
+
+            if (confirm('Delete this table?')) {
+                const table = tables[selectedTable];
+                delete positions[table.name];
+                tables.splice(selectedTable, 1);
+                selectedTable = null;
+                renderDomainList();
+                renderTables();
+                showToast('Table deleted', 'success');
+            }
+            hideContextMenu();
+        }
+
+        // Import/Export
+        function showImportModal() {
+            document.getElementById('importTextarea').value = '';
+            document.getElementById('importModal').classList.add('show');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('show');
+        }
+
+        function importFromMarkdown() {
+            const markdown = document.getElementById('importTextarea').value;
+            if (!markdown.trim()) {
+                showToast('Please paste schema markdown', 'error');
+                return;
+            }
+
+            tables = parseSchemaMarkdown(markdown);
+
+            // Reset positions for new tables
+            positions = {};
+            loadPositions();
+
+            closeImportModal();
+            renderDomainList();
+            renderTables();
+            fitToScreen();
+            showToast(`Imported ${tables.length} tables!`, 'success');
+        }
+
+        function showExportModal() {
+            const markdown = generateMarkdown();
+            document.getElementById('exportTextarea').value = markdown;
+            document.getElementById('exportModal').classList.add('show');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+        }
+
+        function generateMarkdown() {
+            let markdown = '';
+            let currentDomain = '';
+
+            // Sort tables by domain
+            const sortedTables = [...tables].sort((a, b) => {
+                const domainOrder = Object.keys(domainConfig);
+                return domainOrder.indexOf(a.domain) - domainOrder.indexOf(b.domain);
+            });
+
+            sortedTables.forEach(table => {
+                if (table.domain !== currentDomain) {
+                    currentDomain = table.domain;
+                    markdown += `## ${currentDomain} 도메인\n\n---\n\n`;
+                }
+
+                markdown += `domain: ${table.name}\n`;
+                markdown += `scope: ${table.scope}\n\n`;
+                markdown += table.rawFields.trim();
+                markdown += '\n\n---\n\n';
+            });
+
+            // Add scope legend
+            markdown += `## Scope 범례
+
+| scope | 설명 |
+|-------|------|
+| global | 센터 경계 없이 전역 관리 (center_id 없음) |
+| center | 센터별 격리 (center_id 필수, RLS 적용) |
+`;
+
+            return markdown;
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('exportTextarea');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('Copied to clipboard!', 'success');
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function setViewMode(mode) {
+            if ((mode === 'design') !== designMode) toggleDesign();
+            if (!designMode && (mode === 'relations') !== relationsMode) toggleRelations();
+        }
+    </script>
+</body>
+</html>

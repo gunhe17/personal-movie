@@ -1,0 +1,20 @@
+# Root .dockerignore (used for web builds from monorepo root)
+apps/api/.venv
+apps/api/.env
+apps/api/__pycache__
+apps/api/tests
+**/.git
+**/.DS_Store
+**/node_modules
+**/build
+**/.svelte-kit
+**/.env
+**/.env.*
+**/.vscode
+**/.idea
+**/coverage
+**/.pytest_cache
+**/dist
+**/.turbo
+infra/
+docs/

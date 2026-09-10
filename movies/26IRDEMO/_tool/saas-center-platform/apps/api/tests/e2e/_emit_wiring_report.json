@@ -1,0 +1,254 @@
+[
+  {
+    "name": "room",
+    "event": "room_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/rooms/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "room",
+    "event": "room_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/rooms/5f90d0b2-3f7d-466d-9a81-6c7c70a4d2bd",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "room",
+    "event": "room_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/rooms/5f90d0b2-3f7d-466d-9a81-6c7c70a4d2bd",
+    "status": 204,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "member_invitation",
+    "event": "member_invitation_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/members/invitations",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "member_non_working_time",
+    "event": "member_non_working_time_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/members/443ce9de-99b6-46ab-81cc-b70a42f581f9/non-working-times/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "member_non_working_time",
+    "event": "member_non_working_time_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/members/443ce9de-99b6-46ab-81cc-b70a42f581f9/non-working-times/e578e4cb-1738-4c11-8f8f-d17483310c04",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "member_non_working_time",
+    "event": "member_non_working_time_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/members/443ce9de-99b6-46ab-81cc-b70a42f581f9/non-working-times/e578e4cb-1738-4c11-8f8f-d17483310c04",
+    "status": 204,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "center_non_operating_time",
+    "event": "center_non_operating_time_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/non-operating-times/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "center_non_operating_time",
+    "event": "center_non_operating_time_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/non-operating-times/2d1bd8be-1cd6-4630-b7e2-8d733f6d7237",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "center_non_operating_time",
+    "event": "center_non_operating_time_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/non-operating-times/2d1bd8be-1cd6-4630-b7e2-8d733f6d7237",
+    "status": 204,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "role",
+    "event": "role_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/roles/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "role",
+    "event": "role_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/roles/C61EE750",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "role",
+    "event": "role_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/roles/C61EE750",
+    "status": 204,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "message_template",
+    "event": "message_template_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/message-templates/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "message_template",
+    "event": "message_template_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/message-templates/d2a9afb4-96a7-4bcf-b7bd-29b192effce0",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "message_template",
+    "event": "message_template_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/message-templates/d2a9afb4-96a7-4bcf-b7bd-29b192effce0",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "form_template",
+    "event": "form_template_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/forms/templates/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "price_list",
+    "event": "price_list_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/price-lists/",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "price_list",
+    "event": "price_list_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/price-lists/785025e5-b898-4f1f-958e-a06ba185c43c",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "price_list",
+    "event": "price_list_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/price-lists/785025e5-b898-4f1f-958e-a06ba185c43c",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_set",
+    "event": "assessment_set_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-sets",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_set",
+    "event": "assessment_set_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-sets/b3cefb12-1507-4358-8f48-ba9fb1768f16",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_set",
+    "event": "assessment_set_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-sets/b3cefb12-1507-4358-8f48-ba9fb1768f16",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_package",
+    "event": "assessment_package_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-packages",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_package",
+    "event": "assessment_package_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-packages/b6d0e81b-1283-471b-80c9-ad824bd06f88",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "assessment_package",
+    "event": "assessment_package_deleted",
+    "method": "DELETE",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/assessment-packages/b6d0e81b-1283-471b-80c9-ad824bd06f88",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "center_assessment",
+    "event": "center_assessment_updated",
+    "method": "PATCH",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/center-assessments/batch",
+    "status": 200,
+    "verdict": "ok",
+    "body": ""
+  },
+  {
+    "name": "counseling_note",
+    "event": "counseling_note_created",
+    "method": "POST",
+    "path": "/api/v1/centers/65004945-6994-47e4-9352-9f722dee8ac2/counseling/sessions/59b24d42-764f-414a-936f-7778351ae464/notes",
+    "status": 201,
+    "verdict": "ok",
+    "body": ""
+  }
+]

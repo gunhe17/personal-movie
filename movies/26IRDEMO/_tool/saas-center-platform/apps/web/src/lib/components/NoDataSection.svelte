@@ -1,0 +1,50 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+  import Typography from '@common/components/Typography.svelte'
+
+  interface Props {
+    description?: string
+    actions?: Snippet<[]>
+  }
+
+  let { description = '일치하는 검사가 없어요', actions }: Props = $props()
+</script>
+
+<!-- 아이콘은 영역 상단에서 140 — 세로 가운데 정렬은 컨테이너 높이에 따라 위치가 튄다 -->
+<div class="flex h-full flex-col items-center justify-start gap-5 pt-35">
+  <svg
+    width="44"
+    height="44"
+    viewBox="0 0 44 44"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g clip-path="url(#clip0_1252_144737)">
+      <path
+        d="M44 7.33333V36.6667C44 40.7 40.7 44 36.6667 44H7.33333C3.3 44 0 40.7 0 36.6667V7.33333C0 3.3 3.3 0 7.33333 0H36.6667C40.7 0 44 3.3 44 7.33333Z"
+        fill="#E4E4E8"
+      />
+      <path
+        d="M44 29.7V36.6667C44 40.7 40.7 44 36.6667 44H7.33333C3.3 44 0 40.7 0 36.6667V29.7C0 28.6 0.916667 27.6833 2.01667 27.6833H12.8333C13.9333 27.6833 14.85 28.6 14.85 29.7V30.6167C14.85 31.7167 15.7667 32.6333 16.8667 32.6333H27.3167C28.4167 32.6333 29.3333 31.7167 29.3333 30.6167V29.7C29.3333 28.6 30.25 27.6833 31.35 27.6833H42.1667C43.0833 27.6833 44 28.6 44 29.7Z"
+        fill="#8A949E"
+      />
+      <path
+        d="M26.7668 16.1334L24.7501 14.1167L26.7668 12.1C27.5001 11.3667 27.5001 10.0834 26.7668 9.35005C26.0335 8.61672 24.7501 8.61672 24.0168 9.35005L22.0001 11.55L19.9835 9.53338C19.2501 8.80005 17.9668 8.80005 17.2335 9.53338C16.5001 10.2667 16.5001 11.55 17.2335 12.2834L19.2501 14.3L17.2335 16.1334C16.5001 16.8667 16.5001 18.15 17.2335 18.8834C17.9668 19.6167 19.2501 19.6167 19.9835 18.8834L22.0001 17.05L24.0168 19.0667C24.7501 19.8 26.0335 19.8 26.7668 19.0667C27.5001 18.15 27.5001 16.8667 26.7668 16.1334Z"
+        fill="#8A949E"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_1252_144737">
+        <rect width="44" height="44" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+  <Typography
+    variant="body-01-reading-medium"
+    color="text-gray-600"
+    className="text-center whitespace-pre-line">{description}</Typography
+  >
+  {#if actions}
+    {@render actions()}
+  {/if}
+</div>

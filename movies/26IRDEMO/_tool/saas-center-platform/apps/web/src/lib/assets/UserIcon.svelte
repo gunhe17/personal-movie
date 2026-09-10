@@ -1,0 +1,24 @@
+<script lang="ts">
+  let {
+    class: className = '',
+    color = 'currentColor'
+  }: { class?: string; color?: string } = $props()
+</script>
+
+<svg
+  class={className}
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M8 8C9.65685 8 11 6.65685 11 5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5C5 6.65685 6.34315 8 8 8Z"
+    fill={color}
+  />
+  <path
+    d="M8 9C5.23858 9 3 11.2386 3 14H13C13 11.2386 10.7614 9 8 9Z"
+    fill={color}
+  />
+</svg>

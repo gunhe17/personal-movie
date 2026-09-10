@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리빙랩 — 핵심 흐름 시각화</title>
+<style>
+  :root{
+    --ink:#181b22; --sub:#5b6472; --line:#e6e9ee; --bg:#f6f7f9; --card:#fff;
+    --admin:#2f6fed;  --admin-bg:#eaf1fe;
+    --coun:#7c5cd6;   --coun-bg:#f1ecfc;
+    --client:#1d8a4e; --client-bg:#e9f6ee;
+    --sys:#5b6472;    --sys-bg:#eef0f3;
+    --mob:#0e9488;    --mob-bg:#e6f5f3;
+    --ai:#c07a10;     --ai-bg:#fdf3e2;
+    --red:#d94141; --red-bg:#fdeeee; --amber:#b57a10; --amber-bg:#fdf6e8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.55;}
+  .wrap{max-width:1200px; margin:0 auto; padding:44px 36px 120px;}
+  h1{font-size:26px; font-weight:800; letter-spacing:-0.7px;}
+  .meta{font-size:13px; color:var(--sub); margin:6px 0 20px;}
+
+  /* ===== 상단 네비 ===== */
+  .flow-nav{position:sticky; top:0; z-index:50; background:rgba(246,247,249,0.92); backdrop-filter:blur(8px); padding:12px 0 10px; margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line);}
+  .flow-nav a{font-size:12.5px; font-weight:700; color:var(--sub); text-decoration:none; background:#fff; border:1px solid var(--line); padding:7px 14px; border-radius:20px; transition:all .15s;}
+  .flow-nav a:hover{color:var(--admin); border-color:var(--admin); transform:translateY(-1px);}
+
+  /* ===== 범례 ===== */
+  .legend{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:14px 0 8px; font-size:12.5px; color:var(--sub);}
+  .lg{display:inline-flex; align-items:center; gap:6px; font-weight:600;}
+  .dot{width:10px; height:10px; border-radius:3px;}
+  .lg .pulse-demo{width:10px; height:10px; border-radius:50%; background:var(--red); animation:pulse 1.6s infinite;}
+
+  /* ===== 플로우 섹션 ===== */
+  section.flow{margin-top:44px; scroll-margin-top:70px;}
+  .flow-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px;}
+  .flow-head h2{font-size:19px; font-weight:800;}
+  .flow-head .fnum{display:inline-flex; width:26px; height:26px; border-radius:8px; background:var(--ink); color:#fff; font-size:13px; font-weight:800; align-items:center; justify-content:center; transform:translateY(3px);}
+  .flow-head .fdesc{font-size:13px; color:var(--sub);}
+  .track-wrap{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 20px 18px; margin-top:12px; overflow-x:auto;}
+  .track{display:flex; align-items:stretch; gap:0; min-width:max-content; padding:4px 2px;}
+
+  /* 단계 카드 */
+  .step{width:196px; flex-shrink:0; background:#fff; border:1px solid var(--line); border-radius:13px; padding:0 0 13px; position:relative;
+    opacity:0; transform:translateY(18px); transition:opacity .5s ease, transform .5s ease;}
+  .step.visible{opacity:1; transform:translateY(0);}
+  .step .bar{height:5px; border-radius:13px 13px 0 0;}
+  .step .inner{padding:11px 14px 0;}
+  .step .actor{font-size:11.5px; font-weight:800; letter-spacing:0.3px; margin-bottom:4px;}
+  .step .t{font-size:15px; font-weight:800; line-height:1.35; margin-bottom:5px;}
+  .step .d{font-size:12.5px; color:var(--sub); line-height:1.55;}
+  .step code{font-family:"SF Mono",Menlo,monospace; font-size:11px; background:#f0f2f5; padding:1px 5px; border-radius:4px; color:#3a4150;}
+  /* actor 색 */
+  .a-admin .bar{background:var(--admin);} .a-admin .actor{color:var(--admin);}
+  .a-coun .bar{background:var(--coun);} .a-coun .actor{color:var(--coun);}
+  .a-client .bar{background:var(--client);} .a-client .actor{color:var(--client);}
+  .a-sys .bar{background:var(--sys);} .a-sys .actor{color:var(--sys);}
+  .a-mob .bar{background:var(--mob);} .a-mob .actor{color:var(--mob);}
+  .a-ai .bar{background:linear-gradient(90deg,var(--ai),#e3a63a);} .a-ai .actor{color:var(--ai);}
+
+  /* 커넥터 (흐르는 점선) */
+  .conn{width:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative;}
+  .conn .line{width:100%; height:3px; border-radius:2px;
+    background:repeating-linear-gradient(90deg, #c3cad6 0 7px, transparent 7px 13px);
+    background-size:13px 3px; animation:flowdash 0.9s linear infinite;}
+  .conn .arrow{position:absolute; right:2px; width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left:7px solid #aab3c2;}
+  @keyframes flowdash{ from{background-position:0 0;} to{background-position:13px 0;} }
+  @media (prefers-reduced-motion: reduce){ .conn .line{animation:none;} .step{transition:none; opacity:1; transform:none;} }
+
+  /* 분기 스택 */
+  .branch{width:196px; flex-shrink:0; display:flex; flex-direction:column; gap:8px; justify-content:center;}
+  .branch .mini{background:#fff; border:1px solid var(--line); border-radius:11px; padding:9px 13px 10px; position:relative;
+    opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
+  .branch .mini.visible{opacity:1; transform:translateY(0);}
+  .branch .mini .bar2{position:absolute; left:0; top:8px; bottom:8px; width:4px; border-radius:4px;}
+  .branch .mini .t{font-size:13.5px; font-weight:800; margin-left:6px;}
+  .branch .mini .d{font-size:12px; color:var(--sub); margin-left:6px; line-height:1.5;}
+
+  /* 이슈 핀 */
+  .pin{position:absolute; top:-9px; right:-8px; z-index:5;}
+  .pin .p-dot{width:18px; height:18px; border-radius:50%; background:var(--red); color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px var(--red-bg); cursor:default; animation:pulse 1.8s infinite;}
+  .pin.warn .p-dot{background:var(--amber); box-shadow:0 0 0 3px var(--amber-bg);}
+  @keyframes pulse{ 0%{box-shadow:0 0 0 3px rgba(217,65,65,.25);} 60%{box-shadow:0 0 0 9px rgba(217,65,65,0);} 100%{box-shadow:0 0 0 3px rgba(217,65,65,0);} }
+  .pin .tip{display:none;} /* 내용만 보관 — 클릭 시 모달로 표시 */
+  .pin .p-dot{cursor:pointer;}
+  .pin .p-dot:hover{transform:scale(1.15);}
+
+  /* ===== 이슈 모달 ===== */
+  #issue-overlay{position:fixed; inset:0; background:rgba(18,21,28,0.45); z-index:998; opacity:0; pointer-events:none; transition:opacity .18s;}
+  #issue-overlay.show{opacity:1; pointer-events:auto;}
+  #issue-modal{position:fixed; left:50%; top:50%; transform:translate(-50%,-46%) scale(0.97); width:min(480px, calc(100vw - 40px)); background:#fff; border-radius:18px; z-index:999; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; box-shadow:0 20px 60px rgba(0,0,0,.28); overflow:hidden;}
+  #issue-modal.show{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1);}
+  #issue-modal .im-head{padding:18px 22px 12px; display:flex; align-items:center; gap:10px;}
+  #issue-modal .im-sev{font-size:12px; font-weight:800; padding:4px 12px; border-radius:16px;}
+  #issue-modal .im-sev.red{background:var(--red-bg); color:var(--red);}
+  #issue-modal .im-sev.amber{background:var(--amber-bg); color:var(--amber);}
+  #issue-modal .im-close{margin-left:auto; width:32px; height:32px; border:none; background:#f0f2f5; border-radius:50%; font-size:15px; color:var(--sub); cursor:pointer; line-height:1;}
+  #issue-modal .im-close:hover{background:#e4e7ec;}
+  #issue-modal .im-ctx{padding:0 22px; font-size:13px; color:var(--sub); font-weight:600;}
+  #issue-modal .im-ctx b{color:var(--ink);}
+  #issue-modal .im-title{padding:4px 22px 0; font-size:18px; font-weight:800; letter-spacing:-0.4px;}
+  #issue-modal .im-body{padding:10px 22px 22px; font-size:14.5px; line-height:1.7; color:#2c333e;}
+
+  /* 흐름 아래 이슈 요약 줄 */
+  .flow-issues{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;}
+  .fi{font-size:12px; font-weight:700; padding:5px 12px; border-radius:16px;}
+  .fi.red{background:var(--red-bg); color:var(--red);}
+  .fi.amber{background:var(--amber-bg); color:var(--amber);}
+  .fi.ok{background:var(--client-bg); color:var(--client);}
+
+  /* ===== 분업 맵 (6번) ===== */
+  .split{display:grid; grid-template-columns:1fr 220px 1fr; gap:14px; margin-top:14px;}
+  .split .col{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 18px 14px; opacity:0; transform:translateY(18px); transition:all .55s ease;}
+  .split .col.visible{opacity:1; transform:translateY(0);}
+  .split h3{font-size:15px; font-weight:800; margin-bottom:3px;}
+  .split .sub{font-size:12px; color:var(--sub); margin-bottom:12px;}
+  .split ul{list-style:none;}
+  .split li{font-size:12.5px; padding:7px 10px; border-radius:8px; margin-bottom:5px; font-weight:600;}
+  .col.web li{background:var(--admin-bg); color:#1d4fb8;}
+  .col.mob-c li{background:var(--mob-bg); color:#0a6e65;}
+  .col.core{border:2px dashed #c3cad6; background:transparent; display:flex; flex-direction:column; justify-content:center;}
+  .col.core li{background:#fff; border:1px solid var(--line); color:var(--ink); text-align:center;}
+  .col.core h3{text-align:center;} .col.core .sub{text-align:center;}
+  @media (max-width:860px){ .split{grid-template-columns:1fr;} .wrap{padding:28px 16px 80px;} }
+
+  .note{font-size:12.5px; color:var(--sub); margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>핵심 흐름 시각화 — 리빙랩 점검</h1>
+<div class="meta">2026-07-09 · 웹 + 전문가 앱 전수조사 기반. 카드 위 <b style="color:var(--red)">빨간 핀</b> = 흐름이 깨지거나 위험한 지점 · <b style="color:var(--amber)">주황 핀</b> = 사용성 리스크 — <b>핀을 클릭하면 상세 설명 모달</b>이 열립니다</div>
+
+<div class="flow-nav">
+  <a href="#f1">① 온보딩·센터 세팅</a>
+  <a href="#f2">② 상담 풀 사이클</a>
+  <a href="#f3">③ 검사 풀 사이클</a>
+  <a href="#f4">④ 필드노트 (모바일→AI)</a>
+  <a href="#f5">⑤ 청구·바우처</a>
+  <a href="#f6">⑥ 웹↔모바일 분업</a>
+</div>
+
+<div class="legend">
+  <span class="lg"><span class="dot" style="background:var(--admin)"></span>관리자</span>
+  <span class="lg"><span class="dot" style="background:var(--coun)"></span>상담사</span>
+  <span class="lg"><span class="dot" style="background:var(--client)"></span>내담자</span>
+  <span class="lg"><span class="dot" style="background:var(--sys)"></span>시스템</span>
+  <span class="lg"><span class="dot" style="background:var(--mob)"></span>모바일</span>
+  <span class="lg"><span class="dot" style="background:var(--ai)"></span>AI</span>
+  <span class="lg"><span class="pulse-demo"></span>이슈 핀 (클릭 → 상세 모달)</span>
+</div>
+
+<!-- ============ ① 온보딩 ============ -->
+<section class="flow" id="f1">
+  <div class="flow-head"><span class="fnum">1</span><h2>온보딩 · 센터 세팅</h2><span class="fdesc">가입부터 첫 상담을 받을 준비까지 — 리빙랩 첫날의 흐름</span></div>
+  <div class="track-wrap"><div class="track">
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자</div><div class="t">회원가입</div><div class="d"><code>/signup</code> 이메일·약관</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자</div><div class="t">센터 등록 신청</div><div class="d"><code>/welcome/register</code> 이름·주소·대표자</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="pin"><div class="p-dot">!</div><div class="tip">센터 생성은 즉시가 아니라 플랫폼 관리자 승인제 — 리빙랩 일정에 승인 리드타임 반영 필요</div></div><div class="inner"><div class="actor">시스템</div><div class="t">승인 대기</div><div class="d">플랫폼 관리자 승인 후 활성화 (타임라인 안내)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="pin"><div class="p-dot">!</div><div class="tip">P1-1: 승인 후 빈 캘린더에 떨어짐 — 세팅 순서(상담실→프로그램→단가→멤버) 안내가 전혀 없음</div></div><div class="inner"><div class="actor">관리자</div><div class="t">센터 세팅</div><div class="d">상담실·프로그램·단가표·운영시간 <code>/center/*</code></div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자</div><div class="t">상담사 초대</div><div class="d"><code>/member/invite</code> 이메일 (엑셀 일괄 가능)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사</div><div class="t">초대 수락 → 합류</div><div class="d">토큰 링크 → 로그인 → 센터 자동 선택 → 캘린더</div></div></div>
+  </div></div>
+  <div class="flow-issues">
+    <span class="fi red">승인제 리드타임</span><span class="fi red">온보딩 가이드 부재 (P1-1)</span><span class="fi ok">초대 흐름 자체는 완결</span>
+  </div>
+</section>
+
+<!-- ============ ② 상담 ============ -->
+<section class="flow" id="f2">
+  <div class="flow-head"><span class="fnum">2</span><h2>상담 풀 사이클</h2><span class="fdesc">접수 → 회기 → 일지 → 청구 → 완납 — 센터의 매일</span></div>
+  <div class="track-wrap"><div class="track">
+    <div class="step a-admin"><div class="bar"></div><div class="pin"><div class="p-dot">P0</div><div class="tip">P0-2: 충돌 검사가 장소(room)만 — 같은 상담사를 같은 시각 두 방에 배정해도 경고 없음</div></div><div class="inner"><div class="actor">관리자·상담사</div><div class="t">상담 접수</div><div class="d"><code>/counseling/receive</code> 5단 스테퍼 · 멀티 날짜 · 충돌 경고(차단 없음)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">케이스+회기 생성</div><div class="d">Case(active) + 회기 수만큼 Schedule·Session · SMS 알림 · 5분 중복 차단</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사</div><div class="t">일정 확인</div><div class="d">웹 캘린더 3뷰 / 모바일 일정 탭 · 세션 진입</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="branch">
+      <div class="mini"><span class="bar2" style="background:var(--client)"></span><div class="t">✅ 완료</div><div class="d">미확정 참석자 일괄 '참석' 동기화</div></div>
+      <div class="mini"><span class="bar2" style="background:var(--amber)"></span><div class="t">🚫 노쇼</div><div class="d">사유 + 회기 차감 토글</div></div>
+      <div class="mini"><span class="bar2" style="background:var(--sub)"></span><div class="t">↩ 사전 취소</div><div class="d">사유 + 보충 회기 옵션</div></div>
+    </div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사</div><div class="t">일지 작성</div><div class="d">인라인 에디터(자동 저장) · 모바일은 바텀시트 · AI 초안(필드노트→) 가능</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자</div><div class="t">미청구 감지</div><div class="d"><code>/billing</code> 미청구 세션 배너 → 원클릭 청구</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자</div><div class="t">발행 → 납부</div><div class="d">부분 결제 지원 · 과오납 차단 · 완납 시 paid</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사·관리자</div><div class="t">연장 or 종결</div><div class="d">연장 배너(D-7) → 회기 추가 / 종결(되돌리기 가능)</div></div></div>
+  </div></div>
+  <div class="flow-issues">
+    <span class="fi red">P0-2 상담사 이중 배정 무검사</span><span class="fi amber">완료→청구 인계가 화면에 안 드러남 (P1-2)</span><span class="fi ok">상태 머신·출석 동기화 견고</span>
+  </div>
+</section>
+
+<!-- ============ ③ 검사 ============ -->
+<section class="flow" id="f3">
+  <div class="flow-head"><span class="fnum">3</span><h2>검사 풀 사이클</h2><span class="fdesc">의뢰부터 내담자 결과 다운로드까지 — 3주체가 이어달리는 흐름</span></div>
+  <div class="track-wrap"><div class="track">
+    <div class="step a-coun"><div class="bar"></div><div class="pin"><div class="p-dot">P0</div><div class="tip">P0-6: 검사 접수는 충돌을 검사해놓고 응답에 경고를 안 담음 (상담 접수는 warnings 반환)</div></div><div class="inner"><div class="actor">상담사·관리자</div><div class="t">검사 접수</div><div class="d"><code>/assessment/receive</code> 단일/세트 · 단체=엑셀+중복검사 · 방문 여부</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">검사 링크 발송</div><div class="d">SMS/카카오/이메일/QR · 전송 이력·재전송</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-client"><div class="bar"></div><div class="pin warn"><div class="p-dot">?</div><div class="tip">2단 인증(전용 계정 로그인 + 이름·생년월일 확인) — 계정 생성 UX·토큰 만료 복구 미정의. 리빙랩 전 실전 리허설 필수</div></div><div class="inner"><div class="actor">내담자</div><div class="t">로그인+본인확인</div><div class="d">검사 전용 계정 → 센터 선택 → 이름+생년월일 (동명이인 선택)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-client"><div class="bar"></div><div class="inner"><div class="actor">내담자</div><div class="t">검사 수행 → 제출</div><div class="d">세트 아코디언 · 검사별 워크플로(로르샤흐 스텝 등)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">제출 알림</div><div class="d">인앱(30초 폴링)·푸시 → 상담사</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사</div><div class="t">결과 확인·채점</div><div class="d">태스크별 점수·의견 · 보고서 업로드(전문가/내담자용) · 모바일은 소견만</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="pin warn"><div class="p-dot">?</div><div class="tip">P1-5: 검사 링크 vs 결과 링크가 UI에서 둘 다 "링크 전송"처럼 보임 — 라벨 분리 필요</div></div><div class="inner"><div class="actor">시스템</div><div class="t">결과 링크 발송</div><div class="d">SendResult · 인증번호 4자리</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-client"><div class="bar"></div><div class="inner"><div class="actor">내담자</div><div class="t">인증 → 다운로드</div><div class="d"><code>/verify-result</code> 4자리 · 링크 1시간 유효</div></div></div>
+  </div></div>
+  <div class="flow-issues">
+    <span class="fi red">P0-6 충돌 경고 응답 누락</span><span class="fi amber">내담자 인증 리허설 필요</span><span class="fi amber">링크 용어 혼동 (P1-5)</span><span class="fi ok">end-to-end 자체는 닫혀 있음</span>
+  </div>
+</section>
+
+<!-- ============ ④ 필드노트 ============ -->
+<section class="flow" id="f4">
+  <div class="flow-head"><span class="fnum">4</span><h2>필드노트 — 녹음에서 일지 초안까지</h2><span class="fdesc">모바일 차별화 기능. 리빙랩의 킬러 데모이자 최대 인프라 리스크</span></div>
+  <div class="track-wrap"><div class="track">
+    <div class="step a-mob"><div class="bar"></div><div class="inner"><div class="actor">모바일 · 상담사</div><div class="t">FAB → 대상 선택</div><div class="d">오늘 회기 / 검사 task별 / blind 녹음 · 첫 진입 온보딩</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-mob"><div class="bar"></div><div class="pin warn"><div class="p-dot">?</div><div class="tip">가드레일은 구현됨(충돌 해소·30분 전 확인·1:1 연결 409). 리스크는 인프라: 백그라운드 전환·마이크 권한·네트워크 — 실기기 리허설 필수</div></div><div class="inner"><div class="actor">모바일 · 상담사</div><div class="t">녹음</div><div class="d">일시정지/재개/종료 · 다른 회기 충돌 해소 · 30분 전 확인</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">청크 업로드</div><div class="d">재시도(백오프) · 이어녹음은 분석 전까지만</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-ai"><div class="bar"></div><div class="inner"><div class="actor">AI</div><div class="t">전사 · 화자분리</div><div class="d">처리 상태 폴링(3초) · 실패 시 재시도 UI</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-ai"><div class="bar"></div><div class="inner"><div class="actor">AI</div><div class="t">분석 (렌즈 분리)</div><div class="d">상담=요약·키워드·정서·하이라이트 / 검사=질문↔반응·관찰 (해석 금지)</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-coun"><div class="bar"></div><div class="inner"><div class="actor">상담사</div><div class="t">초안 → 일지 저장</div><div class="d">상담일지/검사 소견 prefill · 서식 5종(SOAP·DAP·BIRP…) · 크레딧 차감</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="pin warn"><div class="p-dot">?</div><div class="tip">웹 필드노트 메뉴는 전 환경 숨김 — 웹에서는 상담 상세를 통해서만 접근. 리빙랩 노출 정책 확정 필요</div></div><div class="inner"><div class="actor">웹</div><div class="t">웹에서 열람</div><div class="d">상담 상세 필드노트 뷰 · 전사 내보내기</div></div></div>
+  </div></div>
+  <div class="flow-issues">
+    <span class="fi amber">녹음 인프라 실기기 리허설 (최우선)</span><span class="fi amber">웹 노출 경로 확정</span><span class="fi ok">가드레일·렌즈 분리 설계 견고</span>
+  </div>
+</section>
+
+<!-- ============ ⑤ 청구·바우처 ============ -->
+<section class="flow" id="f5">
+  <div class="flow-head"><span class="fnum">5</span><h2>청구 · 바우처</h2><span class="fdesc">세션이 돈이 되는 경로 — 바우처 센터 리빙랩의 정산 라인</span></div>
+  <div class="track-wrap"><div class="track">
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">미청구 감지</div><div class="d">오늘까지 완료된 상담·검사 세션 중 미청구 → 배너</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="branch">
+      <div class="mini"><span class="bar2" style="background:var(--admin)"></span><div class="t">① 자유 생성</div><div class="d">내담자·항목 직접 + 묶음 할인</div></div>
+      <div class="mini"><span class="bar2" style="background:var(--admin)"></span><div class="t">② 세션 청구</div><div class="d">배너·상담/검사 상세에서 prefill</div></div>
+      <div class="mini"><span class="bar2" style="background:var(--admin)"></span><div class="t">③ 패키지 선결제</div><div class="d">케이스 전 세션 일괄 + 할인</div></div>
+    </div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="pin"><div class="p-dot">P0</div><div class="tip">P0-7: 바우처 차감 시 만료일(valid_until) 검증 없음 — 만료 바우처도 차감 가능. 정산 사고 직결</div></div><div class="inner"><div class="actor">관리자</div><div class="t">바우처 연결</div><div class="d">잔여&gt;0+기간 내만 선택 · 회기 부족=차단 · 금액 초과=경고 · 지원금 분배</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="inner"><div class="actor">시스템</div><div class="t">발행 (issued)</div><div class="d">0원 청구=자동 완납 · 바우처 회기 차감</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-admin"><div class="bar"></div><div class="inner"><div class="actor">관리자 (모바일: 상담사 본인 담당)</div><div class="t">납부 등록</div><div class="d">부분 결제 · 과오납 차단 · 25/50/75/100% 빠른 선택</div></div></div>
+    <div class="conn"><div class="line"></div><div class="arrow"></div></div>
+    <div class="step a-sys"><div class="bar"></div><div class="pin warn"><div class="p-dot">?</div><div class="tip">환불·납부 기록 수정/삭제·영수증 출력 미구현 — 리빙랩 중 정정 요구가 나오면 대응 경로가 없음</div></div><div class="inner"><div class="actor">시스템</div><div class="t">완납 (paid)</div><div class="d">미수금 0 → 완납 · 모바일 영수증 시트</div></div></div>
+  </div></div>
+  <div class="flow-issues">
+    <span class="fi red">P0-7 만료 바우처 차감 검증 없음</span><span class="fi amber">환불·납부 정정 경로 없음</span><span class="fi ok">3경로·부분결제·검증 로직 조밀</span>
+  </div>
+</section>
+
+<!-- ============ ⑥ 분업 맵 ============ -->
+<section class="flow" id="f6">
+  <div class="flow-head"><span class="fnum">6</span><h2>웹 ↔ 모바일 분업 맵</h2><span class="fdesc">코드로 확인된 실제 경계 — 모바일=현장 기록, 웹=접수·관리·운영</span></div>
+  <div class="split">
+    <div class="col web">
+      <h3 style="color:var(--admin)">웹 (관리·운영)</h3>
+      <div class="sub">관리자 + 상담사 데스크 업무</div>
+      <ul>
+        <li>접수·일정 등록 (상담/검사/운영)</li>
+        <li>내담자·케이스 편집</li>
+        <li>검사 링크 발송·채점·보고서 생성</li>
+        <li>청구 전체 관리 + 단가표 (환불은 미구현)</li>
+        <li>센터 설정·권한·양식·구성원</li>
+        <li>사전기록지 발송·재요청</li>
+        <li>내 정보 편집·자격 인증</li>
+      </ul>
+    </div>
+    <div class="col core">
+      <h3>공통 코어</h3>
+      <div class="sub">양쪽에서 동일 로직</div>
+      <ul>
+        <li>회기 상태·출석</li>
+        <li>상담 일지</li>
+        <li>청구 발행·납부*</li>
+        <li>알림 · 공지</li>
+      </ul>
+      <div class="note" style="text-align:center">*모바일은 본인 담당만</div>
+    </div>
+    <div class="col mob-c">
+      <h3 style="color:var(--mob)">모바일 (현장 기록)</h3>
+      <div class="sub">상담사 전용 · 이동 중·세션 직후</div>
+      <ul>
+        <li>🎙 녹음 → 전사 → AI 분석 → 초안 (독점)</li>
+        <li>검사 소견 · 현장 상태 변경</li>
+        <li>즐겨찾기·빠른 연락·Attention 신호</li>
+        <li>위저드 내담자 등록 (바우처 제외)</li>
+        <li>푸시 알림 + 앱 뱃지</li>
+        <li style="background:var(--red-bg); color:var(--red)">⚠ 홈 탭 기획 전환 중 (미확정)</li>
+        <li style="background:var(--amber-bg); color:var(--amber)">⚠ 일정/접수 등록 없음 — 의도 확정 필요</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">경계 자체는 일관적. 리빙랩 관건: 상담사가 <b>현장에서 다음 회기를 잡으려 할 때</b>(모바일 불가 → 웹로 가야 함) 이 분업이 자연스럽게 느껴지는가.</p>
+</section>
+
+</div>
+<div id="issue-overlay"></div>
+<div id="issue-modal" role="dialog" aria-modal="true">
+  <div class="im-head">
+    <span class="im-sev" id="im-sev">이슈</span>
+    <button class="im-close" id="im-close" aria-label="닫기">✕</button>
+  </div>
+  <div class="im-ctx" id="im-ctx"></div>
+  <div class="im-title" id="im-title"></div>
+  <div class="im-body" id="im-body"></div>
+</div>
+<script>
+  // 이슈 핀 클릭 → 모달 (호버 툴팁 대체)
+  const overlay = document.getElementById('issue-overlay');
+  const modal = document.getElementById('issue-modal');
+  const imSev = document.getElementById('im-sev');
+  const imCtx = document.getElementById('im-ctx');
+  const imTitle = document.getElementById('im-title');
+  const imBody = document.getElementById('im-body');
+
+  function openIssue(pin){
+    const isWarn = pin.classList.contains('warn');
+    imSev.textContent = isWarn ? '⚠ 리스크' : '🔴 P0 · 리빙랩 전 필수';
+    imSev.className = 'im-sev ' + (isWarn ? 'amber' : 'red');
+
+    // 핀이 붙은 단계 카드에서 맥락(행위자·단계명·흐름 제목) 추출
+    const step = pin.closest('.step');
+    const flow = pin.closest('section.flow');
+    const flowTitle = flow?.querySelector('.flow-head h2')?.textContent ?? '';
+    const actor = step?.querySelector('.actor')?.textContent ?? '';
+    const stepTitle = step?.querySelector('.t')?.textContent ?? '';
+    imCtx.innerHTML = flowTitle + ' &nbsp;›&nbsp; <b>' + stepTitle + '</b>' + (actor ? ' &nbsp;·&nbsp; ' + actor : '');
+
+    const raw = pin.querySelector('.tip')?.textContent?.trim() ?? '';
+    // "P0-2: 내용" 형태면 제목/본문 분리, 아니면 첫 문장을 제목으로
+    const m = raw.match(/^([^:—]{2,40})[:—]\s*(.+)$/s);
+    if(m){ imTitle.textContent = m[1].trim(); imBody.textContent = m[2].trim(); }
+    else { imTitle.textContent = stepTitle + ' 단계의 확인 필요 지점'; imBody.textContent = raw; }
+
+    overlay.classList.add('show');
+    modal.classList.add('show');
+  }
+  function closeIssue(){ overlay.classList.remove('show'); modal.classList.remove('show'); }
+
+  document.querySelectorAll('.pin').forEach(pin=>{
+    pin.addEventListener('click', (e)=>{ e.stopPropagation(); openIssue(pin); });
+  });
+  overlay.addEventListener('click', closeIssue);
+  document.getElementById('im-close').addEventListener('click', closeIssue);
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeIssue(); });
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const items = e.target.querySelectorAll('.step, .branch .mini, .split .col');
+      items.forEach((el,i)=> setTimeout(()=> el.classList.add('visible'), i*90));
+      io.unobserve(e.target);
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('section.flow').forEach(s=> io.observe(s));
+</script>
+</body>
+</html>

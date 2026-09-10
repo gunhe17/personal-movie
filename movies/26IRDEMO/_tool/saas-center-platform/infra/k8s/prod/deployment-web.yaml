@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-web
+  namespace: mindscope-prod
+  labels:
+    app: mindscope-web
+    environment: prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mindscope-web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mindscope-web
+        environment: prod
+    spec:
+      containers:
+        - name: web
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-prod/web:v1.6.11
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: mindscope-web-config
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "192Mi"

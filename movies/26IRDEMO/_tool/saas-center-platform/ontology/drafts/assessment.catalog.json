@@ -1,0 +1,166 @@
+{
+  "$note": "검사 축 초안 조각 — 정렬 회의 확정 전까지 catalog.json에 미편입. explorer가 '초안' 스타일로 렌더",
+  "status": "draft",
+  "source": "ontology/drafts/검사축-초안.html (AS-1~6)",
+  "zones": {
+    "mindbom": {
+      "label": "마인드봄 — 검사 정본 시스템 (외부)",
+      "x": 1420,
+      "y": 60,
+      "w": 900,
+      "h": 420,
+      "sub": "SaMD 내부 2트랙 · 갈림선=의료기기 기능 여부"
+    },
+    "platformAssess": {
+      "label": "검사 운영 (플랫폼 측 — 초안)",
+      "x": 1420,
+      "y": 620,
+      "w": 900,
+      "h": 500,
+      "sub": "접수·케이스·결과 보관 — 기관 어휘 입히기"
+    }
+  },
+  "concepts": {
+    "instrument": {
+      "label": "검사 정의",
+      "color": "#6d3fc0",
+      "pos": [
+        1650,
+        230
+      ],
+      "zone": "mindbom",
+      "desc": "code+버전이 고유함 — 규준 개정판은 새 행(AS-1, 소급 불변). 문항·채점은 불가침(AS-2): 온톨로지는 겉모습(이름·4축·엔진 참조·라이센스 상태)만.",
+      "decisions": [
+        "AS-1",
+        "AS-2"
+      ],
+      "bind": "마인드봄 카탈로그 (플랫폼 assessments는 소비 캐시로 강등)"
+    },
+    "scoringRule": {
+      "label": "채점 규칙",
+      "color": "#6d3fc0",
+      "pos": [
+        2080,
+        230
+      ],
+      "zone": "mindbom",
+      "desc": "문항과 한 몸 — 코드·콘텐츠 소유(불가침). 엔진 자동/전문가 판정(투사 CDSS)/외부 수신의 3방식. 결과는 중립 3단계(low/moderate/high)로 방출.",
+      "decisions": [
+        "AS-2",
+        "AS-6"
+      ],
+      "bind": "마인드봄 (현행 engine/ 플러그인의 승계)"
+    },
+    "adoption": {
+      "label": "채택",
+      "color": "#2456c4",
+      "pos": [
+        1600,
+        740
+      ],
+      "zone": "platformAssess",
+      "desc": "테넌트가 카탈로그에서 검사를 켜는 것. 라이센스 상태가 쓸 수 있는 실시 방식을 제약(AS-2).",
+      "decisions": [
+        "AS-2"
+      ],
+      "bind": "center_assessments · bound"
+    },
+    "assessCase": {
+      "label": "실시 묶음",
+      "color": "#2456c4",
+      "pos": [
+        1980,
+        740
+      ],
+      "zone": "platformAssess",
+      "desc": "케이스 — 단위가 기관마다 다름: 센터=개인, 학교=학급×회차, 군=부대×기수. 선별 정책(상위 X% 2차)은 회차 설정 소유(AS-3).",
+      "decisions": [
+        "AS-3"
+      ],
+      "bind": "assessment_cases · bound"
+    },
+    "administration": {
+      "label": "개별 실시",
+      "color": "#2456c4",
+      "pos": [
+        1800,
+        980
+      ],
+      "zone": "platformAssess",
+      "desc": "1검사×1수검자. 플랫폼은 상태·결과를 보관, 실시·채점의 실체는 채널에 따라 마인드봄. 상태 사상: 플랫폼 6종 ↔ 마인드봄 8종(경계 계약 조항 2). 결과 등급 어휘는 프로필이 입힘(관심군·배려 — AS-3).",
+      "decisions": [
+        "AS-3",
+        "AS-5",
+        "AS-6"
+      ],
+      "bind": "assessment_tasks · bound"
+    }
+  },
+  "relations": [
+    {
+      "a": "instrument",
+      "b": "scoringRule",
+      "label": "짝 (버전 함께)",
+      "required": true
+    },
+    {
+      "a": "instrument",
+      "b": "adoption",
+      "label": "채택 (경계 계약 1)",
+      "required": true,
+      "cross": true
+    },
+    {
+      "a": "adoption",
+      "b": "assessCase",
+      "label": "실시 개설",
+      "required": true
+    },
+    {
+      "a": "assessCase",
+      "b": "administration",
+      "label": "1..N",
+      "required": true
+    },
+    {
+      "a": "administration",
+      "b": "subject",
+      "label": "수검자 (기관 스코프 참조 — A1)",
+      "required": true,
+      "toCore": true
+    },
+    {
+      "a": "scoringRule",
+      "b": "administration",
+      "label": "결과 회수 (경계 계약 3 · 3형)",
+      "required": false,
+      "cross": true
+    }
+  ],
+  "decisions": {
+    "AS-1": {
+      "title": "검사 정의 = code+버전, 개정판은 새 행",
+      "summary": "규준 개정 시 정의 행을 고치지 않고 새 행 — 과거 실시는 옛 규준을 계속 가리킨다(소급 불변). 종단 비교의 정직성."
+    },
+    "AS-2": {
+      "title": "문항·채점 불가침 + 4축 분해",
+      "summary": "온톨로지는 겉모습만(이름·엔진 참조·라이센스). 유형은 응답주체×채널×채점×산출물 4축 조합 — 현행 workflow_type 2값은 압축 캐시(role enum과 동일 처리, 스키마 무변)."
+    },
+    "AS-3": {
+      "title": "결과 등급 3분할 소유권",
+      "summary": "컷=검사 정의(마인드봄·버전 귀속) / 어휘·그룹핑·표시수준=기관 프로필(관심군·배려·3→2 접기·비표시) / 선별 정책(상위 X%)=회차 설정. 절단선 미결이 선별 정책으로 좁혀짐."
+    },
+    "AS-4": {
+      "title": "화면 갭 2건",
+      "summary": "결과 등급 어휘 하드코딩 실측 추가 / 보호자 열람 플래그 capability화(군=존재 변환 제거)."
+    },
+    "AS-5": {
+      "title": "시스템 경계 비노출 (A4 확장)",
+      "summary": "마인드봄·마인드스코프라는 시스템 이름은 화면의 명사가 아니다 — 노출은 상태('분석 중')와 결과로만."
+    },
+    "AS-6": {
+      "title": "결과 계약 3형",
+      "summary": "구조화 점수(엔진 자동 조합에만) / 소견 문서(전문가 판정·CDSS 확정본) / 외부 PDF. 플랫폼의 보관·집계·어휘 입히기는 세 형태를 구분."
+    }
+  }
+}

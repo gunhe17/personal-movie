@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>마인드봄 종합보고서 작성 매뉴얼</title>
+<style>
+  /* ── 폰트: 시스템 한글 산세리프 ── */
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html { font-family: -apple-system, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; }
+
+  /* ── 색상 팔레트 (마인드봄 디자인 토큰 기준) ──
+     primary-500 #256EF4 / primary-400 #4C87F6 — 참조 디자인 가이드 §2-2 */
+  :root {
+    --blue-deep-1: #2f5fb8;        /* 표지 그라데이션 밝은쪽 */
+    --blue-deep-2: #1b3f80;        /* 표지 그라데이션 어두운쪽 */
+    --gray-toc: #2d333b;           /* 목차 배경 진회색 */
+    --tint: #eef3fe;               /* 장표지 연한 파랑 */
+    --title-blue: #1b51b5;         /* 절제목/장제목 */
+    --sub-blue: #6f94dd;           /* 장표지 절 목록 */
+    --badge-orange: #f5a623;       /* 번호 뱃지 */
+    --text-body: #333333;
+    --text-muted: #666666;
+    --card-bg: #f7f8fa;
+    --card-border: #e6e8ee;
+  }
+
+  /* ── A4 페이지 ── */
+  @page { size: A4; margin: 0; }
+  .page {
+    width: 210mm; min-height: 297mm; height: 297mm;
+    padding: 20mm 18mm; position: relative; overflow: hidden;
+    page-break-after: always; background: #ffffff;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ── 표지 ── */
+  .cover {
+    background: linear-gradient(135deg, var(--blue-deep-1) 0%, var(--blue-deep-2) 100%);
+    padding: 0; color: #fff;
+  }
+  .cover .logo {
+    position: absolute; top: 55px; left: 60px;
+    font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
+  }
+  .cover .logo .dot { color: #7fb0ff; }
+  .cover .title {
+    position: absolute; top: 175px; left: 60px; right: 60px;
+    font-size: 40px; font-weight: 800; line-height: 1.35; letter-spacing: -1px;
+  }
+  .cover .sub {
+    position: absolute; top: 350px; left: 60px; right: 60px;
+    font-size: 16px; font-weight: 500; line-height: 1.8; opacity: 0.75;
+  }
+  .cover .watermark {
+    position: absolute; bottom: -50px; right: -30px;
+    font-size: 300px; font-weight: 800; opacity: 0.07; letter-spacing: -10px;
+  }
+  .cover .version { position: absolute; bottom: 55px; left: 60px; font-size: 18px; font-weight: 600; opacity: 0.85; }
+
+  /* ── 목차 ── */
+  .toc { background: var(--gray-toc); color: #fff; padding: 60px 70px; }
+  .toc h2 { font-size: 30px; font-weight: 800; margin-bottom: 30px; }
+  .toc .subtitle { font-size: 21px; font-weight: 700; margin-bottom: 40px; }
+  .toc ol { list-style: none; }
+  .toc > ol > li { font-size: 19px; font-weight: 700; margin-bottom: 26px; display: flex; gap: 18px; align-items: baseline; }
+  .toc .num { font-weight: 800; min-width: 22px; }
+  .toc .sub { list-style: none; margin: 14px 0 0 40px; }
+  .toc .sub li { font-size: 15px; font-weight: 500; opacity: 0.82; margin-bottom: 10px; display: flex; gap: 14px; }
+  .toc .sub .n { min-width: 34px; font-weight: 600; }
+  .toc .tag { font-size: 12px; color: #ffd27a; margin-left: 6px; }
+
+  /* ── 장 표지 ── */
+  .chapter-cover { background: var(--tint); }
+  .chapter-cover .ch-title {
+    position: absolute; top: 60px; left: 60px;
+    font-size: 34px; font-weight: 800; color: var(--title-blue); letter-spacing: -0.5px;
+  }
+  .chapter-cover .ch-title .cn { margin-right: 14px; }
+  .chapter-cover .ch-list { position: absolute; top: 300px; left: 250px; }
+  .chapter-cover .ch-list li {
+    list-style: none; font-size: 22px; font-weight: 700; color: var(--sub-blue);
+    margin-bottom: 34px; display: flex; gap: 36px;
+  }
+  .chapter-cover .ch-list .sn { color: var(--title-blue); min-width: 56px; }
+
+  /* ── 본문 페이지 ── */
+  .body .sec-title {
+    font-size: 27px; font-weight: 800; color: var(--title-blue);
+    margin-bottom: 18px; letter-spacing: -0.5px;
+  }
+  .body .lead { list-style: none; margin-bottom: 20px; }
+  .body .lead li {
+    font-size: 14.5px; color: var(--text-body); line-height: 1.7; margin-bottom: 7px;
+    padding-left: 14px; position: relative;
+  }
+  .body .lead li::before { content: "-"; position: absolute; left: 0; color: var(--text-muted); }
+  .body .note {
+    font-size: 13.5px; color: #555; background: #eef3fe; border-left: 3px solid var(--sub-blue);
+    padding: 12px 16px; border-radius: 6px; margin: 16px 0; line-height: 1.65;
+  }
+  .body .note b { color: var(--title-blue); }
+
+  /* 표 */
+  .body table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  .body table th {
+    background: #eef3fe; color: var(--title-blue); font-weight: 700;
+    text-align: left; padding: 8px 12px; border: 1px solid var(--card-border);
+  }
+  .body table td {
+    padding: 8px 12px; border: 1px solid var(--card-border); color: var(--text-body); line-height: 1.6;
+  }
+
+  /* 스크린샷 카드 */
+  /* 스크린샷은 최대한 크게 — 카드 좌우·상단 패딩을 없애고 캡션 아래 여백만 둔다 */
+  .shot {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 0 0 10px; margin: 18px 0; text-align: center; overflow: hidden;
+  }
+  .shot img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  .shot .cap { font-size: 12px; color: #999; margin-top: 8px; }
+  .shot.sm .frame { max-width: 74%; }
+  .shot.xs .frame { max-width: 58%; }
+  .shot.pnl .frame { max-width: 46%; }
+  /* 세로로 긴 패널 캡처(비율 2:1 이상)는 폭이 아니라 높이로 제한해야
+     페이지를 넘지 않는다. 폭만 줄이면 세로가 그대로 남는다. */
+  .shot.tall img { max-height: 118mm; width: auto; }
+  .shot.tall .frame { max-width: none; }
+  .shot.tall2 img { max-height: 100mm; width: auto; }   /* 스텝이 4개인 페이지용 */
+  .shot.tall2 .frame { max-width: none; }
+  .shot.half_mid img { max-height: 150mm; width: auto; }
+  .shot.half_mid .frame { max-width: none; }
+  .shot.half img { max-height: 76mm; width: auto; }
+  .shot.half .frame { max-width: none; }
+  .shot .frame { position: relative; display: inline-block; max-width: 100%; }
+  .shot .frame img { display: block; }
+  .pin {
+    position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--badge-orange); color: #fff; font-size: 12.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transform: translate(-50%, -50%);
+    border: 2px solid #fff;
+  }
+
+  /* 번호 항목 리스트 */
+  .steps { margin-top: 8px; }
+  .step { margin-bottom: 16px; }
+  .step .head { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+  .step .badge {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--badge-orange);
+    color: #fff; font-size: 13px; font-weight: 700; display: inline-flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step .head .t { font-size: 15.5px; font-weight: 700; color: #2b2b2b; }
+  .step ul { list-style: none; margin-left: 31px; }
+  .step ul li {
+    font-size: 14px; color: var(--text-body); line-height: 1.65; margin-bottom: 4px;
+    padding-left: 13px; position: relative;
+  }
+  .step ul li::before { content: "-"; position: absolute; left: 0; color: var(--text-muted); }
+
+  .body .footnote { font-size: 12.5px; color: #888; margin-top: 20px; line-height: 1.6; }
+
+  /* 하단 페이지 번호 — 표지·목차 제외 */
+  body { counter-reset: pageno; }
+  .numbered { counter-increment: pageno; }
+  .numbered::after {
+    content: counter(pageno);
+    position: absolute; bottom: 12mm; left: 0; right: 0; text-align: center;
+    font-size: 12px; color: #aaa; font-weight: 500;
+  }
+  .chapter-cover.numbered::after { color: #9fb6e5; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ 표지 ═══════════════ -->
+<div class="page cover">
+  <div class="logo">마인드봄<span class="dot">.</span></div>
+  <div class="title">마인드봄<br>종합보고서<br>작성 매뉴얼</div>
+  <div class="sub">
+    검사 결과 통합 · AI 검토 보조 · 보고서 생성<br>
+    임상심리사 · 상담사용
+  </div>
+  <div class="watermark">M</div>
+  <div class="version">V.1.0</div>
+</div>
+
+<!-- ═══════════════ 목차 ═══════════════ -->
+<div class="page toc">
+  <h2>Contents</h2>
+  <div class="subtitle">마인드봄 종합보고서 작성 매뉴얼</div>
+  <ol>
+    <li><span class="num">1</span>
+      <div>종합보고서 작성 화면
+        <ul class="sub">
+          <li><span class="n">1-1</span> 화면 구성</li>
+        </ul>
+      </div>
+    </li>
+    <li><span class="num">2</span>
+      <div>검사자료 첨부
+        <ul class="sub">
+          <li><span class="n">2-1</span> 자료 목록 확인</li>
+          <li><span class="n">2-2</span> 본문에 자료 삽입</li>
+        </ul>
+      </div>
+    </li>
+    <li><span class="num">3</span>
+      <div>검사 간 교차분석
+        <ul class="sub">
+          <li><span class="n">3-1</span> 교차분석 개요</li>
+          <li><span class="n">3-2</span> 규준 점수 비교</li>
+          <li><span class="n">3-3</span> 영역별 소견 대조</li>
+        </ul>
+      </div>
+    </li>
+    <li><span class="num">4</span>
+      <div>구간별 AI 리뷰 <span class="tag">문장 단위</span>
+        <ul class="sub">
+          <li><span class="n">4-1</span> 리뷰 실행</li>
+          <li><span class="n">4-2</span> 리뷰 카드 읽기</li>
+          <li><span class="n">4-3</span> 수정안 적용</li>
+        </ul>
+      </div>
+    </li>
+    <li><span class="num">5</span>
+      <div>종합 AI 리뷰 <span class="tag">문서 단위</span>
+        <ul class="sub">
+          <li><span class="n">5-1</span> 분석 실행</li>
+          <li><span class="n">5-2</span> 결과 읽기</li>
+          <li><span class="n">5-3</span> 수정안 검토와 반영</li>
+        </ul>
+      </div>
+    </li>
+    <li><span class="num">6</span>
+      <div>보고서 생성</div>
+    </li>
+  </ol>
+</div>
+
+<!-- ═══════════════ 1장 표지 ═══════════════ -->
+<div class="page chapter-cover numbered">
+  <div class="ch-title"><span class="cn">1</span>종합보고서 작성 화면</div>
+  <ul class="ch-list">
+    <li><span class="sn">1-1</span> 화면 구성</li>
+  </ul>
+</div>
+
+<!-- ═══ 1-1 화면 구성 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">1-1 화면 구성</div>
+  <ul class="lead">
+    <li>종합보고서 작성 화면은 좌측 사이드바 · 중앙 본문 · 상단 툴바로 구성됩니다.</li>
+    <li>좌측 사이드바에서 검사자료를 첨부하고 검사 간 교차분석을 확인합니다.</li>
+    <li>중앙 본문은 A4 규격이며, 실제 인쇄물과 같은 모양으로 편집합니다.</li>
+    <li>상단 툴바에서 서식을 지정하고 AI 종합 리뷰를 실행합니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/01-overview.png" alt="보고서 작성 화면 전체">
+    <span class="pin" style="left:1.5%;top:10%">1</span>
+    <span class="pin" style="left:16.5%;top:6%">2</span>
+    <span class="pin" style="left:40%;top:15%">3</span>
+  </div><div class="cap">▲ 종합보고서 작성 화면</div></div>
+  <div class="steps">
+    <div class="step"><div class="head"><span class="badge">1</span><span class="t">좌측 사이드바</span></div>
+      <ul><li>[검사자료] 탭에서 결과지를 본문에 첨부하고, [교차분석] 탭에서 검사 간 소견을 대조합니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">2</span><span class="t">상단 툴바</span></div>
+      <ul><li>글꼴 서식·목록·정렬 등 편집 도구와 우측의 [AI 종합 리뷰] 버튼이 있습니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">3</span><span class="t">중앙 본문 (A4)</span></div>
+      <ul><li>보고서 내용을 작성합니다. 상단에 문단 수와 글자 수가 표시됩니다.</li></ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════ 2장 표지 ═══════════════ -->
+<div class="page chapter-cover numbered">
+  <div class="ch-title"><span class="cn">2</span>검사자료 첨부</div>
+  <ul class="ch-list">
+    <li><span class="sn">2-1</span> 자료 목록 확인</li>
+    <li><span class="sn">2-2</span> 본문에 자료 삽입</li>
+  </ul>
+</div>
+
+<!-- ═══ 2-1 자료 목록 확인 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">2-1 자료 목록 확인</div>
+  <ul class="lead">
+    <li>좌측 [검사자료] 탭에 내담자가 받은 검사와 그 결과지가 표시됩니다.</li>
+    <li>검사별로 접기/펼치기가 가능하며, [전체보기]로 결과지 원본을 확인할 수 있습니다.</li>
+    <li>확인이 완료되지 않은 검사에는 상태 배지가 함께 표시됩니다.</li>
+  </ul>
+  <div class="shot tall"><div class="frame"><img src="images/02-materials.png" alt="검사자료 목록">
+    <span class="pin" style="left:4%;top:9%">1</span>
+    <span class="pin" style="left:60%;top:11%">2</span>
+    <span class="pin" style="left:6%;top:17%">3</span>
+  </div><div class="cap">▲ 검사자료 목록</div></div>
+  <div class="steps">
+    <div class="step"><div class="head"><span class="badge">1</span><span class="t">검사 헤더</span></div>
+      <ul><li>검사 코드와 검사명 · 검사일이 표시됩니다. 우측 화살표로 목록을 접거나 펼칩니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">2</span><span class="t">전체보기</span></div>
+      <ul><li>해당 검사의 결과지 원본을 큰 화면으로 확인합니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">3</span><span class="t">자료 썸네일</span></div>
+      <ul><li>결과지·차트·표가 썸네일로 표시됩니다. 클릭하면 본문에 삽입됩니다.</li></ul></div>
+  </div>
+</div>
+
+<!-- ═══ 2-2 본문에 자료 삽입 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">2-2 본문에 자료 삽입</div>
+  <ul class="lead">
+    <li>본문에서 자료를 넣을 위치에 커서를 둡니다.</li>
+    <li>좌측 자료 썸네일을 클릭하면 커서 위치에 삽입됩니다.</li>
+    <li>이미 삽입한 자료에는 <b>첨부됨</b> 표시가 붙어 같은 자료를 두 번 넣는 실수를 막습니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/03-material-inserted.png" alt="본문에 자료가 삽입된 상태">
+  </div><div class="cap">▲ 결과지 이미지가 본문에 삽입된 상태</div></div>
+  <div class="note">
+    <b>참고</b> · 삽입한 자료는 본문의 일부가 되므로, 보고서를 생성하면 그대로 인쇄됩니다.
+    자료 아래에 해당 결과에 대한 해석을 함께 기술하면 읽는 사람이 근거를 바로 확인할 수 있습니다.
+  </div>
+</div>
+
+<!-- ═══════════════ 3장 표지 ═══════════════ -->
+<div class="page chapter-cover numbered">
+  <div class="ch-title"><span class="cn">3</span>검사 간 교차분석</div>
+  <ul class="ch-list">
+    <li><span class="sn">3-1</span> 교차분석 개요</li>
+    <li><span class="sn">3-2</span> 규준 점수 비교</li>
+    <li><span class="sn">3-3</span> 영역별 소견 대조</li>
+  </ul>
+</div>
+
+<!-- ═══ 3-1 교차분석 개요 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">3-1 교차분석 개요</div>
+  <ul class="lead">
+    <li>좌측 [교차분석] 탭에서 여러 검사의 소견을 구성개념별로 대조합니다.</li>
+    <li>상단에 검사 수 · 불일치 영역 수 · 규준 보유 검사 수가 요약됩니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/04-cross-summary.png" alt="교차분석 상단 요약">
+  </div><div class="cap">▲ 교차분석 요약</div></div>
+  <div class="note">
+    <b>중요</b> · 서로 다른 검사의 원점수를 하나의 척도로 환산하지 않습니다.
+    표준화 검사(규준 보유)만 정량 비교하고, 투사적 검사는 정성 소견으로만 표시합니다.
+    검사 간 점수를 환산할 표준화된 근거가 존재하지 않기 때문입니다.
+  </div>
+</div>
+
+<!-- ═══ 3-2 규준 점수 비교 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">3-2 규준 점수 비교</div>
+  <ul class="lead">
+    <li>규준이 있는 표준화 검사의 백분위 · T점수만 레이더 차트에 표시됩니다.</li>
+    <li>검사 칩을 눌러 차트에서 켜고 끌 수 있습니다.</li>
+    <li>점선은 표시된 검사들의 규준 평균선입니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/05-radar.png" alt="레이더 차트">
+  </div><div class="cap">▲ 규준 점수 비교 (표준화 검사 전용)</div></div>
+  <div class="note">
+    투사적 검사(HTP · 로르샤하 · SCT)는 규준 점수가 없으므로 이 차트에서 제외되며,
+    아래 영역별 소견 대조에서 <b>정성 소견</b>으로 표시됩니다.
+  </div>
+</div>
+
+<!-- ═══ 3-3 영역별 소견 대조 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">3-3 영역별 소견 대조</div>
+  <ul class="lead">
+    <li>구성개념별로 <b>소견 있음</b>과 <b>정상 범위</b> 검사를 나란히 배치합니다.</li>
+    <li>불일치 판단은 점수 차가 아니라 임상적 방향(상승 vs 정상)이 갈리는지로 합니다.</li>
+    <li>투사적 검사는 <b>정성</b> 배지와 함께 원 소견을 그대로 표기합니다.</li>
+  </ul>
+  <div class="shot pnl"><div class="frame"><img src="images/06-discrepancy.png" alt="영역별 소견 대조">
+    <span class="pin" style="left:4%;top:7%">1</span>
+    <span class="pin" style="left:5%;top:15%">2</span>
+    <span class="pin" style="left:5%;top:38%">3</span>
+  </div><div class="cap">▲ 공격성 영역의 소견 불일치</div></div>
+  <div class="steps">
+    <div class="step"><div class="head"><span class="badge">1</span><span class="t">불일치 정도</span></div>
+      <ul><li>소견 불일치 · 부분 불일치 · 일치 중 하나로 표시됩니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">2</span><span class="t">소견 있음</span></div>
+      <ul><li>해당 영역에서 상승 소견을 보인 검사 목록입니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">3</span><span class="t">정상 범위</span></div>
+      <ul><li>같은 영역에서 정상 범위로 나온 검사 목록입니다.</li></ul></div>
+  </div>
+  <div class="footnote">
+    ※ 하단 해석 문구는 두 검사가 경쟁하는 것이 아니라 서로 다른 층위(자기보고 vs 수행기반)를
+    측정한다는 관점에서 작성됩니다. 최종 해석은 임상가가 판단합니다.
+  </div>
+</div>
+
+<!-- ═══════════════ 4장 표지 ═══════════════ -->
+<div class="page chapter-cover numbered">
+  <div class="ch-title"><span class="cn">4</span>구간별 AI 리뷰</div>
+  <ul class="ch-list">
+    <li><span class="sn">4-1</span> 리뷰 실행</li>
+    <li><span class="sn">4-2</span> 리뷰 카드 읽기</li>
+    <li><span class="sn">4-3</span> 수정안 적용</li>
+  </ul>
+</div>
+
+<!-- ═══ 4-1 리뷰 실행 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">4-1 리뷰 실행</div>
+  <ul class="lead">
+    <li>본문에서 검토할 문장을 드래그해 선택합니다.</li>
+    <li>선택 영역 옆에 [AI 분석] 버튼이 나타납니다. 클릭하면 리뷰 카드가 열립니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/07-select-text.png" alt="문장 선택과 AI 분석 버튼">
+  </div><div class="cap">▲ 문장 선택 후 나타나는 [AI 분석] 버튼</div></div>
+  <div class="note">
+    구간별 리뷰는 <b>선택한 문장</b>만 검토합니다. 보고서 전체를 보려면 5장의 종합 AI 리뷰를 사용합니다.
+  </div>
+</div>
+
+<!-- ═══ 4-2 리뷰 카드 읽기 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">4-2 리뷰 카드 읽기</div>
+  <ul class="lead">
+    <li>리뷰 항목은 임상적 중요도 순으로 정렬됩니다.</li>
+    <li>카드 헤더를 끌어 위치를 옮길 수 있습니다. 본문이 가릴 때 사용합니다.</li>
+    <li>다른 문장을 선택하면 카드가 그 옆으로 다시 배치됩니다.</li>
+  </ul>
+  <table>
+    <tr><th style="width:32%">종류</th><th>의미</th></tr>
+    <tr><td>검토 필요</td><td>단정적 서술 · 진단명 직접 기술 등 작성 원칙과 관련된 지적</td></tr>
+    <tr><td>근거 연결</td><td>인용된 수치가 검사 결과와 대조되는지 확인한 결과</td></tr>
+    <tr><td>표현 제안</td><td>문장 길이 · 검사 간 불일치 반영 권고</td></tr>
+    <tr><td>맞춤법 / 표현 개선</td><td>이중 피동 · 임상 용어 등 문체 교정</td></tr>
+  </table>
+  <div class="shot tall"><div class="frame"><img src="images/08-review-card.png" alt="AI 리뷰 카드">
+  </div><div class="cap">▲ AI 리뷰 카드</div></div>
+</div>
+
+<!-- ═══ 4-3 수정안 적용 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">4-3 수정안 적용</div>
+  <ul class="lead">
+    <li>수정 제안이 있는 항목에는 변경 전후가 함께 표시됩니다.</li>
+    <li>[이 수정안 적용]은 해당 1건만 반영합니다.</li>
+    <li>카드 상단의 [N곳 모두 적용]을 누르면 제안된 교정을 한 번에 반영합니다.</li>
+  </ul>
+  <div class="shot sm"><div class="frame"><img src="images/09-fix-apply.png" alt="변경 전후 미리보기">
+  </div><div class="cap">▲ 변경 전 → 변경 후 미리보기와 적용 버튼</div></div>
+  <div class="note">
+    <b>AI가 본문을 임의로 고치지 않습니다.</b> 제안된 내용을 확인하고 버튼을 눌러야 반영되며,
+    반영 여부는 전적으로 작성자가 결정합니다.
+  </div>
+</div>
+
+<!-- ═══════════════ 5장 표지 ═══════════════ -->
+<div class="page chapter-cover numbered">
+  <div class="ch-title"><span class="cn">5</span>종합 AI 리뷰</div>
+  <ul class="ch-list">
+    <li><span class="sn">5-1</span> 분석 실행</li>
+    <li><span class="sn">5-2</span> 결과 읽기</li>
+    <li><span class="sn">5-3</span> 수정안 검토와 반영</li>
+  </ul>
+</div>
+
+<!-- ═══ 5-1 분석 실행 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">5-1 분석 실행</div>
+  <ul class="lead">
+    <li>툴바 우측 [AI 종합 리뷰]를 클릭하면 우측 패널이 열리고 분석이 시작됩니다.</li>
+    <li>네 단계로 진행되며, 각 단계의 소요 시간은 작업량에 따라 다릅니다.</li>
+  </ul>
+  <table>
+    <tr><th style="width:14%">단계</th><th>내용</th></tr>
+    <tr><td>1</td><td>문서 구조 파악 — 섹션 구성과 분량을 확인합니다</td></tr>
+    <tr><td>2</td><td>검사 결과 대조 — 첨부된 검사가 본문에 반영되었는지 확인합니다</td></tr>
+    <tr><td>3</td><td>서술 일관성 검토 — 문서 안에서 상반된 기술이 없는지 확인합니다</td></tr>
+    <tr><td>4</td><td>표현·문체 점검 — 구간별 지적을 문단 단위로 집계합니다</td></tr>
+  </table>
+  <div class="shot"><div class="frame"><img src="images/10-review-progress.png" alt="4단계 진행 표시">
+  </div><div class="cap">▲ 분석 진행 표시</div></div>
+</div>
+
+<!-- ═══ 5-2 결과 읽기 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">5-2 결과 읽기</div>
+  <ul class="lead">
+    <li>완성도 점수(0~100)와 함께 검토사항이 나열됩니다.</li>
+    <li>각 항목의 색 점이 심각도이며, 마우스를 올리면 설명이 표시됩니다.</li>
+    <li>[이동]을 누르면 본문의 해당 위치로 이동합니다.</li>
+  </ul>
+  <div class="shot tall2"><div class="frame"><img src="images/11-review-result.png" alt="검토사항 목록">
+    <span class="pin" style="left:3%;top:7%">1</span>
+    <span class="pin" style="left:3%;top:15%">2</span>
+    <span class="pin" style="left:75%;top:23.5%">3</span>
+    <span class="pin" style="left:3%;top:31%">4</span>
+  </div><div class="cap">▲ 검토 결과</div></div>
+  <div class="steps">
+    <div class="step"><div class="head"><span class="badge">1</span><span class="t">완성도 점수</span></div>
+      <ul><li>글자 수 · 섹션 수 · 검사 반영 현황이 함께 표시됩니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">2</span><span class="t">검토 종류와 심각도</span></div>
+      <ul><li>섹션 누락 · 서술 모순 · 결과 미반영 · 표현 교정으로 구분됩니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">3</span><span class="t">이동</span></div>
+      <ul><li>본문에서 해당 위치를 바로 확인합니다.</li></ul></div>
+    <div class="step"><div class="head"><span class="badge">4</span><span class="t">수정안</span></div>
+      <ul><li>버튼을 누르면 미리보기가 열립니다. 바로 반영되지 않습니다.</li></ul></div>
+  </div>
+</div>
+
+<!-- ═══ 5-3 수정안 검토와 반영 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">5-3 수정안 검토와 반영</div>
+  <ul class="lead">
+    <li>미리보기에서 변경 전후를 확인합니다.</li>
+    <li>같은 표현이 여러 곳에 있으면 몇 곳이 바뀌는지 안내합니다.</li>
+    <li>[본문에 적용]을 누르면 반영되고, 점수와 검토사항이 즉시 갱신됩니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/12-fix-preview.png" alt="수정 미리보기">
+  </div><div class="cap">▲ 수정 미리보기</div></div>
+  <div class="note">
+    <b>서술 모순은 양쪽 선택지를 제시합니다.</b> 어느 쪽이 맞는지는 검사 결과와 임상적
+    판단으로 결정할 문제이므로, AI가 한쪽을 고르지 않습니다.
+  </div>
+</div>
+
+<!-- ═══ 5-3 (계속) 반영 결과 ═══ -->
+<div class="page body numbered">
+  <div class="sec-title">5-3 수정안 검토와 반영 (계속)</div>
+  <ul class="lead">
+    <li>반영하면 해당 검토사항이 목록에서 사라지고 완성도 점수가 오릅니다.</li>
+    <li>남은 검토사항을 차례로 처리하며 보고서를 완성합니다.</li>
+    <li>하단 작성 체크리스트에서 항목별 충족 여부를 확인할 수 있습니다.</li>
+  </ul>
+  <div class="shot half_mid"><div class="frame"><img src="images/13-score-improved.png" alt="반영 후 점수 상승">
+  </div><div class="cap">▲ 수정안 반영 후 점수가 오른 상태</div></div>
+  <div class="shot sm"><div class="frame"><img src="images/14-checklist.png" alt="작성 체크리스트">
+  </div><div class="cap">▲ 작성 체크리스트</div></div>
+</div>
+
+<!-- ═══════════════ 6장 ═══════════════ -->
+<div class="page body numbered">
+  <div class="sec-title">6. 보고서 생성</div>
+  <ul class="lead">
+    <li>작성을 마치면 우측 상단 [보고서 생성]으로 PDF를 내려받습니다.</li>
+    <li>표지와 마지막 장의 표시 여부는 툴바의 화면 표시 설정에서 조정합니다.</li>
+    <li>본문에 첨부한 검사자료 이미지도 함께 인쇄됩니다.</li>
+  </ul>
+  <div class="shot"><div class="frame"><img src="images/15-export.png" alt="보고서 생성">
+  </div><div class="cap">▲ 보고서 생성</div></div>
+  <div class="note">
+    <b>작성 원칙</b> · AI는 초안과 검토 의견을 제시하는 보조 도구입니다.
+    보고서에 담기는 모든 해석과 판단의 최종 책임은 작성자인 임상가에게 있습니다.
+  </div>
+</div>
+
+</body>
+</html>

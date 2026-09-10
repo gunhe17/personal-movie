@@ -1,0 +1,2 @@
+class WorkerDispatchError(Exception):
+    pass

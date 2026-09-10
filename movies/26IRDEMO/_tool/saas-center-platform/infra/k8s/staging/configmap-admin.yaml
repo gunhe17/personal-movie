@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mindscope-admin-config
+  namespace: mindscope-staging
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  ORIGIN: "https://console.staging.mindscope.kr"
+  # Admin server-side proxy -> API internal DNS
+  API_URL: "http://mindscope-api-svc.mindscope-staging.svc.cluster.local:80/api/v1"

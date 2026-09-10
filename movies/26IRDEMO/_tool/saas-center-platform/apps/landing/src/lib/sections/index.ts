@@ -1,0 +1,9 @@
+export { default as Header } from './Header.svelte';
+export { default as Hero } from './Hero.svelte';
+export { default as PainPoints } from './PainPoints.svelte';
+export { default as Answer } from './Answer.svelte';
+export { default as Features } from './Features.svelte';
+export { default as Platform } from './Platform.svelte';
+export { default as Trust } from './Trust.svelte';
+export { default as Cta } from './Cta.svelte';
+export { default as Footer } from './Footer.svelte';

@@ -1,0 +1,302 @@
+{
+  "audited_at": "2026-08-12",
+  "method": "agent 전수 실측 (재생성: scripts/audit-screens.mjs)",
+  "summary": {
+    "vocab_hardcode": 26,
+    "role_branch": 5,
+    "noun_exposure": 3,
+    "guardian_as_row": 2,
+    "total": 36
+  },
+  "concept_map_note": "vocab_hardcode→어휘 변환(A3) 위반 / role_branch→D3 위반 / noun_exposure→A4 위반 / guardian_as_row→D4 위반",
+  "violations": [
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/constants.ts",
+      "line": 10,
+      "code": "{ value: 'GUARDIAN', title: '보호자' }",
+      "note": "역할 필터 탭 리터럴"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/constants.ts",
+      "line": 11,
+      "code": "{ value: 'CHILD', title: '아동' }",
+      "note": "역할 필터 탭 리터럴"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/register/view-model.ts",
+      "line": 79,
+      "code": "filledGuardians[0].name.trim() || '보호자'",
+      "note": "스텝퍼 프리뷰 기본값"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/register/register-form-hooks.svelte.ts",
+      "line": 228,
+      "code": "label: isGuardianEdit ? '보호자 정보' : '내담자 정보'",
+      "note": "등록 폼 스텝 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/register/register-form-hooks.svelte.ts",
+      "line": 239,
+      "code": "label: '보호자 정보'",
+      "note": "등록 폼 스텝 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/register/register-form-hooks.svelte.ts",
+      "line": 462,
+      "code": "gErrors.name = '보호자 이름을 입력해주세요.'",
+      "note": "검증 에러 메시지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/register/register-service.ts",
+      "line": 182,
+      "code": "'형제를 함께 등록하려면 보호자 정보가 필요해요.'",
+      "note": "등록 에러 메시지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/detail/detail-service.ts",
+      "line": 328,
+      "code": "RELATION_DETAIL_REVERSE_MAP[...] || '보호자'",
+      "note": "관계 표시 기본값"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/detail/detail-service.ts",
+      "line": 329,
+      "code": ": '내담자'",
+      "note": "관계 표시 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/clients-service.ts",
+      "line": 40,
+      "code": "`...내담자를 삭제하시겠어요?`",
+      "note": "삭제 다이얼로그"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/clients-service.ts",
+      "line": 41,
+      "code": "'내담자 삭제'",
+      "note": "삭제 다이얼로그 제목"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/clients/clients-service.ts",
+      "line": 54,
+      "code": "'내담자가 삭제되었습니다.'",
+      "note": "삭제 성공 메시지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/schedule/reservations/constants.ts",
+      "line": 15,
+      "code": "'내담자, 담당자 검색'",
+      "note": "검색 플레이스홀더"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/schedule/calendar/constants.ts",
+      "line": 35,
+      "code": "'내담자와의 상담 일정을 등록해요'",
+      "note": "일정 유형 설명"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/features/schedule/calendar/constants.ts",
+      "line": 40,
+      "code": "'내담자와의 검사 일정을 등록해요'",
+      "note": "일정 유형 설명"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/AssessmentCaseTable.svelte",
+      "line": 171,
+      "code": "'내담자 없음'",
+      "note": "테이블 빈상태"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/AssessmentCaseTable.svelte",
+      "line": 368,
+      "code": "label: '내담자'",
+      "note": "테이블 컬럼 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/receive/ReceiveFormPanel.svelte",
+      "line": 184,
+      "code": "내담자 *",
+      "note": "폼 필드 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/receive/ReceiveFormPanel.svelte",
+      "line": 215,
+      "code": "placeholder=\"내담자 이름을 검색해주세요\"",
+      "note": "검색 플레이스홀더"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/receive/ReceiveFormPanel.svelte",
+      "line": 242,
+      "code": "엑셀로 내담자 등록",
+      "note": "버튼 텍스트"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/receive/ExcelPreviewOverlay.svelte",
+      "line": 100,
+      "code": "`${skippedCount}명은 기존 내담자로 처리됐어요!`",
+      "note": "업로드 결과 메시지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "subject",
+      "file": "src/lib/components/assessment/receive/ExcelPreviewOverlay.svelte",
+      "line": 123,
+      "code": "`이름·생년월일·보호자 정보가 같은 내담자 ${highCount}명`",
+      "note": "중복 경고 메시지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/ClientMultiSelect.svelte",
+      "line": 688,
+      "code": "보호자",
+      "note": "역할 배지 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/GroupClientSearchInput.svelte",
+      "line": 157,
+      "code": "보호자",
+      "note": "검색 결과 배지"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/SelectedClientCard.svelte",
+      "line": 80,
+      "code": "보호자 성함",
+      "note": "폼 필드 라벨"
+    },
+    {
+      "type": "vocab_hardcode",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/SelectedClientCard.svelte",
+      "line": 105,
+      "code": "보호자 연락처",
+      "note": "폼 필드 라벨"
+    },
+    {
+      "type": "role_branch",
+      "concept": "guardianRel",
+      "file": "src/lib/components/clients/detail/AppLinkModal.svelte",
+      "line": 38,
+      "code": "role === 'guardian' || role === 'both'",
+      "note": "enum 직접 분기"
+    },
+    {
+      "type": "role_branch",
+      "concept": "guardianRel",
+      "file": "src/lib/components/clients/detail/AppLinkSection.svelte",
+      "line": 22,
+      "code": "role === 'guardian' || role === 'both'",
+      "note": "enum 직접 분기"
+    },
+    {
+      "type": "role_branch",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/ClientMultiSelect.svelte",
+      "line": 684,
+      "code": "{#if client.role === 'guardian'}",
+      "note": "enum 직접 검사"
+    },
+    {
+      "type": "role_branch",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/GroupClientSearchInput.svelte",
+      "line": 153,
+      "code": "{#if client.role === 'guardian'}",
+      "note": "enum 직접 검사"
+    },
+    {
+      "type": "role_branch",
+      "concept": "guardianRel",
+      "file": "src/lib/features/clients/register/register-form-hooks.svelte.ts",
+      "line": 98,
+      "code": "editClientRole === 'guardian'",
+      "note": "수정 모드 enum 분기"
+    },
+    {
+      "type": "noun_exposure",
+      "concept": "person",
+      "file": "src/lib/components/account-info/AccountSettingsPanel.svelte",
+      "line": 38,
+      "code": "label: '계정 설정'",
+      "note": "메뉴에 '계정' 노출 (직원 자기 설정 — 화이트리스트 검토 필요)"
+    },
+    {
+      "type": "noun_exposure",
+      "concept": "person",
+      "file": "src/lib/components/layout/AppHeader.svelte",
+      "line": 191,
+      "code": "계정 정보",
+      "note": "메뉴 텍스트"
+    },
+    {
+      "type": "noun_exposure",
+      "concept": "person",
+      "file": "src/lib/components/SecretModeLockScreen.svelte",
+      "line": 298,
+      "code": "placeholder=\"계정 비밀번호를...\"",
+      "note": "입력 플레이스홀더"
+    },
+    {
+      "type": "guardian_as_row",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/ClientMultiSelect.svelte",
+      "line": 684,
+      "code": "guardian을 동급 행으로 표시 (배지만 구분)",
+      "note": "검사 접수 내담자 선택 목록"
+    },
+    {
+      "type": "guardian_as_row",
+      "concept": "guardianRel",
+      "file": "src/lib/components/assessment/receive/GroupClientSearchInput.svelte",
+      "line": 153,
+      "code": "guardian을 동급 행으로 표시 (배지만 구분)",
+      "note": "단체 모드 검색 목록"
+    }
+  ]
+}

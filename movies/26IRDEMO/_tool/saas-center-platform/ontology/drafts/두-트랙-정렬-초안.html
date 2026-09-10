@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온톨로지 두 트랙 정렬 — 협업 회의 지참용</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb;
+    --accent:#4486FF; --as:#6d3fc0; --as-bg:#f1ecfb; --as-line:#d8c9f2;
+    --mb:#0e7490; --mb-bg:#e8f6fa; --mb-line:#b8e0ec;
+    --ok:#15803d; --ok-soft:#e7f6ec; --warn:#b45309; --warn-soft:#fef3e2;
+    --danger:#b91c1c; --danger-soft:#fdeaea;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:44px 24px 100px; line-height:1.7; }
+  .wrap { max-width:980px; margin:0 auto; }
+  h1 { font-size:24px; margin-bottom:6px; }
+  .subtitle { color:var(--sub); font-size:13.5px; margin-bottom:10px; max-width:840px; }
+  .status { display:inline-block; background:var(--warn-soft); color:var(--warn); font-size:12px; font-weight:700;
+            border-radius:16px; padding:3px 14px; margin-bottom:30px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+  section { margin-bottom:56px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+  h2 { font-size:19px; }
+  h3 { font-size:14px; margin:14px 0 8px; }
+  .sec-desc { color:var(--sub); font-size:13.5px; margin-bottom:16px; max-width:840px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); margin:10px 0 16px; }
+  th { background:#f0f3f8; text-align:left; padding:8px 12px; font-size:11.5px; color:var(--sub); border-bottom:1px solid var(--line); }
+  td { padding:7px 12px; border-top:1px solid #f0f3f8; vertical-align:top; }
+  td.k { font-weight:700; white-space:nowrap; }
+  .none { color:var(--danger); font-weight:700; }
+  .ok { color:var(--ok); font-weight:700; }
+  .warn { color:var(--warn); font-weight:700; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  .track { background:#fff; border-radius:14px; padding:16px 18px; border:1.5px solid var(--line); }
+  .track.ours { border-color:var(--mb-line); background:linear-gradient(#fff,#fff) padding-box; }
+  .track.theirs { border-color:var(--as-line); }
+  .track .tag { display:inline-block; font-size:11px; font-weight:700; border-radius:6px; padding:2px 10px; margin-bottom:8px; }
+  .track.ours .tag { background:var(--mb-bg); color:var(--mb); }
+  .track.theirs .tag { background:var(--as-bg); color:var(--as); }
+  .track b.title { display:block; font-size:14px; margin-bottom:6px; }
+  .track p { font-size:12.5px; color:var(--sub); margin-bottom:6px; }
+  .track ul { font-size:12.5px; color:var(--sub); padding-left:18px; }
+  .track li { margin-bottom:3px; }
+
+  .decision { display:grid; grid-template-columns:52px 1fr; gap:12px; margin-bottom:12px; background:#fff;
+              border:1.5px solid var(--as-line); border-radius:14px; padding:13px 16px; }
+  .decision .dn { background:var(--as); color:#fff; border-radius:8px; font-size:11px; font-weight:700; text-align:center; padding:3px 0; height:fit-content; }
+  .decision b { font-size:13.5px; display:block; margin-bottom:3px; }
+  .decision p { font-size:12.5px; color:var(--sub); }
+  .decision.green { border-color:#bfe3cb; }
+  .decision.green .dn { background:var(--ok); }
+  .decision.red { border-color:#f0c4c4; }
+  .decision.red .dn { background:var(--danger); }
+
+  .principle { background:var(--ok-soft); border:1.5px solid #bfe3cb; border-radius:14px; padding:18px 20px; margin:14px 0; }
+  .principle b { font-size:15px; display:block; margin-bottom:6px; color:var(--ok); }
+  .principle p { font-size:13px; }
+
+  pre { background:#111827; color:#e5e7eb; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:11.5px;
+        border-radius:12px; padding:14px 16px; overflow-x:auto; line-height:1.6; margin:10px 0 16px; }
+  .footnote { color:var(--sub); font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>온톨로지 두 트랙 정렬</h1>
+<p class="subtitle">
+  main에 머지된 백엔드 실행 레이어(<code>app/ontology</code>, PR #194~196, 2026-08-13~14)와
+  ontology-v1 브랜치의 정의 레이어(<code>ontology/</code>)를 비교하고, 협업 경계를 합의하기 위한 문서.
+</p>
+<span class="status">초안 — 정렬 회의 지참용 (2026-08-14 · 2026-08-18 갱신: 드리프트 3 해소, 4 표기 규약 선언)</span>
+
+<!-- ────────────────────────── 1 ────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="sec-num">1</span><h2>한눈에 — 경쟁이 아니라 층이 다르다</h2></div>
+  <p class="sec-desc">
+    같은 "온톨로지"라는 이름을 쓰지만 만드는 물건이 다르다. 하나는 <b>사전(무엇이 존재하고 뭐라고 부르나)</b>,
+    하나는 <b>교환기(그 다름을 API 호출 시점에 어느 구현으로 연결하나)</b>다. 교환기는 사전이 정의한
+    축을 소비하는 쪽이지, 사전을 대체하지 않는다.
+  </p>
+  <div class="two-col">
+    <div class="track ours">
+      <span class="tag">우리 — ontology-v1 브랜치</span>
+      <b class="title">정의 레이어 (사전 · 설계도)</b>
+      <p>사람·기관 도메인의 개념 정본. "어떤 개념이 존재하고, 기관마다 뭐라고 부르고, 어느 테이블에 사상되는가."</p>
+      <ul>
+        <li><code>ontology/catalog.json</code> — 개념 7종(person·subject·staff·guardianRel·org·orgUnit·extInst) + 관계 5</li>
+        <li><code>ontology/bindings.json</code> — 개념↔테이블 실측 사상 (bound/partial/missing)</li>
+        <li><code>ontology/profiles/*.json</code> — 기관 유형별 어휘·존재·가변 (center·school·hospital·military·shelter)</li>
+        <li>공리 A1~A7 · 결정 D1~D8 (결정장부)</li>
+        <li><code>tools/ontology-explorer</code> — 모델 그래프·감사 + API 콘솔 (:3503)</li>
+        <li><code>apps/web .. terms.ts</code> — 화면 어휘가 프로필을 소비 (리터럴 금지)</li>
+      </ul>
+    </div>
+    <div class="track theirs">
+      <span class="tag">백엔드 — main (gunhe17)</span>
+      <b class="title">실행 레이어 (교환기 · API)</b>
+      <p>기관 무관 조회 표면. "호출자는 기관 종류를 모른다 — 학생 조회·병사 조회가 따로 생기지 않게."</p>
+      <ul>
+        <li><code>GET /api/v1/ontology/centers/{id}/clients · /sessions</code></li>
+        <li>한 파일 = 한 연산: <code>.py</code> 시그니처 + <code>.yaml</code> 사상 — 기관 유형(<code>center_type</code> 축)별로 어느 application handler를 부를지 선언</li>
+        <li>로드 검사 4종 — 축·import·slots·서버 인자 어긋나면 부팅에서 죽음 (조용한 드리프트 차단)</li>
+        <li>dev 전용 <code>/api-map</code> 계약 — 모델 탐색기 콘솔이 이걸 읽어 개념·파라미터를 자동 열거 (내장 페이지 <code>/ontology-explorer</code>는 리다이렉트만 남음, 아래 드리프트 3)</li>
+        <li>계약 <code>.claude/rules/api/ontology.md</code> · 판정 <code>app/ontology/DECISIONS.md</code></li>
+        <li>미구현 기관(school·military·hospital) 좌표는 커밋 전 제거 — "기관이 붙을 때 yaml 한 줄로 되살린다"</li>
+      </ul>
+    </div>
+  </div>
+  <pre># 백엔드 yaml 실물 (handler/client/query_client.yaml)
+name: clients.query
+codomains:
+  center_type:            # ← 축. 이 값 체계가 우리 profiles/index.json과 만나야 하는 지점
+    counseling:           # ← 좌표. 현재 상담센터 하나뿐
+      operation: app.application.handlers.client.query_client.query_client_handler
+      slots: [center_id, owner_scope, name, code, ...]   # 그 기관이 받는 조회 축 전부</pre>
+</section>
+
+<!-- ────────────────────────── 2 ────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="sec-num">2</span><h2>이미 수렴한 것 — 독립적으로 같은 결론</h2></div>
+  <p class="sec-desc">
+    서로 안 보고 만들었는데 같은 곳에 도달한 지점들. 협업의 토대이자, "두 트랙이 같은 모델을
+    보고 있다"는 증거로 회의에서 먼저 짚을 것.
+  </p>
+  <div class="decision green"><span class="dn">수렴 1</span><div>
+    <b>새 축은 둘뿐 — 소속 조직 + 상시 담당자</b>
+    <p>백엔드 DECISIONS.md "D4 준비"가 학교(반)·군(부대)·병원(병동)을 훑고 내린 결론:
+    "진짜 새것은 소속 조직과 상시 담당자 둘뿐, 나머지는 기존 아키타입에 떨어진다."
+    우리 catalog의 <code>orgUnit</code>(binding: missing) + D7(조직 위계 모양은 프로필이 선언)과 정확히 같은 판정.</p>
+  </div></div>
+  <div class="decision green"><span class="dn">수렴 2</span><div>
+    <b>개념은 기관 무관 명사</b>
+    <p>백엔드 D1: "concept은 기관 무관 복수 명사 — <code>clients</code>이지 <code>students</code>가 아니다."
+    우리 A3(어휘 변환은 프로필 소유)·terms.ts 리터럴 금지와 같은 원칙의 API판.</p>
+  </div></div>
+  <div class="decision green"><span class="dn">수렴 3</span><div>
+    <b>학번·군번·환자번호 = <code>clients.code</code> 재사용</b>
+    <p>백엔드: "셋 다 기관 내 유일 식별 코드로 같고, 갈리는 건 표시명·형식 검증뿐. 새 컬럼을 파면
+    같은 개념이 넷이 된다." 우리 D1(대상자 고유함 = 기관 내 유일까지만)·A1과 일치.</p>
+  </div></div>
+  <div class="decision green"><span class="dn">수렴 4</span><div>
+    <b>기관별 분화는 선언으로, 코드 분기 금지</b>
+    <p>백엔드 D6: <code>if center_type == ...</code> 분기 폐기 → yaml 선언. 우리 A5·D6·D7(프로필 = 주입되는 선언)과
+    같은 철학 — 기관이 늘 때 코드가 아니라 선언 파일 하나가 는다.</p>
+  </div></div>
+</section>
+
+<!-- ────────────────────────── 3 ────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="sec-num">3</span><h2>어긋나기 시작한 것 — 정렬 필요 4건</h2></div>
+  <p class="sec-desc">지금은 전부 싸게 고칠 수 있다. 방치하면 각자 정본이 둘이 된다.</p>
+
+  <div class="decision red"><span class="dn">드리프트 1</span><div>
+    <b>기관 유형 축 값 — <code>counseling</code> vs <code>center</code>, 그리고 shelter</b>
+    <p>백엔드 yaml 좌표는 <code>counseling</code>, 우리 프로필 id는 <code>center</code> — 같은 것("상담센터")의
+    이름이 벌써 둘이다. 우리에게만 있는 <code>shelter</code>(쉼터 선례)도 백엔드 값집합
+    (<code>CENTER_TYPES = counseling·school·military·hospital</code>)엔 없다.
+    실측(코드 확인): 축 좌표는 <code>centers.center_type</code> 컬럼의 런타임 값인데 <b>이 컬럼은 아직 DB에 없다</b> —
+    <code>getattr(..., None)</code> → 기본 <code>counseling</code>, 값집합은 handler 안 튜플 하나뿐.
+    즉 데이터 마이그레이션 대상이 0건인 지금이 정렬 비용이 사실상 0인 시점이고,
+    우리 D6("테넌트 유형 필드 = 프로필 포인터")대로 <b>컬럼이 태어날 때부터
+    <code>ontology/profiles/index.json</code>의 id를 값으로 갖게 합의</b>하는 게 제안.</p>
+  </div></div>
+  <div class="decision red"><span class="dn">드리프트 2</span><div>
+    <b>개념 명명 — 테이블 명사(clients) vs 개념 명사(subject)</b>
+    <p>백엔드 URL·폴더는 <code>clients</code>·<code>sessions</code>(테이블에서 온 이름), 우리 catalog는
+    <code>subject</code>·<code>person</code>·<code>staff</code>(기관 중립 개념). "client"는 이미 상담센터 어휘가 밴 이름이라
+    백엔드 자신의 D1 원칙("students가 아니다")과도 긴장이 있다. URL을 지금 바꾸자는 게 아니라,
+    <b>catalog 개념 id ↔ API concept 명사의 대응표를 정본에 한 줄로 등재</b>하는 것부터.</p>
+  </div></div>
+  <div class="decision green"><span class="dn">해소 3</span><div>
+    <b>탐색기 이름 충돌 — 해소됨 (2026-08-18)</b>
+    <p>호칭을 나누는 대신 <b>장기안대로 한 셸에 합쳤다</b>. 탐색기는 <code>tools/ontology-explorer</code> 하나뿐이고,
+    서버가 뿌리던 HTML 콘솔은 이 앱의 API 콘솔로 흡수됐다 — 개념·파라미터는 <code>/api-map</code>에서 자동으로
+    열거하고, 온톨로지 응답 봉투(<code>rows</code>)를 그대로 그래프로 그린다.
+    <code>localhost:3502/ontology-explorer</code>는 <code>:3503</code>으로 리다이렉트되므로 옛 주소도 살아 있다.
+    <span class="ok">회의 안건에서 제외</span> — F3은 완료.</p>
+  </div></div>
+  <div class="decision red"><span class="dn">드리프트 4</span><div>
+    <b>결정 번호 충돌 — D6이 두 개다</b>
+    <p>백엔드 <code>app/ontology/DECISIONS.md</code>의 D1~D7과 우리 결정장부 D1~D8은 번호 체계가 겹친다
+    (예: 백엔드 D6 = yaml 사상 확정, 우리 D6 = 테넌트 유형 필드). 회의·문서에서 "D6"이 모호해진다.</p>
+    <p><b>표기 규약은 선언해 뒀다 (2026-08-18)</b> — 문서·회의에서는 <code>MD-</code>(모델 정의) /
+    <code>AD-</code>(API 실행) 접두로 부른다. 양쪽 소유 문서(<code>ontology/decisions.json</code> ·
+    <code>app/ontology/DECISIONS.md</code>)가 자기 접두를 머리에 적고 서로를 링크한다.
+    데이터 키(<code>A1</code>~<code>D8</code>)는 <b>그대로 뒀다</b> — catalog·초안·회의록 4종이 이미 이 키를 쓰고 있어
+    리넘버는 지난 회의록까지 건드린다. <b>남은 결정: 키까지 리넘버할 것인가</b> (기본안: 하지 않는다).</p>
+  </div></div>
+</section>
+
+<!-- ────────────────────────── 4 ────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="sec-num">4</span><h2>제안 — 대원칙 하나, 후속은 기술 작업</h2></div>
+  <p class="sec-desc">회의에서 합의할 것은 이 한 문장뿐이다. 이게 서면 §3의 4건은 전부 소유권이 정해진 기술 후속이 된다.</p>
+  <div class="principle">
+    <b>대원칙 (합의 대상)</b>
+    <p>루트 <code>ontology/</code>가 <b>개념·축·어휘의 정의 정본</b>이고,
+    <code>apps/api/app/ontology/</code>는 그것을 소비하는 <b>실행 표면</b>이다.
+    개념·기관 유형·어휘를 새로 만들거나 바꾸는 결정은 정의 정본에서 하고, 실행 표면은 따라간다.</p>
+  </div>
+  <table>
+    <tr><th>#</th><th>후속 작업</th><th>내용</th><th>주 담당</th></tr>
+    <tr><td class="k">F1</td><td>축 값 통일</td><td>yaml 좌표·<code>AXES</code>가 <code>profiles/index.json</code>의 id를 쓴다 (counseling→center 또는 역방향 — 방향만 회의에서). shelter 좌표 등재 시점도 함께.</td><td>백엔드 + 우리</td></tr>
+    <tr><td class="k">F2</td><td>개념 대응표</td><td>catalog 개념 id ↔ API concept 명사 매핑을 <code>ontology/catalog.json</code>에 등재. 신규 concept은 여기부터.</td><td>우리</td></tr>
+    <tr><td class="k">F3</td><td>탐색기 역할 분리</td><td><span class="ok">완료 (2026-08-18)</span> — 호칭 분리 대신 한 셸로 통합. 모델 탐색기가 <code>/api-map</code>을 읽어 온톨로지 표면을 호출하고 응답을 그래프로 그린다(장기안 선반영).</td><td>—</td></tr>
+    <tr><td class="k">F4</td><td>결정 번호 접두</td><td><span class="ok">표기 규약 선언 완료 (2026-08-18)</span> — <code>MD-</code>/<code>AD-</code> 접두 + 양쪽 문서 상호 링크. 데이터 키 리넘버 여부만 회의 판단.</td><td>각자</td></tr>
+    <tr><td class="k">F5</td><td>검증 연결 (장기)</td><td>yaml의 축·좌표를 catalog/bindings와 대조하는 감사(로드 검사 5번째 축) — 정본이 기계적으로 하나가 되는 종착점.</td><td>백엔드</td></tr>
+  </table>
+  <p class="footnote">
+    F1의 방향 논거: 프로필 id는 이미 web(terms.ts)·explorer·문서가 소비 중이고, 백엔드 쪽은 컬럼 미생성 + 좌표 1개
+    (counseling) + 값집합 튜플 1곳이 전부라 지금이 가장 싼 시점. 단 "counseling이 용도(코어 루프, A6)로는
+    더 정확하다"는 반론이 가능 — 회의에서 결정. 우리 D6이 이미 "테넌트 유형 필드 = 프로필 포인터"를 확정해 둔 것이
+    이 합의의 근거 조항.
+  </p>
+</section>
+
+<!-- ────────────────────────── 5 ────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="sec-num">5</span><h2>회의에서 결정할 것 (이 순서로, 하나씩)</h2></div>
+  <table>
+    <tr><th>#</th><th>질문</th><th>기본안</th></tr>
+    <tr><td class="k">Q1</td><td>§4 대원칙(정의 정본 = <code>ontology/</code>)에 동의하는가</td><td>동의 — 백엔드 D1·D6 철학과 충돌 없음</td></tr>
+    <tr><td class="k">Q2</td><td>기관 유형 축 값의 이름 체계 — 기관 명사(center·school…)인가 용도(counseling…)인가</td><td>프로필 id 채택(소비처가 이미 많음), 용도 축은 A6대로 프로필 내부 속성(loop)으로 유지</td></tr>
+    <tr><td class="k">Q3</td><td>백엔드가 다음에 여는 concept(member? schedule?)과 우리 catalog 확장(검사 축) 순서 조율</td><td>격주 정렬 — 새 concept·새 좌표는 열기 전에 상대 트랙에 공유</td></tr>
+  </table>
+</section>
+
+</div>
+</body>
+</html>

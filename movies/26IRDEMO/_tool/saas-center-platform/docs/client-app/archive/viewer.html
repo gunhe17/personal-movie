@@ -1,0 +1,4101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마인드엔서 — 내담자 앱 기능 명세</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg: #fafafa;
+    --sidebar-bg: #fff;
+    --content-bg: #fff;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --mvp: #2563eb;
+    --phase2: #d97706;
+    --phase3: #7c3aed;
+    --sidebar-w: 280px;
+    --header-h: 56px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* Header */
+  .header {
+    position: fixed; top:0; left:0; right:0; height: var(--header-h);
+    background: #fff; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; z-index: 100;
+    gap: 16px;
+  }
+  .header h1 { font-size: 16px; font-weight: 700; white-space: nowrap; }
+  .header .search-box {
+    flex:1; max-width: 400px; position: relative;
+  }
+  .header .search-box input {
+    width: 100%; padding: 8px 12px 8px 36px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; outline: none; background: var(--bg);
+  }
+  .header .search-box input:focus { border-color: var(--accent); }
+  .header .search-box::before {
+    content: ''; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; border: 2px solid #999; border-radius: 50%;
+  }
+  .header .kbd {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: #999; background: #f3f4f6; padding: 2px 6px;
+    border-radius: 4px; border: 1px solid var(--border); pointer-events: none;
+  }
+  .menu-toggle {
+    display: none; background: none; border: none; cursor: pointer;
+    width: 32px; height: 32px; position: relative;
+  }
+  .menu-toggle span, .menu-toggle::before, .menu-toggle::after {
+    display: block; width: 20px; height: 2px; background: var(--text);
+    position: absolute; left: 6px; transition: .2s;
+  }
+  .menu-toggle span { top: 15px; }
+  .menu-toggle::before { content:''; top: 9px; }
+  .menu-toggle::after { content:''; top: 21px; }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed; top: var(--header-h); left: 0; bottom: 0;
+    width: var(--sidebar-w); background: var(--sidebar-bg);
+    border-right: 1px solid var(--border); overflow-y: auto;
+    padding: 16px 0; z-index: 90;
+  }
+  .sidebar .section-label {
+    padding: 8px 20px 4px; font-size: 11px; font-weight: 600;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px;
+  }
+  .sidebar .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer; font-size: 14px;
+    color: var(--text); text-decoration: none; transition: .15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar .nav-item:hover { background: var(--accent-light); }
+  .sidebar .nav-item.active {
+    background: var(--accent-light); border-left-color: var(--accent);
+    font-weight: 600; color: var(--accent);
+  }
+  .sidebar .nav-item .badge {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    font-weight: 600; margin-left: auto; white-space: nowrap;
+  }
+  .badge-mvp { background: #dbeafe; color: var(--mvp); }
+  .badge-phase2 { background: #fef3c7; color: var(--phase2); }
+  .badge-phase3 { background: #ede9fe; color: var(--phase3); }
+
+  /* Content */
+  .content {
+    margin-left: var(--sidebar-w); margin-top: var(--header-h);
+    padding: 40px 48px; max-width: 900px;
+  }
+
+  /* Markdown styles */
+  .md h1 { font-size: 28px; font-weight: 800; margin: 0 0 8px; line-height: 1.3; }
+  .md h1 + blockquote { margin-top: 0; }
+  .md h2 { font-size: 20px; font-weight: 700; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  .md h3 { font-size: 16px; font-weight: 700; margin: 28px 0 12px; }
+  .md h4 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; }
+  .md p { font-size: 15px; line-height: 1.8; margin: 8px 0; }
+  .md blockquote {
+    border-left: 3px solid var(--accent); background: var(--accent-light);
+    padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;
+    font-size: 14px; color: #374151;
+  }
+  .md blockquote p { margin: 4px 0; }
+  .md ul, .md ol { padding-left: 24px; margin: 8px 0; }
+  .md li { font-size: 15px; line-height: 1.8; margin: 4px 0; }
+  .md strong { font-weight: 700; }
+  .md code {
+    background: #f3f4f6; padding: 2px 6px; border-radius: 4px;
+    font-size: 13px; font-family: 'SF Mono', Monaco, monospace;
+  }
+  .md pre {
+    background: #1e293b; color: #e2e8f0; padding: 16px 20px;
+    border-radius: 10px; overflow-x: auto; margin: 16px 0;
+    font-size: 13px; line-height: 1.6;
+  }
+  .md pre code { background: none; padding: 0; color: inherit; }
+  .md table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 14px;
+  }
+  .md th {
+    text-align: left; padding: 10px 12px; background: #f8fafc;
+    border-bottom: 2px solid var(--border); font-weight: 600;
+  }
+  .md td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6;
+  }
+  .md tr:last-child td { border-bottom: none; }
+  .md tbody tr:hover { background: #fafbfc; }
+  .md hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  .md a { color: var(--accent); text-decoration: none; }
+  .md a:hover { text-decoration: underline; }
+
+  /* Phase badge in content */
+  .phase-indicator {
+    display: inline-block; padding: 4px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 700; margin-bottom: 20px;
+  }
+  .phase-mvp { background: #dbeafe; color: var(--mvp); }
+  .phase-phase2 { background: #fef3c7; color: var(--phase2); }
+  .phase-phase3 { background: #ede9fe; color: var(--phase3); }
+
+  /* TOC */
+  .toc {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; margin: 20px 0 32px; font-size: 14px;
+  }
+  .toc-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); }
+  .toc a { display: block; padding: 4px 0; color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+  .toc .toc-h3 { padding-left: 16px; color: var(--text-secondary); }
+
+  /* Search highlight */
+  mark { background: #fef08a; padding: 1px 2px; border-radius: 2px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .menu-toggle { display: block; }
+    .sidebar { transform: translateX(-100%); transition: .3s; }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.1); }
+    .content { margin-left: 0; padding: 24px 20px; }
+    .header h1 { font-size: 14px; }
+  }
+
+  /* Scrollbar */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+  /* User story highlight */
+  .md h2 + ul { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 12px 16px 12px 28px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+
+  /* ── Wireframe styles ── */
+  .wf-screens { display: flex; flex-wrap: wrap; gap: 40px; }
+  .wf-phone {
+    width: 320px; flex-shrink: 0;
+    border: 2px solid #d1d5db; border-radius: 28px;
+    background: #fff; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  }
+  .wf-phone-header {
+    text-align: center; padding: 10px 16px 6px;
+    font-size: 11px; color: #999; border-bottom: 1px solid #f0f0f0;
+  }
+  .wf-phone-body { padding: 0; }
+  .wf-phone-tab {
+    display: flex; border-top: 1px solid #e5e7eb; background: #fafafa;
+  }
+  .wf-phone-tab span {
+    flex: 1; text-align: center; padding: 10px 0; font-size: 13px;
+    font-weight: 600; color: #999;
+  }
+  .wf-phone-tab span.active { color: var(--accent); }
+
+  .wf-section {
+    padding: 16px; border-bottom: 1px dashed #e5e7eb;
+    position: relative;
+  }
+  .wf-section:last-of-type { border-bottom: none; }
+
+  .wf-tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; margin-bottom: 6px;
+    vertical-align: middle;
+  }
+  .wf-tag-f { background: #dbeafe; color: #2563eb; }
+  .wf-tag-p2 { background: #fef3c7; color: #d97706; }
+  .wf-tag-p3 { background: #ede9fe; color: #7c3aed; }
+  .wf-tag-cond { background: #fef2f2; color: #dc2626; font-size: 9px; }
+
+  .wf-label { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 8px; }
+  .wf-sublabel { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+  .wf-note { font-size: 11px; color: #9ca3af; margin-top: 6px; line-height: 1.5; }
+
+  .wf-orb {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 8px;
+    background: radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    opacity: .85;
+  }
+  .wf-orb-night { background: radial-gradient(circle, #c4b5fd 0%, #8b5cf6 50%, #6d28d9 100%); }
+  .wf-ment { text-align: center; font-size: 14px; color: #374151; font-weight: 500; }
+
+  .wf-card {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 12px; margin-bottom: 8px;
+  }
+  .wf-card-title { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+  .wf-card-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .wf-progress {
+    height: 6px; border-radius: 3px; background: #e5e7eb; margin-top: 8px; overflow: hidden;
+  }
+  .wf-progress-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+  .wf-card-actions { display: flex; justify-content: space-between; margin-top: 8px; }
+  .wf-btn {
+    font-size: 11px; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid #d1d5db; color: #374151; background: #fff; cursor: default;
+  }
+  .wf-btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .wf-thumb-row { display: flex; gap: 8px; overflow: hidden; }
+  .wf-thumb {
+    width: 100px; flex-shrink: 0; border-radius: 10px;
+    background: #e5e7eb; overflow: hidden;
+  }
+  .wf-thumb-img { width: 100%; height: 80px; background: #d1d5db; }
+  .wf-thumb-text { padding: 6px 8px; font-size: 11px; color: #374151; line-height: 1.3; }
+
+  .wf-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px; }
+  .wf-dot-on { background: var(--accent); }
+  .wf-dot-off { background: #d1d5db; }
+
+  .wf-center-card {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 12px; margin-bottom: 8px;
+  }
+  .wf-center-avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px; font-size: 13px;
+    font-weight: 700; color: #fff; margin-right: 8px; vertical-align: middle;
+  }
+  .wf-status-badge {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600;
+    margin-left: 4px; vertical-align: middle;
+  }
+
+  .wf-screen-title {
+    font-size: 20px; font-weight: 800; margin: 0 0 4px; color: #1a1a1a;
+  }
+  .wf-screen-desc { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+
+  .wf-arrow-note {
+    position: absolute; right: -160px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: #9ca3af; width: 140px; line-height: 1.4;
+    display: none;
+  }
+  @media (min-width: 560px) { .wf-arrow-note { display: block; } }
+
+  .wf-flow {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin: 16px 0;
+  }
+  .wf-flow-box {
+    padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    border: 2px solid #e5e7eb; background: #fff; text-align: center; min-width: 100px;
+  }
+  .wf-flow-arrow { font-size: 18px; color: #9ca3af; }
+
+  .wf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .wf-grid-item {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 10px; font-size: 12px;
+  }
+  .wf-grid-item strong { display: block; font-size: 11px; color: #6b7280; margin-bottom: 2px; }
+
+  .wf-table { width: 100%; font-size: 13px; margin: 16px 0; }
+  .wf-table th { text-align: left; padding: 8px 10px; background: #f8fafc; border-bottom: 2px solid #e5e7eb; font-weight: 600; }
+  .wf-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <button class="menu-toggle" onclick="toggleSidebar()"><span></span></button>
+  <h1>마인드엔서 — 내담자 앱 기능 명세</h1>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="문서 내 검색..." oninput="handleSearch(this.value)">
+    <span class="kbd">⌘K</span>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="section-label">개요</div>
+  <a class="nav-item active" data-key="readme" onclick="navigate('readme')">
+    전체 개요
+  </a>
+  <a class="nav-item" data-key="screenmap" onclick="navigate('screenmap')">
+    화면 구성도
+  </a>
+  <a class="nav-item" data-key="principles" onclick="navigate('principles')">
+    설계 원칙
+  </a>
+
+  <div class="section-label" style="margin-top:16px">MVP 기능</div>
+  <a class="nav-item" data-key="f01" onclick="navigate('f01')">
+    F01. 인증 & 온보딩 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f02" onclick="navigate('f02')">
+    F02. 홈 화면 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f03" onclick="navigate('f03')">
+    F03. 일정 & 타임라인 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f04" onclick="navigate('f04')">
+    F04. 검사 결과 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f05" onclick="navigate('f05')">
+    F05. 자가진단 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f06" onclick="navigate('f06')">
+    F06. 콘텐츠 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f07" onclick="navigate('f07')">
+    F07. 알림 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f08" onclick="navigate('f08')">
+    F08. 마이페이지 <span class="badge badge-mvp">MVP</span>
+  </a>
+  <a class="nav-item" data-key="f09" onclick="navigate('f09')">
+    F09. 오브 캐릭터 <span class="badge badge-mvp">MVP</span>
+  </a>
+
+  <div class="section-label" style="margin-top:16px">Phase 2</div>
+  <a class="nav-item" data-key="f10" onclick="navigate('f10')">
+    F10. 미션 & 기록 <span class="badge badge-phase2">Phase 2</span>
+  </a>
+  <a class="nav-item" data-key="f11" onclick="navigate('f11')">
+    F11. 전문가 노트 <span class="badge badge-phase2">Phase 2</span>
+  </a>
+
+  <div class="section-label" style="margin-top:16px">Phase 3</div>
+  <a class="nav-item" data-key="f12" onclick="navigate('f12')">
+    F12. AI 성장 가이드 <span class="badge badge-phase3">Phase 3</span>
+  </a>
+</nav>
+
+<main class="content" id="content">
+  <div class="md" id="md-content"></div>
+</main>
+
+<!-- Embedded documents (script type="text/plain" avoids execution & escaping issues) -->
+
+<script type="text/plain" id="doc-readme">
+# 마인드엔서 — 내담자 앱 기능 명세
+
+> 상담센터 내담자/보호자를 위한 모바일 앱
+> 최종 수정: 2026-05-20
+
+---
+
+## 제품 정의
+
+**한 줄 요약**: 상담 일정 확인 + 진행현황 추적 + 검사 결과 열람 + 성장 콘텐츠 앱
+
+**타겟 사용자**:
+
+| 사용자 | 핵심 질문 |
+|---|---|
+| 성인 내담자 | "다음에 뭘 하면 되지?" |
+| 아동 보호자 | "우리 애 어디까지 했지?" |
+
+- 아동이 직접 사용하는 케이스는 없음
+- 성인 내담자와 보호자의 앱 경험은 **동일** (별도 역할 선택/분기 없음)
+
+---
+
+## 앱 구조
+
+**2탭 (홈 + 마이)**. 일정/진행현황/콘텐츠는 하나의 흐름이므로 분리하지 않음.
+
+```
+홈: 캐릭터 멘트 → 일정 카드 → 콘텐츠
+마이: 센터별 정보 → 프로필 → 설정
+```
+
+상세 화면은 홈에서 드릴다운 (탭 분리가 아닌 터치 진입).
+
+---
+
+## 기능 목록
+
+| # | 기능 | Phase | 설명 |
+|---|---|---|---|
+| F01 | 인증 & 온보딩 | MVP | 소셜 로그인, SMS 인증, 온보딩, 센터 연결 |
+| F02 | 홈 화면 | MVP | 상태별 화면 (소속/미소속/대기), 조건부 표시 |
+| F03 | 일정 & 타임라인 | MVP | 일정 카드, 타임라인 드릴다운, 진행현황 |
+| F04 | 검사 결과 | MVP | 결과 열람, 종합 보고서, 공개 범위 |
+| F05 | 자가진단 | MVP | 미소속 체험 콘텐츠 (일회성) |
+| F06 | 콘텐츠 | MVP | 태그 기반 맞춤 추천 |
+| F07 | 알림 | MVP | 푸시 알림 (FCM) |
+| F08 | 마이페이지 | MVP | 센터 카드, 프로필, 자녀 정보, 설정 |
+| F09 | 오브 캐릭터 | MVP | 멘트, 시각 변화, 에러/빈 상태 표현 |
+| F10 | 미션 & 기록 | Phase 2 | 상담사 미션, 일상 기록, 상담사 전달 |
+| F11 | 전문가 노트 | Phase 2 | 회기별 요약 노트, 발행 기반 공개 |
+| F12 | AI 성장 가이드 | Phase 3 | AI 인사이트, 퀘스트, 성장 리포트 |
+
+---
+
+## 기술 스택
+
+| 항목 | 결정 |
+|---|---|
+| 프레임워크 | React Native Expo (전문가 앱과 동일) |
+| 레포 위치 | `apps/mobile-client/` (모노레포) |
+| 애니메이션 | react-native-reanimated + @shopify/react-native-skia (오브) |
+| 인증 | Account/Person 기존 구조 재사용 |
+| 푸시 알림 | FCM (전문가 앱과 동일 인프라) |
+| 분석 | Firebase Analytics |
+| 다크 모드 | Expo 내장 지원, MVP 포함 |
+| 오프라인 | MVP는 온라인 전용 |
+| 앱 업데이트 | 스토어 업데이트만 (OTA 미사용) |
+
+---
+
+## 데이터 노출 정책
+
+| 데이터 | 노출 | 비고 |
+|---|---|---|
+| 상담 일정/회차 | O | |
+| 출석 현황 | O | |
+| 검사 결과 | O | 상담사가 설정한 공개 범위에 따라 |
+| 담당 상담사 이름 | O | |
+| 센터 연락처 | O | |
+| 상담 노트 (미발행 초안) | **X** | 상담사 전용 |
+| 내부 메모 | **X** | 센터 전용 |
+| 다른 내담자 정보 | **X** | 개인정보 보호 |
+</script>
+
+<script type="text/plain" id="doc-screenmap">
+__HTML_SCREENMAP__
+</script>
+
+<script type="text/plain" id="doc-principles">
+# 마인드엔서 — 설계 원칙
+
+> 기존 기획서의 가정을 제1원칙으로 재검토한 결과
+
+---
+
+## 1. 해체된 가정
+
+| 기존 가정 | 결론 |
+|---|---|
+| 앱이니까 하단 4탭이 필요하다 | 핵심 정보는 하나의 흐름 → 2탭(홈+마이)으로 충분 |
+| 홈/일정/기록/마이 구조가 표준이다 | "언제 가지 → 뭘 하지 → 뭐 했대 → 어디쯤이지"는 분리할 이유 없음 |
+| 미소속 유저에게도 풍부한 화면이 필요하다 | 핵심 가치는 센터 연결 후. 미소속 화면은 최소한으로 |
+| 대시보드가 필요하다 | 사용자가 원하는 건 "다음에 뭘 하면 되지?"에 대한 답 |
+
+---
+
+## 2. 핵심 결정
+
+### 사용자 경험은 동일하다
+
+성인 내담자와 보호자의 앱 경험은 같다. 별도 역할 선택, 분기된 화면 없음. 다중 자녀/다중 센터 모두 통합 표시 (전환 없음).
+
+### 정보 우선순위
+
+앱을 열었을 때 위에서 아래로:
+
+| 순위 | 정보 | 사용자 질문 |
+|---|---|---|
+| 1 | 캐릭터 멘트 | — (감성적 첫인상) |
+| 2 | 다음 일정 (진행 바 포함) | "언제 가지? 어디쯤이지?" |
+| 3 | 미션/성장 가이드 (Phase 2) | "그때까지 뭘 하지?" |
+| 4 | 콘텐츠 | — (태그 기반 맞춤 추천) |
+
+### 다중 센터/자녀 통합
+
+사용자는 센터 단위로 생각하지 않는다. "이번 주에 뭐가 있지?"로 생각한다.
+
+| 영역 | 통합 방식 |
+|---|---|
+| 일정 | 전체 시간순 합산 (자녀 이름 + 센터명 라벨) |
+| 진행현황 | 자녀별 분리 (치료 맥락이 다르므로) |
+| 콘텐츠 | 통합 (태그 기반 매칭) |
+
+---
+
+## 3. 디자인 방향
+
+### 키워드
+
+풍부한 콘텐츠 + 시각적 화려함 + 재미 요소 + 높은 직관성. 단순한 관리 도구가 아닌, 열 때마다 눈이 가고 손이 가는 앱.
+
+### 적용 요소
+
+| 요소 | 적용 | 비고 |
+|---|---|---|
+| 캐릭터 (오브) | 전체 | 가이드형, Phase 2에서 AI 연결 |
+| 마이크로 인터랙션 | 전체 기본 | 진행 바 애니메이션, 카드 전환, 숫자 카운트업 |
+| 감성 비주얼 | 포인트만 | 시간대별 톤 변화 (홈 상단), 계절감 |
+| 게이미피케이션 | 제외 | 상담 맥락에서 배지/레벨은 부자연스러움 |
+
+### 다크 모드
+
+MVP 포함. 오브 캐릭터가 빛 기반이라 다크 모드에서 시너지.
+
+- 라이트: 밝은 배경 + 은은한 오브 → 차분하고 깨끗한 느낌
+- 다크: 어두운 배경 + 빛나는 오브 → 몰입감, 감성적
+
+### 접근성
+
+| 항목 | 결정 |
+|---|---|
+| 폰트 크기 | 시스템 설정 따름 + 최대 상한선 (레이아웃 보호) |
+| 한 손 조작 | 주요 액션 버튼 하단 배치 |
+| 인지 부하 | 최소화 (우울/불안 상태 내담자 고려) |
+
+### 브랜드 톤
+
+| 원칙 | 설명 |
+|---|---|
+| 심리센터 앱처럼 보이지 않게 | 건강관리/일정 앱 느낌 |
+| 정보 위계는 타이포그래피로 | 크기/굵기/여백으로 구분 (색상 장식 아닌) |
+
+### 피해야 할 것
+
+"상담", "심리", "내담자" 워딩 직접 노출 / 파스텔 보라/핑크 색상 / 의미 없는 그라데이션/장식
+
+---
+
+## 4. 사용자 심리 특성
+
+### 보호자
+
+| 특성 | 양상 |
+|---|---|
+| 높은 불안 | 치료 효과를 지속적으로 의심. 아이 문제 인식에서 오는 죄책감 |
+| 불확실성 민감 | 상담 내용을 알 수 없는 상황에서 오는 불안 |
+| 과도한 책임감 | "내가 더 잘해야 한다"는 압박감 |
+| 변화에 예민 | 작은 변화도 의미 부여. 나아지고 있다는 확신 필요 |
+
+### 성인 내담자
+
+| 특성 | 양상 |
+|---|---|
+| 진전 감각 갈망 | 변화가 눈에 보이는 증거 필요 |
+| 자기 관리 의지 | 상담 외 일상에서 실천하고 싶지만 방법 모름 |
+| 프라이버시 민감 | 심리 관련 앱이 타인에게 보이는 것에 대한 거부감 |
+
+### UX 방향성
+
+| 원칙 | 적용 |
+|---|---|
+| 부담 최소화 | 짧고 단계적 기록, 긴 입력 폼 대신 선택 → 텍스트 |
+| 성취감 강화 | 기록 완료 시 즉각적 피드백 |
+| 전문가 권위 활용 | 상담사 이름과 노트 전면 배치 |
+| 변화 가시화 | 타임라인, 진행 표시 등 진행이 보이는 구조 |
+</script>
+
+<script type="text/plain" id="doc-f01">
+# F01. 인증 & 온보딩
+
+> 앱 설치부터 센터 연결까지의 전체 플로우
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 사용자로서, 카카오/네이버/애플 계정으로 간편하게 가입하고 싶다
+- 사용자로서, 센터에서 받은 코드를 입력해 센터와 연결하고 싶다
+- 센터(상담사)로서, 승인 요청을 확인하고 내담자/보호자 역할을 지정해서 승인하고 싶다
+
+---
+
+## 1. 온보딩 슬라이드
+
+### 정상 흐름
+
+1. 앱을 처음 설치하고 연다
+2. 온보딩 슬라이드 3장이 표시된다
+3. 좌우 스와이프로 넘긴다
+4. 3번째 슬라이드에서 "센터 코드 입력하기" 또는 "나중에 할게요" 중 선택한다
+
+```
+[1/3]  나를 위한 작은 변화의 시작 / 일정, 진행현황을 한눈에 확인하세요
+[2/3]  센터와 연결하면 / 상담 일정 알림, 검사 결과까지
+[3/3]  센터 코드가 있으신가요? / [센터 코드 입력하기] [나중에 할게요 →]
+```
+
+### 예외
+
+- **이미 본 사용자가 다시 접속하면?** → 슬라이드 미표시, 바로 로그인 화면
+- **앱을 재설치하면?** → 슬라이드 다시 표시 (로컬 저장소 초기화되므로)
+- **중간에 앱을 닫으면?** → 다음 진입 시 슬라이드 처음부터
+
+### 규칙
+
+- 최초 1회만 표시. 완료 여부는 로컬에 저장
+- 하단에 페이지 인디케이터 (● ● ○)
+
+---
+
+## 2. 소셜 로그인
+
+### 정상 흐름
+
+1. 로그인 화면에서 카카오/네이버/애플 중 선택한다
+2. 해당 제공자의 동의 화면이 뜬다
+3. 동의하면 앱으로 돌아온다
+4. 처음 가입이면 → 계정이 자동 생성되고 미소속 홈으로 이동
+5. 이미 가입한 사람이면 → 기존 계정으로 로그인되고 이전 상태의 홈으로 이동
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 제공자 화면에서 취소 | 로그인 화면으로 복귀, 아무 안내 없음 |
+| 제공자 인증은 됐는데 서버 오류 | "로그인에 실패했어요. 다시 시도해주세요" |
+| 네트워크 끊김 | 오브: "연결이 불안정해요" + [다시 시도] |
+| 같은 이메일로 다른 제공자 가입 시도 | 별도 계정으로 생성 (이메일이 아닌 provider + provider_id로 구분) |
+
+### 규칙
+
+- 제공자: 카카오, 네이버, 애플 (애플은 iOS 필수)
+- 기존 Account/Person 구조 그대로 사용 (모델 변경 없음)
+- 애플 로그인은 이메일 숨기기(Private Relay) 가능 → 이메일이 아닌 provider_id 기반으로 계정 매칭
+- 애플은 최초 로그인 시에만 이름을 제공하므로 첫 응답에서 반드시 저장
+- 토큰은 기기 보안 저장소에 보관. 만료 시 자동 갱신, 갱신 실패 시 재로그인
+
+---
+
+## 3. 센터 연결
+
+### 정상 흐름
+
+1. 센터 코드를 입력한다 (6자리 영숫자)
+2. 센터 이름이 표시된다 ("○○심리상담센터에 연결할까요?")
+3. 확인을 누른다
+4. 전화번호를 입력한다 (최초 1회만)
+5. SMS 인증번호(6자리)가 발송된다
+6. 인증번호를 입력한다
+7. "승인 요청을 보냈어요. 센터에서 확인하면 알려드릴게요" 메시지 표시
+8. 승인 대기 홈으로 전환
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 잘못된 센터 코드 | 입력 필드 하단에 "유효하지 않은 코드예요" |
+| 이미 소속된 센터의 코드 | "이미 연결된 센터예요" |
+| 이미 승인 대기 중인 센터 | "이미 승인 요청 중이에요" |
+| 인증번호 틀림 | "인증번호가 맞지 않아요" (재입력 가능) |
+| 인증번호 3분 초과 | "인증번호가 만료됐어요. 다시 받아주세요" |
+| 5회 연속 실패 | 10분간 잠금. "잠시 후 다시 시도해주세요" |
+| SMS 발송 실패 | "인증번호 발송에 실패했어요" |
+| 센터에서 거절 | 푸시: "○○센터에서 요청을 확인할 수 없었어요" → 미소속으로 복귀. 동일 센터 재요청 가능 |
+
+### 규칙
+
+- 센터 코드: 6자리 영숫자, 입력 시 대문자 자동 변환, 센터별 고정 (만료 없음)
+- 전화번호: 최초 센터 연결 시 1회만 입력. 추가 센터 연결 시 기존 번호 자동 사용
+- 전화번호 변경: 마이페이지 > 개인정보 관리에서 재인증
+- SMS 인증번호: 6자리 숫자, 유효 3분, 재발송 시 이전 번호 즉시 무효
+- 일일 발송 제한: 동일 번호 10회/일
+
+---
+
+## 4. 센터 승인 (센터 측 동작)
+
+내담자/보호자 구분은 앱에서 하지 않는다. **센터에서 승인 시 역할과 대상을 지정**한다.
+
+### 정상 흐름 (센터 웹)
+
+1. 승인 요청 목록에서 요청을 확인한다
+2. 요청자 정보(이름, 전화번호)를 본다
+3. 연결 대상(어떤 내담자)을 선택한다
+4. 역할(내담자/보호자)을 선택한다
+5. [승인] 또는 [거절]을 누른다
+6. 승인하면 → 앱에 푸시 알림 → 앱이 소속 홈으로 전환
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 해당 전화번호와 일치하는 내담자가 없을 때 | 센터가 수동으로 대상 지정 (전화번호 자동 매칭은 보조 수단) |
+| 승인 후 앱이 포그라운드 상태 | 푸시 수신 → 자동으로 소속 홈 전환 |
+| 승인 후 앱이 백그라운드/종료 상태 | 푸시 알림 표시 → 앱 진입 시 소속 홈 |
+
+---
+
+## 5. 사용자 상태 정의
+
+| 상태 | 조건 | 홈 화면 |
+|---|---|---|
+| 미인증 | 로그인 전 | 로그인 화면 |
+| 미소속 | 로그인 완료, 소속 센터 0개, 대기 0개 | 미소속 홈 |
+| 승인 대기 | 대기 중인 요청 1개 이상 | 승인 대기 홈 |
+| 소속 | 승인된 센터 1개 이상 | 소속 홈 |
+
+앱 진입 시 서버에서 현재 상태를 받아 판별한다.
+
+---
+
+## 6. 앱 업데이트
+
+### 정상 흐름
+
+1. 앱을 실행한다
+2. 서버에 현재 버전을 보낸다
+3. 최소 지원 버전보다 낮으면 → 강제 업데이트 화면 (닫기 불가)
+4. 최신 버전이 아니지만 최소 이상이면 → 하단에 "새 버전이 있어요" 배너 (닫기 가능)
+5. 최신이면 → 아무 동작 없음
+
+### 화면
+
+**강제 업데이트**:
+```
+(오브) "새로운 버전이 나왔어요.
+       업데이트 후 이용해주세요"
+[업데이트 하기] → 스토어로 이동
+```
+
+닫기 버튼 없음. 업데이트하지 않으면 앱 사용 불가.
+
+---
+
+## 7. 선행 작업
+
+- [ ] Account.provider에 "apple" 추가
+- [ ] 애플 로그인 서버 검증 로직
+- [ ] SMS 인증 인프라 구축 (발송 서비스 선정)
+- [ ] 센터 코드 생성/관리 기능 (센터 웹)
+- [ ] 센터 웹 승인 화면 (역할/대상 매칭 UI)
+
+---
+
+## 8. 미해결 이슈
+
+- **ISSUE-006**: 애플 로그인 Private Relay 대응 상세
+- **ISSUE-008**: 디바이스 토큰 관리 (다중 기기, 기존 전문가 앱 FCM 구조 재사용 여부)
+- **ISSUE-009**: 앱 이름 확정 ("마인드엔서" 임시)
+</script>
+
+<script type="text/plain" id="doc-f02">
+# F02. 홈 화면
+
+> 앱을 열었을 때 "다음에 뭘 하면 되지?"에 0.5초 안에 답하는 화면
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 성인 내담자로서, 앱을 열면 다음 상담이 언제인지 바로 알고 싶다
+- 보호자로서, 내 자녀들의 다음 일정과 진행 상황을 한눈에 보고 싶다
+- 미소속 사용자로서, 센터 없이도 앱에서 할 수 있는 게 있었으면 좋겠다
+
+---
+
+## 1. 소속 홈
+
+### 정상 흐름
+
+1. 앱을 연다
+2. 오브 캐릭터와 상황별 멘트가 즉시 표시된다 (서버 호출 없이 로컬)
+3. 일정 카드와 콘텐츠가 병렬로 로딩된다
+4. 각 영역은 도착 순서대로 독립적으로 나타난다
+
+### 화면 구성
+
+```
+┌─────────────────────────────────────┐
+│  (오브 캐릭터)                      │
+│  "내일 민준이 상담이 있어요"        │
+├─────────────────────────────────────┤
+│  ① 다음 일정                        │
+│  5/21 수 14:00 · D-2                │
+│  민준 · 상담 6회차 · 놀이치료센터   │
+│  ━━━━━━━━━━░░░░░░░░░░ 5/10회       │
+│  [길찾기]        [전체 보기 →]       │
+│                                     │
+│  5/23 금 10:00 · D-4                │
+│  서연 · 언어평가 · 언어치료센터     │
+│  ━━━░░░░░░░░░░░░░░░░░ 1/8회        │
+│  [길찾기]                            │
+├─────────────────────────────────────┤
+│  ② 읽어볼 만한 글                   │
+│  [가로 스크롤 카드]                  │
+└─────────────────────────────────────┘
+     [ 홈 ]              [ 마이 ]
+```
+
+### 일정 카드 동작
+
+**표시 내용**:
+- 날짜, 시간, D-day
+- 대상 이름 (보호자인 경우 자녀 이름), 회차, 센터명
+- 진행 바 또는 진행 텍스트
+
+**D-day 규칙**:
+- 오늘이면 `D-0` (강조색)
+- 7일 이내면 `D-N`
+- 7일 초과면 D-day 미표시
+
+**진행 표시 규칙**:
+- 총 회기수가 정해져 있으면 → 진행 바: `━━━━━━━━━━░░░░░░ 5/10회`
+- 총 회기수가 없으면 (일반적) → 텍스트: `6회차 진행 중 · 3개월째`
+
+**[길찾기] 버튼**:
+- 센터 좌표가 있으면 → 기기 기본 지도 앱으로 길찾기 실행
+- 좌표 없이 주소만 있으면 → 주소 텍스트로 지도 앱 실행
+- 둘 다 없으면 → 버튼 자체가 미표시
+
+**[전체 보기 →]**:
+- 터치하면 타임라인 화면으로 이동 (→ F03)
+
+**최대 표시**: 3건. 초과 시 "N건 더 보기 →".
+
+### 역할별 일정 표시
+
+| 케이스 | 홈에서 보이는 것 |
+|---|---|
+| 순수 내담자 | 내 일정만 표시 (섹션 구분 없음) |
+| 순수 보호자 | 자녀 일정만 표시 (자녀 이름별 섹션) |
+| 둘 다 (both) | "내 일정" 섹션 + 자녀 이름별 섹션 |
+
+```
+── 내 일정 ──────────────────
+5/21 수  14:00
+개인상담 3회차 · ○○상담센터
+
+── 민준 ─────────────────────
+5/21 수  16:30
+상담 6회차 · 놀이치료센터 · D-2
+
+── 서연 ─────────────────────
+5/23 금  10:00
+언어평가 · 언어치료센터 · D-4
+```
+
+- 데이터가 없는 섹션은 미표시
+- 섹션 내 정렬: 시간순 (가까운 일정이 위)
+- 세 케이스 모두 같은 컴포넌트로 처리 (조건부 렌더링)
+
+### 다중 센터 통합
+
+센터별로 나누지 않는다. 모든 센터의 일정을 시간순으로 합산. 센터명은 일정 카드 안에 라벨로 표시. 사용자는 "이번 주에 뭐가 있지?"로 생각하기 때문.
+
+---
+
+## 2. 미소속 홈
+
+### 정상 흐름
+
+1. 로그인 후 센터 연결 없이 홈에 진입한다
+2. 오브 캐릭터와 센터 연결 안내가 표시된다
+3. 자가진단과 콘텐츠를 이용할 수 있다
+
+### 화면 구성
+
+```
+┌─────────────────────────────────────┐
+│  (오브 캐릭터)                      │
+│  나를 위한                          │
+│  작은 변화의 시작                   │
+│                                     │
+│  [센터 코드로 연결하기]              │
+├─────────────────────────────────────┤
+│  자가진단                           │
+│  우울 선별검사 (PHQ-9)       [시작] │
+│  불안 선별검사 (GAD-7)       [시작] │
+├─────────────────────────────────────┤
+│  읽어볼 만한 글                     │
+│  [콘텐츠 가로 스크롤]               │
+└─────────────────────────────────────┘
+```
+
+**[센터 코드로 연결하기]** → 센터 코드 입력 화면으로 이동 (→ F01)
+
+---
+
+## 3. 승인 대기 홈
+
+### 정상 흐름
+
+1. 센터 코드를 입력하고 승인 대기 중이다
+2. 오브가 대기 상태를 안내한다
+3. 승인될 때까지 미소속 콘텐츠(자가진단 + 콘텐츠)를 이용할 수 있다
+4. 센터에서 승인하면 → 푸시 알림 → 소속 홈으로 자동 전환
+
+### 화면 구성
+
+```
+┌─────────────────────────────────────┐
+│  (오브 캐릭터)                      │
+│  승인 대기 중                       │
+│  ○○심리상담센터에서 확인 중         │
+│  "승인되면 알려드릴게요"            │
+├─────────────────────────────────────┤
+│  (미소속과 동일: 자가진단 + 콘텐츠) │
+└─────────────────────────────────────┘
+```
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 여러 센터에 동시 대기 | 가장 최근 요청 센터명 표시 + "N개 센터 승인 대기 중" → 마이페이지 |
+| 승인됐는데 앱이 포그라운드 | 푸시 수신 → 데이터 재호출 → 소속 홈 자동 전환 |
+| 승인됐는데 앱이 꺼져 있었음 | 다음 앱 진입 시 소속 홈 |
+| 센터에서 거절 | 미소속 홈으로 복귀. 거절 사유는 미표시 (→ F01 참조) |
+
+---
+
+## 4. 조건부 표시 규칙
+
+| 영역 | 표시 조건 | 없을 때 |
+|---|---|---|
+| 캐릭터 멘트 | 항상 | 시간대별 기본 멘트 (→ F09) |
+| 다음 일정 | 예정 일정 1건 이상 | 오브 멘트: "아직 예정된 일정이 없어요" (일정 카드 영역 자체 미노출) |
+| 미션 | Phase 2 | 영역 미노출 |
+| 콘텐츠 | 항상 | 일반 콘텐츠 |
+
+**핵심 원칙**: 데이터 없는 빈 카드로 자리를 차지하지 않는다.
+
+---
+
+## 5. 예외 및 에러
+
+| 상황 | 동작 |
+|---|---|
+| 일정 로딩 실패 | 일정 영역에 오브 멘트: "일정을 불러오지 못했어요" + [다시 시도] |
+| 콘텐츠 로딩 실패 | 콘텐츠 영역만 미표시 (조용히 실패, 다른 영역 정상) |
+| 전체 네트워크 오류 | 전체 화면 오브: "연결이 불안정해요" + [다시 시도] |
+| 일정은 성공, 콘텐츠 실패 | 일정만 정상 표시 (각 영역 독립) |
+| 아래로 당겨서 새로고침 | 모든 영역 재호출. 오브가 살짝 반짝이는 피드백 |
+</script>
+
+<script type="text/plain" id="doc-f03">
+# F03. 일정 & 타임라인
+
+> 홈 일정 카드에서 "전체 보기"를 누르면 진입하는 전체 상담 이력 화면
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 자녀의 전체 상담 이력을 한 화면에서 보고 싶다
+- 내담자로서, 지금까지 몇 회 했고 앞으로 몇 회 남았는지 알고 싶다
+- 보호자로서, 자녀가 여러 치료(놀이/미술)를 받을 때 각각 어디까지 진행됐는지 보고 싶다
+
+---
+
+## 1. 전체 흐름
+
+```
+홈 일정 카드 (→ F02)
+    ↓ "전체 보기" 터치
+타임라인 화면
+    ↓ 완료 회차 터치
+회차 상세 (바텀시트)
+```
+
+---
+
+## 2. 타임라인 화면
+
+### 왜 캘린더가 아닌 타임라인인가
+
+- 주 1~2회 상담에 월간 캘린더는 빈 칸만 가득함
+- 타임라인은 "뭘 했고, 다음에 뭘 하는지"가 한눈에 보임
+- D-day, 카드 애니메이션 등 재미 요소 적용에 적합
+
+### 화면 구성
+
+자녀(또는 본인) > 센터 > 케이스 3단 계층으로 구성된다.
+
+```
+← 전체 일정
+
+── 민준 · 놀이치료센터 ───────
+  ━━━━━━━━━━░░░░░░ 5/10회
+
+  ✓ 5/14  상담 5회차  완료
+  ✓ 5/7   상담 4회차  완료
+  ✓ 4/30  상담 3회차  완료
+  · · · 2건 더 보기
+  ● 5/21  상담 6회차  D-2  [길찾기]
+  ○ 5/28  상담 7회차  D-9
+  ○ 6/4   상담 8회차
+
+── 서연 · 언어치료센터 ───────
+  ━━━░░░░░░░░░░░░░ 1/8회
+
+  ✓ 5/16  언어평가    완료
+  ● 5/23  치료 1회차  D-4  [길찾기]
+  ○ 5/30  치료 2회차
+```
+
+---
+
+## 3. 회차 상태 표시
+
+| 상태 | 아이콘 | 스타일 | 설명 |
+|---|---|---|---|
+| 완료 (`completed`) | ✓ | 정상 톤 | "완료" |
+| 미방문 (`no_show`) | ─ | 흐린 톤 | "미방문" (부정적 느낌 배제, 사유 미표시) |
+| 다음 예정 | ● | 강조색 + 볼드 | D-day 표시 + [길찾기] |
+| 먼 미래 예정 | ○ | 흐린 톤 | D-day 7일 이내만 표시 |
+| 취소 (`cancelled`) | — | **미노출** | 타임라인에서 완전히 제외 |
+
+**"다음 예정" 판별**: 예정된 일정 중 가장 가까운 1건만 ● 스타일. 나머지 미래 일정은 ○.
+
+---
+
+## 4. 회차 터치 시 동작
+
+바텀시트로 상세 정보 표시.
+
+### 완료 회차
+
+```
+5/14 수 · 상담 5회차 · 완료
+놀이치료센터
+담당: 김상담 선생님
+14:00 ~ 14:50
+```
+
+### 미방문 회차
+
+```
+5/7 수 · 상담 4회차 · 미방문
+놀이치료센터
+14:00 ~ 14:50
+```
+
+### 예정 회차
+
+```
+5/21 수 · 상담 6회차 · D-2
+놀이치료센터
+담당: 김상담 선생님
+14:00 ~ 14:50
+[길찾기]
+```
+
+> Phase 2에서 완료 회차에 상담사 노트(→ F11) + 미션 기록(→ F10) 추가 예정.
+
+---
+
+## 5. 케이스별 분리
+
+같은 센터에서 여러 프로그램(놀이치료 + 미술치료)을 받는 경우, 치료 맥락이 다르므로 **케이스별 별도 타임라인**으로 표시한다.
+
+```
+── 민준 · 놀이치료센터 ───────
+
+  [놀이치료 - 개별]
+  6회차 진행 중 · 3개월째
+  ✓ 5/14  상담 5회차  완료
+  ● 5/21  상담 6회차  D-2  [길찾기]
+  ○ 5/28  상담 7회차  D-9
+
+  [미술치료 - 개별]
+  2회차 진행 중 · 1개월째
+  ✓ 5/12  치료 1회차  완료
+  ● 5/19  치료 2회차  D-0  [길찾기]
+```
+
+- 케이스 이름 = `Program.name`에서 가져옴
+- 활성 케이스가 위, 종결 케이스가 아래
+
+---
+
+## 6. 종결 케이스
+
+종결된 케이스는 **접힌 상태(collapsed)**가 기본. 터치하면 펼쳐져서 전체 이력을 볼 수 있다.
+
+```
+  [미술치료 - 개별]              ← 활성 (펼쳐짐)
+  2회차 진행 중 · 1개월째
+  ...
+
+  [놀이치료 - 개별]  종결  ▸    ← 종결 (접힘)
+  12회 완료 · 6개월 · 2025.11~2026.04
+```
+
+- 종결 케이스 접힌 상태: 프로그램명 + "종결" 라벨 + 총 회차 + 기간
+- 터치 → 펼침: 전체 회차 목록 표시 (활성 케이스와 동일 형태)
+
+---
+
+## 7. 진행 표시
+
+| 조건 | 표시 |
+|---|---|
+| 총 회기수 정해져 있음 | 진행 바: `━━━━━━━━━━░░░░░░░░░░ 6/12회` |
+| 총 회기수 없음 (일반적) | 텍스트: `6회차 진행 중 · 3개월째` |
+
+**경과 기간 계산** (첫 회기 날짜 ~ 오늘):
+
+| 경과 | 표시 |
+|---|---|
+| 1개월 미만 | "2주째" |
+| 1~11개월 | "3개월째" |
+| 12개월 이상 | "1년 2개월째" |
+
+---
+
+## 8. 완료 회차 접기
+
+완료 회차가 5개 이상이면 최근 3건만 표시하고 나머지는 접는다.
+
+```
+  ✓ 5/14  상담 5회차  완료
+  ✓ 5/7   상담 4회차  완료
+  ✓ 4/30  상담 3회차  완료
+  · · · 2건 더 보기              ← 터치하면 나머지 펼침
+  ● 5/21  상담 6회차  D-2
+```
+
+---
+
+## 9. 길찾기
+
+**[길찾기] 버튼이 표시되는 조건**: 예정 회차(●, ○)이면서 센터 좌표 또는 주소가 있을 때.
+
+| 상황 | 동작 |
+|---|---|
+| 좌표 있음 | 기기 기본 지도 앱으로 길찾기 (iOS: Apple Maps, Android: Google Maps) |
+| 주소만 있음 | 주소 텍스트로 지도 앱 실행 |
+| 둘 다 없음 | 버튼 미표시 |
+
+---
+
+## 10. 예외 및 에러
+
+| 상황 | 동작 |
+|---|---|
+| 타임라인 로딩 실패 | 전체 화면 오브: "일정을 불러오지 못했어요" + [다시 시도] |
+| 일부 센터 데이터만 실패 | 성공한 데이터만 표시 + 하단 배너: "일부 센터 정보를 불러오지 못했어요" |
+| 일정이 하나도 없음 | 오브: "아직 예정된 일정이 없어요" |
+| 아래로 당겨서 새로고침 | 전체 재호출 |
+
+---
+
+## 11. 선행 작업
+
+- [ ] 센터 주소 카카오맵 연동 + 좌표 저장 (센터 모델에 latitude/longitude 추가)
+- [ ] 센터 웹 주소 입력 UI 변경 (카카오맵 검색)
+- [ ] 기존 센터 데이터 좌표 마이그레이션
+
+---
+
+## 12. 미해결 이슈
+
+- **ISSUE-004**: attendance_status(absent, late, excused)도 표시할지 여부
+- **ISSUE-005**: 종결 케이스 표시 — 같은 센터 내 케이스 종결 vs 센터 자체 종결 구분
+- **ISSUE-011**: 센터 주소 좌표 저장
+</script>
+
+<script type="text/plain" id="doc-f04">
+# F04. 검사 결과
+
+> 센터에서 실시한 심리검사 결과를 열람하는 기능
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 우리 아이의 검사 결과를 앱에서 확인하고 싶다
+- 내담자로서, 검사에서 어떤 결과가 나왔는지 알고 싶다
+- 상담사로서, 검사 결과를 어디까지 공개할지 내가 결정하고 싶다
+
+---
+
+## 1. 전체 흐름
+
+```
+마이페이지 센터 카드 > "검사결과 N건" 터치 (→ F08)
+    ↓
+검사 결과 목록
+    ↓ 개별 검사 터치
+검사 결과 상세 (공개 수준에 따라 다름)
+```
+
+---
+
+## 2. 공개 범위
+
+검사 결과의 공개 범위는 **상담사가 결정**한다. 임상적 판단이 필요한 영역이므로 자동 공개하지 않는다.
+
+| 수준 | 내담자에게 보이는 것 | 사용 예시 |
+|---|---|---|
+| **비공개** (기본값) | 검사 실시 이력만 (날짜 + 검사명) | 민감한 검사, 아직 결과 설명 전 |
+| **요약 공개** | 해석 요약 + 종합 소견 | 대부분의 경우 |
+| **전체 공개** | 점수 + 영역별 결과 + 종합 소견 | 자가진단형 검사, 경과 비교용 |
+
+---
+
+## 3. 검사 결과 목록
+
+### 정상 흐름
+
+1. 마이페이지 센터 카드에서 "검사결과 N건"을 터치한다
+2. 해당 센터의 검사 결과 목록이 표시된다
+3. 각 항목에 검사명, 날짜, 상담사 이름이 보인다
+
+### 표시 규칙
+
+| 공개 수준 | 목록에서 동작 |
+|---|---|
+| 비공개 | 검사명 + 날짜만 표시. 회색 처리. 터치 불가 |
+| 요약/전체 공개 | 검사명 + 날짜 + "결과 보기 ›". 터치 가능 |
+
+### 보호자인 경우
+
+자녀별로 검사 결과가 구분된다. 자녀 이름이 섹션 헤더로 표시.
+
+---
+
+## 4. 검사 결과 상세
+
+### 요약 공개일 때
+
+```
+← 종합심리검사
+
+2026.05.10 실시
+○○상담센터 · 김상담 선생님
+
+[종합 소견]
+전반적인 정서 상태는 또래 수준이며,
+사회성 영역에서 약간의 주의가 필요합니다.
+
+※ 자세한 내용은 담당 선생님과
+  상담 시 확인해주세요.
+```
+
+### 전체 공개일 때
+
+```
+← 종합심리검사
+
+2026.05.10 실시
+○○상담센터 · 김상담 선생님
+
+[영역별 결과]
+정서 ──────── 양호
+인지 ──────── 양호
+사회성 ───── 주의 필요
+
+[종합 소견]
+전반적인 정서 상태는...
+
+※ 자세한 내용은 담당 선생님과
+  상담 시 확인해주세요.
+```
+
+**영역별 결과 시각화**:
+- 양호: 초록 바
+- 주의 필요: 주황 바
+- 우려: 빨간 바
+
+---
+
+## 5. 종합 보고서
+
+풀배터리 검사(여러 검사를 한번에 실시) 후 상담사가 발행하는 통합 보고서.
+
+### 생성 플로우 (SaaS 측)
+
+```
+검사 실시 → AI 보고서 초안 생성 → 상담사 검수/수정 → 공개 범위 설정 → 발행
+```
+
+앱은 발행된 보고서만 열람. 생성/수정은 센터 웹에서만 가능.
+
+### 보고서 화면
+
+검사 결과 상세에서 "종합 보고서 보기 ›" 링크를 통해 진입.
+
+```
+← 종합 심리검사 결과
+
+2026.05.10 실시 · ○○상담센터
+김상담 선생님
+
+[종합 소견]
+전반적인 정서 상태는...
+
+[영역별 결과]
+정서 ──────── 주의 필요
+인지 ──────── 양호
+사회성 ───── 양호
+
+※ 자세한 내용은 담당 선생님과
+  상담 시 확인해주세요.
+```
+
+---
+
+## 6. 예외 및 에러
+
+| 상황 | 동작 |
+|---|---|
+| 비공개 검사 터치 시도 | 터치 불가 (disabled 상태, 회색) |
+| 목록 로딩 실패 | 오브: "검사 결과를 불러오지 못했어요" + [다시 시도] |
+| 상세 로딩 실패 | 스낵바: "결과를 불러오지 못했어요" |
+| 접근 권한 없는 검사 접근 시도 | 목록에 아예 미노출 (서버에서 필터링) |
+| 보고서가 아직 발행되지 않은 검사 | 목록에서 "결과 준비 중" 표시. 터치 불가 |
+
+### 접근 권한 규칙
+
+- 본인의 검사 결과만 볼 수 있다
+- 보호자는 자녀의 검사 결과를 볼 수 있다
+- 다른 내담자의 결과는 절대 노출되지 않는다
+
+---
+
+## 7. Phase 2 확장
+
+- 동일 검사 재실시 시 시점별 점수 비교 차트
+- 회기 비교 뷰 (→ F12)
+</script>
+
+<script type="text/plain" id="doc-f05">
+# F05. 자가진단
+
+> 미소속 사용자에게 제공하는 간이 심리 선별검사 (일회성 체험)
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 미소속 사용자로서, 앱을 깔았는데 뭔가 해볼 수 있는 게 있으면 좋겠다
+- 사용자로서, 내 우울/불안 수준이 어느 정도인지 간단히 확인해보고 싶다
+
+---
+
+## 1. 성격 및 목적
+
+| 항목 | 내용 |
+|---|---|
+| 성격 | 가벼운 체험 콘텐츠 |
+| 결과 저장 | **하지 않음** (화면을 벗어나면 소멸) |
+| 이유 | 단일 검사 결과만으로는 의미 있는 이력이 안 됨. 종합 평가는 센터에서 |
+| 목적 | 즉시 가치 제공 + 센터 연결 유도 |
+| 노출 위치 | 미소속 홈, 승인 대기 홈 (소속 사용자에게는 홈에서 미노출) |
+
+---
+
+## 2. 검사 항목
+
+MVP 예시 (최종 항목은 별도 선정 필요):
+
+| 검사 | 대상 | 문항 수 | 소요 시간 |
+|---|---|---|---|
+| PHQ-9 | 우울 선별 | 9문항 | 약 2분 |
+| GAD-7 | 불안 선별 | 7문항 | 약 2분 |
+
+---
+
+## 3. 전체 흐름
+
+### 정상 흐름
+
+1. 미소속 홈에서 자가진단 [시작]을 누른다
+2. 검사 안내 화면이 표시된다 (검사명, 문항 수, 소요 시간, 안내 문구)
+3. [시작하기]를 누른다
+4. 한 문항씩 카드 형태로 표시된다
+5. 선택지를 터치하면 0.3초 후 다음 문항으로 자동 전환된다
+6. 마지막 문항 응답 후 결과 화면이 표시된다
+7. 결과 화면에서 [센터 코드 입력하기] 또는 [홈으로 돌아가기]를 선택한다
+
+### 검사 안내 화면
+
+```
+── 우울 선별검사 (PHQ-9) ──────
+
+최근 2주간의 기분 상태를
+확인해볼 수 있어요.
+
+9문항 · 약 2분
+
+이 검사는 간이 선별 도구이며,
+정확한 진단을 대체하지 않아요.
+
+[시작하기]
+```
+
+### 문항 응답 화면
+
+```
+── 질문 3/9 ───────────────────
+
+최근 2주간,
+잠들기 어렵거나 자꾸 깨거나
+너무 많이 잤다.
+
+○ 전혀 아니다
+○ 며칠 동안
+○ 일주일 이상
+○ 거의 매일
+
+━━━━━━━━░░░░░░░░░░░ 3/9
+```
+
+- 선택 → 체크 표시 + 색상 변경 → 0.3초 후 다음 문항 슬라이드
+- 상단 프로그레스 바로 진행률 표시
+- 이전 문항 돌아가기 가능 (좌 스와이프 또는 뒤로 버튼)
+
+### 결과 화면
+
+```
+── 우울 선별검사 (PHQ-9) 결과 ──
+
+당신의 점수: 12점
+중등도 우울이 의심돼요.
+
+이 결과는 간이 선별 결과이며,
+정확한 평가는 전문가 상담을 통해
+확인하는 것이 좋아요.
+
+[센터 코드 입력하기]
+[홈으로 돌아가기]
+```
+
+**결과 수준별 멘트 톤**:
+
+| 수준 | 톤 |
+|---|---|
+| 정상 범위 | "현재 큰 어려움은 없어 보여요. 꾸준히 자신을 돌보는 것도 중요해요." |
+| 경미 | "가벼운 어려움이 느껴지고 있어요. 전문가와 이야기해보는 것도 좋아요." |
+| 중등도 이상 | "정확한 평가와 맞춤 상담은 전문 센터에서 받아보세요." |
+
+---
+
+## 4. 예외 및 엣지케이스
+
+| 상황 | 동작 |
+|---|---|
+| 문항 응답 중 앱을 닫으면? | 진행 상태 소멸. 다음에 다시 시작하면 처음부터 |
+| 문항 응답 중 뒤로가기를 누르면? | 확인: "검사를 그만둘까요? 결과가 저장되지 않아요" [그만두기] [계속하기] |
+| 결과 화면을 벗어나면? | 결과 소멸. 다시 보려면 재검사 |
+| 같은 검사를 다시 하면? | 제한 없이 재시도 가능. 이전 결과와 비교 없음 |
+| 문항 로딩 실패 | 오브: "검사를 불러오지 못했어요" + [다시 시도] |
+| 결과 계산(제출) 실패 | 스낵바: "결과를 확인할 수 없었어요" + [다시 제출] |
+
+### 규칙
+
+- 점수 계산은 서버에서 수행 (앱에 채점 로직 미포함)
+- 서버는 제출된 답변을 처리 후 **저장하지 않고 폐기**
+- 소속 사용자도 자가진단에 접근 가능하지만, 소속 홈에서는 노출되지 않음 (마이페이지 등 별도 진입점 필요 시 추후 결정)
+
+---
+
+## 5. 미해결 이슈
+
+- **ISSUE-010**: 최종 검사 항목 선정, 진행 화면 형태 확정, 오브 캐릭터 연동 여부
+</script>
+
+<script type="text/plain" id="doc-f06">
+# F06. 콘텐츠
+
+> 태그 기반 맞춤 추천 콘텐츠 (매거진 + 카드뉴스)
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 우리 아이 상담과 관련된 읽을거리가 있으면 좋겠다
+- 미소속 사용자로서, 센터 없이도 유용한 콘텐츠를 보고 싶다
+- 내담자로서, 내 상담 주제에 맞는 글을 추천받고 싶다
+
+---
+
+## 1. 현황
+
+- 매거진 100건 + 카드뉴스 100건 (자체 제작, 기확보)
+- 소속/미소속 **공통**으로 홈 하단에 노출
+
+---
+
+## 2. 태그 기반 맞춤 추천
+
+### 태그 구조
+
+```
+카테고리 태그 (1차): 아동 / 청소년 / 성인 / 부모교육
+주제 태그 (2차, 복수 가능): 우울 / 불안 / 관계 / 자존감 / 감정조절 / 놀이치료 / 언어치료 / ...
+```
+
+하나의 콘텐츠에 카테고리 1개 + 주제 1~3개.
+
+### 추천 로직
+
+| 사용자 상태 | 추천 방식 |
+|---|---|
+| 소속 | 사용자의 케이스(상담 유형, 내담자 연령대) → 관련 태그 콘텐츠 우선, 뒤에 일반 |
+| 미소속 | 태그 매칭 불가 → 인기순/최신순 |
+
+**매칭 예시**:
+- 아동 놀이치료 케이스 → `아동`, `놀이치료`, `감정조절` 태그 우선
+- 성인 우울 상담 → `성인`, `우울`, `자존감` 태그 우선
+
+---
+
+## 3. 홈 표시
+
+### 정상 흐름
+
+1. 홈 하단에 "읽어볼 만한 글" 영역이 표시된다
+2. 가로 스크롤로 콘텐츠 카드를 넘긴다
+3. 카드를 터치하면 콘텐츠 상세로 이동한다
+4. 마지막 카드 뒤에 "더 보기 →" → 전체 목록 진입
+
+### 카드 구성
+
+```
+┌──────────┐  ┌──────────┐
+│ (썸네일)  │  │ (썸네일)  │
+│          │  │          │
+│ 놀이치료, │  │ 아이의    │
+│ 어떤 변화 │  │ 감정을    │
+│ 가 생기나 │  │ 읽어주는  │
+│ 요?      │  │ 3가지    │
+│          │  │ 방법     │
+│ 3분 읽기  │  │ 2분 읽기  │
+└──────────┘  └──────────┘
+               → 스크롤
+```
+
+- 홈에 최대 10건
+- 카드 너비: 화면의 약 40%
+- 썸네일 비율: 3:4
+
+---
+
+## 4. 전체 목록
+
+"더 보기"를 터치하면 진입.
+
+```
+← 콘텐츠
+
+[전체] [매거진] [카드뉴스]    ← 탭 필터
+
+┌────────────────────────────┐
+│ (썸네일) 놀이치료, 어떤     │
+│          변화가 생기나요?   │
+│          3분 읽기 · 아동    │
+└────────────────────────────┘
+...
+```
+
+- 세로 스크롤, 무한 스크롤 (커서 기반 페이지네이션)
+- 탭 필터: 전체 / 매거진 / 카드뉴스
+
+---
+
+## 5. 콘텐츠 상세
+
+### 매거진
+
+상단 커버 이미지 + 본문 (HTML 또는 마크다운 렌더링).
+
+```
+← 놀이치료, 어떤 변화가 생기나요?
+
+(커버 이미지)
+아동 · 놀이치료 · 3분 읽기
+
+본문 내용...
+```
+
+### 카드뉴스
+
+이미지 슬라이드. 좌우 스와이프. 하단 인디케이터.
+
+```
+← 아이의 감정을 읽어주는 3가지 방법
+
+┌────────────────────────────┐
+│      (카드 이미지 1/5)      │
+└────────────────────────────┘
+        ● ○ ○ ○ ○
+```
+
+---
+
+## 6. 예외 및 에러
+
+| 상황 | 동작 |
+|---|---|
+| 홈 콘텐츠 로딩 실패 | 콘텐츠 영역만 미표시 (조용히 실패, 다른 영역 정상) |
+| 전체 목록 로딩 실패 | 오브: "콘텐츠를 불러오지 못했어요" + [다시 시도] |
+| 상세 로딩 실패 | 스낵바: "콘텐츠를 열 수 없어요" + 뒤로 이동 |
+| 이미지 로딩 실패 | 깨진 이미지 대신 회색 플레이스홀더 |
+| 콘텐츠가 하나도 없을 때 | 영역 자체 미표시 (발생 가능성 낮음, 200건 기확보) |
+
+---
+
+## 7. 선행 작업
+
+- [ ] 콘텐츠 태그 체계 확정 (카테고리 + 주제 태그 목록)
+- [ ] 기존 200건 태그 분류 (AI 자동 분류 + 수동 검수)
+- [ ] 콘텐츠 저장/관리 방식 확정 (CMS 또는 DB 직접)
+- [ ] 썸네일 이미지 규격 및 리사이징
+</script>
+
+<script type="text/plain" id="doc-f07">
+# F07. 알림
+
+> 일정 리마인더 및 센터 관련 푸시 알림
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 내일 자녀 상담이 있으면 미리 알림을 받고 싶다
+- 내담자로서, 상담 시간을 깜빡하지 않도록 당일 알림을 받고 싶다
+- 사용자로서, 센터에서 승인해주면 바로 알고 싶다
+
+---
+
+## 1. 알림 종류 및 타이밍
+
+타이밍은 **시스템 고정**. MVP에서 사용자가 타이밍을 변경할 수 없다.
+
+| 알림 | 발송 시점 | 예시 |
+|---|---|---|
+| 일정 전날 | D-1 오전 10시 | "내일 14:00 상담이 있어요" |
+| 일정 당일 | 1시간 전 | "1시간 뒤 상담이에요, 준비됐나요?" |
+| 센터 승인 | 즉시 | "○○센터에서 승인했어요!" |
+| 일정 변경 | 즉시 | "5/21 상담 일정이 변경됐어요" |
+| 일정 취소 | 즉시 | "5/21 상담 일정이 취소됐어요" |
+
+---
+
+## 2. 다중 센터/자녀 규칙
+
+### 같은 날 여러 일정
+
+D-1 알림은 **묶어서 한 번** 발송:
+- 1건: "내일 14:00 상담이 있어요"
+- 2건 이상: "내일 일정이 2건 있어요"
+
+당일 알림(1시간 전)은 **각각** 발송 (시간이 다르므로).
+
+### 보호자 알림
+
+자녀 이름으로 구분:
+
+| 케이스 | 알림 예시 |
+|---|---|
+| 자녀 1명 | "내일 민준이 상담이 있어요" |
+| 자녀 2명, 같은 날 | "내일 민준이 14:00, 서연이 16:00 상담이 있어요" |
+| 본인도 내담자 (both) | 본인: "내일 상담이 있어요" + 자녀: "민준이 상담이 있어요" (별도 발송) |
+
+### 양쪽 부모
+
+같은 자녀에 보호자가 2명(부/모)이면 **양쪽 다 발송**. 각자의 기기로 동일 알림.
+
+---
+
+## 3. 알림 톤
+
+캐릭터(오브) 톤을 적용한다. 딱딱한 시스템 알림이 아닌 따뜻한 안내 느낌.
+
+| 기존 톤 | 오브 톤 |
+|---|---|
+| "예약일 1일 전입니다" | "내일 민준이 상담이 있어요" |
+| "예약 시간 1시간 전" | "1시간 뒤 상담이에요, 준비됐나요?" |
+| "승인 완료" | "○○센터에서 승인했어요!" |
+
+---
+
+## 4. 알림 설정
+
+MVP: **전체 on/off만**. 마이페이지 > 알림 설정.
+
+| 설정 | 동작 |
+|---|---|
+| 알림 켜기 | 모든 알림 수신 |
+| 알림 끄기 | 모든 알림 차단 |
+
+종류별 설정(일정만 켜기, 승인만 켜기 등)과 방해 금지 시간은 향후 추가.
+
+---
+
+## 5. 알림 터치 시 동작
+
+| 알림 종류 | 터치 시 이동 |
+|---|---|
+| 일정 전날/당일 | 홈 화면 (일정 카드가 보이는 위치) |
+| 센터 승인 | 홈 화면 (소속 홈으로 전환됨) |
+| 일정 변경/취소 | 홈 화면 |
+
+앱이 종료 상태에서 알림 터치 → 앱 실행 → 해당 화면으로 이동.
+
+---
+
+## 6. 예외
+
+| 상황 | 동작 |
+|---|---|
+| 기기 알림 권한 꺼져 있음 | 앱 내에서 안내: "알림을 켜면 일정을 놓치지 않아요" + [설정으로 이동] |
+| 로그아웃 | 디바이스 토큰 해제, 알림 중단 |
+| 다중 기기 로그인 (폰 + 태블릿) | 모든 기기에 알림 발송 |
+| 알림 off 상태에서 센터 승인 | 알림 미발송. 다음 앱 진입 시 소속 홈 전환 |
+
+---
+
+## 7. 인프라
+
+- FCM 기반 (전문가 앱과 동일)
+- 로그인 시 디바이스 토큰 서버 전송
+- 로그아웃 시 토큰 해제
+
+---
+
+## 8. 미해결 이슈
+
+- **ISSUE-008**: 디바이스 토큰 관리 상세 (다중 기기, 기존 전문가 앱 FCM 구조 재사용 여부)
+</script>
+
+<script type="text/plain" id="doc-f08">
+# F08. 마이페이지
+
+> 센터 정보, 프로필, 자녀 정보, 설정을 관리하는 화면
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 소속된 센터들의 정보(담당 선생님, 진행현황)를 한곳에서 보고 싶다
+- 사용자로서, 프로필을 수정하고 알림 설정을 변경하고 싶다
+- 보호자로서, 센터에 등록된 자녀 정보를 확인하고 싶다
+
+---
+
+## 1. 화면 구성
+
+기능 나열이 아닌 **센터 카드 중심** 구조. 센터 단위로 정보를 묶는다.
+
+```
+── 프로필 ───────────────────
+홍길동
+hong@email.com
+[프로필 수정 ›]
+
+── 내 센터 ──────────────────
+┌─────────────────────────┐
+│ ○○놀이치료센터    [이용중] │
+│ 담당: 김상담 선생님      │
+│ 검사결과 2건 ›           │
+│ 진행현황: 6/10회 ›       │
+│ 내담자: 민준             │
+└─────────────────────────┘
+┌─────────────────────────┐
+│ △△언어치료센터    [이용중] │
+│ 담당: 이상담 선생님      │
+│ 검사결과 1건 ›           │
+│ 진행현황: 1/8회 ›        │
+│ 내담자: 서연             │
+└─────────────────────────┘
+
+[+ 센터 코드로 추가 연결]
+
+── 자녀 정보 ────────────────
+민준 ›
+서연 ›
+
+── 설정 ─────────────────────
+알림 설정 ›
+개인정보 관리 ›
+이용약관 ›
+로그아웃
+```
+
+---
+
+## 2. 센터 카드
+
+### 이용중 센터
+
+각 센터 카드에 표시되는 정보:
+
+| 정보 | 터치 시 |
+|---|---|
+| 센터명 + [이용중] 라벨 | — |
+| 담당 상담사 이름 | — |
+| 검사결과 N건 › | 해당 센터 검사 결과 목록 (→ F04) |
+| 진행현황: N/M회 › | 해당 센터 타임라인 (→ F03) |
+| 내담자: 이름 | — (보호자인 경우에만 표시) |
+
+### 센터 식별 (아바타)
+
+```
+센터 로고가 있는가?
+  ├─ YES → 로고 이미지 (32px, 둥근 사각형)
+  └─ NO  → 첫 글자 + 자동 배정 색상
+           예: "해밀심리센터" → 파란 배경에 "해"
+```
+
+- 색상 풀: 6~8가지 구분 가능한 색상 순환 배정
+- 2개 이상 센터가 default 아이콘이면 구분 불가 → 이니셜+색상으로 해결
+
+### 종결 센터
+
+이용중 센터 하단으로 이동. "종결" 라벨 + 기간 표시. 기록 열람만 가능.
+
+```
+┌─────────────────────────┐
+│ □□상담센터        [종결]  │
+│ 2025.11 ~ 2026.04       │
+│ 상담 기록 보기 ›         │
+└─────────────────────────┘
+```
+
+- "상담 기록 보기" 터치 → 종결 케이스 타임라인 (읽기 전용)
+- 종결 센터의 데이터는 삭제되지 않음 (MVP 정책)
+
+### 승인 대기 센터
+
+센터 카드 목록에 대기 상태로 표시:
+
+```
+┌─────────────────────────┐
+│ ○○심리상담센터   [승인 대기] │
+│ 요청일: 2026.05.20       │
+└─────────────────────────┘
+```
+
+터치 불가. 승인되면 자동으로 이용중으로 전환.
+
+---
+
+## 3. 자녀 정보
+
+- **조회 전용**. 센터에서 등록한 데이터이며 앱에서 수정 불가
+- 센터가 데이터 주도권을 가짐
+- 자녀 이름 터치 → 자녀 기본 정보 표시 (이름, 생년월일, 소속 센터 등)
+
+---
+
+## 4. 프로필/설정
+
+### 프로필 수정
+
+수정 가능 항목: 이름
+수정 불가 항목: 이메일 (소셜 로그인 연동), 전화번호 (별도 인증 필요)
+
+### 알림 설정
+
+MVP: 전체 on/off 토글 1개. (→ F07)
+
+### 개인정보 관리
+
+| 기능 | 동작 |
+|---|---|
+| 전화번호 변경 | 새 번호 입력 + SMS 재인증 |
+| 계정 삭제 | 확인 다이얼로그 → 삭제 요청 (처리 정책은 별도 수립) |
+
+### 로그아웃
+
+1. [로그아웃] 터치
+2. 확인: "로그아웃 할까요?" [취소] [로그아웃]
+3. 로그아웃 → 토큰 삭제 + 디바이스 토큰 해제 → 로그인 화면
+
+---
+
+## 5. 센터 추가 연결
+
+[+ 센터 코드로 추가 연결] 터치 → 센터 코드 입력 화면 (→ F01).
+이미 전화번호가 등록되어 있으면 SMS 인증 단계 생략.
+
+---
+
+## 6. 예외 및 에러
+
+| 상황 | 동작 |
+|---|---|
+| 소속 센터가 없을 때 | "내 센터" 영역에 [센터 코드로 연결하기] CTA만 표시 |
+| 자녀가 없을 때 | "자녀 정보" 영역 미표시 |
+| 센터 데이터 로딩 실패 | 센터 카드 영역에 "정보를 불러오지 못했어요" + [다시 시도] |
+| 프로필 수정 실패 | 스낵바: "수정에 실패했어요" |
+| 계정 삭제 요청 | "삭제를 요청했어요. 처리까지 최대 N일 소요됩니다" (정책 확정 후) |
+
+---
+
+## 7. 미해결 이슈
+
+- **ISSUE-002**: 데이터 삭제 정책 (센터 종결/탈퇴 시 범위, 법적 검토 필요)
+</script>
+
+<script type="text/plain" id="doc-f09">
+# F09. 오브 캐릭터
+
+> 앱 전체에 걸친 감성적 가이드 캐릭터. 에러 상태까지 브랜드 경험으로 만든다
+
+**Phase**: MVP
+
+---
+
+## 유저 스토리
+
+- 사용자로서, 앱을 열었을 때 딱딱한 UI가 아니라 따뜻한 인사를 받고 싶다
+- 사용자로서, 에러가 나도 당황하지 않고 무슨 상황인지 알고 싶다
+- 사용자로서, 로딩 중에도 앱이 작동하고 있다는 느낌을 받고 싶다
+
+---
+
+## 1. 기본 정의
+
+| 항목 | 내용 |
+|---|---|
+| 형태 | 빛/오브 (따뜻한 빛 덩어리, 추상형) |
+| 성격 | 차분한 안내자, 따뜻한 톤 |
+| 말투 | 느낌표 없이 마침표로 끝나는 차분한 톤 |
+| MVP 역할 | 상황별 한 줄 멘트 + 시각 변화 + 에러/빈 상태 표현 |
+| Phase 2 확장 | AI 성장 가이드의 인격으로 확장 |
+
+---
+
+## 2. 시각 변화
+
+### 시간대별
+
+| 시간대 | 오브 표현 | 기준 |
+|---|---|---|
+| 아침 (6~11시) | 밝은 금빛 (활기) | 기기 시간 |
+| 낮 (11~17시) | 따뜻한 주황빛 | |
+| 저녁 (17~21시) | 부드러운 보랏빛 (차분) | |
+| 밤 (21~6시) | 은은한 달빛 | |
+
+### 상황별
+
+| 상황 | 오브 표현 |
+|---|---|
+| 일정 임박 (D-0, D-1) | 살짝 반짝임 |
+| 상담 완료 직후 | 포근하게 퍼짐 |
+| 7일 이상 미접속 후 재접속 | 조용히 흔들림 |
+| 로딩 중 | 숨쉬듯 맥동 (스피너 대체) |
+| 에러 | 흐릿해짐 |
+
+---
+
+## 3. 상황별 멘트
+
+### 멘트 결정 로직
+
+멘트는 **서버 호출 없이 로컬에서 즉시 결정**한다. 우선순위가 높은 조건부터 매칭하고, 해당되는 것이 없으면 시간대별 기본 멘트를 표시한다.
+
+**우선순위**:
+
+| 순위 | 조건 | 멘트 |
+|---|---|---|
+| 1 | 네트워크 오류 | "연결이 불안정해요" |
+| 2 | 서버 오류 | "잠깐 문제가 생겼어요" |
+| 3 | 7일 이상 미접속 후 재접속 | "다시 만나서 반가워요" |
+| 4 | 일정 D-0 (당일) | "오늘 상담이 있어요" |
+| 5 | 일정 D-1 (내일) | "내일 민준이 상담이 있어요" |
+| 6 | 진행현황 50% 돌파 (최초 1회) | "벌써 절반이나 왔어요" |
+| 7 | 예정 일정 없음 | "아직 예정된 일정이 없어요" |
+| 8 | 해당 없음 | 시간대별 기본 멘트 |
+
+**시간대별 기본 멘트**:
+
+| 시간대 | 멘트 |
+|---|---|
+| 아침 | "좋은 아침이에요" |
+| 낮 | "오늘은 여유로운 하루예요" |
+| 저녁 | "오늘 하루도 수고했어요" |
+| 밤 | "푹 쉬어요" |
+
+### 보호자일 때
+
+자녀 이름을 멘트에 포함: "내일 **민준이** 상담이 있어요"
+
+자녀가 여러 명이고 내일 여러 일정이 있으면: "내일 일정이 2건 있어요" (이름 나열 대신 건수)
+
+---
+
+## 4. 에러/빈 상태 표현
+
+일반적인 에러 페이지 대신 **오브가 상태를 표현**한다.
+
+### 네트워크 오류
+
+```
+      (흐릿해진 오브)
+
+  "연결이 불안정해요.
+   잠시 후 다시 올게요"
+
+      [다시 시도]
+```
+
+### 서버 오류
+
+```
+      (깜빡이는 오브)
+
+  "잠깐 문제가 생겼어요.
+   곧 괜찮아질 거예요"
+
+      [다시 시도]
+```
+
+### 로딩 중
+
+```
+      (숨쉬듯 맥동하는 오브)
+
+  (멘트 없음, 빛 애니메이션만)
+```
+
+기존 스피너 대신 오브 맥동 사용.
+
+### 빈 데이터
+
+```
+      (조용히 떠있는 오브)
+
+  "아직 예정된 일정이 없어요"
+```
+
+---
+
+## 5. 다크 모드
+
+오브가 빛 기반이라 다크 모드에서 시각적 효과 극대화:
+
+- **라이트**: 밝은 배경 + 은은한 오브 → 차분하고 깨끗한
+- **다크**: 어두운 배경 + 빛나는 오브 → 몰입감, 감성적
+
+오브의 색상/밝기 값은 모드별로 별도 정의 필요.
+
+---
+
+## 6. 노출 위치
+
+| 위치 | 오브 크기 | 역할 |
+|---|---|---|
+| 홈 상단 | 크게 | 메인 멘트 + 시간대 색상 |
+| 에러 화면 | 중간 | 에러 상태 표현 + 안내 멘트 |
+| 로딩 | 작게 | 스피너 대체 |
+| 온보딩 슬라이드 | 크게 | 첫인상 + 일러스트 역할 |
+
+---
+
+## 7. 구현 참고
+
+- 빛 효과, 그라데이션, 맥동: `@shopify/react-native-skia`
+- 상태 전환 애니메이션: `react-native-reanimated`
+- 멘트 결정: 순수 로컬 로직 (일정 데이터 캐시 + 기기 시간 기반)
+
+---
+
+## 8. 미해결 이슈
+
+- **ISSUE-003**: 오브 캐릭터에 이름을 부여할 것인지 (브랜딩)
+</script>
+
+<script type="text/plain" id="doc-f10">
+# F10. 미션 & 기록
+
+> 상담사가 설정한 미션을 앱에서 확인하고, 일상 기록을 남겨 상담사에게 전달한다
+
+**Phase**: Phase 2
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 상담사가 알려준 이번 주 실천사항을 앱에서 확인하고 싶다
+- 내담자로서, 상담 사이 기간에 뭘 하면 좋을지 알고 싶다
+- 보호자로서, 일상에서 관찰한 아이의 변화를 간단히 기록하고 상담사에게 전달하고 싶다
+- 상담사로서, 내담자/보호자의 일상 기록을 상담 전에 미리 확인하고 싶다
+
+---
+
+## 1. 전체 흐름
+
+```
+SaaS (상담사)              앱 (내담자/보호자)
+
+회기별 미션 설정  ──→  홈에 이번 주 미션 카드 표시
+                       ↓
+                       [오늘 기록 남기기] 터치
+                       ↓
+                       3단계 기록 작성 (1분 이내)
+                       ↓
+기록 확인 ←──────────  "상담사에게 전달됩니다"
+(상담 준비 자료)
+```
+
+---
+
+## 2. 미션 표시
+
+### 홈 미션 카드
+
+상담사가 미션을 설정한 경우에만 표시. 미설정이면 영역 자체 미노출.
+
+```
+┌─────────────────────────────────────┐
+│  이번 주 미션                        │
+│                                     │
+│  감정 이름 먼저 말해주기             │
+│  아이가 화를 낼 때 행동을 지적하기   │
+│  전에, 감정을 먼저 인정해주세요      │
+│                                     │
+│  [오늘 기록 남기기]                  │
+│                                     │
+│  ● ● ● ○ ○ ○ ○  이번 주 3회 기록   │
+└─────────────────────────────────────┘
+```
+
+### 미션 유형
+
+| 구분 | 예시 |
+|---|---|
+| 태도/반응 미션 | "아이가 화낼 때 감정 이름을 먼저 말해주세요" |
+| 활동 미션 | "감정 날씨 카드 만들기", "하루 10분 산책" |
+
+미션은 회기 기반으로 갱신. 상담사가 회기 후 다음 미션을 설정하면 앱에 반영.
+
+---
+
+## 3. 기록 플로우
+
+### 정상 흐름
+
+1. [오늘 기록 남기기]를 터치한다
+2. 기록 유형을 선택한다 (미션 관련 / 일상 기록 / 둘 다)
+3. 상황 설명을 입력한다 (필수)
+4. 반응/느낌을 입력한다 (선택)
+5. 완료 화면: 격려 메시지 + 주간 기록 도트 + "상담사에게 전달됩니다"
+
+```
+Step 1: 유형 선택        Step 2: 내용 입력       Step 3: 완료
+○ 미션 관련              상황 설명 (필수)        잘 하셨어요
+○ 일상 기록              반응/느낌 (선택)        ● ● ● ● ○  4회
+○ 둘 다                                         상담사에게 전달됩니다
+```
+
+### 설계 원칙
+
+| 원칙 | 적용 |
+|---|---|
+| 부담 최소화 | 최대 3단계, 1분 이내 완료 |
+| 점진적 공개 | 필수 → 선택 순서로 |
+| 즉각적 보상 | 격려 메시지 + 주간 누적 도트 |
+| 의미 부여 | "상담사에게 전달됩니다" — 기록의 목적 명확화 |
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 기록 작성 중 앱을 닫으면? | 작성 내용 소멸 (임시 저장 없음) |
+| 기록 제출 실패 | 스낵바: "기록을 저장하지 못했어요" + [다시 시도] |
+| 미션이 없는데 기록하고 싶으면? | "일상 기록"으로 직접 작성 가능 |
+</script>
+
+<script type="text/plain" id="doc-f11">
+# F11. 전문가 노트
+
+> 상담사가 회기 후 작성한 요약 노트를 내담자/보호자에게 제공
+
+**Phase**: Phase 2
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 오늘 상담에서 무슨 이야기가 있었는지 알고 싶다
+- 보호자로서, 상담사가 알려주는 실천사항을 다시 확인하고 싶다
+- 상담사로서, 공개할 준비가 된 내용만 내담자에게 보여주고 싶다
+
+---
+
+## 1. 핵심 규칙
+
+- **발행 기반 공개**: 상담사가 "발행" 버튼을 눌러야만 내담자에게 노출
+- 작성 중인 초안은 절대 비공개
+- 상담사가 공개 범위를 통제한다
+
+---
+
+## 2. 노트 구조
+
+각 회기 노트는 2개 섹션:
+
+| 섹션 | 내용 |
+|---|---|
+| 회기 요약 | 이번 회기에 뭘 했는지, 아이/내담자가 어떤 반응을 보였는지 |
+| 실천 사항 | 다음 회기까지 일상에서 해볼 것 |
+
+---
+
+## 3. 동작
+
+### 정상 흐름
+
+1. 상담사가 SaaS에서 노트를 작성하고 "발행"한다
+2. 내담자 앱에 푸시 알림: "5회기 요약 노트가 도착했어요"
+3. 홈에 알림 카드가 표시된다
+4. 터치하면 노트 목록으로 이동
+5. 최신 회기가 펼쳐진 상태, 이전 회기는 접힌 상태
+
+### 노트 목록 화면
+
+아코디언 구조:
+
+```
+┌─────────────────────────────────────┐
+│  전문가 기록                         │
+│                                     │
+│  ▼ 5회기 (5/7)              최신    │
+│  ┌───────────────────────────────┐  │
+│  │ 회기 요약                      │  │
+│  │ 감정 카드 활동 진행. 이전보다   │  │
+│  │ 감정 어휘가 다양해짐.          │  │
+│  │                               │  │
+│  │ 실천 사항                      │  │
+│  │ 아이가 감정을 말할 때 즉시     │  │
+│  │ 반응하지 말고 3초 기다려주세요  │  │
+│  └───────────────────────────────┘  │
+│                                     │
+│  ▶ 4회기 (4/30)                     │
+│  ▶ 3회기 (4/23)                     │
+└─────────────────────────────────────┘
+```
+
+### 예외
+
+| 상황 | 동작 |
+|---|---|
+| 발행된 노트가 없음 | "아직 도착한 기록이 없어요" |
+| 노트 로딩 실패 | 오브: "기록을 불러오지 못했어요" + [다시 시도] |
+| 상담사가 발행 후 수정하면? | 수정 내용 자동 반영 (별도 알림 없음) |
+| 상담사가 발행을 취소(회수)하면? | 앱에서 해당 노트 비노출 |
+
+---
+
+## 4. 미해결 이슈
+
+- **ISSUE-001**: 상담사의 노트 작성 부담, 실제 수요 검증 필요
+</script>
+
+<script type="text/plain" id="doc-f12">
+# F12. AI 성장 가이드
+
+> AI 기반 치료 보조: 인사이트 요약, 활동 제안, 변화 비교
+
+**Phase**: Phase 3
+
+---
+
+## 유저 스토리
+
+- 보호자로서, 지금까지의 상담 과정에서 아이가 어떻게 변하고 있는지 한눈에 알고 싶다
+- 내담자로서, "정말 나아지고 있는 건가?"에 대한 확신을 갖고 싶다
+- 보호자로서, 상담 사이 기간에 집에서 아이와 어떤 활동을 하면 좋을지 알고 싶다
+
+---
+
+## 1. AI 인사이트
+
+상담사 노트 + 내담자/보호자 기록을 종합해서 자동 생성하는 진행 요약.
+
+```
+"감정을 언어로 표현하는 빈도가
+ 최근 3주간 늘고 있어요.
+ 특히 '화나다' 외에 '속상하다',
+ '답답하다' 같은 표현이 새로
+ 나타났어요."
+
+ 최근 기록 5건 · 회기 노트 2건 기반
+```
+
+- 구체적 변화를 언급 (추상적 격려가 아닌 데이터 기반)
+- 위치: 타임라인 상단 — 스크롤 전 "지금 어디쯤인지" 파악
+
+---
+
+## 2. AI 퀘스트
+
+이전 회기 내용을 기반으로 집에서 할 수 있는 활동 제안. 오브 캐릭터가 안내 역할.
+
+---
+
+## 3. 성장 리포트
+
+주간/월간 변화 요약을 자동 생성하고 푸시 알림으로 전달.
+
+---
+
+## 4. 회기 비교 뷰
+
+"정말 나아지고 있나?"에 대한 시각적 답. 1회기 vs 현재를 대조.
+
+```
+── 변화 비교 (1회기 → 현재) ──
+
+실제 반응 대조:
+  1회기: "싫어! 안 할 거야!"
+  현재:  "좀 쉬고 나서 할게요"
+
+변화 지표:
+  감정 표현    ██░░░░░░ → ██████░░
+  상담 참여도  ███░░░░░ → ███████░
+
+키워드 변화:
+  ~~싫어~~ ~~안해~~ → 쉬고 할게 괜찮아
+```
+
+- 실제 발화/행동 대조가 가장 감정적으로 와닿음
+- 바 차트로 영역별 변화 시각화
+- 키워드 대조로 언어 변화 가시화
+
+---
+
+## 5. 전제 조건
+
+- F10(미션 & 기록) + F11(전문가 노트)가 선행되어야 분석할 데이터가 축적됨
+- AI 치료 보조 콘텐츠의 효과성에 대한 연구 기반 검증 필요
+- 개인정보 처리 방침 명확화 (AI 분석 동의 절차)
+</script>
+
+<script>
+// Load all embedded documents
+const docs = {};
+const docIds = [
+  'readme', 'screenmap', 'principles',
+  'f01', 'f02', 'f03', 'f04', 'f05', 'f06',
+  'f07', 'f08', 'f09', 'f10', 'f11', 'f12'
+];
+docIds.forEach(id => {
+  const el = document.getElementById('doc-' + id);
+  if (el) docs[id] = el.textContent;
+});
+
+function buildTOC(md) {
+  const headings = [];
+  const lines = md.split('\n');
+  for (const line of lines) {
+    const m2 = line.match(/^## (.+)/);
+    const m3 = line.match(/^### (.+)/);
+    if (m2) headings.push({ level: 2, text: m2[1], id: slugify(m2[1]) });
+    else if (m3) headings.push({ level: 3, text: m3[1], id: slugify(m3[1]) });
+  }
+  if (headings.length < 2) return '';
+  let html = '<div class="toc"><div class="toc-title">목차</div>';
+  for (const h of headings) {
+    const cls = h.level === 3 ? ' class="toc-h3"' : '';
+    html += '<a' + cls + ' href="#' + h.id + '">' + h.text + '</a>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function slugify(text) {
+  return text.replace(/[^\w가-힣\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+}
+
+function getPhaseClass(md) {
+  if (md.includes('**Phase**: MVP')) return 'phase-mvp';
+  if (md.includes('**Phase**: Phase 2')) return 'phase-phase2';
+  if (md.includes('**Phase**: Phase 3')) return 'phase-phase3';
+  return '';
+}
+
+function getPhaseLabel(md) {
+  if (md.includes('**Phase**: MVP')) return 'MVP';
+  if (md.includes('**Phase**: Phase 2')) return 'Phase 2';
+  if (md.includes('**Phase**: Phase 3')) return 'Phase 3';
+  return '';
+}
+
+let currentKey = 'readme';
+
+function navigate(key) {
+  if (!docs[key]) return;
+  currentKey = key;
+
+  // Update sidebar
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.key === key);
+  });
+
+  var html;
+  if (key === 'screenmap') {
+    html = renderScreenMap();
+  } else if (key === 'f01') {
+    html = renderF01();
+  } else if (key === 'f02') {
+    html = renderF02();
+  } else if (key === 'f03') {
+    html = renderF03();
+  } else if (key === 'f04') {
+    html = renderF04();
+  } else if (key === 'f05') {
+    html = renderF05();
+  } else if (key === 'f06') {
+    html = renderF06();
+  } else if (key === 'f07') {
+    html = renderF07();
+  } else if (key === 'f08') {
+    html = renderF08();
+  } else if (key === 'f09') {
+    html = renderF09();
+  } else if (key === 'f10') {
+    html = renderF10();
+  } else if (key === 'f11') {
+    html = renderF11();
+  } else if (key === 'f12') {
+    html = renderF12();
+  } else {
+    var md = docs[key];
+    var renderer = new marked.Renderer();
+    renderer.heading = function(data) {
+      var text = typeof data === 'object' ? data.text : data;
+      var depth = typeof data === 'object' ? data.depth : arguments[1];
+      var id = slugify(text);
+      return '<h' + depth + ' id="' + id + '">' + text + '</h' + depth + '>';
+    };
+    marked.setOptions({ renderer: renderer, breaks: false, gfm: true });
+    var cleanMd = md.replace(/\*\*Phase\*\*: .+\n?/g, '');
+    html = '';
+    var phaseClass = getPhaseClass(md);
+    var phaseLabel = getPhaseLabel(md);
+    if (phaseLabel) {
+      html += '<div class="phase-indicator ' + phaseClass + '">' + phaseLabel + '</div>';
+    }
+    html += buildTOC(md);
+    html += marked.parse(cleanMd);
+  }
+
+  document.getElementById('md-content').innerHTML = html;
+  document.getElementById('content').scrollTop = 0;
+  window.scrollTo(0, 0);
+  document.getElementById('sidebar').classList.remove('open');
+  history.replaceState(null, '', '#' + key);
+}
+
+function renderF01() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F01. 인증 &amp; 온보딩</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">앱 설치부터 센터 연결까지의 전체 플로우</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>사용자로서, 카카오/네이버/애플 계정으로 간편하게 가입하고 싶다</li>' +
+    '<li>사용자로서, 센터에서 받은 코드를 입력해 센터와 연결하고 싶다</li>' +
+    '<li>센터(상담사)로서, 승인 요청을 확인하고 내담자/보호자 역할을 지정해서 승인하고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="온보딩-슬라이드">1. 온보딩 슬라이드</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">앱 최초 설치 시 3장의 슬라이드로 서비스를 소개. 완료 여부는 로컬에 저장.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 온보딩 1/3</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:40px 16px;background:linear-gradient(180deg,#fefce8 0%,#fff 100%)">' +
+          '<div class="wf-orb" style="margin-top:24px"></div>' +
+          '<div style="font-size:18px;font-weight:700;color:#374151;margin:24px 0 8px">나를 위한 작은 변화의 시작</div>' +
+          '<div style="font-size:14px;color:#6b7280;line-height:1.6">일정, 진행현황을<br>한눈에 확인하세요</div>' +
+          '<div style="margin-top:32px"><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 온보딩 2/3</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:40px 16px;background:linear-gradient(180deg,#eff6ff 0%,#fff 100%)">' +
+          '<div style="width:64px;height:64px;border-radius:50%;background:#dbeafe;margin:24px auto;display:flex;align-items:center;justify-content:center;font-size:24px">🔔</div>' +
+          '<div style="font-size:18px;font-weight:700;color:#374151;margin:24px 0 8px">센터와 연결하면</div>' +
+          '<div style="font-size:14px;color:#6b7280;line-height:1.6">상담 일정 알림,<br>검사 결과까지</div>' +
+          '<div style="margin-top:32px"><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-off"></span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 온보딩 3/3</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:40px 16px;background:linear-gradient(180deg,#f0fdf4 0%,#fff 100%)">' +
+          '<div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;margin:24px auto;display:flex;align-items:center;justify-content:center;font-size:24px">🏥</div>' +
+          '<div style="font-size:18px;font-weight:700;color:#374151;margin:24px 0 8px">센터 코드가 있으신가요?</div>' +
+          '<div style="font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:24px">센터에서 받은 코드로<br>바로 연결할 수 있어요</div>' +
+          '<div style="display:flex;flex-direction:column;gap:10px;padding:0 24px">' +
+            '<span class="wf-btn wf-btn-primary" style="font-size:14px;padding:12px;text-align:center;border-radius:10px">센터 코드 입력하기</span>' +
+            '<span style="font-size:13px;color:#6b7280;text-align:center;padding:8px">나중에 할게요 →</span>' +
+          '</div>' +
+          '<div style="margin-top:24px"><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-on"></span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="wf-note" style="margin-top:16px">최초 1회만 표시 · 좌우 스와이프 · 완료 여부 로컬 저장<br>앱 재설치 시 다시 표시 · 중간에 닫으면 다음 진입 시 처음부터</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="소셜-로그인">2. 소셜 로그인</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 로그인</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:48px 24px">' +
+          '<div class="wf-orb" style="margin-bottom:16px"></div>' +
+          '<div style="font-size:20px;font-weight:800;color:#374151;margin-bottom:8px">마인드엔서</div>' +
+          '<div style="font-size:13px;color:#9ca3af;margin-bottom:40px">나를 위한 작은 변화의 시작</div>' +
+          '<div style="display:flex;flex-direction:column;gap:10px">' +
+            '<div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;background:#FEE500;font-size:14px;font-weight:600;color:#381e1f"><span style="font-size:18px">💬</span> 카카오로 시작하기</div>' +
+            '<div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;background:#03C75A;font-size:14px;font-weight:600;color:#fff"><span style="font-size:18px">N</span> 네이버로 시작하기</div>' +
+            '<div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;background:#000;font-size:14px;font-weight:600;color:#fff"><span style="font-size:18px"></span> Apple로 시작하기</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">로그인 규칙</h3>' +
+      '<table class="wf-table"><thead><tr><th>항목</th><th>상세</th></tr></thead><tbody>' +
+        '<tr><td>제공자</td><td>카카오, 네이버, 애플 (iOS 필수)</td></tr>' +
+        '<tr><td>계정 매칭</td><td>provider + provider_id 기반</td></tr>' +
+        '<tr><td>애플 Private Relay</td><td>provider_id 기반 매칭</td></tr>' +
+        '<tr><td>토큰</td><td>기기 보안 저장소, 자동 갱신</td></tr>' +
+      '</tbody></table>' +
+      '<h3 style="margin:24px 0 12px;font-size:15px">예외</h3>' +
+      '<table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody>' +
+        '<tr><td>제공자에서 취소</td><td>로그인 화면 복귀</td></tr>' +
+        '<tr><td>서버 오류</td><td>"로그인에 실패했어요"</td></tr>' +
+        '<tr><td>네트워크 끊김</td><td>오브: "연결이 불안정해요"</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="센터-연결">3. 센터 연결</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">← 센터 연결</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="padding:24px 16px">' +
+          '<div class="wf-label" style="font-size:16px;margin-bottom:4px">센터 코드를 입력해주세요</div>' +
+          '<div style="font-size:12px;color:#9ca3af;margin-bottom:20px">센터에서 받은 6자리 코드를 입력해주세요</div>' +
+          '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">' +
+            '<div style="width:44px;height:52px;border:2px solid #2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#374151">A</div>' +
+            '<div style="width:44px;height:52px;border:2px solid #2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#374151">B</div>' +
+            '<div style="width:44px;height:52px;border:2px solid #2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#374151">3</div>' +
+            '<div style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:10px"></div>' +
+            '<div style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:10px"></div>' +
+            '<div style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:10px"></div>' +
+          '</div>' +
+          '<div class="wf-note" style="text-align:center">6자리 영숫자 · 자동 대문자 변환</div>' +
+        '</div>' +
+        '<div class="wf-section" style="text-align:center;padding:16px;background:#f0fdf4">' +
+          '<div style="font-size:14px;font-weight:600;color:#374151">○○심리상담센터에 연결할까요?</div>' +
+          '<div style="margin-top:12px;display:flex;gap:10px;justify-content:center">' +
+            '<span class="wf-btn" style="padding:8px 20px">취소</span>' +
+            '<span class="wf-btn wf-btn-primary" style="padding:8px 20px">확인</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">← 본인 인증</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="padding:24px 16px">' +
+          '<div class="wf-label" style="font-size:16px;margin-bottom:4px">전화번호를 입력해주세요</div>' +
+          '<div style="font-size:12px;color:#9ca3af;margin-bottom:16px">최초 1회만 입력하면 됩니다</div>' +
+          '<div style="border:1px solid #d1d5db;border-radius:10px;padding:12px 16px;font-size:15px;color:#374151;margin-bottom:12px">010-1234-5678</div>' +
+          '<span class="wf-btn wf-btn-primary" style="width:100%;text-align:center;padding:12px;font-size:14px;display:block;border-radius:10px">인증번호 받기</span>' +
+        '</div>' +
+        '<div class="wf-section" style="padding:24px 16px">' +
+          '<div class="wf-label">인증번호 6자리</div>' +
+          '<div style="display:flex;gap:8px;justify-content:center;margin:12px 0">' +
+            '<div style="width:40px;height:48px;border:2px solid #2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">1</div>' +
+            '<div style="width:40px;height:48px;border:2px solid #2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">2</div>' +
+            '<div style="width:40px;height:48px;border:2px solid #2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">3</div>' +
+            '<div style="width:40px;height:48px;border:2px solid #d1d5db;border-radius:8px"></div>' +
+            '<div style="width:40px;height:48px;border:2px solid #d1d5db;border-radius:8px"></div>' +
+            '<div style="width:40px;height:48px;border:2px solid #d1d5db;border-radius:8px"></div>' +
+          '</div>' +
+          '<div style="text-align:center;font-size:12px;color:#dc2626">2:47 남음</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">완료</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:48px 16px;background:#f0fdf4">' +
+          '<div style="font-size:48px;margin-bottom:16px">✅</div>' +
+          '<div style="font-size:16px;font-weight:700;color:#374151;margin-bottom:8px">승인 요청을 보냈어요</div>' +
+          '<div style="font-size:14px;color:#6b7280;line-height:1.6">센터에서 확인하면<br>알려드릴게요</div>' +
+          '<div style="margin-top:24px"><span class="wf-btn wf-btn-primary" style="padding:10px 28px;font-size:14px">홈으로 돌아가기</span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div style="margin-top:20px">' +
+    '<h3 style="font-size:15px;margin-bottom:12px">센터 연결 규칙</h3>' +
+    '<table class="wf-table"><thead><tr><th>항목</th><th>상세</th></tr></thead><tbody>' +
+      '<tr><td>센터 코드</td><td>6자리, 대문자 자동 변환, 만료 없음</td></tr>' +
+      '<tr><td>전화번호</td><td>최초 1회. 추가 센터 연결 시 기존 번호 사용</td></tr>' +
+      '<tr><td>SMS 인증</td><td>6자리, 유효 3분, 재발송 시 이전 무효</td></tr>' +
+      '<tr><td>제한</td><td>동일 번호 10회/일 · 5회 연속 실패 → 10분 잠금</td></tr>' +
+    '</tbody></table>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="센터-승인">4. 센터 승인 (센터 측)</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">내담자/보호자 구분은 <strong>센터에서 승인 시 역할과 대상을 지정</strong>한다.</p>' +
+  '<div class="wf-flow">' +
+    '<div class="wf-flow-box">앱: 승인 요청</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#d97706">센터 웹: 확인</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#d97706">대상+역할 지정</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#22c55e;background:#f0fdf4">승인 → 푸시</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="사용자-상태">5. 사용자 상태</h2>' +
+  '<table class="wf-table"><thead><tr><th>상태</th><th>조건</th><th>홈 화면</th></tr></thead><tbody>' +
+    '<tr><td><span style="color:#dc2626;font-weight:600">미인증</span></td><td>로그인 전</td><td>로그인 화면</td></tr>' +
+    '<tr><td><span style="color:#6b7280;font-weight:600">미소속</span></td><td>로그인 완료, 소속 0개</td><td>미소속 홈</td></tr>' +
+    '<tr><td><span style="color:#d97706;font-weight:600">승인 대기</span></td><td>대기 요청 ≥ 1개</td><td>승인 대기 홈</td></tr>' +
+    '<tr><td><span style="color:#22c55e;font-weight:600">소속</span></td><td>승인 센터 ≥ 1개</td><td>소속 홈</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="앱-업데이트">6. 앱 업데이트</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">강제 업데이트</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;padding:48px 16px">' +
+          '<div class="wf-orb" style="margin-bottom:16px"></div>' +
+          '<div style="font-size:16px;font-weight:700;color:#374151;margin-bottom:8px">"새로운 버전이 나왔어요"</div>' +
+          '<div style="font-size:14px;color:#6b7280;margin-bottom:24px">업데이트 후 이용해주세요</div>' +
+          '<span class="wf-btn wf-btn-primary" style="padding:12px 32px;font-size:14px">업데이트 하기</span>' +
+          '<div class="wf-note" style="margin-top:16px">닫기 버튼 없음 · 스토어로 이동</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="flex:1;min-width:260px">' +
+      '<table class="wf-table"><thead><tr><th>조건</th><th>동작</th></tr></thead><tbody>' +
+        '<tr><td>최소 버전 미만</td><td>강제 업데이트 (닫기 불가)</td></tr>' +
+        '<tr><td>최소 이상~최신 미만</td><td>배너 "새 버전" (닫기 가능)</td></tr>' +
+        '<tr><td>최신</td><td>아무 동작 없음</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미해결-이슈">7. 미해결 이슈</h2>' +
+  '<table class="wf-table"><thead><tr><th>ID</th><th>내용</th></tr></thead><tbody>' +
+    '<tr><td>ISSUE-006</td><td>애플 Private Relay 대응</td></tr>' +
+    '<tr><td>ISSUE-008</td><td>디바이스 토큰 관리 (다중 기기, FCM)</td></tr>' +
+    '<tr><td>ISSUE-009</td><td>앱 이름 확정 ("마인드엔서" 임시)</td></tr>' +
+  '</tbody></table>';
+}
+
+function renderF02() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F02. 홈 화면</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">앱을 열었을 때 "다음에 뭘 하면 되지?"에 0.5초 안에 답하는 화면</blockquote>' +
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2"><li>성인 내담자로서, 앱을 열면 다음 상담이 언제인지 바로 알고 싶다</li><li>보호자로서, 내 자녀들의 다음 일정과 진행 상황을 한눈에 보고 싶다</li><li>미소속 사용자로서, 센터 없이도 앱에서 할 수 있는 게 있었으면 좋겠다</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="소속-홈">1. 소속 홈</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">센터 연결 완료된 사용자. 오브 → 일정 → 콘텐츠 순서.</p>' +
+  '<div class="wf-screens"><div class="wf-phone"><div class="wf-phone-header">9:41 AM</div><div class="wf-phone-body">' +
+    '<div class="wf-section" style="text-align:center;background:#fefce8"><span class="wf-tag wf-tag-f">F09</span><div class="wf-orb" style="margin-top:12px"></div><div class="wf-ment">"내일 민준이 상담이 있어요"</div><div class="wf-note">서버 호출 없이 로컬에서 즉시 표시</div></div>' +
+    '<div class="wf-section"><span class="wf-label">다음 일정</span>' +
+      '<div class="wf-card"><div style="display:flex;justify-content:space-between;align-items:center"><div class="wf-card-title">5/21 수 14:00</div><span style="font-size:12px;font-weight:700;color:#2563eb">D-2</span></div><div class="wf-card-sub">민준 · 상담 6회차 · 놀이치료센터</div><div class="wf-progress"><div class="wf-progress-fill" style="width:50%"></div></div><div style="font-size:11px;color:#6b7280;margin-top:4px">5/10회</div><div class="wf-card-actions"><span class="wf-btn">길찾기</span><span class="wf-btn wf-btn-primary">전체 보기 →</span></div></div>' +
+      '<div class="wf-card"><div style="display:flex;justify-content:space-between;align-items:center"><div class="wf-card-title">5/23 금 10:00</div><span style="font-size:12px;font-weight:700;color:#2563eb">D-4</span></div><div class="wf-card-sub">서연 · 언어평가 · 언어치료센터</div><div class="wf-progress"><div class="wf-progress-fill" style="width:12.5%"></div></div><div style="font-size:11px;color:#6b7280;margin-top:4px">1/8회</div></div>' +
+      '<div class="wf-note">최대 3건 · [전체 보기] → F03 · [길찾기] → 지도 앱</div></div>' +
+    '<div class="wf-section"><span class="wf-tag wf-tag-f">F06</span> <span class="wf-label">읽어볼 만한 글</span><div class="wf-thumb-row"><div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">놀이치료, 어떤 변화<br>3분 읽기</div></div><div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">아이의 감정 읽기<br>2분 읽기</div></div><div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">감정 조절 방법<br>3분 읽기</div></div></div></div>' +
+  '</div><div class="wf-phone-tab"><span class="active">홈</span><span>마이</span></div></div>' +
+  '<div style="flex:1;min-width:260px">' +
+    '<h3 style="margin-bottom:12px;font-size:15px">일정 카드 규칙</h3><table class="wf-table"><thead><tr><th>항목</th><th>규칙</th></tr></thead><tbody><tr><td>D-day</td><td>오늘=D-0, 7일 이내=D-N, 초과=미표시</td></tr><tr><td>진행</td><td>회기수 정해짐→바, 없으면→텍스트</td></tr><tr><td>길찾기</td><td>좌표→지도, 주소만→검색, 없음→미표시</td></tr></tbody></table>' +
+    '<h3 style="margin:24px 0 12px;font-size:15px">역할별 표시</h3><table class="wf-table"><thead><tr><th>역할</th><th>표시</th></tr></thead><tbody><tr><td>내담자</td><td>내 일정만</td></tr><tr><td>보호자</td><td>자녀 이름별 섹션</td></tr><tr><td>both</td><td>"내 일정" + 자녀별</td></tr></tbody></table>' +
+    '<div class="wf-note" style="margin-top:12px">다중 센터: 시간순 합산</div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="역할별">역할별 일정 (both 예시)</h2>' +
+  '<div class="wf-screens"><div class="wf-phone"><div class="wf-phone-header">9:41 AM · both</div><div class="wf-phone-body">' +
+    '<div class="wf-section"><div style="font-size:13px;font-weight:700;color:#6b7280;margin-bottom:8px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px">── 내 일정 ──</div><div class="wf-card"><div class="wf-card-title">5/21 수 14:00</div><div class="wf-card-sub">개인상담 3회차 · ○○상담센터</div></div></div>' +
+    '<div class="wf-section"><div style="font-size:13px;font-weight:700;color:#6b7280;margin-bottom:8px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px">── 민준 ──</div><div class="wf-card"><div class="wf-card-title">5/21 수 16:30</div><div class="wf-card-sub">상담 6회차 · 놀이치료센터 · <span style="color:#2563eb;font-weight:700">D-2</span></div></div></div>' +
+    '<div class="wf-section"><div style="font-size:13px;font-weight:700;color:#6b7280;margin-bottom:8px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px">── 서연 ──</div><div class="wf-card"><div class="wf-card-title">5/23 금 10:00</div><div class="wf-card-sub">언어평가 · 언어치료센터 · <span style="color:#2563eb;font-weight:700">D-4</span></div></div></div>' +
+  '</div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="조건부">4. 조건부 표시</h2><table class="wf-table"><thead><tr><th>영역</th><th>조건</th><th>없을 때</th></tr></thead><tbody><tr><td>캐릭터</td><td><strong>항상</strong></td><td>기본 멘트</td></tr><tr><td>일정</td><td>예정 ≥ 1건</td><td>오브 멘트 + 미노출</td></tr><tr><td>미션</td><td>Phase 2</td><td>미노출</td></tr><tr><td>콘텐츠</td><td><strong>항상</strong></td><td>인기순</td></tr></tbody></table>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="예외">5. 예외</h2><table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody><tr><td>일정 실패</td><td>오브: "불러오지 못했어요"</td></tr><tr><td>콘텐츠 실패</td><td>콘텐츠만 미표시</td></tr><tr><td>전체 네트워크</td><td>전체 오브 에러</td></tr><tr><td>부분 성공</td><td>성공 영역만 독립 표시</td></tr></tbody></table>';
+}
+
+function renderF03() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F03. 일정 &amp; 타임라인</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">홈 [전체 보기]를 누르면 진입하는 전체 상담 이력 화면</blockquote>' +
+  '<h2 id="유저-스토리">유저 스토리</h2><ul style="margin:12px 0 24px;padding-left:20px;line-height:2"><li>보호자로서, 자녀의 전체 상담 이력을 한 화면에서 보고 싶다</li><li>내담자로서, 몇 회 했고 몇 회 남았는지 알고 싶다</li><li>보호자로서, 여러 치료 각각 어디까지 진행됐는지 보고 싶다</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="왜">왜 캘린더가 아닌 타임라인</h2><ul style="padding-left:20px;font-size:14px;line-height:2;margin-bottom:24px"><li>주 1~2회 상담 → 캘린더는 빈 칸만 가득</li><li>"뭘 했고, 다음에 뭘 하는지"가 한눈에</li><li>D-day, 애니메이션 등 재미 요소</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="타임라인">2. 타임라인 화면</h2><p style="font-size:14px;color:#6b7280;margin-bottom:20px">자녀(본인) &gt; 센터 &gt; 케이스 3단 계층</p>' +
+  '<div class="wf-screens"><div class="wf-phone"><div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 전체 일정</div><div class="wf-phone-body">' +
+    '<div class="wf-section"><div class="wf-label" style="margin-bottom:2px">민준 · 놀이치료센터</div><div class="wf-progress" style="margin:8px 0"><div class="wf-progress-fill" style="width:50%"></div></div><div style="font-size:11px;color:#6b7280;margin-bottom:12px">5/10회</div>' +
+      '<div style="font-size:13px;line-height:2.2"><div style="color:#22c55e">✓ <span style="color:#6b7280">5/14</span> 상담 5회차 <span style="color:#9ca3af;font-size:11px">완료</span></div><div style="color:#22c55e">✓ <span style="color:#6b7280">5/7</span> 상담 4회차 <span style="color:#9ca3af;font-size:11px">완료</span></div><div style="color:#22c55e">✓ <span style="color:#6b7280">4/30</span> 상담 3회차 <span style="color:#9ca3af;font-size:11px">완료</span></div><div style="color:#9ca3af;font-size:12px">· · · 2건 더 보기</div><div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/21</span> 상담 6회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-2</span> <span class="wf-btn" style="margin-left:4px;padding:2px 6px;font-size:10px">길찾기</span></div><div style="color:#d1d5db">○ <span style="color:#9ca3af">5/28 상담 7회차</span></div><div style="color:#d1d5db">○ <span style="color:#9ca3af">6/4 상담 8회차</span></div></div>' +
+      '<div style="margin-top:12px;padding:8px 12px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#6b7280"><span style="background:#fef3c7;color:#d97706;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600">종결</span> 미술치료 ▸ <span style="font-size:11px">12회 · 6개월</span></div></div>' +
+    '<div class="wf-section"><div class="wf-label">서연 · 언어치료센터</div><div class="wf-progress" style="margin:8px 0"><div class="wf-progress-fill" style="width:12.5%"></div></div><div style="font-size:13px;line-height:2.2"><div style="color:#22c55e">✓ <span style="color:#6b7280">5/16</span> 언어평가 <span style="color:#9ca3af;font-size:11px">완료</span></div><div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/23</span> 치료 1회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-4</span></div></div></div>' +
+  '</div></div>' +
+  '<div style="flex:1;min-width:260px"><h3 style="margin-bottom:12px;font-size:15px">회차 상태</h3><table class="wf-table"><thead><tr><th>상태</th><th>아이콘</th><th>스타일</th></tr></thead><tbody><tr><td>완료</td><td style="color:#22c55e">✓</td><td>정상 톤</td></tr><tr><td>미방문</td><td style="color:#9ca3af">─</td><td>흐린, 사유 미표시</td></tr><tr><td>다음 예정</td><td style="color:#2563eb;font-weight:700">●</td><td>강조+D-day</td></tr><tr><td>먼 미래</td><td style="color:#d1d5db">○</td><td>흐린</td></tr><tr><td>취소</td><td>—</td><td>미노출</td></tr></tbody></table>' +
+    '<h3 style="margin:24px 0 12px;font-size:15px">터치 → 바텀시트</h3><div class="wf-card" style="border:2px solid #e5e7eb"><div class="wf-card-title">5/14 수 · 상담 5회차 · 완료</div><div class="wf-card-sub">놀이치료센터 · 김상담</div><div class="wf-card-sub">14:00 ~ 14:50</div><div style="margin-top:8px;padding:8px;background:#fefce8;border-radius:6px;font-size:11px;color:#d97706">Phase 2: 상담사 노트 (F11) + 기록 (F10)</div></div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="케이스">3. 케이스별 분리</h2><p style="font-size:14px;color:#6b7280;margin-bottom:16px">같은 센터, 여러 프로그램 → <strong>케이스별 별도</strong></p>' +
+  '<div class="wf-screens"><div class="wf-phone"><div class="wf-phone-header">← 민준 · 놀이치료센터</div><div class="wf-phone-body">' +
+    '<div class="wf-section"><div style="font-size:13px;font-weight:700;color:#374151;background:#f8fafc;padding:6px 10px;border-radius:6px;margin-bottom:8px;border-left:3px solid #2563eb">놀이치료 - 개별</div><div style="font-size:12px;color:#6b7280;margin-bottom:8px">6회차 · 3개월째</div><div style="font-size:13px;line-height:2.2"><div style="color:#22c55e">✓ <span style="color:#6b7280">5/14</span> 상담 5회차</div><div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/21</span> 상담 6회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-2</span></div><div style="color:#d1d5db">○ <span style="color:#9ca3af">5/28 상담 7회차</span></div></div></div>' +
+    '<div class="wf-section"><div style="font-size:13px;font-weight:700;color:#374151;background:#f8fafc;padding:6px 10px;border-radius:6px;margin-bottom:8px;border-left:3px solid #22c55e">미술치료 - 개별</div><div style="font-size:12px;color:#6b7280;margin-bottom:8px">2회차 · 1개월째</div><div style="font-size:13px;line-height:2.2"><div style="color:#22c55e">✓ <span style="color:#6b7280">5/12</span> 치료 1회차</div><div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/19</span> 치료 2회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-0</span></div></div></div>' +
+  '</div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="진행">4. 진행 표시</h2><table class="wf-table"><thead><tr><th>조건</th><th>표시</th></tr></thead><tbody><tr><td>회기수 정해짐</td><td>바: 6/12회</td></tr><tr><td>회기수 없음</td><td>"6회차 · 3개월째"</td></tr></tbody></table><div class="wf-note" style="margin-top:8px">완료 5개+: 최근 3건만 + "N건 더 보기"</div>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="예외">5. 예외</h2><table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody><tr><td>로딩 실패</td><td>오브: "불러오지 못했어요"</td></tr><tr><td>일부만 실패</td><td>성공 데이터만 + 배너</td></tr><tr><td>일정 없음</td><td>오브: "예정 일정 없어요"</td></tr></tbody></table>' +
+  '<h2 id="이슈" style="margin-top:32px">6. 미해결 이슈</h2><table class="wf-table"><thead><tr><th>ID</th><th>내용</th></tr></thead><tbody><tr><td>ISSUE-004</td><td>attendance_status 표시</td></tr><tr><td>ISSUE-005</td><td>종결 케이스 구분</td></tr><tr><td>ISSUE-011</td><td>센터 주소 좌표</td></tr></tbody></table>';
+}
+
+function renderF04() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F04. 검사 결과</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">센터에서 실시한 심리검사 결과를 열람</blockquote>' +
+  '<h2 id="유저-스토리">유저 스토리</h2><ul style="margin:12px 0 24px;padding-left:20px;line-height:2"><li>보호자로서, 아이 검사 결과를 앱에서 확인하고 싶다</li><li>내담자로서, 어떤 결과가 나왔는지 알고 싶다</li><li>상담사로서, 공개 범위를 내가 결정하고 싶다</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="흐름">1. 전체 흐름</h2><div class="wf-flow"><div class="wf-flow-box"><span class="wf-tag wf-tag-f" style="margin:0">F08</span><br>마이페이지</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box">"검사결과 N건"</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box" style="border-color:#2563eb">결과 목록</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box" style="border-color:#2563eb;background:#eff6ff">결과 상세</div></div>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="공개">2. 공개 범위</h2><p style="font-size:14px;color:#6b7280;margin-bottom:12px"><strong>상담사가 결정</strong>. 자동 공개 안 함.</p><table class="wf-table"><thead><tr><th>수준</th><th>보이는 것</th><th>예시</th></tr></thead><tbody><tr><td style="color:#dc2626;font-weight:600">비공개 (기본)</td><td>실시 이력만</td><td>민감한 검사</td></tr><tr><td style="color:#d97706;font-weight:600">요약 공개</td><td>해석 + 소견</td><td>대부분</td></tr><tr><td style="color:#22c55e;font-weight:600">전체 공개</td><td>점수+영역+소견</td><td>경과 비교</td></tr></tbody></table>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="화면">3. 결과 화면</h2><div class="wf-screens">' +
+    '<div class="wf-phone"><div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 검사 결과</div><div class="wf-phone-body"><div class="wf-section"><div class="wf-label">민준 · ○○상담센터</div>' +
+      '<div class="wf-card" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="wf-card-title">종합심리검사</div><span style="font-size:11px;color:#2563eb">결과 보기 ›</span></div><div class="wf-card-sub">2026.05.10 · 김상담</div></div>' +
+      '<div class="wf-card" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="wf-card-title">정서행동검사</div><span style="font-size:11px;color:#2563eb">결과 보기 ›</span></div><div class="wf-card-sub">2026.04.20 · 김상담</div></div>' +
+      '<div class="wf-card" style="opacity:.5"><div class="wf-card-title" style="color:#9ca3af">발달검사</div><div class="wf-card-sub">2026.03.15</div><div style="font-size:11px;color:#9ca3af;margin-top:4px">결과 확인 후 안내</div></div>' +
+      '<div class="wf-card" style="opacity:.5"><div class="wf-card-title" style="color:#9ca3af">인지능력검사</div><div class="wf-card-sub">2026.05.18</div><div style="font-size:11px;color:#d97706;margin-top:4px">결과 준비 중</div></div>' +
+    '</div></div></div>' +
+    '<div class="wf-phone"><div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 종합심리검사</div><div class="wf-phone-body"><div class="wf-section">' +
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:16px">2026.05.10 · ○○상담센터 · 김상담</div>' +
+      '<div class="wf-label">영역별 결과</div><div style="margin-bottom:16px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:13px;min-width:48px">정서</span><div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:75%;background:#22c55e"></div></div><span style="font-size:11px;color:#22c55e;font-weight:600">양호</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:13px;min-width:48px">인지</span><div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:70%;background:#22c55e"></div></div><span style="font-size:11px;color:#22c55e;font-weight:600">양호</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:13px;min-width:48px">사회성</span><div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:40%;background:#f59e0b"></div></div><span style="font-size:11px;color:#f59e0b;font-weight:600">주의</span></div></div>' +
+      '<div class="wf-label">종합 소견</div><div style="font-size:13px;color:#374151;line-height:1.8;background:#f8fafc;padding:12px;border-radius:8px">전반적인 정서 상태는 또래 수준이며, 사회성 영역에서 약간의 주의가 필요합니다.</div>' +
+      '<div style="font-size:12px;color:#9ca3af;margin-top:12px;padding:8px;background:#fefce8;border-radius:6px">※ 자세한 내용은 담당 선생님과 상담 시 확인해주세요.</div>' +
+    '</div></div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="보고서">4. 종합 보고서</h2><p style="font-size:14px;color:#6b7280;margin-bottom:12px">풀배터리 검사 후 상담사 발행 통합 보고서. 앱은 열람만.</p><div class="wf-flow"><div class="wf-flow-box">검사 실시</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box">AI 초안</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box" style="border-color:#d97706">검수/수정</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box" style="border-color:#d97706">공개 범위</div><div class="wf-flow-arrow">→</div><div class="wf-flow-box" style="border-color:#22c55e;background:#f0fdf4">발행</div></div>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="예외">5. 예외</h2><table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody><tr><td>비공개 터치</td><td>disabled</td></tr><tr><td>목록 실패</td><td>오브: "불러오지 못했어요"</td></tr><tr><td>상세 실패</td><td>스낵바</td></tr><tr><td>권한 없음</td><td>미노출</td></tr><tr><td>미발행</td><td>"결과 준비 중"</td></tr></tbody></table><div class="wf-note" style="margin-top:12px"><strong>접근 권한</strong>: 본인 + 보호자(자녀)만.</div>';
+}
+
+function renderF05() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F05. 자가진단</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">미소속 사용자에게 제공하는 간이 심리 선별검사</blockquote>' +
+  '<h2 id="유저-스토리">유저 스토리</h2><ul style="margin:12px 0 24px;padding-left:20px;line-height:2"><li>미소속 사용자로서, 앱에서 뭔가 해볼 수 있는 게 있으면 좋겠다</li><li>사용자로서, 내 우울/불안 수준을 확인하고 싶다</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="성격">1. 성격 및 목적</h2><table class="wf-table"><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>성격</td><td>체험 콘텐츠</td></tr><tr><td>결과 저장</td><td><strong>안 함</strong> (소멸)</td></tr><tr><td>목적</td><td>즉시 가치 + 센터 유도</td></tr><tr><td>노출</td><td>미소속/승인대기 홈</td></tr></tbody></table>' +
+  '<h3 style="margin:16px 0 8px">검사 항목 (MVP)</h3><table class="wf-table"><thead><tr><th>검사</th><th>대상</th><th>문항</th><th>소요</th></tr></thead><tbody><tr><td>PHQ-9</td><td>우울</td><td>9문항</td><td>~2분</td></tr><tr><td>GAD-7</td><td>불안</td><td>7문항</td><td>~2분</td></tr></tbody></table>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="플로우">2. 검사 플로우</h2><div class="wf-screens">' +
+    '<div class="wf-phone"><div class="wf-phone-header">← 자가진단</div><div class="wf-phone-body"><div class="wf-section" style="text-align:center;padding:32px 20px"><div style="font-size:18px;font-weight:700;color:#374151;margin-bottom:4px">우울 선별검사 (PHQ-9)</div><div style="font-size:14px;color:#6b7280;line-height:1.8;margin:16px 0">최근 2주간의 기분 상태를<br>확인해볼 수 있어요.</div><div style="font-size:13px;font-weight:600;margin-bottom:16px">9문항 · 약 2분</div><div style="font-size:12px;color:#9ca3af;margin-bottom:24px">간이 선별 도구이며,<br>진단을 대체하지 않아요.</div><span class="wf-btn wf-btn-primary" style="padding:12px 48px;font-size:15px;border-radius:10px">시작하기</span></div></div></div>' +
+    '<div class="wf-phone"><div class="wf-phone-header">질문 3/9</div><div class="wf-phone-body"><div class="wf-section" style="padding:16px"><div class="wf-progress" style="margin-bottom:16px"><div class="wf-progress-fill" style="width:33%"></div></div><div style="font-size:16px;font-weight:600;color:#374151;line-height:1.6;margin-bottom:24px">최근 2주간,<br>잠들기 어렵거나 자꾸 깨거나<br>너무 많이 잤다.</div><div style="display:flex;flex-direction:column;gap:10px"><div style="padding:14px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;color:#374151">○ 전혀 아니다</div><div style="padding:14px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;color:#374151">○ 며칠 동안</div><div style="padding:14px 16px;border:2px solid #2563eb;border-radius:12px;font-size:14px;color:#2563eb;font-weight:600;background:#eff6ff">● 일주일 이상</div><div style="padding:14px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;color:#374151">○ 거의 매일</div></div><div class="wf-note" style="text-align:center;margin-top:12px">선택 → 0.3초 후 다음 · 좌 스와이프로 뒤로</div></div></div></div>' +
+    '<div class="wf-phone"><div class="wf-phone-header">결과</div><div class="wf-phone-body"><div class="wf-section" style="text-align:center;padding:32px 20px"><div style="font-size:15px;color:#6b7280">우울 선별검사 (PHQ-9)</div><div style="font-size:40px;font-weight:800;color:#2563eb;margin:16px 0 4px">12점</div><div style="font-size:16px;font-weight:700;color:#374151;margin-bottom:16px">중등도 우울이 의심돼요</div><div style="font-size:13px;color:#6b7280;line-height:1.8;padding:12px;background:#f8fafc;border-radius:10px;text-align:left">정확한 평가와 맞춤 상담은<br>전문 센터에서 받아보세요.</div><div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;padding:0 12px"><span class="wf-btn wf-btn-primary" style="padding:12px;font-size:14px;text-align:center;border-radius:10px">센터 코드 입력하기</span><span style="font-size:13px;color:#6b7280;text-align:center;padding:8px">홈으로 돌아가기</span></div></div></div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="멘트">3. 수준별 멘트</h2><table class="wf-table"><thead><tr><th>수준</th><th>멘트</th></tr></thead><tbody><tr><td style="color:#22c55e;font-weight:600">정상</td><td>"큰 어려움 없어 보여요"</td></tr><tr><td style="color:#f59e0b;font-weight:600">경미</td><td>"가벼운 어려움이 느껴져요"</td></tr><tr><td style="color:#dc2626;font-weight:600">중등도+</td><td>"전문 센터에서 받아보세요"</td></tr></tbody></table>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="예외">4. 예외</h2><table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody><tr><td>앱 닫음</td><td>소멸, 처음부터</td></tr><tr><td>뒤로</td><td>"그만둘까요?" 확인</td></tr><tr><td>결과 벗어남</td><td>소멸. 재검사</td></tr><tr><td>재시도</td><td>제한 없음</td></tr></tbody></table><div class="wf-note" style="margin-top:12px">점수: 서버 계산 · 답변 저장 안 함</div>';
+}
+
+function renderF06() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F06. 콘텐츠</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">태그 기반 맞춤 추천 콘텐츠 (매거진 + 카드뉴스)</blockquote>' +
+  '<h2 id="유저-스토리">유저 스토리</h2><ul style="margin:12px 0 24px;padding-left:20px;line-height:2"><li>보호자로서, 아이 관련 읽을거리가 있으면 좋겠다</li><li>미소속 사용자로서, 유용한 콘텐츠를 보고 싶다</li><li>내담자로서, 상담 주제에 맞는 글을 추천받고 싶다</li></ul>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="태그">1. 태그 기반 추천</h2><p style="font-size:14px;color:#6b7280;margin-bottom:12px">매거진 100건 + 카드뉴스 100건 (기확보). 소속/미소속 공통.</p>' +
+  '<div class="wf-grid" style="margin-bottom:16px"><div class="wf-grid-item"><strong>카테고리 (1차)</strong>아동/청소년/성인/부모교육</div><div class="wf-grid-item"><strong>주제 (2차, 복수)</strong>우울/불안/관계/자존감/감정조절/...</div></div>' +
+  '<table class="wf-table"><thead><tr><th>상태</th><th>추천</th></tr></thead><tbody><tr><td><strong>소속</strong></td><td>케이스 태그 매칭 → 관련 우선</td></tr><tr><td><strong>미소속</strong></td><td>인기순/최신순</td></tr></tbody></table>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="화면">2. 콘텐츠 화면</h2><div class="wf-screens">' +
+    '<div class="wf-phone"><div class="wf-phone-header">9:41 AM · 홈 하단</div><div class="wf-phone-body"><div class="wf-section"><span class="wf-label">읽어볼 만한 글</span><div class="wf-thumb-row"><div class="wf-thumb"><div class="wf-thumb-img" style="height:100px"></div><div class="wf-thumb-text">놀이치료, 변화?<br><span style="color:#9ca3af">3분</span></div></div><div class="wf-thumb"><div class="wf-thumb-img" style="height:100px"></div><div class="wf-thumb-text">감정 읽기<br><span style="color:#9ca3af">2분</span></div></div><div class="wf-thumb"><div class="wf-thumb-img" style="height:100px"></div><div class="wf-thumb-text">감정 조절<br><span style="color:#9ca3af">3분</span></div></div></div><div style="text-align:center;margin-top:8px"><span style="font-size:12px;color:#2563eb">더 보기 →</span></div><div class="wf-note">가로 스크롤 · 최대 10건</div></div></div></div>' +
+    '<div class="wf-phone"><div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 콘텐츠</div><div class="wf-phone-body"><div class="wf-section" style="padding:8px 16px"><div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:12px"><span style="flex:1;text-align:center;padding:10px 0;font-size:13px;font-weight:700;color:#2563eb;border-bottom:2px solid #2563eb;margin-bottom:-2px">전체</span><span style="flex:1;text-align:center;padding:10px 0;font-size:13px;color:#9ca3af">매거진</span><span style="flex:1;text-align:center;padding:10px 0;font-size:13px;color:#9ca3af">카드뉴스</span></div>' +
+      '<div class="wf-card" style="display:flex;gap:12px;padding:10px"><div style="width:72px;height:72px;background:#d1d5db;border-radius:8px;flex-shrink:0"></div><div><div class="wf-card-title">놀이치료, 어떤 변화?</div><div class="wf-card-sub">3분 · 아동</div></div></div>' +
+      '<div class="wf-card" style="display:flex;gap:12px;padding:10px"><div style="width:72px;height:72px;background:#d1d5db;border-radius:8px;flex-shrink:0"></div><div><div class="wf-card-title">감정 읽기 3가지</div><div class="wf-card-sub">2분 · 부모교육</div></div></div>' +
+      '<div class="wf-card" style="display:flex;gap:12px;padding:10px"><div style="width:72px;height:72px;background:#d1d5db;border-radius:8px;flex-shrink:0"></div><div><div class="wf-card-title">불안한 아이에게 하면 안되는 말</div><div class="wf-card-sub">4분 · 아동 · 불안</div></div></div></div><div class="wf-note" style="text-align:center">무한 스크롤</div></div></div>' +
+    '<div class="wf-phone"><div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 매거진</div><div class="wf-phone-body"><div style="height:160px;background:linear-gradient(135deg,#dbeafe,#ede9fe);display:flex;align-items:center;justify-content:center;font-size:13px;color:#6b7280">(커버 이미지)</div><div class="wf-section"><div style="font-size:17px;font-weight:700;margin-bottom:6px">놀이치료, 어떤 변화?</div><div style="font-size:12px;color:#9ca3af;margin-bottom:16px">아동 · 놀이치료 · 3분</div><div style="font-size:14px;color:#374151;line-height:2">놀이치료는 아이가 자연스럽게 감정을 표현하도록...<br><span style="color:#9ca3af">(본문)</span></div></div></div></div></div>' +
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="카드뉴스">3. 카드뉴스</h2><div class="wf-screens"><div class="wf-phone"><div class="wf-phone-header">← 카드뉴스</div><div class="wf-phone-body"><div style="height:280px;background:linear-gradient(135deg,#fef3c7,#fce7f3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600">(카드 이미지 1/5)</div><div style="text-align:center;padding:12px"><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span></div><div class="wf-note" style="text-align:center">좌우 스와이프</div></div></div></div>' +
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+  '<h2 id="예외">4. 예외</h2><table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody><tr><td>홈 콘텐츠 실패</td><td>영역만 미표시</td></tr><tr><td>목록 실패</td><td>오브: "불러오지 못했어요"</td></tr><tr><td>상세 실패</td><td>스낵바 + 뒤로</td></tr><tr><td>이미지 실패</td><td>회색 플레이스홀더</td></tr></tbody></table>';
+}
+
+
+function renderScreenMap() {
+  return '<h1>화면 구성도</h1>' +
+  '<p style="color:#6b7280;margin-bottom:32px">실제 화면별로 어떤 기능이 어떤 순서로 배치되는지 한눈에 보기</p>' +
+
+  /* ─── 1. 소속 홈 ─── */
+  '<h2 id="소속-홈" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">1. 소속 홈 (메인 화면)</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">센터 연결 완료된 사용자가 보는 기본 화면. 위에서 아래로 스크롤.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM</div>' +
+      '<div class="wf-phone-body">' +
+        /* 오브 영역 */
+        '<div class="wf-section" style="text-align:center;background:#fefce8">' +
+          '<span class="wf-tag wf-tag-f">F09</span> <span style="font-size:11px;color:#6b7280">오브 캐릭터</span>' +
+          '<div class="wf-orb" style="margin-top:12px"></div>' +
+          '<div class="wf-ment">"내일 민준이 상담이 있어요"</div>' +
+          '<div class="wf-note">시간대별 색상 변화 · 우선순위 기반 멘트 결정<br>서버 호출 없이 로컬에서 즉시 표시</div>' +
+        '</div>' +
+        /* 일정 카드 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F02</span> <span class="wf-label">다음 일정</span>' +
+          '<div class="wf-card">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+              '<div class="wf-card-title">5/21 수 14:00</div>' +
+              '<span style="font-size:12px;font-weight:700;color:#2563eb">D-2</span>' +
+            '</div>' +
+            '<div class="wf-card-sub">민준 · 상담 6회차 · 놀이치료센터</div>' +
+            '<div class="wf-progress"><div class="wf-progress-fill" style="width:50%"></div></div>' +
+            '<div style="font-size:11px;color:#6b7280;margin-top:4px">5/10회</div>' +
+            '<div class="wf-card-actions">' +
+              '<span class="wf-btn">길찾기</span>' +
+              '<span class="wf-btn wf-btn-primary">전체 보기 →</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="wf-card">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+              '<div class="wf-card-title">5/23 금 10:00</div>' +
+              '<span style="font-size:12px;font-weight:700;color:#2563eb">D-4</span>' +
+            '</div>' +
+            '<div class="wf-card-sub">서연 · 언어평가 · 언어치료센터</div>' +
+            '<div class="wf-progress"><div class="wf-progress-fill" style="width:12.5%"></div></div>' +
+            '<div style="font-size:11px;color:#6b7280;margin-top:4px">1/8회</div>' +
+          '</div>' +
+          '<div class="wf-note">' +
+            '역할별 분기: 내담자(섹션 없음) / 보호자(자녀 이름별) / both(내 일정 + 자녀별)<br>' +
+            '최대 3건 · 초과 시 "N건 더 보기 →"<br>' +
+            '[전체 보기] → F03 타임라인 · [길찾기] → 기기 지도 앱' +
+          '</div>' +
+        '</div>' +
+        /* 미션 */
+        '<div class="wf-section" style="background:#fffbeb">' +
+          '<span class="wf-tag wf-tag-p2">Phase 2</span> <span class="wf-tag wf-tag-f">F10</span> <span class="wf-label">이번 주 미션</span>' +
+          '<div class="wf-card">' +
+            '<div class="wf-card-sub" style="color:#374151;font-size:13px">감정 이름 먼저 말해주기</div>' +
+            '<div style="margin-top:10px"><span class="wf-btn wf-btn-primary" style="font-size:12px">오늘 기록 남기기</span></div>' +
+            '<div style="margin-top:8px">' +
+              '<span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span>' +
+              '<span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span>' +
+              ' <span style="font-size:11px;color:#6b7280">3회 기록</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="wf-note"><span class="wf-tag wf-tag-cond">조건</span> 상담사 미설정 시 영역 미노출</div>' +
+        '</div>' +
+        /* 콘텐츠 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F06</span> <span class="wf-label">읽어볼 만한 글</span>' +
+          '<div class="wf-thumb-row">' +
+            '<div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">놀이치료, 어떤 변화가<br>3분 읽기</div></div>' +
+            '<div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">아이의 감정을 읽어주는<br>2분 읽기</div></div>' +
+            '<div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">감정 조절 어떻게<br>3분 읽기</div></div>' +
+          '</div>' +
+          '<div class="wf-note">태그 기반 맞춤 추천 · 최대 10건 · 마지막에 "더 보기 →" → F06 전체 목록</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wf-phone-tab"><span class="active">홈</span><span>마이</span></div>' +
+    '</div>' +
+
+    /* 조건부 규칙 */
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">조건부 표시 규칙</h3>' +
+      '<table class="wf-table"><thead><tr><th>영역</th><th>조건</th><th>미충족 시</th></tr></thead><tbody>' +
+        '<tr><td>오브 + 멘트</td><td><strong>항상</strong></td><td>시간대별 기본 멘트</td></tr>' +
+        '<tr><td>다음 일정</td><td>예정 일정 ≥ 1건</td><td>영역 미노출</td></tr>' +
+        '<tr><td>미션</td><td>Phase 2 + 설정됨</td><td>영역 미노출</td></tr>' +
+        '<tr><td>콘텐츠</td><td><strong>항상</strong></td><td>인기순 콘텐츠</td></tr>' +
+      '</tbody></table>' +
+      '<h3 style="margin:24px 0 12px;font-size:15px">에러 시 동작</h3>' +
+      '<table class="wf-table"><thead><tr><th>상황</th><th>영향</th></tr></thead><tbody>' +
+        '<tr><td>일정 로딩 실패</td><td>일정 영역만 에러 표시</td></tr>' +
+        '<tr><td>콘텐츠 로딩 실패</td><td>콘텐츠만 조용히 미표시</td></tr>' +
+        '<tr><td>전체 네트워크 오류</td><td>전체 화면 오브 에러</td></tr>' +
+        '<tr><td>부분 성공</td><td>성공 영역만 독립 표시</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  /* ─── 2. 미소속 홈 ─── */
+  '<h2 id="미소속-홈" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">2. 미소속 홈</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">센터 연결 전. 자가진단 + 콘텐츠로 즉시 가치 제공.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;background:#fefce8">' +
+          '<span class="wf-tag wf-tag-f">F09</span>' +
+          '<div class="wf-orb" style="margin-top:12px"></div>' +
+          '<div style="font-size:16px;font-weight:700;color:#374151;margin:8px 0 4px">나를 위한</div>' +
+          '<div style="font-size:16px;font-weight:700;color:#374151">작은 변화의 시작</div>' +
+          '<div style="margin-top:14px"><span class="wf-btn wf-btn-primary" style="font-size:13px;padding:8px 24px">센터 코드로 연결하기</span></div>' +
+          '<div class="wf-note">→ F01 센터 연결 플로우</div>' +
+        '</div>' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F05</span> <span class="wf-label">자가진단</span>' +
+          '<div class="wf-card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="wf-card-title">우울 선별검사 (PHQ-9)</span><span class="wf-btn" style="font-size:11px">시작</span></div></div>' +
+          '<div class="wf-card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="wf-card-title">불안 선별검사 (GAD-7)</span><span class="wf-btn" style="font-size:11px">시작</span></div></div>' +
+          '<div class="wf-note">결과 저장 안 함 · 센터 연결 유도 CTA</div>' +
+        '</div>' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F06</span> <span class="wf-label">읽어볼 만한 글</span>' +
+          '<div class="wf-thumb-row">' +
+            '<div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">콘텐츠 1</div></div>' +
+            '<div class="wf-thumb"><div class="wf-thumb-img"></div><div class="wf-thumb-text">콘텐츠 2</div></div>' +
+          '</div>' +
+          '<div class="wf-note">인기순/최신순 (태그 매칭 불가)</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wf-phone-tab"><span class="active">홈</span><span>마이</span></div>' +
+    '</div>' +
+
+    /* 승인 대기 홈 */
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 승인 대기</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;background:#f0fdf4">' +
+          '<span class="wf-tag wf-tag-f">F09</span>' +
+          '<div class="wf-orb" style="margin-top:12px"></div>' +
+          '<div style="font-size:14px;font-weight:700;color:#374151;margin:8px 0 2px">승인 대기 중</div>' +
+          '<div style="font-size:13px;color:#6b7280">○○심리상담센터에서 확인 중</div>' +
+          '<div class="wf-ment" style="margin-top:6px">"승인되면 알려드릴게요"</div>' +
+        '</div>' +
+        '<div class="wf-section" style="text-align:center;color:#9ca3af;font-size:13px;padding:24px">' +
+          '(미소속 홈과 동일)<br>자가진단 + 콘텐츠' +
+        '</div>' +
+      '</div>' +
+      '<div class="wf-phone-tab"><span class="active">홈</span><span>마이</span></div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  /* ─── 3. 타임라인 ─── */
+  '<h2 id="타임라인" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">3. 타임라인 (드릴다운)</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">홈 [전체 보기] 또는 마이페이지 [진행현황] 터치 시 진입.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 전체 일정</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F03</span>' +
+          '<div class="wf-label" style="margin-top:4px">민준 · 놀이치료센터</div>' +
+          '<div class="wf-progress" style="margin:8px 0"><div class="wf-progress-fill" style="width:50%"></div></div>' +
+          '<div style="font-size:11px;color:#6b7280;margin-bottom:12px">5/10회</div>' +
+          /* 회차 목록 */
+          '<div style="font-size:13px;line-height:2.2">' +
+            '<div style="color:#22c55e">✓ <span style="color:#6b7280">5/14</span> 상담 5회차 <span style="color:#9ca3af;font-size:11px">완료</span></div>' +
+            '<div style="color:#22c55e">✓ <span style="color:#6b7280">5/7</span> 상담 4회차 <span style="color:#9ca3af;font-size:11px">완료</span></div>' +
+            '<div style="color:#9ca3af;font-size:12px;cursor:pointer">· · · 2건 더 보기</div>' +
+            '<div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/21</span> 상담 6회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-2</span> <span class="wf-btn" style="margin-left:4px;padding:2px 6px;font-size:10px">길찾기</span></div>' +
+            '<div style="color:#d1d5db">○ <span style="color:#9ca3af">5/28</span> <span style="color:#9ca3af">상담 7회차</span> <span style="font-size:11px;color:#9ca3af">D-9</span></div>' +
+            '<div style="color:#d1d5db">○ <span style="color:#9ca3af">6/4</span> <span style="color:#9ca3af">상담 8회차</span></div>' +
+          '</div>' +
+          '<div style="margin-top:12px;padding:8px 12px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#6b7280">' +
+            '<span style="background:#fef3c7;color:#d97706;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600">종결</span> ' +
+            '미술치료 - 개별 ▸ <span style="font-size:11px">12회 완료 · 6개월</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="wf-section">' +
+          '<div class="wf-label">서연 · 언어치료센터</div>' +
+          '<div class="wf-progress" style="margin:8px 0"><div class="wf-progress-fill" style="width:12.5%"></div></div>' +
+          '<div style="font-size:13px;line-height:2.2">' +
+            '<div style="color:#22c55e">✓ <span style="color:#6b7280">5/16</span> 언어평가 <span style="color:#9ca3af;font-size:11px">완료</span></div>' +
+            '<div style="color:#2563eb;font-weight:700">● <span style="color:#374151">5/23</span> 치료 1회차 <span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:1px 6px;border-radius:3px">D-4</span></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">회차 상태</h3>' +
+      '<table class="wf-table"><thead><tr><th>상태</th><th>표시</th><th>스타일</th></tr></thead><tbody>' +
+        '<tr><td>완료</td><td style="color:#22c55e">✓</td><td>정상 톤</td></tr>' +
+        '<tr><td>미방문</td><td style="color:#9ca3af">─</td><td>흐린 톤, 사유 미표시</td></tr>' +
+        '<tr><td>다음 예정</td><td style="color:#2563eb;font-weight:700">●</td><td>강조 + D-day + 길찾기</td></tr>' +
+        '<tr><td>먼 미래</td><td style="color:#d1d5db">○</td><td>흐린 톤</td></tr>' +
+        '<tr><td>취소</td><td>—</td><td>미노출</td></tr>' +
+      '</tbody></table>' +
+      '<h3 style="margin:24px 0 12px;font-size:15px">회차 터치 → 바텀시트</h3>' +
+      '<div class="wf-card" style="border:2px solid #e5e7eb">' +
+        '<div class="wf-card-title">5/14 수 · 상담 5회차 · 완료</div>' +
+        '<div class="wf-card-sub">놀이치료센터</div>' +
+        '<div class="wf-card-sub">담당: 김상담 선생님</div>' +
+        '<div class="wf-card-sub">14:00 ~ 14:50</div>' +
+        '<div style="margin-top:8px;padding:8px;background:#fefce8;border-radius:6px;font-size:11px;color:#d97706">Phase 2: 상담사 노트 (F11) + 기록 (F10) 추가 예정</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  /* ─── 4. 마이페이지 ─── */
+  '<h2 id="마이페이지" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">4. 마이페이지</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">하단 탭 [마이] 터치 시 진입. 센터 카드 중심 구조.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM</div>' +
+      '<div class="wf-phone-body">' +
+        /* 프로필 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F08</span> <span class="wf-label">프로필</span>' +
+          '<div style="font-size:15px;font-weight:700">홍길동</div>' +
+          '<div style="font-size:12px;color:#6b7280">hong@email.com</div>' +
+          '<div style="margin-top:6px;font-size:12px;color:#2563eb">프로필 수정 ›</div>' +
+        '</div>' +
+        /* 센터 카드 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F08</span> <span class="wf-label">내 센터</span>' +
+          '<div class="wf-center-card">' +
+            '<div><span class="wf-center-avatar" style="background:#3b82f6">놀</span><strong style="font-size:13px">○○놀이치료센터</strong><span class="wf-status-badge" style="background:#dbeafe;color:#2563eb">이용중</span></div>' +
+            '<div style="font-size:12px;color:#6b7280;margin:6px 0 4px 36px">담당: 김상담 선생님</div>' +
+            '<div style="font-size:12px;margin-left:36px;color:#374151">검사결과 2건 › <span style="color:#9ca3af;margin:0 4px">|</span> 진행현황: 6/10회 ›</div>' +
+            '<div style="font-size:11px;color:#6b7280;margin:4px 0 0 36px">내담자: 민준</div>' +
+          '</div>' +
+          '<div class="wf-center-card">' +
+            '<div><span class="wf-center-avatar" style="background:#eab308">언</span><strong style="font-size:13px">△△언어치료센터</strong><span class="wf-status-badge" style="background:#dbeafe;color:#2563eb">이용중</span></div>' +
+            '<div style="font-size:12px;color:#6b7280;margin:6px 0 0 36px">담당: 이상담 선생님</div>' +
+          '</div>' +
+          '<div class="wf-center-card" style="opacity:.6">' +
+            '<div><strong style="font-size:13px">□□상담센터</strong><span class="wf-status-badge" style="background:#f3f4f6;color:#6b7280">종결</span></div>' +
+            '<div style="font-size:11px;color:#9ca3af;margin-top:4px">2025.11 ~ 2026.04 · 상담 기록 보기 ›</div>' +
+          '</div>' +
+          '<div style="text-align:center;margin-top:12px"><span class="wf-btn" style="font-size:12px">+ 센터 코드로 추가 연결</span></div>' +
+        '</div>' +
+        /* 설정 */
+        '<div class="wf-section">' +
+          '<span class="wf-label">설정</span>' +
+          '<div style="font-size:13px;line-height:2.4;color:#374151">' +
+            '알림 설정 › <span style="font-size:10px;color:#9ca3af">→ F07</span><br>' +
+            '개인정보 관리 ›<br>' +
+            '이용약관 ›<br>' +
+            '<span style="color:#dc2626">로그아웃</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wf-phone-tab"><span>홈</span><span class="active">마이</span></div>' +
+    '</div>' +
+
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">센터 카드 진입점</h3>' +
+      '<table class="wf-table"><thead><tr><th>터치</th><th>도착</th><th>기능</th></tr></thead><tbody>' +
+        '<tr><td>검사결과 N건 ›</td><td>검사 결과 목록</td><td>F04</td></tr>' +
+        '<tr><td>진행현황 ›</td><td>타임라인 (센터별)</td><td>F03</td></tr>' +
+        '<tr><td>+ 센터 추가</td><td>센터 코드 입력</td><td>F01</td></tr>' +
+        '<tr><td>상담 기록 보기 ›</td><td>종결 타임라인 (읽기)</td><td>F03</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  /* ─── 5. 사용자 여정 ─── */
+  '<h2 id="사용자-여정" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">5. 온보딩 → 소속 플로우</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:20px">앱 최초 실행부터 소속까지의 전체 흐름.</p>' +
+  '<div class="wf-flow">' +
+    '<div class="wf-flow-box" style="border-color:#2563eb;background:#eff6ff"><span class="wf-tag wf-tag-f" style="margin-bottom:0">F01</span><br>온보딩 (3장)</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box"><span class="wf-tag wf-tag-f" style="margin-bottom:0">F01</span><br>소셜 로그인<br><span style="font-size:11px;color:#9ca3af">카카오/네이버/애플</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-style:dashed">미소속 홈<br><span style="font-size:11px;color:#9ca3af">자가진단+콘텐츠</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#2563eb"><span class="wf-tag wf-tag-f" style="margin-bottom:0">F01</span><br>센터 코드 입력<br><span style="font-size:11px;color:#9ca3af">+ SMS 인증</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-style:dashed">승인 대기 홈</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#22c55e;background:#f0fdf4"><strong>소속 홈</strong><br><span style="font-size:11px;color:#6b7280">푸시 알림으로 전환</span></div>' +
+  '</div>' +
+
+  '<hr style="margin:48px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  /* ─── 6. 화면 간 이동 맵 ─── */
+  '<h2 id="화면-간-이동" style="border-bottom:2px solid #e5e7eb;padding-bottom:8px">6. 화면 간 이동 맵</h2>' +
+  '<table class="wf-table"><thead><tr><th>출발</th><th>동작</th><th>도착</th><th>기능</th></tr></thead><tbody>' +
+    '<tr><td>소속 홈</td><td>[전체 보기 →]</td><td>타임라인</td><td><span class="wf-tag wf-tag-f" style="margin:0">F03</span></td></tr>' +
+    '<tr><td>소속 홈</td><td>콘텐츠 카드 터치</td><td>콘텐츠 상세</td><td><span class="wf-tag wf-tag-f" style="margin:0">F06</span></td></tr>' +
+    '<tr><td>소속 홈</td><td>[길찾기]</td><td>기기 지도 앱</td><td><span class="wf-tag wf-tag-f" style="margin:0">F02</span></td></tr>' +
+    '<tr><td>소속 홈</td><td>하단 탭 [마이]</td><td>마이페이지</td><td><span class="wf-tag wf-tag-f" style="margin:0">F08</span></td></tr>' +
+    '<tr><td>타임라인</td><td>회차 터치</td><td>바텀시트 상세</td><td><span class="wf-tag wf-tag-f" style="margin:0">F03</span></td></tr>' +
+    '<tr><td>마이페이지</td><td>검사결과 N건 ›</td><td>검사 결과 목록</td><td><span class="wf-tag wf-tag-f" style="margin:0">F04</span></td></tr>' +
+    '<tr><td>마이페이지</td><td>진행현황 ›</td><td>타임라인 (센터 필터)</td><td><span class="wf-tag wf-tag-f" style="margin:0">F03</span></td></tr>' +
+    '<tr><td>마이페이지</td><td>[+ 센터 추가]</td><td>센터 코드 입력</td><td><span class="wf-tag wf-tag-f" style="margin:0">F01</span></td></tr>' +
+    '<tr><td>미소속 홈</td><td>[센터 코드로 연결]</td><td>센터 코드 입력</td><td><span class="wf-tag wf-tag-f" style="margin:0">F01</span></td></tr>' +
+    '<tr><td>미소속 홈</td><td>자가진단 [시작]</td><td>검사 플로우</td><td><span class="wf-tag wf-tag-f" style="margin:0">F05</span></td></tr>' +
+  '</tbody></table>';
+}
+
+function renderF07() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F07. 알림</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">일정 리마인더 및 센터 관련 푸시 알림</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>보호자로서, 내일 자녀 상담이 있으면 미리 알림을 받고 싶다</li>' +
+    '<li>내담자로서, 상담 시간을 깜빡하지 않도록 당일 알림을 받고 싶다</li>' +
+    '<li>사용자로서, 센터에서 승인해주면 바로 알고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="알림-종류-및-타이밍">1. 알림 종류 및 타이밍</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:12px">타이밍은 <strong>시스템 고정</strong>. MVP에서 사용자가 타이밍을 변경할 수 없다.</p>' +
+  '<table class="wf-table"><thead><tr><th>알림</th><th>발송 시점</th><th>예시</th></tr></thead><tbody>' +
+    '<tr><td>일정 전날</td><td>D-1 오전 10시</td><td>"내일 14:00 상담이 있어요"</td></tr>' +
+    '<tr><td>일정 당일</td><td>1시간 전</td><td>"1시간 뒤 상담이에요, 준비됐나요?"</td></tr>' +
+    '<tr><td>센터 승인</td><td>즉시</td><td>"○○센터에서 승인했어요!"</td></tr>' +
+    '<tr><td>일정 변경</td><td>즉시</td><td>"5/21 상담 일정이 변경됐어요"</td></tr>' +
+    '<tr><td>일정 취소</td><td>즉시</td><td>"5/21 상담 일정이 취소됐어요"</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="푸시-알림-예시">2. 푸시 알림 예시</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 알림</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F07</span> <span class="wf-label">푸시 알림</span>' +
+          '<div class="wf-card" style="border-left:3px solid #2563eb">' +
+            '<div class="wf-card-title">내일 14:00 상담이 있어요</div>' +
+            '<div class="wf-card-sub">민준 · 놀이치료센터 · D-1</div>' +
+          '</div>' +
+          '<div class="wf-card" style="border-left:3px solid #2563eb">' +
+            '<div class="wf-card-title">1시간 뒤 상담이에요, 준비됐나요?</div>' +
+            '<div class="wf-card-sub">민준 · 놀이치료센터 · 14:00</div>' +
+          '</div>' +
+          '<div class="wf-card" style="border-left:3px solid #22c55e">' +
+            '<div class="wf-card-title">○○센터에서 승인했어요!</div>' +
+            '<div class="wf-card-sub">이제 센터 서비스를 이용할 수 있어요</div>' +
+          '</div>' +
+          '<div class="wf-card" style="border-left:3px solid #f59e0b">' +
+            '<div class="wf-card-title">5/21 상담 일정이 변경됐어요</div>' +
+            '<div class="wf-card-sub">민준 · 놀이치료센터</div>' +
+          '</div>' +
+          '<div class="wf-note">오브 톤 적용: 따뜻한 안내 느낌<br>터치 시 → 홈 화면 이동</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="다중-센터-자녀-규칙">3. 다중 센터/자녀 규칙</h2>' +
+  '<h3 id="같은-날-여러-일정">같은 날 여러 일정</h3>' +
+  '<p style="font-size:14px;margin-bottom:8px">D-1 알림은 <strong>묶어서 한 번</strong> 발송:</p>' +
+  '<ul style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.8">' +
+    '<li>1건: "내일 14:00 상담이 있어요"</li>' +
+    '<li>2건 이상: "내일 일정이 2건 있어요"</li>' +
+  '</ul>' +
+  '<p style="font-size:14px;margin-bottom:16px">당일 알림(1시간 전)은 <strong>각각</strong> 발송 (시간이 다르므로).</p>' +
+
+  '<h3 id="보호자-알림">보호자 알림</h3>' +
+  '<table class="wf-table"><thead><tr><th>케이스</th><th>알림 예시</th></tr></thead><tbody>' +
+    '<tr><td>자녀 1명</td><td>"내일 민준이 상담이 있어요"</td></tr>' +
+    '<tr><td>자녀 2명, 같은 날</td><td>"내일 민준이 14:00, 서연이 16:00 상담이 있어요"</td></tr>' +
+    '<tr><td>본인도 내담자 (both)</td><td>본인: "내일 상담이 있어요" + 자녀: "민준이 상담이 있어요" (별도 발송)</td></tr>' +
+  '</tbody></table>' +
+
+  '<h3 id="양쪽-부모">양쪽 부모</h3>' +
+  '<p style="font-size:14px;margin-bottom:16px">같은 자녀에 보호자가 2명(부/모)이면 <strong>양쪽 다 발송</strong>. 각자의 기기로 동일 알림.</p>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="알림-톤">4. 알림 톤</h2>' +
+  '<p style="font-size:14px;margin-bottom:12px">캐릭터(오브) 톤을 적용. 딱딱한 시스템 알림이 아닌 따뜻한 안내 느낌.</p>' +
+  '<table class="wf-table"><thead><tr><th>기존 톤</th><th>오브 톤</th></tr></thead><tbody>' +
+    '<tr><td>"예약일 1일 전입니다"</td><td>"내일 민준이 상담이 있어요"</td></tr>' +
+    '<tr><td>"예약 시간 1시간 전"</td><td>"1시간 뒤 상담이에요, 준비됐나요?"</td></tr>' +
+    '<tr><td>"승인 완료"</td><td>"○○센터에서 승인했어요!"</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="알림-설정">5. 알림 설정</h2>' +
+  '<p style="font-size:14px;margin-bottom:12px">MVP: <strong>전체 on/off만</strong>. 마이페이지 > 알림 설정.</p>' +
+  '<table class="wf-table"><thead><tr><th>설정</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>알림 켜기</td><td>모든 알림 수신</td></tr>' +
+    '<tr><td>알림 끄기</td><td>모든 알림 차단</td></tr>' +
+  '</tbody></table>' +
+  '<p style="font-size:13px;color:#6b7280">종류별 설정(일정만 켜기, 승인만 켜기 등)과 방해 금지 시간은 향후 추가.</p>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="알림-터치-시-동작">6. 알림 터치 시 동작</h2>' +
+  '<table class="wf-table"><thead><tr><th>알림 종류</th><th>터치 시 이동</th></tr></thead><tbody>' +
+    '<tr><td>일정 전날/당일</td><td>홈 화면 (일정 카드가 보이는 위치)</td></tr>' +
+    '<tr><td>센터 승인</td><td>홈 화면 (소속 홈으로 전환됨)</td></tr>' +
+    '<tr><td>일정 변경/취소</td><td>홈 화면</td></tr>' +
+  '</tbody></table>' +
+  '<p style="font-size:13px;color:#6b7280">앱이 종료 상태에서 알림 터치 → 앱 실행 → 해당 화면으로 이동.</p>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="예외">7. 예외</h2>' +
+  '<table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>기기 알림 권한 꺼져 있음</td><td>앱 내 안내: "알림을 켜면 일정을 놓치지 않아요" + [설정으로 이동]</td></tr>' +
+    '<tr><td>로그아웃</td><td>디바이스 토큰 해제, 알림 중단</td></tr>' +
+    '<tr><td>다중 기기 로그인</td><td>모든 기기에 알림 발송</td></tr>' +
+    '<tr><td>알림 off 상태에서 센터 승인</td><td>알림 미발송. 다음 앱 진입 시 소속 홈 전환</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="인프라">8. 인프라</h2>' +
+  '<ul style="margin:12px 0;padding-left:20px;font-size:14px;line-height:1.8">' +
+    '<li>FCM 기반 (전문가 앱과 동일)</li>' +
+    '<li>로그인 시 디바이스 토큰 서버 전송</li>' +
+    '<li>로그아웃 시 토큰 해제</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미해결-이슈">9. 미해결 이슈</h2>' +
+  '<div class="wf-card" style="border-left:3px solid #f59e0b;background:#fffbeb">' +
+    '<div class="wf-card-title">ISSUE-008</div>' +
+    '<div class="wf-card-sub">디바이스 토큰 관리 상세 (다중 기기, 기존 전문가 앱 FCM 구조 재사용 여부)</div>' +
+  '</div>';
+}
+
+function renderF08() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F08. 마이페이지</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">센터 정보, 프로필, 자녀 정보, 설정을 관리하는 화면</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>보호자로서, 소속된 센터들의 정보(담당 선생님, 진행현황)를 한곳에서 보고 싶다</li>' +
+    '<li>사용자로서, 프로필을 수정하고 알림 설정을 변경하고 싶다</li>' +
+    '<li>보호자로서, 센터에 등록된 자녀 정보를 확인하고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="화면-구성">1. 화면 구성</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">기능 나열이 아닌 <strong>센터 카드 중심</strong> 구조. 센터 단위로 정보를 묶는다.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM</div>' +
+      '<div class="wf-phone-body">' +
+        /* 프로필 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F08</span> <span class="wf-label">프로필</span>' +
+          '<div style="font-size:15px;font-weight:700">홍길동</div>' +
+          '<div style="font-size:12px;color:#6b7280">hong@email.com</div>' +
+          '<div style="margin-top:6px;font-size:12px;color:#2563eb">프로필 수정 ›</div>' +
+        '</div>' +
+        /* 이용중 센터 카드 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F08</span> <span class="wf-label">내 센터</span>' +
+          '<div class="wf-center-card">' +
+            '<div><span class="wf-center-avatar" style="background:#3b82f6">놀</span><strong style="font-size:13px">○○놀이치료센터</strong><span class="wf-status-badge" style="background:#dbeafe;color:#2563eb">이용중</span></div>' +
+            '<div style="font-size:12px;color:#6b7280;margin:6px 0 4px 36px">담당: 김상담 선생님</div>' +
+            '<div style="font-size:12px;margin-left:36px;color:#374151">검사결과 2건 › <span style="color:#9ca3af;margin:0 4px">|</span> 진행현황: 6/10회 ›</div>' +
+            '<div style="font-size:11px;color:#6b7280;margin:4px 0 0 36px">내담자: 민준</div>' +
+          '</div>' +
+          '<div class="wf-center-card">' +
+            '<div><span class="wf-center-avatar" style="background:#eab308">언</span><strong style="font-size:13px">△△언어치료센터</strong><span class="wf-status-badge" style="background:#dbeafe;color:#2563eb">이용중</span></div>' +
+            '<div style="font-size:12px;color:#6b7280;margin:6px 0 4px 36px">담당: 이상담 선생님</div>' +
+            '<div style="font-size:12px;margin-left:36px;color:#374151">검사결과 1건 › <span style="color:#9ca3af;margin:0 4px">|</span> 진행현황: 1/8회 ›</div>' +
+            '<div style="font-size:11px;color:#6b7280;margin:4px 0 0 36px">내담자: 서연</div>' +
+          '</div>' +
+        '</div>' +
+        /* 종결 센터 */
+        '<div class="wf-section">' +
+          '<span class="wf-label">종결 센터</span>' +
+          '<div class="wf-center-card" style="opacity:.6">' +
+            '<div><strong style="font-size:13px">□□상담센터</strong><span class="wf-status-badge" style="background:#f3f4f6;color:#6b7280">종결</span></div>' +
+            '<div style="font-size:11px;color:#9ca3af;margin-top:4px">2025.11 ~ 2026.04 · 상담 기록 보기 ›</div>' +
+          '</div>' +
+        '</div>' +
+        /* 승인 대기 */
+        '<div class="wf-section">' +
+          '<span class="wf-label">승인 대기</span>' +
+          '<div class="wf-center-card" style="border-style:dashed">' +
+            '<div><strong style="font-size:13px">○○심리상담센터</strong><span class="wf-status-badge" style="background:#fef3c7;color:#d97706">승인 대기</span></div>' +
+            '<div style="font-size:11px;color:#9ca3af;margin-top:4px">요청일: 2026.05.20</div>' +
+          '</div>' +
+          '<div class="wf-note">터치 불가. 승인되면 자동으로 이용중으로 전환.</div>' +
+        '</div>' +
+        /* 센터 추가 */
+        '<div class="wf-section" style="text-align:center">' +
+          '<span class="wf-btn" style="font-size:12px">+ 센터 코드로 추가 연결</span>' +
+          '<div class="wf-note">→ F01 센터 연결 플로우</div>' +
+        '</div>' +
+        /* 자녀 정보 */
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-f">F08</span> <span class="wf-label">자녀 정보</span>' +
+          '<div style="font-size:13px;line-height:2.2;color:#374151">' +
+            '민준 ›<br>서연 ›' +
+          '</div>' +
+          '<div class="wf-note">조회 전용 · 센터에서 등록한 데이터 · 앱에서 수정 불가</div>' +
+        '</div>' +
+        /* 설정 */
+        '<div class="wf-section">' +
+          '<span class="wf-label">설정</span>' +
+          '<div style="font-size:13px;line-height:2.4;color:#374151">' +
+            '알림 설정 › <span style="font-size:10px;color:#9ca3af">→ F07</span><br>' +
+            '개인정보 관리 ›<br>' +
+            '이용약관 ›<br>' +
+            '<span style="color:#dc2626">로그아웃</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wf-phone-tab"><span>홈</span><span class="active">마이</span></div>' +
+    '</div>' +
+
+    /* 오른쪽 설명 */
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">센터 카드 진입점</h3>' +
+      '<table class="wf-table"><thead><tr><th>터치</th><th>도착</th><th>기능</th></tr></thead><tbody>' +
+        '<tr><td>검사결과 N건 ›</td><td>검사 결과 목록</td><td>F04</td></tr>' +
+        '<tr><td>진행현황 ›</td><td>타임라인 (센터별)</td><td>F03</td></tr>' +
+        '<tr><td>+ 센터 추가</td><td>센터 코드 입력</td><td>F01</td></tr>' +
+        '<tr><td>상담 기록 보기 ›</td><td>종결 타임라인 (읽기)</td><td>F03</td></tr>' +
+      '</tbody></table>' +
+
+      '<h3 style="margin:24px 0 12px;font-size:15px">센터 식별 (아바타)</h3>' +
+      '<div class="wf-flow">' +
+        '<div class="wf-flow-box">센터 로고가<br>있는가?</div>' +
+        '<div class="wf-flow-arrow">→</div>' +
+        '<div class="wf-flow-box" style="border-color:#22c55e">YES → 로고 이미지<br><span style="font-size:11px;color:#6b7280">32px, 둥근 사각형</span></div>' +
+      '</div>' +
+      '<div class="wf-flow" style="margin-top:8px">' +
+        '<div class="wf-flow-box" style="width:auto"></div>' +
+        '<div class="wf-flow-arrow">→</div>' +
+        '<div class="wf-flow-box" style="border-color:#f59e0b">NO → 첫 글자 + 색상<br><span style="font-size:11px;color:#6b7280">6~8가지 색상 순환</span></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="프로필-설정">2. 프로필/설정</h2>' +
+  '<h3>프로필 수정</h3>' +
+  '<p style="font-size:14px;margin-bottom:8px">수정 가능: <strong>이름</strong> / 수정 불가: 이메일(소셜 로그인 연동), 전화번호(별도 인증 필요)</p>' +
+
+  '<h3>알림 설정</h3>' +
+  '<p style="font-size:14px;margin-bottom:8px">MVP: 전체 on/off 토글 1개. (→ F07)</p>' +
+
+  '<h3>개인정보 관리</h3>' +
+  '<table class="wf-table"><thead><tr><th>기능</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>전화번호 변경</td><td>새 번호 입력 + SMS 재인증</td></tr>' +
+    '<tr><td>계정 삭제</td><td>확인 다이얼로그 → 삭제 요청 (처리 정책 별도 수립)</td></tr>' +
+  '</tbody></table>' +
+
+  '<h3>로그아웃</h3>' +
+  '<div class="wf-flow">' +
+    '<div class="wf-flow-box">[로그아웃] 터치</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box">"로그아웃 할까요?"<br>[취소] [로그아웃]</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#dc2626">토큰 삭제<br>+ 디바이스 토큰 해제<br>→ 로그인 화면</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="예외-및-에러">3. 예외 및 에러</h2>' +
+  '<table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>소속 센터가 없을 때</td><td>"내 센터" 영역에 [센터 코드로 연결하기] CTA만 표시</td></tr>' +
+    '<tr><td>자녀가 없을 때</td><td>"자녀 정보" 영역 미표시</td></tr>' +
+    '<tr><td>센터 데이터 로딩 실패</td><td>센터 카드 영역에 "정보를 불러오지 못했어요" + [다시 시도]</td></tr>' +
+    '<tr><td>프로필 수정 실패</td><td>스낵바: "수정에 실패했어요"</td></tr>' +
+    '<tr><td>계정 삭제 요청</td><td>"삭제를 요청했어요. 처리까지 최대 N일 소요됩니다"</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미해결-이슈">4. 미해결 이슈</h2>' +
+  '<div class="wf-card" style="border-left:3px solid #f59e0b;background:#fffbeb">' +
+    '<div class="wf-card-title">ISSUE-002</div>' +
+    '<div class="wf-card-sub">데이터 삭제 정책 (센터 종결/탈퇴 시 범위, 법적 검토 필요)</div>' +
+  '</div>';
+}
+
+function renderF09() {
+  return '<div class="phase-indicator phase-mvp">MVP</div>' +
+  '<h1>F09. 오브 캐릭터</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">앱 전체에 걸친 감성적 가이드 캐릭터. 에러 상태까지 브랜드 경험으로 만든다</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>사용자로서, 앱을 열었을 때 딱딱한 UI가 아니라 따뜻한 인사를 받고 싶다</li>' +
+    '<li>사용자로서, 에러가 나도 당황하지 않고 무슨 상황인지 알고 싶다</li>' +
+    '<li>사용자로서, 로딩 중에도 앱이 작동하고 있다는 느낌을 받고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="기본-정의">1. 기본 정의</h2>' +
+  '<table class="wf-table"><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>' +
+    '<tr><td>형태</td><td>빛/오브 (따뜻한 빛 덩어리, 추상형)</td></tr>' +
+    '<tr><td>성격</td><td>차분한 안내자, 따뜻한 톤</td></tr>' +
+    '<tr><td>말투</td><td>느낌표 없이 마침표로 끝나는 차분한 톤</td></tr>' +
+    '<tr><td>MVP 역할</td><td>상황별 한 줄 멘트 + 시각 변화 + 에러/빈 상태 표현</td></tr>' +
+    '<tr><td>Phase 2 확장</td><td>AI 성장 가이드의 인격으로 확장</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="시각-변화">2. 시각 변화 — 시간대별 오브</h2>' +
+  '<div class="wf-screens">' +
+    /* 아침 */
+    '<div class="wf-phone" style="width:160px">' +
+      '<div class="wf-phone-header">8:00 AM · 아침</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:20px 12px">' +
+        '<div class="wf-orb" style="background:radial-gradient(circle,#fde68a 0%,#f59e0b 50%,#d97706 100%);margin:0 auto"></div>' +
+        '<div class="wf-ment" style="margin-top:10px">"좋은 아침이에요"</div>' +
+        '<div class="wf-note">밝은 금빛 (활기)<br>6~11시</div>' +
+      '</div>' +
+    '</div>' +
+    /* 낮 */
+    '<div class="wf-phone" style="width:160px">' +
+      '<div class="wf-phone-header">1:00 PM · 낮</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:20px 12px">' +
+        '<div class="wf-orb" style="background:radial-gradient(circle,#fed7aa 0%,#fb923c 50%,#ea580c 100%);margin:0 auto"></div>' +
+        '<div class="wf-ment" style="margin-top:10px">"오늘은 여유로운 하루예요"</div>' +
+        '<div class="wf-note">따뜻한 주황빛<br>11~17시</div>' +
+      '</div>' +
+    '</div>' +
+    /* 저녁 */
+    '<div class="wf-phone" style="width:160px">' +
+      '<div class="wf-phone-header">7:00 PM · 저녁</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:20px 12px">' +
+        '<div class="wf-orb" style="background:radial-gradient(circle,#e9d5ff 0%,#a78bfa 50%,#7c3aed 100%);margin:0 auto"></div>' +
+        '<div class="wf-ment" style="margin-top:10px">"오늘 하루도 수고했어요"</div>' +
+        '<div class="wf-note">부드러운 보랏빛 (차분)<br>17~21시</div>' +
+      '</div>' +
+    '</div>' +
+    /* 밤 */
+    '<div class="wf-phone" style="width:160px">' +
+      '<div class="wf-phone-header">11:00 PM · 밤</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:20px 12px;background:#1e1b4b">' +
+        '<div class="wf-orb wf-orb-night" style="margin:0 auto"></div>' +
+        '<div class="wf-ment" style="margin-top:10px;color:#e0e7ff">"푹 쉬어요"</div>' +
+        '<div class="wf-note" style="color:#6366f1">은은한 달빛<br>21~6시</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="상황별-표현">3. 상황별 오브 표현</h2>' +
+  '<table class="wf-table"><thead><tr><th>상황</th><th>오브 표현</th></tr></thead><tbody>' +
+    '<tr><td>일정 임박 (D-0, D-1)</td><td>살짝 반짝임</td></tr>' +
+    '<tr><td>상담 완료 직후</td><td>포근하게 퍼짐</td></tr>' +
+    '<tr><td>7일 이상 미접속 후 재접속</td><td>조용히 흔들림</td></tr>' +
+    '<tr><td>로딩 중</td><td>숨쉬듯 맥동 (스피너 대체)</td></tr>' +
+    '<tr><td>에러</td><td>흐릿해짐</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="멘트-결정-로직">4. 멘트 결정 로직 (우선순위)</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:12px">서버 호출 없이 <strong>로컬에서 즉시 결정</strong>. 우선순위가 높은 조건부터 매칭.</p>' +
+  '<table class="wf-table"><thead><tr><th>순위</th><th>조건</th><th>멘트</th></tr></thead><tbody>' +
+    '<tr><td style="font-weight:700;color:#dc2626">1</td><td>네트워크 오류</td><td>"연결이 불안정해요"</td></tr>' +
+    '<tr><td style="font-weight:700;color:#dc2626">2</td><td>서버 오류</td><td>"잠깐 문제가 생겼어요"</td></tr>' +
+    '<tr><td style="font-weight:700">3</td><td>7일 이상 미접속 후 재접속</td><td>"다시 만나서 반가워요"</td></tr>' +
+    '<tr><td style="font-weight:700">4</td><td>일정 D-0 (당일)</td><td>"오늘 상담이 있어요"</td></tr>' +
+    '<tr><td style="font-weight:700">5</td><td>일정 D-1 (내일)</td><td>"내일 민준이 상담이 있어요"</td></tr>' +
+    '<tr><td style="font-weight:700">6</td><td>진행현황 50% 돌파 (최초 1회)</td><td>"벌써 절반이나 왔어요"</td></tr>' +
+    '<tr><td style="font-weight:700">7</td><td>예정 일정 없음</td><td>"아직 예정된 일정이 없어요"</td></tr>' +
+    '<tr><td style="font-weight:700;color:#6b7280">8</td><td>해당 없음</td><td>시간대별 기본 멘트</td></tr>' +
+  '</tbody></table>' +
+
+  '<p style="font-size:14px;margin-top:16px"><strong>보호자일 때:</strong> 자녀 이름을 멘트에 포함. 여러 자녀 + 여러 일정이면 건수로 표시.</p>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="에러-빈-상태">5. 에러/빈 상태 표현</h2>' +
+  '<div class="wf-screens">' +
+    /* 네트워크 오류 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">네트워크 오류</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:30px 16px">' +
+        '<div class="wf-orb" style="margin:0 auto;opacity:.4"></div>' +
+        '<div class="wf-ment" style="margin-top:14px">"연결이 불안정해요.<br>잠시 후 다시 올게요"</div>' +
+        '<div style="margin-top:12px"><span class="wf-btn wf-btn-primary" style="font-size:12px">다시 시도</span></div>' +
+      '</div>' +
+    '</div>' +
+    /* 서버 오류 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">서버 오류</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:30px 16px">' +
+        '<div class="wf-orb" style="margin:0 auto;opacity:.6;animation:pulse 2s infinite"></div>' +
+        '<div class="wf-ment" style="margin-top:14px">"잠깐 문제가 생겼어요.<br>곧 괜찮아질 거예요"</div>' +
+        '<div style="margin-top:12px"><span class="wf-btn wf-btn-primary" style="font-size:12px">다시 시도</span></div>' +
+      '</div>' +
+    '</div>' +
+    /* 로딩 */
+    '<div class="wf-phone" style="width:160px">' +
+      '<div class="wf-phone-header">로딩 중</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:40px 16px">' +
+        '<div class="wf-orb" style="margin:0 auto;opacity:.7"></div>' +
+        '<div class="wf-note" style="margin-top:14px">숨쉬듯 맥동<br>(스피너 대체)</div>' +
+      '</div>' +
+    '</div>' +
+    /* 빈 데이터 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">빈 데이터</div>' +
+      '<div class="wf-phone-body" style="text-align:center;padding:30px 16px">' +
+        '<div class="wf-orb" style="margin:0 auto;opacity:.5"></div>' +
+        '<div class="wf-ment" style="margin-top:14px">"아직 예정된 일정이 없어요"</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="다크-모드">6. 다크 모드</h2>' +
+  '<table class="wf-table"><thead><tr><th>모드</th><th>배경</th><th>오브</th><th>느낌</th></tr></thead><tbody>' +
+    '<tr><td>라이트</td><td>밝은 배경</td><td>은은한 오브</td><td>차분하고 깨끗한</td></tr>' +
+    '<tr><td>다크</td><td>어두운 배경</td><td>빛나는 오브</td><td>몰입감, 감성적</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="노출-위치">7. 노출 위치</h2>' +
+  '<table class="wf-table"><thead><tr><th>위치</th><th>오브 크기</th><th>역할</th></tr></thead><tbody>' +
+    '<tr><td>홈 상단</td><td>크게</td><td>메인 멘트 + 시간대 색상</td></tr>' +
+    '<tr><td>에러 화면</td><td>중간</td><td>에러 상태 표현 + 안내 멘트</td></tr>' +
+    '<tr><td>로딩</td><td>작게</td><td>스피너 대체</td></tr>' +
+    '<tr><td>온보딩 슬라이드</td><td>크게</td><td>첫인상 + 일러스트 역할</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="구현-참고">8. 구현 참고</h2>' +
+  '<ul style="margin:12px 0;padding-left:20px;font-size:14px;line-height:1.8">' +
+    '<li>빛 효과, 그라데이션, 맥동: <code>@shopify/react-native-skia</code></li>' +
+    '<li>상태 전환 애니메이션: <code>react-native-reanimated</code></li>' +
+    '<li>멘트 결정: 순수 로컬 로직 (일정 데이터 캐시 + 기기 시간 기반)</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미해결-이슈">9. 미해결 이슈</h2>' +
+  '<div class="wf-card" style="border-left:3px solid #f59e0b;background:#fffbeb">' +
+    '<div class="wf-card-title">ISSUE-003</div>' +
+    '<div class="wf-card-sub">오브 캐릭터에 이름을 부여할 것인지 (브랜딩)</div>' +
+  '</div>';
+}
+
+function renderF10() {
+  return '<div class="phase-indicator phase-phase2">Phase 2</div>' +
+  '<h1>F10. 미션 & 기록</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">상담사가 설정한 미션을 앱에서 확인하고, 일상 기록을 남겨 상담사에게 전달한다</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>보호자로서, 상담사가 알려준 이번 주 실천사항을 앱에서 확인하고 싶다</li>' +
+    '<li>내담자로서, 상담 사이 기간에 뭘 하면 좋을지 알고 싶다</li>' +
+    '<li>보호자로서, 일상에서 관찰한 아이의 변화를 간단히 기록하고 상담사에게 전달하고 싶다</li>' +
+    '<li>상담사로서, 내담자/보호자의 일상 기록을 상담 전에 미리 확인하고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="전체-흐름">1. 전체 흐름</h2>' +
+  '<div class="wf-flow">' +
+    '<div class="wf-flow-box" style="border-color:#2563eb;background:#eff6ff">SaaS (상담사)<br><span style="font-size:11px;color:#6b7280">회기별 미션 설정</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box">앱 (내담자/보호자)<br><span style="font-size:11px;color:#6b7280">홈에 미션 카드 표시</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box">[오늘 기록 남기기]<br><span style="font-size:11px;color:#6b7280">3단계 기록 (1분 이내)</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#22c55e;background:#f0fdf4">상담사에게 전달<br><span style="font-size:11px;color:#6b7280">상담 준비 자료</span></div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미션-표시">2. 미션 표시 (홈 카드)</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 홈</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="background:#fffbeb">' +
+          '<span class="wf-tag wf-tag-p2">Phase 2</span> <span class="wf-tag wf-tag-f">F10</span> <span class="wf-label">이번 주 미션</span>' +
+          '<div class="wf-card">' +
+            '<div class="wf-card-title">감정 이름 먼저 말해주기</div>' +
+            '<div class="wf-card-sub" style="margin-top:6px">아이가 화를 낼 때 행동을 지적하기 전에, 감정을 먼저 인정해주세요</div>' +
+            '<div style="margin-top:12px"><span class="wf-btn wf-btn-primary" style="font-size:12px">오늘 기록 남기기</span></div>' +
+            '<div style="margin-top:10px">' +
+              '<span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span>' +
+              '<span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span>' +
+              ' <span style="font-size:11px;color:#6b7280">이번 주 3회 기록</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="wf-note"><span class="wf-tag wf-tag-cond">조건</span> 상담사 미설정 시 영역 미노출</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">미션 유형</h3>' +
+      '<table class="wf-table"><thead><tr><th>구분</th><th>예시</th></tr></thead><tbody>' +
+        '<tr><td>태도/반응 미션</td><td>"아이가 화낼 때 감정 이름을 먼저 말해주세요"</td></tr>' +
+        '<tr><td>활동 미션</td><td>"감정 날씨 카드 만들기", "하루 10분 산책"</td></tr>' +
+      '</tbody></table>' +
+      '<div class="wf-note">미션은 회기 기반으로 갱신. 상담사가 회기 후 다음 미션을 설정하면 앱에 반영.</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="기록-플로우">3. 기록 플로우 (3단계)</h2>' +
+  '<div class="wf-screens">' +
+    /* Step 1 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">Step 1 · 유형 선택</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-p2">Phase 2</span> <span class="wf-tag wf-tag-f">F10</span>' +
+          '<div style="font-size:14px;font-weight:700;margin:8px 0 12px">어떤 기록인가요?</div>' +
+          '<div class="wf-card" style="border-left:3px solid #2563eb;margin-bottom:8px"><div class="wf-card-title">○ 미션 관련</div></div>' +
+          '<div class="wf-card" style="margin-bottom:8px"><div class="wf-card-title">○ 일상 기록</div></div>' +
+          '<div class="wf-card"><div class="wf-card-title">○ 둘 다</div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    /* Step 2 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">Step 2 · 내용 입력</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<div style="font-size:14px;font-weight:700;margin-bottom:12px">어떤 일이 있었나요?</div>' +
+          '<div style="border:1px solid #d1d5db;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af;min-height:60px">상황 설명 (필수)</div>' +
+          '<div style="border:1px solid #d1d5db;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af;min-height:40px;margin-top:8px">반응/느낌 (선택)</div>' +
+          '<div style="margin-top:12px;text-align:right"><span class="wf-btn wf-btn-primary" style="font-size:12px">완료</span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    /* Step 3 */
+    '<div class="wf-phone" style="width:200px">' +
+      '<div class="wf-phone-header">Step 3 · 완료</div>' +
+      '<div class="wf-phone-body" style="text-align:center">' +
+        '<div class="wf-section">' +
+          '<div class="wf-orb" style="margin:0 auto;width:48px;height:48px"></div>' +
+          '<div style="font-size:16px;font-weight:700;color:#374151;margin-top:12px">잘 하셨어요</div>' +
+          '<div style="margin-top:12px">' +
+            '<span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span><span class="wf-dot wf-dot-on"></span>' +
+            '<span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span><span class="wf-dot wf-dot-off"></span>' +
+            ' <span style="font-size:11px;color:#6b7280">4회 기록</span>' +
+          '</div>' +
+          '<div style="margin-top:10px;font-size:13px;color:#6b7280">상담사에게 전달됩니다</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="설계-원칙">4. 설계 원칙</h2>' +
+  '<table class="wf-table"><thead><tr><th>원칙</th><th>적용</th></tr></thead><tbody>' +
+    '<tr><td>부담 최소화</td><td>최대 3단계, 1분 이내 완료</td></tr>' +
+    '<tr><td>점진적 공개</td><td>필수 → 선택 순서로</td></tr>' +
+    '<tr><td>즉각적 보상</td><td>격려 메시지 + 주간 누적 도트</td></tr>' +
+    '<tr><td>의미 부여</td><td>"상담사에게 전달됩니다" — 기록의 목적 명확화</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="예외">5. 예외</h2>' +
+  '<table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>기록 작성 중 앱을 닫으면?</td><td>작성 내용 소멸 (임시 저장 없음)</td></tr>' +
+    '<tr><td>기록 제출 실패</td><td>스낵바: "기록을 저장하지 못했어요" + [다시 시도]</td></tr>' +
+    '<tr><td>미션이 없는데 기록하고 싶으면?</td><td>"일상 기록"으로 직접 작성 가능</td></tr>' +
+  '</tbody></table>';
+}
+
+function renderF11() {
+  return '<div class="phase-indicator phase-phase2">Phase 2</div>' +
+  '<h1>F11. 전문가 노트</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">상담사가 회기 후 작성한 요약 노트를 내담자/보호자에게 제공</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>보호자로서, 오늘 상담에서 무슨 이야기가 있었는지 알고 싶다</li>' +
+    '<li>보호자로서, 상담사가 알려주는 실천사항을 다시 확인하고 싶다</li>' +
+    '<li>상담사로서, 공개할 준비가 된 내용만 내담자에게 보여주고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="핵심-규칙">1. 핵심 규칙</h2>' +
+  '<ul style="margin:12px 0;padding-left:20px;font-size:14px;line-height:1.8">' +
+    '<li><strong>발행 기반 공개</strong>: 상담사가 "발행" 버튼을 눌러야만 내담자에게 노출</li>' +
+    '<li>작성 중인 초안은 절대 비공개</li>' +
+    '<li>상담사가 공개 범위를 통제한다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="노트-구조">2. 노트 구조</h2>' +
+  '<table class="wf-table"><thead><tr><th>섹션</th><th>내용</th></tr></thead><tbody>' +
+    '<tr><td>회기 요약</td><td>이번 회기에 뭘 했는지, 아이/내담자가 어떤 반응을 보였는지</td></tr>' +
+    '<tr><td>실천 사항</td><td>다음 회기까지 일상에서 해볼 것</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="동작">3. 동작</h2>' +
+  '<h3>정상 흐름</h3>' +
+  '<div class="wf-flow">' +
+    '<div class="wf-flow-box" style="border-color:#2563eb;background:#eff6ff">상담사<br><span style="font-size:11px;color:#6b7280">노트 작성 + 발행</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box">푸시 알림<br><span style="font-size:11px;color:#6b7280">"5회기 요약 노트가<br>도착했어요"</span></div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box">홈 알림 카드</div>' +
+    '<div class="wf-flow-arrow">→</div>' +
+    '<div class="wf-flow-box" style="border-color:#22c55e;background:#f0fdf4">노트 목록<br><span style="font-size:11px;color:#6b7280">아코디언 UI</span></div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="노트-목록-화면">4. 노트 목록 화면 (아코디언)</h2>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 전문가 기록</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-p2">Phase 2</span> <span class="wf-tag wf-tag-f">F11</span>' +
+          /* 펼쳐진 최신 회기 */
+          '<div class="wf-card" style="border-left:3px solid #2563eb;margin-top:12px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+              '<div class="wf-card-title">▼ 5회기 (5/7)</div>' +
+              '<span style="font-size:10px;background:#dbeafe;color:#2563eb;padding:2px 8px;border-radius:4px;font-weight:600">최신</span>' +
+            '</div>' +
+            '<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:6px">' +
+              '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:4px">회기 요약</div>' +
+              '<div style="font-size:12px;color:#6b7280;line-height:1.6">감정 카드 활동 진행. 이전보다 감정 어휘가 다양해짐.</div>' +
+            '</div>' +
+            '<div style="margin-top:8px;padding:10px;background:#f0fdf4;border-radius:6px">' +
+              '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:4px">실천 사항</div>' +
+              '<div style="font-size:12px;color:#6b7280;line-height:1.6">아이가 감정을 말할 때 즉시 반응하지 말고 3초 기다려주세요</div>' +
+            '</div>' +
+          '</div>' +
+          /* 접힌 이전 회기 */
+          '<div class="wf-card" style="padding:10px 14px;margin-top:8px">' +
+            '<div class="wf-card-title" style="color:#6b7280">▶ 4회기 (4/30)</div>' +
+          '</div>' +
+          '<div class="wf-card" style="padding:10px 14px;margin-top:8px">' +
+            '<div class="wf-card-title" style="color:#6b7280">▶ 3회기 (4/23)</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">아코디언 동작</h3>' +
+      '<ul style="padding-left:20px;font-size:13px;line-height:2">' +
+        '<li>최신 회기: 자동으로 <strong>펼쳐진</strong> 상태</li>' +
+        '<li>이전 회기: <strong>접힌</strong> 상태 (터치로 펼치기)</li>' +
+        '<li>한 번에 여러 개 펼칠 수 있음</li>' +
+      '</ul>' +
+      '<h3 style="margin:24px 0 12px;font-size:15px">노트 섹션</h3>' +
+      '<table class="wf-table"><thead><tr><th>섹션</th><th>배경색</th><th>용도</th></tr></thead><tbody>' +
+        '<tr><td>회기 요약</td><td style="background:#f8fafc">#f8fafc</td><td>이번 회기 진행 내용</td></tr>' +
+        '<tr><td>실천 사항</td><td style="background:#f0fdf4">#f0fdf4</td><td>다음 회기까지 할 것</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="예외">5. 예외</h2>' +
+  '<table class="wf-table"><thead><tr><th>상황</th><th>동작</th></tr></thead><tbody>' +
+    '<tr><td>발행된 노트가 없음</td><td>"아직 도착한 기록이 없어요"</td></tr>' +
+    '<tr><td>노트 로딩 실패</td><td>오브: "기록을 불러오지 못했어요" + [다시 시도]</td></tr>' +
+    '<tr><td>상담사가 발행 후 수정</td><td>수정 내용 자동 반영 (별도 알림 없음)</td></tr>' +
+    '<tr><td>상담사가 발행을 취소(회수)</td><td>앱에서 해당 노트 비노출</td></tr>' +
+  '</tbody></table>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="미해결-이슈">6. 미해결 이슈</h2>' +
+  '<div class="wf-card" style="border-left:3px solid #f59e0b;background:#fffbeb">' +
+    '<div class="wf-card-title">ISSUE-001</div>' +
+    '<div class="wf-card-sub">상담사의 노트 작성 부담, 실제 수요 검증 필요</div>' +
+  '</div>';
+}
+
+function renderF12() {
+  return '<div class="phase-indicator phase-phase3">Phase 3</div>' +
+  '<h1>F12. AI 성장 가이드</h1>' +
+  '<blockquote style="border-left:4px solid #e5e7eb;padding:8px 16px;color:#6b7280;margin:12px 0 24px">AI 기반 치료 보조: 인사이트 요약, 활동 제안, 변화 비교</blockquote>' +
+
+  '<h2 id="유저-스토리">유저 스토리</h2>' +
+  '<ul style="margin:12px 0 24px;padding-left:20px;line-height:2">' +
+    '<li>보호자로서, 지금까지의 상담 과정에서 아이가 어떻게 변하고 있는지 한눈에 알고 싶다</li>' +
+    '<li>내담자로서, "정말 나아지고 있는 건가?"에 대한 확신을 갖고 싶다</li>' +
+    '<li>보호자로서, 상담 사이 기간에 집에서 아이와 어떤 활동을 하면 좋을지 알고 싶다</li>' +
+  '</ul>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="ai-인사이트">1. AI 인사이트</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">상담사 노트 + 내담자/보호자 기록을 종합해서 자동 생성하는 진행 요약.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header">9:41 AM · 타임라인 상단</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="background:#eff6ff">' +
+          '<span class="wf-tag wf-tag-p3">Phase 3</span> <span class="wf-tag wf-tag-f">F12</span> <span class="wf-label">AI 인사이트</span>' +
+          '<div class="wf-card" style="border-left:3px solid #7c3aed">' +
+            '<div style="font-size:13px;color:#374151;line-height:1.7">' +
+              '"감정을 언어로 표현하는 빈도가 최근 3주간 늘고 있어요. ' +
+              '특히 \'화나다\' 외에 \'속상하다\', \'답답하다\' 같은 표현이 새로 나타났어요."' +
+            '</div>' +
+            '<div style="margin-top:8px;font-size:11px;color:#9ca3af">최근 기록 5건 · 회기 노트 2건 기반</div>' +
+          '</div>' +
+          '<div class="wf-note">구체적 변화를 언급 (추상적 격려가 아닌 데이터 기반)<br>위치: 타임라인 상단 — 스크롤 전 "지금 어디쯤인지" 파악</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="ai-퀘스트">2. AI 퀘스트</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">이전 회기 내용을 기반으로 집에서 할 수 있는 활동 제안. 오브 캐릭터가 안내 역할.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone" style="width:260px">' +
+      '<div class="wf-phone-header">AI 퀘스트</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section" style="text-align:center;background:#fefce8">' +
+          '<span class="wf-tag wf-tag-p3">Phase 3</span> <span class="wf-tag wf-tag-f">F12</span>' +
+          '<div class="wf-orb" style="margin:12px auto;width:48px;height:48px"></div>' +
+          '<div class="wf-ment">"이번 주에 해볼 활동이에요"</div>' +
+        '</div>' +
+        '<div class="wf-section">' +
+          '<div class="wf-card">' +
+            '<div class="wf-card-title">감정 날씨 카드 만들기</div>' +
+            '<div class="wf-card-sub">아이와 함께 오늘의 감정을 날씨로 표현해보세요</div>' +
+          '</div>' +
+          '<div class="wf-note">이전 회기 내용 기반 · 오브 캐릭터(F09) 안내</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="성장-리포트">3. 성장 리포트</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">주간/월간 변화 요약을 자동 생성하고 푸시 알림으로 전달.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone" style="width:260px">' +
+      '<div class="wf-phone-header">성장 리포트</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-p3">Phase 3</span> <span class="wf-tag wf-tag-f">F12</span> <span class="wf-label">5월 성장 리포트</span>' +
+          '<div class="wf-card">' +
+            '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">감정 표현 변화</div>' +
+            '<div class="wf-progress"><div class="wf-progress-fill" style="width:75%;background:#7c3aed"></div></div>' +
+            '<div style="font-size:11px;color:#6b7280;margin-top:4px">감정 어휘 다양성 ↑</div>' +
+          '</div>' +
+          '<div class="wf-card">' +
+            '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">상담 참여도</div>' +
+            '<div class="wf-progress"><div class="wf-progress-fill" style="width:88%;background:#7c3aed"></div></div>' +
+            '<div style="font-size:11px;color:#6b7280;margin-top:4px">적극적 참여 지속</div>' +
+          '</div>' +
+          '<div class="wf-note">주간/월간 자동 생성 · 푸시 알림으로 전달</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="회기-비교-뷰">4. 회기 비교 뷰</h2>' +
+  '<p style="font-size:14px;color:#6b7280;margin-bottom:16px">"정말 나아지고 있나?"에 대한 시각적 답. 1회기 vs 현재를 대조.</p>' +
+  '<div class="wf-screens">' +
+    '<div class="wf-phone">' +
+      '<div class="wf-phone-header" style="text-align:left;font-weight:600;color:#374151;font-size:14px">← 변화 비교</div>' +
+      '<div class="wf-phone-body">' +
+        '<div class="wf-section">' +
+          '<span class="wf-tag wf-tag-p3">Phase 3</span> <span class="wf-tag wf-tag-f">F12</span> <span class="wf-label">1회기 → 현재</span>' +
+          /* 실제 반응 대조 */
+          '<div class="wf-card" style="margin-bottom:10px">' +
+            '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">실제 반응 대조</div>' +
+            '<div style="display:flex;gap:8px">' +
+              '<div style="flex:1;padding:8px;background:#fef2f2;border-radius:6px;font-size:12px">' +
+                '<div style="font-size:10px;color:#9ca3af;margin-bottom:4px">1회기</div>' +
+                '<div style="color:#dc2626">"싫어! 안 할 거야!"</div>' +
+              '</div>' +
+              '<div style="flex:1;padding:8px;background:#f0fdf4;border-radius:6px;font-size:12px">' +
+                '<div style="font-size:10px;color:#9ca3af;margin-bottom:4px">현재</div>' +
+                '<div style="color:#16a34a">"좀 쉬고 나서 할게요"</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          /* 변화 지표 */
+          '<div class="wf-card" style="margin-bottom:10px">' +
+            '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">변화 지표</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-bottom:4px">감정 표현</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+              '<div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:25%;background:#d1d5db"></div></div>' +
+              '<span style="font-size:11px;color:#9ca3af">→</span>' +
+              '<div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:75%;background:#7c3aed"></div></div>' +
+            '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-bottom:4px">상담 참여도</div>' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+              '<div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:38%;background:#d1d5db"></div></div>' +
+              '<span style="font-size:11px;color:#9ca3af">→</span>' +
+              '<div class="wf-progress" style="flex:1"><div class="wf-progress-fill" style="width:88%;background:#7c3aed"></div></div>' +
+            '</div>' +
+          '</div>' +
+          /* 키워드 변화 */
+          '<div class="wf-card">' +
+            '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">키워드 변화</div>' +
+            '<div style="font-size:12px">' +
+              '<span style="text-decoration:line-through;color:#9ca3af">싫어</span> ' +
+              '<span style="text-decoration:line-through;color:#9ca3af">안해</span> ' +
+              '<span style="color:#6b7280">→</span> ' +
+              '<span style="background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:4px">쉬고</span> ' +
+              '<span style="background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:4px">할게</span> ' +
+              '<span style="background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:4px">괜찮아</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="flex:1;min-width:260px">' +
+      '<h3 style="margin-bottom:12px;font-size:15px">비교 뷰 구성 요소</h3>' +
+      '<table class="wf-table"><thead><tr><th>구성</th><th>내용</th><th>효과</th></tr></thead><tbody>' +
+        '<tr><td>실제 반응 대조</td><td>1회기 vs 현재 발화/행동</td><td>감정적으로 와닿음</td></tr>' +
+        '<tr><td>변화 지표</td><td>바 차트 (영역별)</td><td>시각적 변화 확인</td></tr>' +
+        '<tr><td>키워드 변화</td><td>취소선 → 새 키워드</td><td>언어 변화 가시화</td></tr>' +
+      '</tbody></table>' +
+    '</div>' +
+  '</div>' +
+
+  '<hr style="margin:32px 0;border:none;border-top:1px solid #e5e7eb">' +
+
+  '<h2 id="전제-조건">5. 전제 조건</h2>' +
+  '<ul style="margin:12px 0;padding-left:20px;font-size:14px;line-height:1.8">' +
+    '<li>F10(미션 & 기록) + F11(전문가 노트)가 선행되어야 분석할 데이터가 축적됨</li>' +
+    '<li>AI 치료 보조 콘텐츠의 효과성에 대한 연구 기반 검증 필요</li>' +
+    '<li>개인정보 처리 방침 명확화 (AI 분석 동의 절차)</li>' +
+  '</ul>';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+let searchTimeout;
+function handleSearch(query) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(function() { doSearch(query); }, 300);
+}
+
+function doSearch(query) {
+  if (!query || query.length < 2) {
+    navigate(currentKey);
+    return;
+  }
+  const titles = {
+    readme:'전체 개요', screenmap:'화면 구성도', principles:'설계 원칙',
+    f01:'F01. 인증 & 온보딩', f02:'F02. 홈 화면', f03:'F03. 일정 & 타임라인',
+    f04:'F04. 검사 결과', f05:'F05. 자가진단', f06:'F06. 콘텐츠',
+    f07:'F07. 알림', f08:'F08. 마이페이지', f09:'F09. 오브 캐릭터',
+    f10:'F10. 미션 & 기록', f11:'F11. 전문가 노트', f12:'F12. AI 성장 가이드'
+  };
+  const results = [];
+  for (const [key, md] of Object.entries(docs)) {
+    const lines = md.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].toLowerCase().includes(query.toLowerCase())) {
+        results.push({
+          key: key, title: titles[key] || key,
+          line: lines[i].replace(/[#*`|]/g, '').trim(),
+          lineNum: i
+        });
+        if (results.length > 30) break;
+      }
+    }
+    if (results.length > 30) break;
+  }
+
+  let html = '<h1>검색 결과</h1><p>"' + query + '" — ' + results.length + '건</p><hr>';
+  const grouped = {};
+  results.forEach(function(r) {
+    if (!grouped[r.key]) grouped[r.key] = { title: r.title, items: [] };
+    grouped[r.key].items.push(r);
+  });
+  for (const [key, group] of Object.entries(grouped)) {
+    html += '<h3 style="margin-top:24px;cursor:pointer;color:var(--accent)" onclick="navigate(\'' + key + '\')">' + group.title + '</h3>';
+    group.items.forEach(function(item) {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const highlighted = item.line.replace(
+        new RegExp('(' + escaped + ')', 'gi'),
+        '<mark>$1</mark>'
+      );
+      html += '<p style="padding:4px 0;font-size:14px;cursor:pointer;color:#555" onclick="navigate(\'' + key + '\')">' + highlighted + '</p>';
+    });
+  }
+  if (results.length === 0) html += '<p style="color:#999;margin-top:20px">검색 결과가 없습니다.</p>';
+  document.getElementById('md-content').innerHTML = html;
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchInput').blur();
+    navigate(currentKey);
+  }
+});
+
+// Init
+(function() {
+  var hash = location.hash.slice(1);
+  if (hash && docs[hash]) navigate(hash);
+  else navigate('readme');
+})();
+</script>
+</body>
+</html>

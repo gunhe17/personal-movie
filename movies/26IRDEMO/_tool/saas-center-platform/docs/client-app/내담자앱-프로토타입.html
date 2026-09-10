@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마인드스코프 프로토타입 v0.7</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+/* ===== v0.7 판정 (07-14, proto-shots/discussion-v07.md): 대표가 B+ 채택 — 크림 황색기 한 칸 감산(base #F5F1E8→#F3F1EE, R−B +13→+5), 명도·구조·문구는 v0.6 그대로. C는 예비안 보존(?bg=c), A는 재론 종결(?bg=a 이력 재현용) =====
+   게이트 (v0.6 G1~G6 승계 + v0.7 추가):
+   - G7 hue floor: 뉴트럴 base·틴트의 R−B ≥ +4 (콜드 진입 금지, 재하 조건 — 현행 base +5·글리프 +9). night 워시 #F0EFF2 단독 예외.
+   - 뉴트럴 재론 A/B는 축(명도/hue) 명시, 한 번에 한 축만 (하린 — 두 축 동시 이동 비교는 판정 근거 불인정. 실증: v0.6 #FAF8F5 confound)
+   - 황색기 지수 R−B를 표준 계측치로 (하린 — 뉴트럴 토큰 추가·변경 시 R−B 값 표기 의무) */
+:root {
+  /* v0.6 확정 스펙(discussion-v06.md) 위에 v0.7 B+ 승격 — 유나 R2 값·민재 R2 구현이 계약 */
+  --base:#F3F1EE;            /* 웜 스톤 B+ (R−B +5 · v0.7 대표 판정 — 구 크림 #F5F1E8은 ?bg=a) */
+  --surface:#FFFFFF;
+  --ink:#1C1915; --sub:#6E675E; --mute:#8A8578; --tint:#ECE8E3;   /* 웜 언더톤 무채 스택(글리프 틴트 R−B +9) — 콜드 그레이 금지 */
+  --hair:rgba(28,25,20,.06);  /* 헤어라인 — 섀도 대체 */
+  --blue:#4486FF;             /* 인터랙티브 + 헤드라인 1단어 전용 */
+  --hero:#3D6FDB;             /* 히어로 솔리드 (판정 2) */
+  --hero-d:#3563C4;
+  --cta-off:#DFEAFF; --cta-off-t:#6E9BE8;   /* 비활성 CTA (최종 확정 4) */
+  --green:#4A6B4E;            /* 새싹 1점 예외 */
+  --warm-red:#C25E52;         /* 녹음 중 상태 전용 */
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif; letter-spacing:-0.41px; -webkit-tap-highlight-color:transparent; }
+body { background:#15171b; color:#e8eaed; min-height:100vh; display:flex; align-items:flex-start; justify-content:center; gap:44px; padding:40px 24px 80px; }
+
+/* ===== 폰 ===== */
+.phone { width:390px; flex:none; background:#0b0d10; border-radius:56px; padding:10px; box-shadow:0 34px 70px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.06) inset; position:sticky; top:32px; }
+.screen { position:relative; background:var(--base); border-radius:47px; overflow:hidden; height:800px; display:flex; flex-direction:column; }
+.island { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:110px; height:30px; border-radius:999px; background:#0b0d10; z-index:90; }
+.statusbar { flex:none; height:54px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 30px 6px; font-size:13px; font-weight:600; color:var(--ink); z-index:5; }
+.homebar { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:130px; height:5px; border-radius:99px; background:rgba(28,25,20,.2); z-index:90; pointer-events:none; }
+#view { flex:1; overflow-y:auto; overflow-x:hidden; padding:8px 16px 16px; display:flex; flex-direction:column; gap:14px; scrollbar-width:none; position:relative; }
+#view::-webkit-scrollbar { display:none; }
+#view.fullbleed { padding:0; }
+
+/* ===== 시간대 워시 — 정적 240px, 홈만 (스펙 8 · 밤은 헤드라인 아래 시작 = 최종 확정 3) ===== */
+.wash { position:absolute; top:0; left:0; right:0; height:240px; pointer-events:none; z-index:0; }
+.wash.morning { background:linear-gradient(180deg,#F3F1E6 0%,rgba(243,241,230,0) 100%); }  /* B+ ×0.5: #F9F1DF +26→+13 (G 고정·R/B 대칭 분배로 명도 보존) */
+.wash.evening { background:linear-gradient(180deg,#F5EEEB 0%,rgba(245,238,235,0) 100%); }  /* B+ ×0.5: #F9EEE6 +19→+10 */
+.wash.night   { top:158px; background:linear-gradient(180deg,#F0EFF2 0%,rgba(240,239,242,0) 100%); } /* 콜드 언더톤은 이 한 곳만 예외(장치 의도) — 그 외 전면 금지 */
+#view > *:not(.wash) { position:relative; z-index:1; }
+#view > *:not(.wash):not(.ob) { flex-shrink:0; }   /* 스크롤 오버플로 시 그룹 압착 방지 */
+
+/* ===== 타이포 ===== */
+button { border:none; background:none; font-family:inherit; cursor:pointer; letter-spacing:-0.41px; text-align:left; }
+.appbar { display:flex; align-items:center; justify-content:space-between; padding:6px 4px 0; }
+.appbar .logo { font-size:16px; font-weight:700; color:var(--ink); }   /* 워드마크 잉크 단색 — 블루 예산을 헤드라인에 몰아줌 */
+.hello { padding:10px 4px 6px; }
+.hello .day { font-size:13px; line-height:20px; font-weight:500; color:var(--mute); margin-bottom:6px; }
+.hello .line { font-size:26px; line-height:1.25; font-weight:700; color:var(--ink); }
+em.bw { font-style:normal; color:var(--blue); font-weight:700; }        /* "한 문장, 한 단어 블루" — 홈·랜딩 정확히 1단어 */
+body.blue0 em.bw { color:var(--ink); }                                  /* ?ab=blue0 */
+.navback { display:flex; align-items:center; gap:4px; padding:12px 4px 0; font-size:15px; line-height:22px; font-weight:600; color:var(--sub); width:fit-content; }
+
+/* ===== 히어로 — "오늘 하나" 채도 블록 (시그니처 1) · 유채 면은 화면당 이것 1장만 ===== */
+.hero { display:block; width:100%; background:var(--hero); border-radius:20px; padding:18px; box-shadow:0 1px 2px rgba(28,25,20,.04); } /* 앰비언트 섀도는 히어로 1장만 */
+.hero .k { font-size:12px; line-height:16px; font-weight:600; color:rgba(255,255,255,.72); }
+.hero .t { font-size:17px; line-height:24px; font-weight:700; color:#fff; margin-top:4px; }
+.hero .d { font-size:14px; line-height:20px; font-weight:400; color:rgba(255,255,255,.88); margin-top:4px; }
+.hero .foot { margin-top:10px; text-align:center; font-size:12px; line-height:16px; color:rgba(255,255,255,.66); }
+.hero .btns { margin-top:14px; display:flex; gap:8px; }
+.hero .btn.wt { background:#fff; color:var(--hero); font-weight:700; }
+.hero .btn.wt:active { background:#E2E0D7; }  /* B+ 계약값(bp 구현 승격) — 틴트 active와 동일 침강 */
+.hero .btn.gh { background:rgba(255,255,255,.16); color:#fff; }
+.hero .btn.gh:active { background:rgba(255,255,255,.24); }
+
+/* ===== inset-grouped 리스트 — 보조 카드 전면 해체 (스펙 2) ===== */
+.gh { font-size:12px; line-height:16px; font-weight:500; color:var(--mute); padding:2px 6px 0; }
+.group { background:var(--surface); border-radius:16px; border:1px solid var(--hair); overflow:hidden; }
+.rw { display:flex; align-items:center; gap:12px; width:100%; min-height:62px; padding:11px 16px; background:none; }
+.rw + .rw, .rw + .rwx, .rwx + .rw { border-top:1px solid var(--hair); }
+button.rw:active { background:var(--base); }
+.rw .bd { flex:1; min-width:0; text-align:left; }
+.rw .rt { display:block; font-size:15px; line-height:22px; font-weight:600; color:var(--ink); }
+.rw .rt small { font-size:13px; line-height:20px; font-weight:400; color:var(--mute); margin-left:4px; }
+.rw .rs { display:block; font-size:13px; line-height:20px; font-weight:400; color:var(--mute); margin-top:1px; }
+.rw .chev { flex:none; color:var(--mute); font-size:16px; }
+.rwx { padding:4px 16px 14px; }                                         /* 그룹 내부 버튼 존 */
+.tag { display:inline-flex; font-size:11px; line-height:15px; font-weight:600; color:var(--sub); background:var(--tint); border-radius:4px; padding:2px 6px; vertical-align:2px; margin-right:6px; }
+
+/* ===== 글리프 — 32px 원형 #ECE8E3(B+ 승격, 구 #EFE9DD) + stroke 1.5 #6E675E (판정 4) · 새싹만 #4A6B4E ===== */
+.gl { flex:none; width:32px; height:32px; border-radius:50%; background:var(--tint); display:inline-flex; align-items:center; justify-content:center; color:var(--sub); vertical-align:middle; }
+.gl svg { width:18px; height:18px; }
+.gl.green { color:var(--green); }
+.gl.green svg { width:20px; height:20px; } .gl.green svg path { stroke-width:1.8; }   /* 새싹 존재감 보정 — 심볼 20px + stroke 1.8px 동시 적용 (하린 R2 마감 5) */
+.gl.lg { width:56px; height:56px; } .gl.lg svg { width:28px; height:28px; }
+
+/* ===== 버튼 — 높이 48/52 유지(회귀 금지) · radius 16 ===== */
+.btns { margin-top:14px; display:flex; gap:8px; }
+.btn { flex:1; display:flex; align-items:center; justify-content:center; height:48px; font-size:16px; line-height:24px; font-weight:600; border-radius:16px; transition:transform .1s, background .12s ease-out, color .12s ease-out; }
+.btn.pri { background:var(--blue); color:#fff; }
+.btn.pri:active { background:#2F63D6; transform:scale(0.98); }
+.btn.warm { background:var(--tint); color:var(--ink); }
+.btn.warm:active { background:#E2E0D7; transform:scale(0.98); }  /* B+ ×0.5: #E7E0D2 +21→+11 */
+.btn.qt { background:var(--tint); color:var(--sub); }
+.btn.qt:active { background:#E2E0D7; transform:scale(0.98); }
+.btn.big { height:52px; }
+.btn.off { background:var(--cta-off); color:var(--cta-off-t); pointer-events:none; }   /* 장전 중인 브랜드 버튼 (최종 확정 4) */
+.quiet { text-align:center; font-size:13px; line-height:20px; font-weight:400; color:var(--mute); padding:2px 0; }
+.quiet b { color:var(--sub); font-weight:600; }
+.bar { margin-top:8px; height:6px; border-radius:99px; background:var(--tint); overflow:hidden; }
+.bar i { display:block; height:100%; border-radius:99px; background:var(--mute); }
+
+/* 탭바 */
+.tabbar { flex:none; display:flex; background:var(--surface); border-top:1px solid var(--hair); padding:9px 8px 26px; z-index:5; }
+.tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; line-height:14px; font-weight:400; color:var(--mute); }
+.tab svg { width:24px; height:24px; }
+.tab.on { color:var(--blue); font-weight:600; }
+
+/* 사람 칩 */
+.people { display:flex; gap:8px; padding:0 2px; }
+.pchip { display:flex; align-items:center; gap:6px; font-size:13px; line-height:20px; font-weight:500; padding:7px 13px 7px 8px; border-radius:999px; background:var(--surface); color:var(--sub); border:1px solid var(--hair); }
+.pchip.all { padding:7px 15px; }
+.pchip.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+.av { flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--sub); background:var(--tint); }
+
+/* 온보딩 */
+.ob { flex:1; display:flex; flex-direction:column; gap:14px; padding:26px 20px 24px; background:var(--surface); }
+.ob.base { background:var(--base); }
+.ob .hi { font-size:14px; line-height:20px; font-weight:600; color:var(--mute); }
+.ob .q { font-size:26px; line-height:1.3; font-weight:700; color:var(--ink); padding-bottom:2px; }
+.opt { display:flex; align-items:center; gap:14px; background:var(--surface); padding:16px; width:100%; min-height:64px; transition:all .15s; }
+.opt + .opt { border-top:1px solid var(--hair); }
+.opt:active { background:var(--base); }
+.opt.sel { box-shadow:inset 0 0 0 1.5px var(--blue); border-radius:16px; }
+.opt .ot { font-size:16px; line-height:24px; font-weight:600; color:var(--ink); }
+.opt .od { font-size:14px; line-height:20px; font-weight:400; color:var(--mute); margin-top:2px; }
+.ob .cta { margin-top:auto; display:flex; flex-direction:column; gap:10px; }
+
+/* 시트 */
+.dim { position:absolute; inset:0; background:rgba(28,25,20,.5); z-index:50; display:flex; flex-direction:column; justify-content:flex-end; opacity:0; transition:opacity .3s; }
+.dim.show { opacity:1; }
+.sheet { background:var(--surface); border-radius:20px 20px 0 0; padding:8px 20px 40px; transform:translateY(100%); transition:transform .5s cubic-bezier(0,0,.2,1); max-height:88%; overflow-y:auto; border-top:1px solid var(--hair); }
+.dim.show .sheet { transform:none; }
+.grab { width:36px; height:4px; border-radius:99px; background:var(--tint); margin:8px auto 18px; }
+.st { font-size:20px; line-height:28px; font-weight:600; color:var(--ink); }
+.sd { margin-top:8px; font-size:15px; line-height:22px; font-weight:400; color:var(--sub); }
+.fine { margin-top:16px; text-align:center; font-size:13px; line-height:20px; font-weight:400; color:var(--mute); }
+.fine b { color:var(--sub); font-weight:600; }
+
+/* 입력 — radius 14 */
+.field { width:100%; background:var(--tint); border:none; border-radius:14px; padding:14px 16px; font-size:16px; line-height:24px; font-weight:500; color:var(--ink); outline:none; }
+.field:focus { box-shadow:inset 0 0 0 1.5px var(--blue); background:var(--surface); }
+.field::placeholder { color:var(--mute); font-weight:400; }
+textarea.field { resize:none; font-weight:400; line-height:26px; min-height:110px; font-size:16px; }
+.flabel { font-size:13px; line-height:20px; font-weight:600; color:var(--sub); margin:6px 2px -6px; }
+
+/* 소셜/동의 */
+.sns { display:flex; flex-direction:column; gap:9px; margin-top:20px; }
+.sns .s { display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:600; height:52px; border-radius:16px; width:100%; transition:transform .1s; }
+.sns .s:active { transform:scale(0.98); }
+.s.kakao { background:#FEE500; color:#1C1915; }
+.s.apple { background:#17171C; color:#fff; }
+.s.google { background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 1px var(--hair), inset 0 0 0 1px rgba(28,25,20,.08); }
+.linktxt { display:block; width:100%; text-align:center; font-size:14px; line-height:20px; font-weight:600; color:var(--blue); padding:14px 0 2px; background:none; border:none; }
+.agree-all { display:flex; align-items:center; gap:12px; background:var(--tint); border-radius:16px; padding:16px; width:100%; transition:all .15s; }
+.agree-all.on { background:var(--cta-off); }
+.agree-all .bt { font-size:16px; line-height:24px; font-weight:600; color:var(--ink); }
+/* 체크 서클 — 미체크: 빈 원 stroke 1.5px #8A8578·채움 없음·글리프 없음 / 체크: 잉크 채움+백색 체크 (하린 R2 마감 2 · 유나 P1 값 — 블루 금지 화면이므로 잉크) · 전이 120ms CTA 동일 커브 */
+.ckc { flex:none; width:26px; height:26px; border-radius:50%; background:transparent; box-shadow:inset 0 0 0 1.5px var(--mute); color:transparent; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:background .12s ease-out, color .12s ease-out, box-shadow .12s ease-out; }
+.ckc.on { background:var(--ink); box-shadow:none; color:#fff; }
+.agree { display:flex; align-items:center; gap:11px; padding:12px 4px; width:100%; }
+.agree .al { flex:1; font-size:14px; line-height:20px; font-weight:400; color:var(--sub); text-align:left; }
+.agree .al b { color:var(--ink); font-weight:600; }
+.req { font-size:12px; line-height:16px; font-weight:600; color:var(--sub); background:var(--tint); border-radius:4px; padding:2px 6px; margin-right:6px; }
+
+/* 토글 */
+.share-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 0; border-bottom:1px solid var(--hair); }
+.share-row:last-child { border-bottom:none; }
+.share-row .sl { font-size:15px; line-height:22px; font-weight:500; color:var(--ink); }
+.share-row .sl small { display:block; font-size:13px; line-height:20px; color:var(--mute); font-weight:400; margin-top:1px; }
+.switch { width:48px; height:28px; border-radius:99px; background:var(--tint); box-shadow:inset 0 0 0 1px rgba(28,25,20,.08); position:relative; flex:none; transition:background .2s; }
+.switch::after { content:""; position:absolute; top:4px; left:4px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(28,25,20,.18); transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.switch.on { background:var(--blue); box-shadow:none; }
+.switch.on::after { transform:translateX(20px); }
+
+/* 검색 */
+.searchbar { display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:14px; padding:2px 6px 2px 16px; border:1px solid var(--hair); color:var(--mute); }
+.searchbar svg { width:18px; height:18px; flex:none; }
+.searchbar input { flex:1; border:none; outline:none; font-size:15px; line-height:22px; font-weight:500; color:var(--ink); padding:13px 0; background:none; }
+.searchbar input::placeholder { color:var(--mute); font-weight:400; }
+.chiprow { display:flex; gap:7px; flex-wrap:wrap; }
+.fchip { display:inline-flex; align-items:center; gap:4px; height:32px; font-size:13px; font-weight:500; background:var(--surface); color:var(--sub); border-radius:999px; padding:0 14px; border:1px solid var(--hair); }
+.fchip.on { background:var(--ink); color:#fff; font-weight:600; border-color:var(--ink); }
+
+/* 타임라인 */
+.tl-mile { display:flex; align-items:center; gap:9px; padding:4px 8px; font-size:13px; line-height:20px; color:var(--mute); font-weight:500; }
+.tl-mile i { flex:none; width:6px; height:6px; border-radius:50%; background:var(--tint); box-shadow:inset 0 0 0 1px rgba(28,25,20,.1); }
+.pbadge { flex:none; display:flex; align-items:center; gap:5px; font-size:12px; font-weight:500; color:var(--mute); }
+.pbadge .gl { width:26px; height:26px; } .pbadge .gl svg { width:14px; height:14px; }
+.month-h { font-size:13px; line-height:20px; font-weight:600; color:var(--mute); padding:8px 6px 0; }
+
+/* 토스트 */
+#toast { position:absolute; left:16px; right:16px; bottom:112px; background:#2A2620; color:#fff; border-radius:16px; padding:14px 20px; font-size:15px; line-height:22px; font-weight:500; z-index:80; opacity:0; transform:translateY(16px); transition:all .25s cubic-bezier(0,0,.2,1); pointer-events:none; display:flex; gap:9px; align-items:center; }
+#toast.show { opacity:1; transform:none; }
+#toast .ck { color:var(--blue); font-weight:700; }
+
+/* 완료 — link_done 체크 스트로크 패스 (스펙 7 · 유나 값 보강: 600ms cubic-bezier(0.4,0,0.2,1) 딜레이 150ms 1회 무음) */
+.done { text-align:center; padding:34px 16px 10px; }
+.done .ckwrap { width:72px; height:72px; border-radius:50%; background:var(--tint); display:inline-flex; align-items:center; justify-content:center; }
+.done .ckwrap svg { width:36px; height:36px; }
+.done .ckwrap path { stroke:var(--ink); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:30; stroke-dashoffset:30; animation:draw .6s cubic-bezier(0.4,0,0.2,1) .15s 1 forwards; }
+@keyframes draw { to { stroke-dashoffset:0; } }
+.done .dt { margin-top:18px; font-size:28px; line-height:1.25; font-weight:700; color:var(--ink); }
+.done .dd { margin-top:8px; font-size:14px; line-height:20px; font-weight:400; color:var(--mute); }
+.zen { text-align:center; padding:28px 16px 24px; }
+.zen .gl { display:inline-flex; }
+.zen .zt { margin-top:14px; font-size:16px; line-height:24px; font-weight:600; color:var(--ink); }
+.zen .zd { margin-top:4px; font-size:14px; line-height:20px; font-weight:400; color:var(--mute); }
+.rec-big { width:84px; height:84px; border-radius:50%; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; margin:22px auto 0; box-shadow:0 0 0 11px rgba(68,134,255,.10), 0 0 0 22px rgba(68,134,255,.05); border:none; cursor:pointer; transition:transform .1s; }
+.rec-big:active { transform:scale(0.95); }
+.rec-big.recording { animation:pulse 1.2s infinite; background:var(--warm-red); }
+@keyframes pulse { 0%,100%{ box-shadow:0 0 0 11px rgba(194,94,82,.12), 0 0 0 22px rgba(194,94,82,.05);} 50%{ box-shadow:0 0 0 16px rgba(194,94,82,.16), 0 0 0 30px rgba(194,94,82,.07);} }
+.rec-big svg { width:32px; height:32px; }
+.quote { margin-top:16px; background:var(--tint); border-radius:14px; padding:14px 16px; }
+.quote .ql { font-size:12px; line-height:16px; font-weight:500; color:var(--mute); margin-bottom:4px; }
+.quote .qt { font-size:15px; line-height:22px; font-weight:600; color:var(--ink); }
+
+/* ===== 데모 패널 ===== */
+.panel { width:300px; flex:none; position:sticky; top:32px; }
+.panel h1 { font-size:19px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+.panel .sub { margin-top:8px; font-size:13px; color:#9aa0a6; line-height:1.7; letter-spacing:-0.02em; }
+.panel .sub a { color:#8ab4f8; font-weight:700; text-decoration:none; }
+.pbox { margin-top:18px; background:#1d2026; border:1px solid #2b2f35; border-radius:14px; padding:16px; }
+.pbox .ph { font-size:12px; font-weight:800; color:#8ab4f8; letter-spacing:.05em; margin-bottom:10px; }
+.state { font-size:12.5px; color:#c6cbd2; line-height:2; letter-spacing:-0.02em; }
+.state b { color:#fff; }
+.jump { display:block; width:100%; text-align:left; font-size:13px; font-weight:700; color:#c6cbd2; background:#22252b; border-radius:10px; padding:10px 13px; margin-bottom:7px; letter-spacing:-0.02em; }
+.jump:hover { background:#2b2f36; color:#fff; }
+.jump small { display:block; font-weight:500; color:#7f8790; font-size:11.5px; margin-top:2px; }
+.trow { display:flex; gap:6px; }
+.trow .jump { flex:1; text-align:center; margin-bottom:0; padding:8px 4px; }
+@media (max-width: 860px) { .panel { display:none; } }
+
+/* ===== v0.7 판정 이력 재현 (?bg=a|c) — 기본값 = B+(대표 채택 07-14). b·bp 스캐폴딩은 기본 승격으로 소멸 ===== */
+/* A — 구 크림(재론 종결, 회귀선·이력 재현용): v0.6 원값 전체 복원 */
+body.bga { --base:#F5F1E8; --tint:#EFE9DD; }
+body.bga .wash.morning { background:linear-gradient(180deg,#F9F1DF 0%,rgba(249,241,223,0) 100%); }
+body.bga .wash.evening { background:linear-gradient(180deg,#F9EEE6 0%,rgba(249,238,230,0) 100%); }
+body.bga .btn.warm:active, body.bga .btn.qt:active { background:#E7E0D2; }
+body.bga .hero .btn.wt:active { background:var(--tint); }  /* v0.6 원문법 복원 */
+/* C — 예비안(웜 화이트+틴트 필 반전) 보존: 재론 시 출발점(대표 판정). 워시 3값 미재파생 — 채택 시 별도 라운드(하린 마감 조건 3) */
+body.bgc { --base:#FBFAF7; --tint:#E9E4DA; }
+body.bgc .group { background:#F2EFE9; }
+body.bgc .rw + .rw, body.bgc .rw + .rwx, body.bgc .rwx + .rw { border-top-color:rgba(28,25,20,.08); }  /* 틴트 fill 위 헤어라인 투명도 보정 */
+body.bgc button.rw:active { background:#EAE7DF; }  /* active는 fill보다 한 단계 침강 (var(--base)면 역전됨) */
+body.bgc .hero .btn.wt:active { background:var(--tint); }  /* C 후보 캡처 당시 문법 유지 */
+</style>
+</head>
+<body>
+
+<div class="phone"><div class="screen">
+  <div class="island"></div>
+  <div class="statusbar"><span id="clock">9:41</span><span style="display:flex;gap:5px;align-items:center;"><svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg></span></div>
+  <div id="view"></div>
+  <div class="tabbar" id="tabbar" style="display:none;"></div>
+  <div id="sheetHost"></div>
+  <div id="toast"><span class="ck">✓</span><span id="toastMsg"></span></div>
+  <div class="homebar"></div>
+</div></div>
+
+<div class="panel">
+  <h1>마인드스코프 프로토타입 <span style="font-size:11px;color:#7f8790;">v0.7</span></h1>
+  <p class="sub">v0.6 확정 스펙(<a href="proto-shots/discussion-v06.md">discussion-v06.md</a>) + v0.7 배경 B+ 승격(<a href="proto-shots/discussion-v07.md">discussion-v07.md</a> 대표 판정) — 톤 레이어(섀도 제거·헤어라인), inset-grouped 리스트, "오늘 하나" 채도 블록(#3D6FDB), "한 문장, 한 단어 블루", 웜 틴트 글리프(B+ #ECE8E3), 시간대 워시.</p>
+  <div class="pbox">
+    <div class="ph">현재 상태</div>
+    <div class="state" id="stateView"></div>
+  </div>
+  <div class="pbox">
+    <div class="ph">시나리오 점프</div>
+    <button class="jump" onclick="scenario('reset')">⏮ 처음부터 (첫 설치)<small>시작 질문부터 전체 여정</small></button>
+    <button class="jump" onclick="scenario('s1')">① 알아보는 중<small>가입 완료 · 기록 2건 · 리마인더 도래</small></button>
+    <button class="jump" onclick="scenario('s2')">② 미연동 센터 등록<small>해솔센터 · 수업 종료 직후(다녀왔어요)</small></button>
+    <button class="jump" onclick="scenario('s3')">③ 연동 완료<small>해맑음센터 · 예약 D-1 · 결과지 · 바우처</small></button>
+    <button class="jump" onclick="scenario('empty')">평온한 날 (빈 홈)<small>③ 상태에서 할 일 0 — 유채 면 0</small></button>
+  </div>
+  <div class="pbox">
+    <div class="ph">시간대 워시 (G4 검증용)</div>
+    <div class="trow">
+      <button class="jump" onclick="setSeg('morning')">아침</button>
+      <button class="jump" onclick="setSeg('day')">낮</button>
+      <button class="jump" onclick="setSeg('evening')">저녁</button>
+      <button class="jump" onclick="setSeg('night')">밤</button>
+    </div>
+  </div>
+  <div class="pbox">
+    <div class="ph">게이트 7 (전부 스크린샷 판정)</div>
+    <div class="state" style="font-size:11.5px; line-height:1.9;">
+      G1 채도 예산 ≤2(블록1+단어1) · G2 틴트 3종 이하 · <b>G3(개정)</b> trust·법 문구 불변 + 뷰포트 내 모션·이모지·비인터랙티브 블루 금지 — 인터랙티브 블루(버튼·텍스트 링크 ≤1/화면·활성 탭)는 금지 대상 아님, 링크는 언더라인 없음 · G4 대비(워시 4구간 각각) · G5 유채 면 ≤1(빈 화면 0) · <b>G6(개정)</b> 비인터랙티브 블루 = 홈·랜딩 헤드라인 정확히 1단어(0 불허), 그 외 0, 동의·법 무조건 0 — 인터랙티브 블루는 계수 제외(별도 예산), 어휘는 §블루 보이스 · <b>G7(v0.7)</b> hue floor — 뉴트럴 base·틴트의 R−B ≥ +4, 콜드 진입 금지(night 워시 단독 예외 · 현행 base +5·글리프 +9)<br>
+      각주: 인터랙티브/비인터랙티브 판별 기준은 "누르면 반응하는가" 단 하나. 뉴트럴 재론 A/B는 축(명도/hue) 명시·한 번에 한 축만, 황색기 지수 R−B가 표준 계측치.<br>
+      캡처: <b>?shot=이름</b> · 워시: <b>?t=am/pm/eve</b> · A/B: <b>?ab=bg</b>(#FAF8F5) / <b>?ab=blue0</b> · 판정 이력 재현: <b>?bg=a</b>(구 크림)/<b>?bg=c</b>(예비안) — 기본=B+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= URL 파라미터 (shot 캡처 · A/B) ================= */
+const Q = new URLSearchParams(location.search);
+const SHOT = Q.get('shot');
+const AB = Q.get('ab');
+if (AB === 'bg') document.documentElement.style.setProperty('--base', '#FAF8F5');   /* A/B ⓐ 배경 */
+const BG = Q.get('bg');   /* 판정 이력 재현: a=구 크림(v0.6 원값) · c=예비안(웜화이트 필 반전) · 없음=기본 B+(v0.7 대표 판정) */
+if (['a','c'].includes(BG)) document.body.classList.add('bg'+BG);
+if (AB === 'blue0') document.body ? document.body.classList.add('blue0') : document.addEventListener('DOMContentLoaded', ()=>document.body.classList.add('blue0'));
+
+/* 시간대 — shot 모드는 결정적(낮), 라이브는 실제 시각. 패널 버튼으로 오버라이드 */
+const T_RAW = Q.get('t');
+const T = {am:'morning', pm:'evening', eve:'night'}[T_RAW] || T_RAW;   /* 단축 별칭 — 워시 캡처용 */
+let SEG = T || (SHOT ? 'day' : (h => h>=5&&h<11 ? 'morning' : h>=11&&h<17 ? 'day' : h>=17&&h<21 ? 'evening' : 'night')(new Date().getHours()));
+function setSeg(s){ SEG = s; render(); }
+const SEG_LABEL = { morning:'아침이에요', day:'오후예요', evening:'저녁이에요', night:'밤이에요' };
+
+/* ================= 상태 ================= */
+const initial = () => ({
+  screen:'start', tab:'home', stack:[],
+  stage:'new',            // new | watching | looking | enrolled(②) | linked(③)
+  signed:false, consented:false, marketing:false,
+  childName:null,
+  records:[],             // {id, text, kind, date, shared, dateLabel}
+  favs:[], callNote:null, reminderDue:false,
+  center:null,            // {name, linked:false}
+  sessionDone:false, saidNote:false, homework:null, oneshotDismissed:false,
+  linkStep:null, linked:false,
+  resultArrived:false, resultRead:false, voucherLow:false,
+  pending:null, draft:'', recState:'idle', chip:'all',
+});
+let S = initial();
+const CENTERS = [
+  {name:'해맑음아동발달센터', dist:'0.8km · 송파구 문정동 · 발달재활 바우처', link:true},
+  {name:'해솔아동발달센터', dist:'1.2km · 송파구 가락동 · 발달재활 바우처', link:false},
+  {name:'마음숲 심리발달센터', dist:'1.9km · 송파구 방이동', link:false},
+];
+const uid = () => Math.random().toString(36).slice(2,8);
+
+/* ================= 유틸 ================= */
+const $ = s => document.querySelector(s);
+function toast(msg){ $('#toastMsg').textContent = msg; $('#toast').classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>$('#toast').classList.remove('show'), 2200); }
+function go(screen, push=true){ if(push && S.screen!==screen) S.stack.push(S.screen); S.screen = screen; render(); }
+function back(){ S.screen = S.stack.pop() || 'home'; render(); }
+function setTab(t){ S.tab = t; S.stack = []; S.screen = 'home'; render(); }
+function sheet(html){ $('#sheetHost').innerHTML = `<div class="dim" onclick="if(event.target===this)closeSheet()"><div class="sheet">${html}</div></div>`; requestAnimationFrame(()=>$('.dim').classList.add('show')); }
+function closeSheet(){ const d=$('.dim'); if(!d) return; d.classList.remove('show'); setTimeout(()=>$('#sheetHost').innerHTML='',280); }
+
+/* ================= 아이콘 — 단일 톤 스트로크 1.5 (이모지 전면 금지) ================= */
+const SW='fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+const IC = {
+ home:`<svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" ${SW}/></svg>`,
+ rec:`<svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" ${SW}/><path d="M9 7.5h6M9 11.5h6" ${SW}/></svg>`,
+ map:`<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" ${SW}/><path d="m20 20-4.3-4.3" ${SW}/></svg>`,
+ my:`<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" ${SW}/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" ${SW}/></svg>`,
+ mic:`<svg viewBox="0 0 24 24"><rect x="9.2" y="3.5" width="5.6" height="10" rx="2.8" ${SW}/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21" ${SW}/></svg>`,
+ lock:`<svg viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" ${SW}/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" ${SW}/></svg>`,
+ ppl:`<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" ${SW}/><path d="M3.5 19c.9-2.6 3-3.9 5.5-3.9s4.6 1.3 5.5 3.9" ${SW}/><path d="M15.5 6.6a3 3 0 1 1 1.4 5.7M16.8 15.4c1.9.4 3.2 1.6 3.7 3.6" ${SW}/></svg>`,
+ sprout:`<svg viewBox="0 0 24 24"><path d="M12 20.5v-7.5" ${SW}/><path d="M12 13C12 9.6 9.5 7.1 5.8 7c.2 3.7 2.8 6 6.2 6Z" ${SW}/><path d="M12 10.8c0-2.9 2.1-5 5.4-5.1-.1 3-2.3 5.1-5.4 5.1Z" ${SW}/></svg>`,
+ compass:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" ${SW}/><path d="m15.2 8.8-1.8 4.6-4.6 1.8 1.8-4.6z" ${SW}/></svg>`,
+ clip:`<svg viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16" rx="2" ${SW}/><path d="M9 4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5v1H9z" ${SW}/><path d="M9 11h6M9 15h4" ${SW}/></svg>`,
+ gift:`<svg viewBox="0 0 24 24"><rect x="4.5" y="8.5" width="15" height="4" rx="1" ${SW}/><path d="M6 12.5V19a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19v-6.5M12 8.5v12" ${SW}/><path d="M12 8.5C10 8.5 7.8 7.6 7.8 5.9 7.8 4.8 8.7 4 9.8 4c1.5 0 2.2 1.8 2.2 4.5zm0 0c2 0 4.2-.9 4.2-2.6C16.2 4.8 15.3 4 14.2 4 12.7 4 12 5.8 12 8.5z" ${SW}/></svg>`,
+ doc:`<svg viewBox="0 0 24 24"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h6L18 7.5V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19z" ${SW}/><path d="M13.5 3v4.5H18M9.5 12.5h5M9.5 16h5" ${SW}/></svg>`,
+ ticket:`<svg viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h13A1.5 1.5 0 0 1 20 8.5v2a1.8 1.8 0 0 0 0 3.2v1.8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 15.5v-1.8a1.8 1.8 0 0 0 0-3.2z" ${SW}/><path d="M14.5 7.4v9.4" stroke-dasharray="2.4 2.6" ${SW}/></svg>`,
+ video:`<svg viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="12.5" height="11" rx="2.5" ${SW}/><path d="m16 10.6 4.5-2.4v7.6L16 13.4" ${SW}/></svg>`,
+ house:`<svg viewBox="0 0 24 24"><path d="M4.5 11 12 4.5l7.5 6.5" ${SW}/><path d="M6.5 9.5V19a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9.5M10 20v-5h4v5" ${SW}/></svg>`,
+ link:`<svg viewBox="0 0 24 24"><path d="M10 14.5 14 10" ${SW}/><path d="m12.8 7 1.8-1.8a3.4 3.4 0 0 1 4.8 4.8L17.5 12M11.2 17.5l-1.8 1.8a3.4 3.4 0 0 1-4.8-4.8L6.5 12.5" ${SW}/></svg>`,
+ box:`<svg viewBox="0 0 24 24"><path d="M4.5 8 12 4l7.5 4v8L12 20l-7.5-4z" ${SW}/><path d="M4.5 8 12 12l7.5-4M12 12v8" ${SW}/></svg>`,
+ mail:`<svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2" ${SW}/><path d="m4.5 7.5 7.5 5.5 7.5-5.5" ${SW}/></svg>`,
+ out:`<svg viewBox="0 0 24 24"><path d="M13.5 4.5H7A1.5 1.5 0 0 0 5.5 6v12A1.5 1.5 0 0 0 7 19.5h6.5" ${SW}/><path d="M16 8.5 19.5 12 16 15.5M19.5 12h-9" ${SW}/></svg>`,
+ cal:`<svg viewBox="0 0 24 24"><rect x="4.5" y="5.5" width="15" height="14" rx="2" ${SW}/><path d="M4.5 9.5h15M8.5 3.5v3M15.5 3.5v3" ${SW}/></svg>`,
+ book:`<svg viewBox="0 0 24 24"><path d="M12 6.5c-1.7-1.4-3.9-2-6.5-2v13c2.6 0 4.8.6 6.5 2 1.7-1.4 3.9-2 6.5-2v-13c-2.6 0-4.8.6-6.5 2z" ${SW}/><path d="M12 6.5v13" ${SW}/></svg>`,
+ phone:`<svg viewBox="0 0 24 24"><path d="M7.5 4.5h3l1.2 4-2 1.3a10.5 10.5 0 0 0 4.5 4.5l1.3-2 4 1.2v3a1.8 1.8 0 0 1-2 1.8C10.8 17.6 6.4 13.2 5.7 6.5a1.8 1.8 0 0 1 1.8-2z" ${SW}/></svg>`,
+ check:`<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9" ${SW}/></svg>`,
+};
+const gl = (icon, extra='') => `<span class="gl ${extra}">${IC[icon]}</span>`;
+
+/* ================= 가입 플로우 (게이트→동의→프로필) ================= */
+function requireSignup(pendingFn){
+  if (S.signed) { pendingFn(); return; }
+  S.pending = pendingFn;
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">첫 기록이에요!<br>안전하게 보관해 드릴게요</div>
+    <div class="sd">로그인하면 폰이 바뀌어도 기록이 이어져요.</div>
+    <div class="sns">
+      <button class="s kakao" onclick="afterLogin()">카카오로 계속하기</button>
+      <button class="s apple" onclick="afterLogin()"> Apple로 계속하기</button>
+      <button class="s google" onclick="afterLogin()">G  Google로 계속하기</button>
+    </div>
+    <button class="linktxt" onclick="closeSheet()">지금은 그냥 둘러볼게요</button>
+    <div class="fine">방금 쓴 기록은 그대로 있어요</div>`);
+}
+function afterLogin(){ closeSheet(); setTimeout(()=>go('consent'), 240); }
+let consent = {a:false,b:false,c:false,d:false};
+function toggleConsent(k){
+  if(k==='all'){ const v = !(consent.a&&consent.b&&consent.c); consent = {a:v,b:v,c:v,d:v}; }
+  else consent[k] = !consent[k];
+  render();
+}
+function vConsent(){
+  const all = consent.a&&consent.b&&consent.c&&consent.d;
+  const ok = consent.a&&consent.b&&consent.c;
+  return `<div class="ob">
+    <button class="navback" onclick="back()">‹ 뒤로</button>
+    <div class="hi">거의 다 됐어요</div>
+    <div class="q">기록을 안전하게 지키기 위한<br>약속이에요</div>
+    <div class="quiet" style="text-align:left;padding:0 2px;">기록은 우리 가족만 볼 수 있고,<br>다른 목적에 쓰지 않아요</div>
+    <button class="agree-all ${all?'on':''}" onclick="toggleConsent('all')"><span class="ckc ${all?'on':''}">✓</span><span class="bt">모두 동의하기</span></button>
+    <div class="group" style="padding:4px 13px;">
+      <button class="agree" onclick="toggleConsent('a')"><span class="ckc ${consent.a?'on':''}" style="width:23px;height:23px;font-size:11px;">✓</span><span class="al"><span class="req">필수</span><b>서비스 이용약관</b></span><span style="color:var(--mute);">›</span></button>
+      <button class="agree" onclick="toggleConsent('b')"><span class="ckc ${consent.b?'on':''}" style="width:23px;height:23px;font-size:11px;">✓</span><span class="al"><span class="req">필수</span><b>개인정보 수집·이용</b></span><span style="color:var(--mute);">›</span></button>
+      <button class="agree" onclick="toggleConsent('c')"><span class="ckc ${consent.c?'on':''}" style="width:23px;height:23px;font-size:11px;">✓</span><span class="al"><span class="req">필수</span><b>아이 기록 보관</b> — 글·사진·영상·녹음, 암호화 저장</span><span style="color:var(--mute);">›</span></button>
+      <button class="agree" onclick="toggleConsent('d')"><span class="ckc ${consent.d?'on':''}" style="width:23px;height:23px;font-size:11px;">✓</span><span class="al"><span class="req">선택</span>소식·혜택 알림</span><span style="color:var(--mute);">›</span></button>
+    </div>
+    <div class="quiet">마이 > 내 기록과 동의에서 언제든 바꿀 수 있어요</div>
+    <div class="cta"><button class="btn big ${ok?'pri':'off'}" onclick="S.consented=true; S.marketing=consent.d; go('profile')">동의하고 시작하기</button></div>
+  </div>`;
+}
+function vProfile(){
+  return `<div class="ob">
+    <div class="hi">마지막이에요</div>
+    <div class="q">누구의 기록인가요?</div>
+    <div class="flabel">이름 또는 애칭</div>
+    <input class="field" id="childName" placeholder="예: 지우" value="${S.childName||''}">
+    <div class="quiet" style="text-align:left;padding:0 2px;">이름 대신 애칭도 괜찮아요</div>
+    <button class="agree" style="padding:10px 4px 0;" onclick="this.querySelector('.ckc').classList.toggle('on')"><span class="ckc on" style="width:24px;height:24px;font-size:11px;">✓</span><span class="al" style="font-weight:600;color:var(--ink);">제가 이 아이의 보호자예요<small style="display:block;font-weight:400;color:var(--mute);margin-top:2px;">아이 기록이라 보호자 확인이 필요해요</small></span></button>
+    <button class="quiet" style="background:none;border:none;width:100%;" onclick="toast('내 기록 모드는 프로토타입 범위 밖이에요')">아이가 아니라 내 기록이에요</button>
+    <div class="cta">
+      <button class="btn pri big" onclick="finishSignup()">기록 이어가기</button>
+    </div>
+  </div>`;
+}
+function finishSignup(){
+  S.childName = $('#childName').value.trim() || '지우';
+  S.signed = true;
+  S.screen='home'; S.stack=[];
+  const p = S.pending; S.pending = null;
+  render();
+  if (p) setTimeout(p, 150);
+}
+
+/* ================= 기록 ================= */
+function openRecord(kind='text'){
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">오늘 마음에 걸린 순간이<br>있었나요?</div>
+    <textarea class="field" id="recText" style="margin-top:18px;" placeholder="한 줄이면 충분해요"></textarea>
+    <div class="btns"><button class="btn qt" onclick="closeSheet()">다음에</button><button class="btn warm" onclick="saveRecord()">남기기</button></div>
+    <div class="fine">날짜는 자동으로 붙어요 · 매일 쓰지 않아도 괜찮아요</div>`);
+  if (!SHOT) setTimeout(()=>$('#recText')?.focus(), 350);
+}
+function saveRecord(){
+  const text = $('#recText').value.trim() || '"물 줘"라고 두 단어로 말했다';
+  closeSheet();
+  requireSignup(()=>{
+    S.records.unshift({id:uid(), text, kind:'obs', dateLabel:'오늘', shared:false});
+    if (S.stage==='new') S.stage='watching';
+    toast('기록이 보관됐어요');
+    render();
+  });
+}
+
+/* ================= 상황 승격 & 센터 ================= */
+function favCenter(name){
+  requireSignup(()=>{
+    if(!S.favs.includes(name)) S.favs.push(name);
+    if (S.stage==='watching'||S.stage==='new') S.stage='looking';
+    toast('찜했어요 — 홈에서 이어가요');
+    render();
+  });
+}
+function openCallHelper(name){
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">전화하면 이걸 물어보세요</div>
+    <div style="font-size:16px;color:var(--ink);line-height:2.1;margin-top:14px;font-weight:500;">
+      1. 지금 대기하면 언제쯤 시작할 수 있나요?<br>
+      2. 처음 가면 어떻게 진행되고, 비용은요?<br>
+      3. 바우처로 시작할 자리가 있나요?</div>
+    <div class="btns"><button class="btn pri" onclick="closeSheet(); setTimeout(()=>afterCall('${name}'),300)">전화하기</button></div>
+    <div class="fine">긴장돼도 괜찮아요 — 다들 이렇게 물어봐요</div>`);
+}
+function afterCall(name){
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">언제 다시 확인하기로<br>했어요?</div>
+    <input class="field" id="callWhen" style="margin-top:18px;" placeholder="예: 5월 초 · 자리 나면 연락 준대요">
+    <div class="btns"><button class="btn qt" onclick="closeSheet()">넘어가기</button><button class="btn pri" onclick="saveCall('${name}')">알림 걸어두기</button></div>`);
+}
+function saveCall(name){
+  requireSignup(()=>{
+    S.callNote = {center:name, when: $('#callWhen')?.value || '5월 초'};
+    S.reminderDue = true; // 데모: 바로 도래한 상태로
+    if (S.stage!=='enrolled' && S.stage!=='linked') S.stage='looking';
+    closeSheet(); toast('그 날짜에 조용히 알려드릴게요'); render();
+  });
+}
+function enrollCenter(name, linked){
+  requireSignup(()=>{
+    if (linked) { S.linkStep='landing'; go('linkFlow'); }
+    else { S.center={name, linked:false}; S.stage='enrolled'; setTab('home'); toast(name+'을 등록했어요'); }
+  });
+}
+
+/* ================= ② 세션 리듬 ================= */
+function attend(){
+  S.sessionDone='attended';
+  render();
+  setTimeout(openSay, 250);
+}
+function openSay(){
+  S.recState='idle';
+  renderSay();
+}
+function renderSay(){
+  const recording = S.recState==='recording';
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">선생님 말씀 담기</div>
+    <div class="quote"><div class="ql">이렇게 말씀드려 보세요</div><div class="qt">"잊어버릴까 봐 담아둘게요"</div></div>
+    <button class="rec-big ${recording?'recording':''}" style="border:none;cursor:pointer;" onclick="toggleRec()">${IC.mic}</button>
+    <div class="quiet" style="margin-top:12px;">${recording?'담는 중… 눌러서 마치기':'한 번 누르면 시작, 다시 누르면 끝나요'}</div>
+    <button class="btn warm big" style="width:100%;margin-top:14px;" onclick="saveSay('memo')">직접 적을게요</button>
+    <div class="fine">우리 가족과, 내가 허용한 선생님만 들을 수 있어요<br>지금 안 담아도 괜찮아요 — 기록에서 언제든지</div>`);
+}
+function toggleRec(){
+  if (S.recState==='idle'){ S.recState='recording'; renderSay(); }
+  else saveSay('rec');
+}
+function saveSay(kind){
+  closeSheet(); S.recState='idle'; S.saidNote=true;
+  S.records.unshift({id:uid(), text: kind==='rec' ? '녹음 0:42 · "집에서 그림책을…"' : '그림책 읽고 한 단어씩 따라 말하기', kind:'say', dateLabel:'오늘', shared:false});
+  S.homework = '그림책 읽고 한 단어씩 따라 말하기';
+  toast(kind==='rec' ? '여기까지 담아뒀어요' : '말씀을 적어뒀어요');
+  render();
+}
+
+/* ================= ③ 연결 플로우 ================= */
+function vLinkFlow(){
+  if (S.linkStep==='landing') return `<div class="ob">
+    <button class="navback" onclick="S.linkStep=null; back()">‹ 뒤로</button>
+    <div style="text-align:center;margin-top:38px;">
+      ${gl('house','lg')}
+      <div style="margin-top:14px;font-size:13px;font-weight:600;color:var(--mute);">해맑음아동발달센터</div>
+      <div style="margin-top:8px;font-size:26px;font-weight:700;color:var(--ink);line-height:1.3;">${S.childName||'지우'} 보호자님,<br>센터와 <em class="bw">연결</em>할 수 있어요</div>
+      <div style="margin-top:12px;font-size:15px;color:var(--sub);line-height:1.6;">연결하면 예약·검사·결과지가<br>앱으로 자동으로 들어와요</div>
+      <div style="margin-top:10px;font-size:13px;color:var(--mute);line-height:1.6;">새 계정을 만들 필요 없어요 —<br>쓰던 기록에 센터가 더해져요</div>
+    </div>
+    <div class="cta">
+      <div class="quiet">센터는 내가 공유를 켠 기록만 봐요.<br>지금까지의 기록 주인은 계속 나예요.</div>
+      <button class="btn pri big" onclick="S.linkStep='verify'; render()">쓰던 계정으로 연결하기</button>
+    </div></div>`;
+  if (S.linkStep==='verify') return `<div class="ob">
+    <button class="navback" onclick="S.linkStep='landing'; render()">‹ 뒤로</button>
+    <div class="hi">해맑음센터 연결 1/2</div>
+    <div class="q">본인 확인이 필요해요</div>
+    <div class="flabel">휴대폰 번호</div>
+    <input class="field" value="010-4728-5512" readonly>
+    <div class="quiet" style="text-align:left;padding:4px 6px;">센터에 등록된 보호자 번호와 맞는지 확인해요.<br>아이의 법정대리인인지 확인하는 절차이기도 해요.</div>
+    <div class="cta"><button class="btn pri big" onclick="S.linkStep='child'; render()">인증 문자 확인</button>
+    <button class="linktxt" onclick="toast('센터에 다른 가족 번호로 등록된 경우가 많아요 — 연결 요청으로 이어져요')">번호가 다르다고 나와요</button></div></div>`;
+  if (S.linkStep==='child') return `<div class="ob">
+    <div class="hi">해맑음센터 연결 2/2</div>
+    <div class="q">센터의 김${S.childName||'지우'} 님,<br>누구와 연결할까요?</div>
+    <div class="group">
+      <button class="opt sel"><span class="av" style="width:44px;height:44px;font-size:16px;">${(S.childName||'지우')[0]}</span><span><span class="ot">${S.childName||'지우'}</span><span class="od" style="display:block;">내 기록 ${S.records.length}개 · 2021년생</span></span><span class="ckc on" style="margin-left:auto;">✓</span></button>
+      <button class="opt" onclick="toast('프로토타입에서는 ${S.childName||'지우'}로 진행해요')"><span class="av" style="width:44px;height:44px;font-size:20px;">＋</span><span><span class="ot">새 프로필 만들기</span><span class="od" style="display:block;">앱에 아직 없는 아이라면</span></span></button>
+    </div>
+    <div class="cta">
+      <div class="quiet">잘못 연결해도 마이에서 언제든 풀 수 있어요</div>
+      <button class="btn pri big" onclick="finishLink()">연결하기</button>
+    </div></div>`;
+  if (S.linkStep==='done') return `<div style="display:flex;flex-direction:column;height:100%;padding:0 22px 24px;background:var(--surface);overflow-y:auto;">
+    <div class="done">
+      <span class="ckwrap"><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></span>
+      <div class="dt">해맑음센터와<br>연결됐어요</div>
+      <div class="dd">이제 이런 것들이 자동으로 들어와요</div>
+    </div>
+    <div class="group" style="margin-top:16px;">
+      <div class="rw">${gl('cal')}<span class="bd"><span class="rt">예약 알림 <small>변경과 휴강도</small></span></span></div>
+      <div class="rw">${gl('clip')}<span class="bd"><span class="rt">검사와 설문 <small>종이 대신 앱에서</small></span></span></div>
+      <div class="rw">${gl('doc')}<span class="bd"><span class="rt">결과지 <small>나오면 바로</small></span></span></div>
+      <div class="rw">${gl('ticket')}<span class="bd"><span class="rt">바우처 <small>센터가 확인한 잔여 회기</small></span></span></div>
+    </div>
+    <div class="quiet" style="margin-top:14px;">그리고 변하지 않는 것 — 기록 ${S.records.length}개는 그대로 내 것.<br>센터는 내가 공유를 켠 기록만 볼 수 있어요</div>
+    <button class="quiet" style="background:none;border:none;width:100%;" onclick="toast('연결을 풀었어요 — 센터에는 아무것도 남지 않아요'); S.linked=false; S.stage='looking'; S.linkStep=null; setTab('home')"><b style="color:var(--blue);">잘못 연결하셨나요?</b> 여기서 바로 풀 수 있어요</button><!-- 출구 링크 = 인터랙티브 블루(G3 개정 — 금지 대상 아님) · 언더라인 없음 -->
+    <button class="btn pri big" style="margin-top:auto;flex:none;" onclick="S.linkStep=null; setTab('home')">홈으로</button>
+  </div>`;
+  return '';
+}
+function finishLink(){
+  S.linked=true; S.stage='linked';
+  S.center={name:'해맑음아동발달센터', linked:true};
+  S.resultArrived=true; S.voucherLow=true;
+  S.linkStep='done'; render();
+}
+
+/* ================= 홈 — 히어로 1장 + inset-grouped 리스트 (스펙 2·3) ================= */
+function recGroup(who){
+  const tag = who ? `<span class="tag">${who}</span>` : '';
+  return `<div class="gh">기록</div><div class="group">
+    <button class="rw" onclick="openRecord()">${gl('sprout','green')}<span class="bd"><span class="rt">${tag}오늘 마음에 걸린 순간이 있었나요?</span></span></button>
+    <div class="rwx"><div class="btns" style="margin-top:0;"><button class="btn warm" style="height:44px;" onclick="openRecord()">한 줄 남기기</button><button class="btn qt" style="height:44px;" onclick="toast('프로토타입에서는 글 기록만 동작해요')">30초 찍기</button></div></div>
+  </div>`;
+}
+function buildHome(){
+  const st = S.stage;
+  let hero = '';
+  const groups = [];
+  if (st==='linked'){
+    if (!S.sessionDone) hero = `<div class="hero"><div class="k">내일 4:00 · 해맑음센터</div><div class="t">${S.childName||'지우'} 언어치료</div><div class="btns"><button class="btn wt" onclick="toast('확인했어요')">확인했어요</button><button class="btn gh" onclick="toast('데스크로 연결해 드려요 (프로토타입)')">변경 문의</button></div></div>`;
+    else if (!S.saidNote) hero = `<div class="hero"><div class="k">오늘 다녀온 날</div><div class="t">선생님 말씀, 잊기 전에 담아둘까요?</div><div class="btns"><button class="btn wt" onclick="openSay()">담기</button><button class="btn gh" onclick="toast('기록에서 언제든지 담을 수 있어요')">다음에</button></div><div class="foot">내 기록에만 남아요</div></div>`;
+    const rows = [];
+    if (S.resultArrived && !S.resultRead) rows.push(`<button class="rw" onclick="S.resultRead=true; toast('결과지를 열었어요'); render()">${gl('doc')}<span class="bd"><span class="rt">언어평가 결과지</span><span class="rs">새로 도착</span></span><span class="chev">›</span></button>`);
+    if (S.voucherLow) rows.push(`<div class="rw">${gl('ticket')}<span class="bd"><span class="rt">발달재활 바우처 · 잔여 2회 <small>8/31까지</small></span><div class="bar"><i style="width:18%;"></i></div><span class="rs">18/20 사용</span></span></div>`);
+    if (rows.length) groups.push(`<div class="gh">새로 온 것</div><div class="group">${rows.join('')}</div>`);
+    /* 히어로도, 새로 온 것도 없는 날 = 빈 홈(쉬는 날) — 유채 면 0, 기록 재촉도 하지 않는다 (G5·재하 "빈 화면이 최대 차별화") */
+    if (hero || rows.length) { if (S.records.length < 8) groups.push(recGroup('서준')); }
+  }
+  if (st==='enrolled'){
+    if (!S.sessionDone) hero = `<div class="hero"><div class="k">오늘 세션 · 언어치료 4:00</div><div class="t">${S.center?.name||'해솔센터'}, 수업이 끝났어요</div><div class="btns"><button class="btn wt" onclick="attend()">다녀왔어요 ✓</button></div><div class="foot">내 기록에만 남아요</div></div>`;
+    else if (!S.saidNote) hero = `<div class="hero"><div class="k">오늘 다녀온 날</div><div class="t">선생님 말씀, 잊기 전에 담아둘까요?</div><div class="btns"><button class="btn wt" onclick="openSay()">담기</button><button class="btn gh" onclick="toast('기록에서 언제든지 담을 수 있어요')">다음에</button></div><div class="foot">내 기록에만 남아요</div></div>`;
+    if (S.homework) groups.push(`<div class="gh">이번 주 집에서</div><div class="group"><div class="rw">${gl('house')}<span class="bd"><span class="rt">${S.homework}</span><span class="rs">지난주 선생님 말씀에서</span></span></div></div>`);
+    groups.push(recGroup());
+    if (S.saidNote && !S.oneshotDismissed) groups.push(`<div class="group">
+      <div class="rw">${gl('link')}<span class="bd"><span class="rt">이런 방법도 있어요</span><span class="rs">연동 센터에선 결과지가 자동으로 들어와요</span></span></div>
+      <div class="rwx"><div class="btns" style="margin-top:0;"><button class="btn warm" style="height:44px;" onclick="toast('연동은 센터가 결정해요 — 관심을 전할 수 있어요')">알아보기</button><button class="btn qt" style="height:44px;" onclick="S.oneshotDismissed=true; render()">괜찮아요</button></div></div>
+    </div>`);
+  }
+  if (st==='looking'){
+    if (S.reminderDue && S.callNote) hero = `<div class="hero"><div class="k">오늘 · 다시 확인하기로 한 날</div><div class="t">${S.callNote.center}</div><div class="d">"${S.callNote.when}" 라고 적어두셨어요</div><div class="btns"><button class="btn wt" onclick="openCallHelper('${S.callNote?.center||''}')">전화하기</button><button class="btn gh" onclick="toast('내일 다시 조용히 알려드릴게요')">오늘은 어려워요</button></div></div>`;
+    groups.push(`<div class="gh">다음 한 걸음</div><div class="group">
+      <button class="rw" onclick="setTab('search')">${gl('compass')}<span class="bd"><span class="rt">가까운 한 군데부터, 물어볼 것도 준비해 뒀어요</span></span><span class="chev">›</span></button>
+    </div>`);
+    groups.push(recGroup());
+    groups.push(`<div class="gh">기다리는 동안</div><div class="group">
+      <button class="rw" onclick="toast('이럴 때 30초 — 밥 먹을 때 · 그림책 볼 때 · 새 장난감을 만났을 때')">${gl('video')}<span class="bd"><span class="rt">30초 영상 하나 어때요?</span><span class="rs">뭘 찍으면 좋은지 알려드려요</span></span><span class="chev">›</span></button>
+    </div>`);
+  }
+  if (st==='watching' || st==='new'){
+    groups.push(recGroup());
+    groups.push(`<div class="gh">천천히, 필요할 때</div><div class="group">
+      <button class="rw" onclick="toast('아이 생일만 알려주시면 다음 검진 시기를 계산해 드려요 (프로토타입)')">${gl('clip')}<span class="bd"><span class="rt">무료 발달 선별검사 알아보기</span><span class="rs">받아보셨는지에 따라 알려드려요</span></span><span class="chev">›</span></button>
+      <button class="rw" onclick="toast('발달재활 바우처 — 치료비를 지원받을 수 있어요')">${gl('gift')}<span class="bd"><span class="rt">치료비, 지원받을 수 있어요</span><span class="rs">발달재활 바우처 · 신청은 연중</span></span><span class="chev">›</span></button>
+    </div>`);
+  }
+  return { hero, groups };
+}
+/* 헤드라인 — "한 문장, 한 단어 블루" 정확히 1단어 (G6 최종 확정 1) */
+function greeting(empty){
+  const st=S.stage;
+  if (empty) return '<em class="bw">오늘</em>은 챙길 일이<br>없어요';   /* 카피 스펙 §블루 보이스 — 부정어에 블루 금지, 지시 계열 "오늘"로 이동 */
+  if (st==='linked' && S.sessionDone && S.saidNote) return '오늘도 잘<br><em class="bw">챙기셨어요</em>';
+  if (st==='linked') return S.sessionDone ? '오늘도 <em class="bw">다녀왔네요</em>' : '내일 <em class="bw">하나만</em><br>확인하면 돼요';
+  if (st==='enrolled') return S.sessionDone ? '오늘도 <em class="bw">다녀왔네요</em>' : '오늘 4시,<br><em class="bw">수업</em> 가는 날이에요';
+  if (st==='looking') return S.reminderDue ? '오늘은 <em class="bw">전화</em> 하나만<br>하면 돼요' : '<em class="bw">천천히</em>,<br>한 걸음씩이에요';
+  return '지켜보는 것도<br><em class="bw">돌봄</em>이에요';
+}
+function vHome(){
+  const { hero, groups } = buildHome();
+  const empty = !hero && groups.length===0;
+  const wash = SEG==='day' ? '' : `<div class="wash ${SEG}"></div>`;
+  const chips = (S.stage==='linked') ? `<div class="people"><button class="pchip all ${S.chip==='all'?'on':''}" onclick="S.chip='all';render()">전체</button><button class="pchip ${S.chip==='c1'?'on':''}" onclick="S.chip='c1';render()"><span class="av">${(S.childName||'지')[0]}</span>${S.childName||'지우'}</button><button class="pchip ${S.chip==='c2'?'on':''}" onclick="S.chip='c2';render()"><span class="av">서</span>서준</button></div>` : '';
+  return `${wash}
+    <div class="appbar"><span class="logo">마인드스코프</span></div>
+    <div class="hello"><div class="day">7월 10일 목요일 · ${SEG_LABEL[SEG]}</div><div class="line">${greeting(empty)}</div></div>
+    ${chips}
+    ${empty ? `<div class="group"><div class="zen">${gl('sprout','green lg')}<div class="zt">이번 주 3개를 챙기셨어요</div><div class="zd">잠시 쉬어가도 좋은 날이에요</div></div></div>
+      <div class="group"><button class="rw" onclick="setTab('timeline')">${gl('book')}<span class="bd"><span class="rt">지난 기록 다시 보기</span><span class="rs">${S.childName||'지우'} ${S.records.length}개</span></span><span class="chev">›</span></button></div>` : ''}
+    ${hero}
+    ${groups.join('')}
+    ${S.stage==='enrolled' ? '<div class="quiet">센터와 연결하면 남은 회기가 여기 보여요</div>' : ''}
+    ${(S.stage==='watching'||S.stage==='new') ? '<div class="quiet">센터 찾기는 필요할 때, 아래에 있어요</div>' : ''}`;
+}
+
+/* ================= 기록 탭 ================= */
+function vTimeline(){
+  if (!S.records.length) return `
+    <div class="hello" style="padding-top:14px;"><div class="day">기록</div><div class="line" style="font-size:24px;">아직 담긴 기록이<br>없어요</div></div>
+    <div class="group"><div class="zen">${gl('sprout','green lg')}<div class="zt">첫 한 줄이면 충분해요</div></div></div>
+    <button class="btn warm big" style="width:100%;flex:none;" onclick="openRecord()">한 줄 남기기</button>`;
+  const items = S.records.map(r=>{
+    const icon = r.kind==='say' ? gl('mic') : gl('rec');   /* 반복 리스트의 행 글리프에 새싹 금지 — 기록 유형 무채 글리프 stroke 1.5 #6E675E (하린 R2 마감 6: 새싹=서사 앵커, 화면당 1곳) */
+    const k = r.kind==='say' ? '선생님 말씀 · ' : '';
+    const badge = r.shared ? `<span class="pbadge">선생님 공개<span class="gl">${IC.ppl}</span></span>` : `<span class="pbadge">나만<span class="gl">${IC.lock}</span></span>`;
+    return `<button class="rw" onclick="openShare('${r.id}')">${icon}<span class="bd"><span class="rt">${r.text}</span><span class="rs">${k}${r.dateLabel}</span></span>${badge}</button>`;
+  }).join('');
+  const mile = (S.sessionDone||S.linked) ? `<div class="tl-mile"><i></i>7월 10일 · ${S.center?.name||'해솔센터'} 언어치료 다녀온 날</div>` : '';
+  return `
+    <div class="hello" style="padding-top:14px;"><div class="day">기록 · ${S.childName||'지우'}</div><div class="line" style="font-size:24px;">차곡차곡<br>쌓이고 있어요</div></div>
+    <div class="month-h">7월</div>
+    ${mile}<div class="group">${items}</div>
+    <div class="quiet">기록을 누르면 공유 설정을 볼 수 있어요</div>`;
+}
+function openShare(id){
+  const r = S.records.find(x=>x.id===id); if(!r) return;
+  if (!S.linked && !S.center) { toast('센터와 연결되면 공유를 열 수 있어요'); return; }
+  const cname = S.center?.name || '해맑음센터';
+  sheet(`
+    <div class="grab"></div>
+    <div class="st">이 기록, 누가<br>볼 수 있나요</div>
+    <div class="group" style="padding:6px 17px;margin-top:18px;border:none;background:var(--base);">
+      <div class="share-row"><span class="sl">가족<small>초대한 가족만 볼 수 있어요 (0명)</small></span></div>
+      <div class="share-row"><span class="sl">${cname} 김○○ 선생님</span><button class="switch ${r.shared?'on':''}" onclick="toggleShare('${id}', this)"></button></div>
+      <div class="share-row"><span class="sl" style="color:var(--mute);">내 메모는 나만 봐요<small>공유 대상이 아니에요</small></span><span class="gl" style="width:26px;height:26px;">${IC.lock}</span></div>
+    </div>
+    <div class="fine"><b>선생님에게 알림이 가지 않아요</b><br>수업 준비하실 때 직접 열어보시는 방식이에요<br>끄면 선생님 화면에서 바로 사라져요</div>`);
+}
+function toggleShare(id, el){
+  const r = S.records.find(x=>x.id===id); if(!r) return;
+  r.shared = !r.shared;
+  el.classList.toggle('on', r.shared);
+  toast(r.shared ? '김○○ 선생님이 볼 수 있어요' : '이제 나와 가족만 볼 수 있어요');
+  render(false);
+}
+
+/* ================= 센터 찾기 탭 ================= */
+function vSearch(){
+  const linkedFirst = S.linked ? `<div class="quiet" style="text-align:left;padding:0 4px;">다니시는 <b>해맑음센터</b>에도 감각통합이 있어요</div>` : '';
+  return `
+    <div class="hello" style="padding-top:14px;"><div class="day">센터 찾기</div><div class="line" style="font-size:24px;">천천히 둘러봐도<br>괜찮아요</div></div>
+    <div class="searchbar">${IC.map}<input placeholder="센터 이름으로 검색" oninput="render(false)"></div>
+    <div class="chiprow"><span class="fchip on">송파구</span><span class="fchip">언어치료</span><span class="fchip">바우처</span></div>
+    ${linkedFirst}
+    <div class="group">${CENTERS.map(c=>`<button class="rw" style="min-height:72px;" onclick="go('center-${c.name}')">${gl('house')}<span class="bd"><span class="rt">${c.name}${c.link?' <span class="tag" style="margin:0 0 0 4px;">앱 연결</span>':''}</span><span class="rs">${c.dist}</span></span><span class="chev">›</span></button>`).join('')}</div>
+    <button class="btn qt big" style="width:100%;flex:none;" onclick="toast('지도 뷰는 같은 데이터의 토글이에요 (프로토타입 생략)')">지도로 보기</button>
+    <div class="quiet">정보 출처: 보건복지부 발달재활 제공기관 명단</div>`;
+}
+function vCenter(name){
+  const c = CENTERS.find(x=>x.name===name) || CENTERS[0];
+  const faved = S.favs.includes(c.name);
+  return `
+    <button class="navback" onclick="back()">‹ 센터 찾기</button>
+    <div class="hello" style="padding-top:4px;"><div class="day">${c.dist}</div><div class="line" style="font-size:24px;">${c.name}</div></div>
+    <div class="group">
+      <div class="rw">${gl('ticket')}<span class="bd"><span class="rt">바우처 제공기관이에요</span><span class="rs">발달재활 바우처</span></span></div>
+      ${c.link ? `<div class="rw">${gl('link')}<span class="bd"><span class="rt">다니고 있다면 연결할 수 있어요</span><span class="rs">요청하면 센터 담당자에게 확인 알림이 가요.<br>등록된 보호자 정보와 맞는지 확인 후 연결돼요.</span></span></div>
+      <div class="rwx"><button class="btn warm big" style="width:100%;" onclick="enrollCenter('${c.name}', true)">연결하기</button></div>`
+      : `<div class="rw">${gl('house')}<span class="bd"><span class="rt">기록용으로 등록할 수 있어요</span><span class="rs">다니는 센터라면</span></span></div>
+      <div class="rwx"><button class="btn warm big" style="width:100%;" onclick="enrollCenter('${c.name}', false)">이 센터에 다니고 있어요</button></div>`}
+    </div>
+    <div class="btns" style="margin-top:2px;"><button class="btn pri" onclick="openCallHelper('${c.name}')">전화하기</button><button class="btn qt" onclick="favCenter('${c.name}')">${faved?'찜 완료 ✓':'찜하기'}</button></div>
+    <div class="quiet">전화하면 물어볼 것부터 알려드려요</div>`;
+}
+
+/* ================= 마이 탭 ================= */
+function vMy(){
+  const shared = S.records.filter(r=>r.shared).length;
+  return `
+    <div class="hello" style="padding-top:14px;"><div class="day">마이</div><div class="line" style="font-size:24px;">${S.signed ? (S.childName||'지우')+' 보호자님' : '둘러보는 중이에요'}</div></div>
+    ${S.signed ? `
+    <div class="group" style="padding:6px 18px;">
+      <div class="share-row"><span class="sl">이용약관 · 개인정보 · 아이 기록 보관<small>동의함 · 26. 7. 10</small></span></div>
+      <div class="share-row"><span class="sl">소식·혜택 알림</span><button class="switch ${S.marketing?'on':''}" onclick="S.marketing=!S.marketing; render(false); this.classList.toggle('on')"></button></div>
+    </div>
+    <div class="group">
+      <button class="rw" onclick="toast(shared? '해맑음센터에 열린 기록 '+shared+'개' : '아직 공유 중인 기록이 없어요')">${gl('ppl')}<span class="bd"><span class="rt">공유 현황</span><span class="rs">${S.center? (S.center.name+'에 열린 기록 '+shared+'개') : '공유 중인 기록 없음'}</span></span><span class="chev">›</span></button>
+      ${S.center ? `<button class="rw" onclick="toast('연결 관리 — 마무리해도 다녀온 날들은 그대로 남아요')">${gl('link')}<span class="bd"><span class="rt">센터 연결</span><span class="rs">${S.center.name}${S.center.linked?' · 연동':''}</span></span><span class="chev">›</span></button>`:''}
+    </div>
+    <div class="group">
+      <button class="rw" onclick="toast('전체 기록을 파일로 내보낼 수 있어요')">${gl('box')}<span class="bd"><span class="rt">기록 내보내기</span></span><span class="chev">›</span></button>
+      <button class="rw" onclick="toast('가족 초대 — 초대받은 가족도 기록을 쓸 수 있어요')">${gl('mail')}<span class="bd"><span class="rt">가족 초대</span></span><span class="chev">›</span></button>
+      <button class="rw" onclick="toast('탈퇴 전 내보내기를 먼저 제안해요 · 30일 안에 돌아오면 복구돼요')">${gl('out')}<span class="bd"><span class="rt" style="font-weight:400;color:var(--sub);">동의 철회 · 탈퇴</span><span class="rs">떠나기 전에 기록을 내보낼 수 있어요</span></span></button>
+    </div>
+    <div class="quiet">기록은 암호화되어 저장되고, 나와 가족<br>그리고 내가 허용한 선생님만 볼 수 있어요</div>`
+    : `<button class="btn pri big" style="width:100%;flex:none;" onclick="requireSignup(()=>render())">시작하기</button>
+       <div class="quiet">첫 기록을 남기는 순간 시작돼요</div>`}`;
+}
+
+/* ================= 렌더 ================= */
+function vStart(){
+  return `<div class="ob base" style="padding-top:44px;">
+    <div class="hi">반가워요</div>
+    <div class="q"><em class="bw">지금</em> 어느 쪽에<br>가까우세요?</div>
+    <div class="group" style="margin-top:6px;">
+      <button class="opt" onclick="pick('watching', this)">${gl('sprout','green')}<span><span class="ot">아직 지켜보고 있어요</span><span class="od" style="display:block;">뭔가 마음에 걸리는 게 있어요</span></span></button>
+      <button class="opt" onclick="pick('looking', this)">${gl('compass')}<span><span class="ot">센터를 알아보고 있어요</span><span class="od" style="display:block;">어디로 가야 할지 찾는 중이에요</span></span></button>
+      <button class="opt" onclick="pick('has', this)">${gl('house')}<span><span class="ot">다니는 센터가 있어요</span><span class="od" style="display:block;">이미 다니고 있어요</span></span></button>
+    </div>
+    <div class="cta">
+      <div class="quiet">나중에 언제든 달라져도 괜찮아요</div>
+      <button class="btn big off" id="startBtn" onclick="startApp()">시작하기</button>
+    </div></div>`;
+}
+let picked = null;
+function pick(v, el){
+  picked = v;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  const b = $('#startBtn'); b.classList.remove('off'); b.classList.add('pri');   /* 비활성→활성 120ms 전이 (btn transition) */
+}
+function startApp(){
+  if (picked==='has'){ S.stage='new'; S.tab='search'; S.screen='home'; }
+  else { S.stage = picked || 'watching'; S.tab='home'; S.screen='home'; }
+  render();
+}
+
+const FULL = ['start','consent','profile','linkFlow'];
+function render(scroll=true){
+  const v = $('#view');
+  let html = '';
+  if (S.screen==='start') html = vStart();
+  else if (S.screen==='consent') html = vConsent();
+  else if (S.screen==='profile') html = vProfile();
+  else if (S.screen==='linkFlow') html = vLinkFlow();
+  else if (S.screen.startsWith('center-')) html = vCenter(S.screen.slice(7));
+  else { // 탭 화면
+    if (S.tab==='home') html = vHome();
+    if (S.tab==='timeline') html = vTimeline();
+    if (S.tab==='search') html = vSearch();
+    if (S.tab==='my') html = vMy();
+  }
+  v.className = FULL.includes(S.screen) ? 'fullbleed' : '';
+  v.innerHTML = html;
+  if (scroll) v.scrollTop = 0;
+  // 탭바
+  const showTab = !FULL.includes(S.screen);
+  const tb = $('#tabbar');
+  tb.style.display = showTab ? 'flex' : 'none';
+  if (showTab) tb.innerHTML = [
+    ['home','홈',IC.home],['timeline','기록',IC.rec],['search','센터 찾기',IC.map],['my','마이',IC.my]
+  ].map(([id,label,ic])=>`<button class="tab ${S.tab===id&&!S.screen.startsWith('center-')?'on':''}" onclick="setTab('${id}')">${ic}${label}</button>`).join('');
+  renderPanel();
+}
+function renderPanel(){
+  const sv = $('#stateView'); if (!sv) return;
+  const stageNames = {new:'미정(게스트)', watching:'① 지켜보는 중', looking:'① 알아보는 중', enrolled:'② 미연동 소속', linked:'③ 연동'};
+  sv.innerHTML = `
+    상황: <b>${stageNames[S.stage]}</b> · 워시: <b>${SEG}</b><br>
+    가입: <b>${S.signed?'완료'+(S.childName?` (${S.childName})`:''):'게스트'}</b> · 동의: <b>${S.consented?'필수 3':'—'}</b><br>
+    기록: <b>${S.records.length}건</b> (공유 ${S.records.filter(r=>r.shared).length}) · 찜: <b>${S.favs.length}</b><br>
+    센터: <b>${S.center? S.center.name+(S.center.linked?' (연동)':' (수기)') : '—'}</b>`;
+}
+
+/* ================= 시나리오 ================= */
+function scenario(key){
+  S = initial(); consent={a:false,b:false,c:false,d:false}; picked=null;
+  if (key==='reset'){ /* 그대로 */ }
+  if (key==='watch'){
+    Object.assign(S, {screen:'home', stage:'watching', signed:true, consented:true, childName:'지우',
+      records:[{id:uid(),text:'"물"이라고 두 번 말했다',kind:'obs',dateLabel:'어제',shared:false}]});
+  }
+  if (key==='s1'){
+    Object.assign(S, {screen:'home', stage:'looking', signed:true, consented:true, childName:'지우', reminderDue:true,
+      callNote:{center:'해솔아동발달센터', when:'자리 나면 연락 준대요'}, favs:['해솔아동발달센터'],
+      records:[{id:uid(),text:'"물"이라고 두 번 말했다',kind:'obs',dateLabel:'어제',shared:false},{id:uid(),text:'그림책을 스스로 가져왔다',kind:'obs',dateLabel:'7월 7일',shared:false}]});
+  }
+  if (key==='s2'){
+    Object.assign(S, {screen:'home', stage:'enrolled', signed:true, consented:true, childName:'지우',
+      center:{name:'해솔아동발달센터', linked:false},
+      records:[{id:uid(),text:'"물 줘"라고 두 단어로 말했다',kind:'obs',dateLabel:'어제',shared:false}]});
+  }
+  if (key==='s3'){
+    Object.assign(S, {screen:'home', stage:'linked', signed:true, consented:true, childName:'지우', linked:true,
+      center:{name:'해맑음아동발달센터', linked:true}, resultArrived:true, voucherLow:true,
+      records:[{id:uid(),text:'친구랑 블록놀이 (영상 32초)',kind:'obs',dateLabel:'어제',shared:true},{id:uid(),text:'"엄마 물 주세요" 세 단어!',kind:'obs',dateLabel:'7월 5일',shared:false}]});
+  }
+  if (key==='empty'){
+    Object.assign(S, {screen:'home', stage:'linked', signed:true, consented:true, childName:'지우', linked:true,
+      center:{name:'해맑음아동발달센터', linked:true}, sessionDone:'attended', saidNote:true, resultArrived:true, resultRead:true, voucherLow:false, oneshotDismissed:true,
+      records:[{id:uid(),text:'"엄마 물 주세요" 세 단어!',kind:'obs',dateLabel:'7월 5일',shared:true},{id:uid(),text:'녹음 0:42 · "집에서 그림책을…"',kind:'say',dateLabel:'7월 3일',shared:false}]});
+  }
+  render();
+}
+
+/* ================= shot 파라미터 — 21장 재현 ================= */
+function applyShot(name){
+  switch(name){
+    case 'start': scenario('reset'); break;
+    case 'home_watch': scenario('watch'); break;
+    case 'home_look': scenario('s1'); break;
+    case 'home_s2': scenario('s2'); break;
+    case 'home_s3': scenario('s3'); break;
+    case 'home_empty': scenario('empty'); break;
+    case 'gate': scenario('reset'); Object.assign(S,{screen:'home',stage:'watching'}); render(); requireSignup(()=>{}); break;
+    case 'consent': scenario('reset'); S.screen='consent'; render(); break;
+    case 'profile': scenario('reset'); Object.assign(S,{screen:'profile',consented:true}); render(); break;
+    case 'record': scenario('s1'); render(); openRecord(); break;
+    case 'search': scenario('s1'); S.tab='search'; render(); break;
+    case 'center': scenario('s1'); S.screen='center-해맑음아동발달센터'; render(); break;
+    case 'call': scenario('s1'); S.screen='center-해솔아동발달센터'; render(); openCallHelper('해솔아동발달센터'); break;
+    case 'timeline': scenario('s3'); S.tab='timeline'; render(); break;
+    case 'share': scenario('s3'); S.tab='timeline'; render(); openShare(S.records[0].id); break;
+    case 'say': scenario('s2'); S.sessionDone='attended'; render(); openSay(); break;
+    case 'link_land': scenario('s1'); Object.assign(S,{screen:'linkFlow',linkStep:'landing'}); render(); break;
+    case 'link_verify': scenario('s1'); Object.assign(S,{screen:'linkFlow',linkStep:'verify'}); render(); break;
+    case 'link_child': scenario('s1'); Object.assign(S,{screen:'linkFlow',linkStep:'child'}); render(); break;
+    case 'link_done': scenario('s1'); S.screen='linkFlow'; finishLink(); break;
+    case 'my': scenario('s3'); S.tab='my'; render(); break;
+    default: render();
+  }
+}
+
+/* 시계 */
+(function(){ const t=new Date(); $('#clock').textContent = SHOT ? '9:41' : t.getHours()+':'+String(t.getMinutes()).padStart(2,'0'); })();
+if (AB === 'blue0') document.body.classList.add('blue0');
+if (SHOT) applyShot(SHOT); else render();
+</script>
+</body>
+</html>

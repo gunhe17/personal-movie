@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>마인드스코프 · 내담자 앱 기획 v3 — 시안 B (글래스)</title>
+<style>
+:root{
+  --bg:#0a0e1a;--ink:#eef2f9;--sub:#96a0b5;--faint:#5d6activi880;--faint:#5d6880;
+  --blue:#4f8cff;--mint:#2dd4bf;--violet:#a78bfa;--amber:#fbbf24;--rose:#fb7185;
+  --glass:rgba(255,255,255,.045);--glass2:rgba(255,255,255,.08);--stroke:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+.orb{position:fixed;border-radius:50%;filter:blur(110px);opacity:.5;pointer-events:none;z-index:0;}
+.orb1{width:520px;height:520px;background:#1d3fd8;top:-160px;left:-120px;}
+.orb2{width:460px;height:460px;background:#0d7a6f;top:38%;right:-180px;opacity:.35;}
+.orb3{width:420px;height:420px;background:#5b21b6;bottom:-140px;left:22%;opacity:.3;}
+.wrap{max-width:1060px;margin:0 auto;padding:0 32px 140px;position:relative;z-index:1;}
+::selection{background:rgba(79,140,255,.35);}
+
+/* hero */
+.hero{padding:110px 0 80px;text-align:center;}
+.eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--blue);border:1px solid rgba(79,140,255,.35);border-radius:100px;padding:7px 18px;background:rgba(79,140,255,.08);}
+.hero h1{font-size:56px;font-weight:800;letter-spacing:-.03em;line-height:1.22;margin:26px 0 16px;}
+.hero h1 .grad{background:linear-gradient(92deg,#6ea8ff,#2dd4bf 55%,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .sub{font-size:18px;color:var(--sub);max-width:620px;margin:0 auto;}
+.meta{display:flex;gap:8px;margin-top:34px;flex-wrap:wrap;justify-content:center;}
+.chip{font-size:12.5px;font-weight:600;border:1px solid var(--stroke);border-radius:100px;padding:8px 16px;color:var(--sub);background:var(--glass);backdrop-filter:blur(8px);}
+.chip.hot{background:linear-gradient(92deg,#3b6fe0,#2dd4bf);color:#04121f;border:none;font-weight:800;}
+
+/* sections */
+section{padding:88px 0 0;}
+.shead{display:flex;align-items:baseline;gap:16px;margin-bottom:8px;}
+.snum{font-size:13px;font-weight:800;color:var(--mint);letter-spacing:.14em;}
+section h2{font-size:31px;font-weight:800;letter-spacing:-.02em;}
+.lead{font-size:16px;color:var(--sub);max-width:720px;margin-bottom:34px;}
+.lead b{color:var(--ink);}
+
+/* glass card */
+.glass{background:var(--glass);border:1px solid var(--stroke);border-radius:22px;backdrop-filter:blur(14px);}
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:1fr 1fr 1fr;} .g4{grid-template-columns:repeat(4,1fr);}
+.card{padding:26px 24px;}
+.card .ci{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:16px;background:var(--glass2);border:1px solid var(--stroke);}
+.card h4{font-size:16px;font-weight:800;margin-bottom:6px;}
+.card p{font-size:13.5px;color:var(--sub);line-height:1.65;}
+.card p b{color:var(--ink);}
+
+/* northstar 3D */
+.stage{perspective:1400px;margin:10px 0 22px;}
+.northstar{transform:rotateX(6deg);transform-origin:center top;background:linear-gradient(135deg,rgba(79,140,255,.16),rgba(45,212,191,.10) 60%,rgba(167,139,250,.14));border:1px solid rgba(120,160,255,.28);border-radius:30px;padding:58px 54px;box-shadow:0 40px 90px rgba(20,60,180,.28), inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(16px);}
+.northstar .tag{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--mint);}
+.northstar h3{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.35;margin:16px 0 12px;}
+.northstar p{font-size:15px;color:var(--sub);max-width:600px;}
+
+/* 3-layer 3D stack */
+.stack-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;margin-top:18px;}
+.stack{perspective:1000px;display:flex;flex-direction:column;align-items:center;gap:0;padding:30px 0;}
+.layer{width:78%;padding:18px 22px;border-radius:18px;transform:rotateX(48deg) rotateZ(-38deg);margin-top:-26px;border:1px solid;backdrop-filter:blur(6px);box-shadow:-18px 24px 40px rgba(0,0,0,.45);}
+.layer h5{font-size:15px;font-weight:800;}
+.layer p{font-size:11.5px;opacity:.75;margin-top:2px;}
+.l1{background:rgba(167,139,250,.16);border-color:rgba(167,139,250,.4);z-index:4;}
+.l2{background:rgba(79,140,255,.16);border-color:rgba(79,140,255,.45);z-index:3;}
+.l3{background:rgba(45,212,191,.14);border-color:rgba(45,212,191,.4);z-index:2;}
+.l4{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35);z-index:1;}
+.stack-notes .note{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--stroke);}
+.stack-notes .note:last-child{border-bottom:none;}
+.stack-notes .nd{flex:none;width:12px;height:12px;border-radius:4px;margin-top:7px;}
+.stack-notes h5{font-size:14.5px;font-weight:800;}
+.stack-notes p{font-size:12.5px;color:var(--sub);}
+
+/* loop */
+.loop{padding:44px 38px;margin-top:16px;}
+.loop-track{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:0;}
+.lnode{flex:1;min-width:185px;background:var(--glass2);border:1px solid var(--stroke);border-radius:18px;padding:24px 18px;text-align:center;position:relative;}
+.lnode .step{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(92deg,#3b6fe0,#2dd4bf);color:#04121f;font-size:11px;font-weight:800;border-radius:100px;padding:4px 13px;}
+.lnode .li{font-size:27px;margin-bottom:8px;}
+.lnode h5{font-size:14.5px;font-weight:800;margin-bottom:4px;}
+.lnode p{font-size:12px;color:var(--sub);line-height:1.55;}
+.larrow{display:flex;align-items:center;font-size:22px;padding:0 10px;color:var(--mint);}
+.loop-back{text-align:center;margin-top:20px;font-size:13px;font-weight:700;color:var(--mint);}
+.legs{margin-top:16px;display:grid;gap:10px;}
+.leg{display:flex;gap:16px;align-items:flex-start;padding:20px 24px;}
+.leg .badge{flex:none;font-size:12px;font-weight:800;border-radius:100px;padding:5px 14px;margin-top:2px;}
+.leg p{font-size:14px;color:var(--sub);} .leg p b{color:var(--ink);}
+.bad{background:rgba(251,113,133,.14);color:#fda4af;border:1px solid rgba(251,113,133,.3);}
+.good{background:rgba(45,212,191,.14);color:#5eead4;border:1px solid rgba(45,212,191,.3);}
+
+/* pipeline */
+.pipe{display:flex;align-items:stretch;justify-content:center;padding:38px 30px;margin:16px 0;flex-wrap:wrap;}
+.pnode{background:var(--glass2);border:1px solid var(--stroke);border-radius:16px;padding:18px 15px;text-align:center;min-width:132px;flex:1;max-width:180px;}
+.pnode .pi{font-size:24px;}
+.pnode h6{font-size:13px;font-weight:800;margin-top:8px;}
+.pnode p{font-size:11px;color:var(--faint);margin-top:3px;line-height:1.5;}
+.pnode.ai{border:1px dashed rgba(167,139,250,.6);background:rgba(167,139,250,.1);}
+.pnode.ai h6{color:var(--violet);}
+.parrow{display:flex;align-items:center;padding:0 8px;color:var(--faint);font-size:18px;}
+.pill-note{display:inline-flex;gap:8px;align-items:center;background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.3);color:#5eead4;font-size:13px;font-weight:700;border-radius:100px;padding:10px 20px;margin-top:8px;}
+
+/* template */
+.tmpl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:18px;}
+.tcard{padding:24px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke);}
+.tcard .tn{font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--blue);}
+.tcard h5{font-size:17px;font-weight:800;margin:8px 0;}
+.tcard .ex{background:rgba(0,0,0,.28);border:1px solid var(--stroke);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--sub);line-height:1.6;}
+.tcard.quest{border-color:rgba(167,139,250,.45);background:linear-gradient(180deg,var(--glass),rgba(167,139,250,.1));}
+.tcard.quest .tn{color:var(--violet);}
+.banned{margin-top:14px;border-radius:16px;padding:16px 22px;font-size:13.5px;font-weight:600;background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.28);color:#fda4af;}
+.banned b{color:#fecdd3;}
+
+/* evolution */
+.evo{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;}
+.estep{flex:1;min-width:220px;border-radius:20px;padding:24px;background:var(--glass);border:1px solid var(--stroke);position:relative;}
+.estep .ev{font-size:11.5px;font-weight:800;letter-spacing:.12em;}
+.estep h5{font-size:16px;font-weight:800;margin:8px 0 6px;}
+.estep p{font-size:13px;color:var(--sub);}
+.estep .when{position:absolute;top:22px;right:22px;font-size:11px;font-weight:700;color:var(--faint);}
+.estep.now{background:linear-gradient(135deg,rgba(79,140,255,.2),rgba(45,212,191,.12));border-color:rgba(79,140,255,.45);box-shadow:0 18px 50px rgba(30,80,220,.25);}
+.estep.now .ev{color:#8ab8ff;}
+
+/* home rules + stream */
+.axiom{border-radius:18px;padding:22px 28px;font-size:17px;font-weight:800;text-align:center;margin:2px 0 22px;background:linear-gradient(92deg,rgba(79,140,255,.15),rgba(45,212,191,.12));border:1px solid rgba(79,140,255,.3);letter-spacing:-.01em;}
+.split{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:start;}
+.rules{padding:8px 24px;}
+.rule{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--stroke);padding:17px 0;}
+.rule:last-child{border-bottom:none;}
+.rule .rn{flex:none;width:32px;height:32px;border-radius:50%;background:rgba(79,140,255,.16);border:1px solid rgba(79,140,255,.4);color:#8ab8ff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.rule h5{font-size:15px;font-weight:700;}
+.rule p{font-size:12.5px;color:var(--sub);margin-left:auto;text-align:right;}
+.stream{padding:24px;}
+.stream .sh{font-size:12.5px;font-weight:800;color:var(--faint);letter-spacing:.08em;margin-bottom:14px;}
+.sitem{display:flex;gap:12px;align-items:center;background:var(--glass2);border:1px solid var(--stroke);border-radius:14px;padding:13px 16px;margin-bottom:8px;}
+.sitem .si{font-size:18px;}
+.sitem .st{font-size:13.5px;font-weight:700;}
+.sitem .ss{font-size:11.5px;color:var(--faint);}
+.sitem .stag{margin-left:auto;font-size:10.5px;font-weight:700;border-radius:8px;padding:3px 9px;background:rgba(79,140,255,.15);color:#8ab8ff;border:1px solid rgba(79,140,255,.3);flex:none;}
+.foot-note{font-size:12px;color:var(--faint);text-align:center;padding-top:8px;}
+
+/* onboarding */
+.flow{padding:40px 34px;margin-top:16px;}
+.fline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;}
+.fnode{background:var(--glass2);border:1px solid var(--stroke);border-radius:14px;padding:13px 20px;font-size:13.5px;font-weight:700;text-align:center;}
+.fnode small{display:block;font-size:11px;color:var(--faint);font-weight:600;margin-top:2px;}
+.farrow{padding:0 12px;color:var(--faint);font-size:16px;}
+.fbranch{display:flex;gap:20px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
+.fpath{flex:1;min-width:300px;border-radius:18px;padding:22px;background:var(--glass);border:1px solid var(--stroke);}
+.fpath.linked{border-color:rgba(79,140,255,.5);}
+.fpath.unlinked{border-color:rgba(45,212,191,.5);}
+.fpath .fh{font-size:14px;font-weight:800;margin-bottom:10px;}
+.fpath.linked .fh{color:#8ab8ff;} .fpath.unlinked .fh{color:#5eead4;}
+.fpath ol{margin-left:18px;font-size:13px;color:var(--sub);}
+.fpath li{margin:4px 0;}
+
+/* phases */
+.board{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px;}
+.pcol{border-radius:22px;padding:26px 24px;background:var(--glass);border:1px solid var(--stroke);}
+.pcol.p1{background:linear-gradient(160deg,rgba(79,140,255,.18),rgba(45,212,191,.08));border-color:rgba(79,140,255,.45);box-shadow:0 24px 70px rgba(30,80,220,.22);}
+.pcol .ph{font-size:12px;font-weight:800;letter-spacing:.12em;margin-bottom:4px;color:var(--faint);}
+.pcol.p1 .ph{color:#8ab8ff;}
+.pcol h4{font-size:19px;font-weight:800;margin-bottom:14px;}
+.pgroup{font-size:10.5px;font-weight:800;letter-spacing:.1em;margin:14px 0 6px;color:var(--faint);}
+.pcol ul{list-style:none;}
+.pcol li{font-size:13px;padding:5px 0;border-bottom:1px solid var(--stroke);color:var(--sub);}
+.pcol li:last-child{border-bottom:none;}
+.pcol li b{color:var(--ink);font-weight:800;}
+
+/* open */
+.open{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px;}
+.ocard{border-radius:20px;padding:24px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);}
+.ocard h4{font-size:15px;font-weight:800;color:#fcd34d;margin-bottom:6px;}
+.ocard p{font-size:13px;color:var(--sub);line-height:1.6;}
+
+footer{margin-top:110px;padding-top:28px;border-top:1px solid var(--stroke);font-size:12.5px;color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+@media(max-width:880px){
+  .g2,.g3,.g4,.tmpl,.board,.open,.split,.stack-wrap{grid-template-columns:1fr;}
+  .hero h1{font-size:38px;}
+  .larrow,.parrow{transform:rotate(90deg);padding:6px 0;justify-content:center;}
+  .loop-track,.pipe,.fline{flex-direction:column;align-items:center;}
+  .northstar{transform:none;}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <span class="eyebrow">MINDSCOPE · CLIENT APP PLAN V3 · 2026-07-02</span>
+  <h1>센터는 바뀌어도,<br>기록은 <span class="grad">아이를 따라간다</span></h1>
+  <p class="sub">북극성은 화면이 아니라 자산 — 부모가 소유하고, 센터를 초월하며, 이동 가능한 <b style="color:var(--ink)">상담·발달 여정의 원장(Ledger)</b>.</p>
+  <div class="meta">
+    <span class="chip hot">북극성 · 여정 원장</span>
+    <span class="chip">킬러 · 세션 브리핑</span>
+    <span class="chip">성장 · 수직 풀 루프</span>
+    <span class="chip">비치헤드 · 아동 발달</span>
+    <span class="chip">코어는 전 센터 범용</span>
+  </div>
+</div>
+
+<!-- 1 NORTH STAR -->
+<section>
+  <div class="shead"><span class="snum">01</span><h2>북극성 — 여정 원장</h2></div>
+  <p class="lead">현실의 치료 기록은 센터에 갇혀 있다. 센터를 옮기면 리셋되고, 부모는 결과지 종이 뭉치를 들고 새 센터에서 <b>히스토리를 처음부터 다시 구술</b>한다. 원장은 이 구조를 뒤집는다.</p>
+
+  <div class="stage">
+    <div class="northstar">
+      <div class="tag">NORTH STAR</div>
+      <h3>"내 상담·발달 여정의 원장"<br>— Profile 소유 · 센터 초월 · 이동 가능</h3>
+      <p>아동 발달의 "아이 여정"은 이것의 한 인스턴스일 뿐. 코어 구조는 모든 상담센터 유형에 중립이다.</p>
+    </div>
+  </div>
+
+  <div class="grid g4">
+    <div class="glass card"><div class="ci">📦</div><h4>Intake 지옥 해소</h4><p>새 센터 첫 방문 = "여정 공유" 한 번. 종이 뭉치와 재구술의 끝.</p></div>
+    <div class="glass card"><div class="ci">🔓</div><h4>키즈노트도 못한 것</h4><p>키즈노트 기록은 원 귀속 — 졸업하면 끝. 우리는 <b>Profile(유저) 소유</b>라 구조적으로 가능.</p></div>
+    <div class="glass card"><div class="ci">🔁</div><h4>파급 2차 엔진</h4><p>새 센터에 우리 포맷의 여정 도착 → "이 시스템 뭐지" → SaaS 가입 압력.</p></div>
+    <div class="glass card"><div class="ci">⚓</div><h4>센터 종속 탈피</h4><p>센터 이탈 ≠ 앱 이탈. 쌓인 기록 자산이 앱에 남을 이유.</p></div>
+  </div>
+
+  <div class="stack-wrap glass" style="padding:34px 38px">
+    <div class="stack">
+      <div class="layer l1"><h5>Account</h5><p>폰 주인 · 로그인 · 알림 (1개)</p></div>
+      <div class="layer l2"><h5>Profile — 원장의 주인</h5><p>나 / 첫째 / 둘째 (N개 · 유저 소유)</p></div>
+      <div class="layer l3"><h5>CenterLink</h5><p>코드 연결 · 공유 토글 (Profile당 N개)</p></div>
+      <div class="layer l4"><h5>Client</h5><p>센터의 연락처 레코드 (센터 소유)</p></div>
+    </div>
+    <div class="stack-notes">
+      <div class="note"><span class="nd" style="background:var(--violet)"></span><div><h5>유저 소유 층</h5><p>원장·관찰기록 — 센터와 무관하게 존속. CenterLink 없는 Profile = 미연동 모드의 실존 유저.</p></div></div>
+      <div class="note"><span class="nd" style="background:var(--blue)"></span><div><h5>연결 층</h5><p>코드 연결 = CenterLink 생성. 센터 이동 = 링크 교체, Profile·기록은 유지.</p></div></div>
+      <div class="note"><span class="nd" style="background:var(--amber)"></span><div><h5>센터 소유 층</h5><p>예약·검사·결제 — 센터의 발행·설정으로만 노출 (소유자 통제 대칭).</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 LOOP -->
+<section>
+  <div class="shead"><span class="snum">02</span><h2>성장 루프 — 키즈노트의 해부</h2></div>
+  <p class="lead">"다른 유치원은 키즈노트 쓰던데요"의 파급은 두 다리로 걷는다. 상담 영역에선 <b>스티그마가 한 다리를 부러뜨리지만, 다른 다리는 멀쩡하다.</b></p>
+
+  <div class="legs">
+    <div class="glass leg"><span class="badge bad">💀 수평 전파 · 부러짐</span><p>보호자 → 다른 보호자. 발화 자체가 재원 사실 노출 — 놀이터에서 "우리 애 발달센터 앱"을 말할 수 없다.</p></div>
+    <div class="glass leg"><span class="badge good">✅ 수직 풀 · 멀쩡</span><p>보호자 → 자기 센터. 치료 관계 안에서는 재원 사실이 전제 — <b>"A센터는 앱으로 오던데요, 여긴 안 와요?"</b>는 스티그마 비용 0.</p></div>
+  </div>
+
+  <div class="glass loop">
+    <div class="loop-track">
+      <div class="lnode"><span class="step">1</span><div class="li">🏥</div><h5>SaaS 센터</h5><p>세션 끝 → 브리핑 발행<br>(필드노트에서 원탭)</p></div>
+      <span class="larrow">→</span>
+      <div class="lnode"><span class="step">2</span><div class="li">👩‍👧</div><h5>병행 보호자</h5><p>발달은 2~3센터 병행이 표준.<br>격차를 매주 몸으로 경험</p></div>
+      <span class="larrow">→</span>
+      <div class="lnode"><span class="step">3</span><div class="li">💬</div><h5>미가입 센터에 풀</h5><p>"A센터는 끝나면 앱으로 와요.<br>여긴 안 와요?"</p></div>
+      <span class="larrow">→</span>
+      <div class="lnode"><span class="step">4</span><div class="li">📈</div><h5>SaaS 가입</h5><p>앱 = 내담자가 도입을<br>요구하는 압력 장치</p></div>
+    </div>
+    <div class="loop-back">↻ 가입한 센터가 다시 브리핑을 발행하며 루프 재가동 · 2차 엔진 = 센터 이동자의 원장 공유</div>
+  </div>
+
+  <div class="grid g3" style="margin-top:16px">
+    <div class="glass card"><div class="ci">🚗</div><h4>캐리어 ① 병행 보호자</h4><p>전파에 제3자가 필요 없는 루프. State C(다중 센터)는 엣지가 아니라 <b>성장 엔진</b>.</p></div>
+    <div class="glass card"><div class="ci">🕶️</div><h4>캐리어 ② 익명 커뮤니티</h4><p>스티그마는 오프라인 발화를 죽이고 익명 공간(느린아이 카페 등)을 비대하게 만든다.</p></div>
+    <div class="glass card"><div class="ci">🤝</div><h4>저노출 리드 캡처</h4><p>[우리 센터에 알리기] → "보호자 N분이 연동 요청" <b>익명 집계</b>로만 전달.</p></div>
+  </div>
+</section>
+
+<!-- 3 KILLER -->
+<section>
+  <div class="shead"><span class="snum">03</span><h2>킬러 — 세션 브리핑</h2></div>
+  <p class="lead">아이는 치료실에 40분 들어가고, 정보는 <b>10분 구두 브리핑</b>으로만 나온다. 집에 오면 절반이 증발하고, 아빠가 데리러 간 날은 0. 보호자는 치료실 안을 볼 수 없다 — <b>브리핑이 그 창문이다.</b></p>
+
+  <div class="glass pipe">
+    <div class="pnode"><div class="pi">🎙️</div><h6>세션 종료</h6><p>필드노트 녹음·저장<br>(기존 워크플로우)</p></div>
+    <span class="parrow">→</span>
+    <div class="pnode ai"><div class="pi">✨</div><h6>AI 초안 (v2)</h6><p>보호자용 안전 요약<br>승인 후 스위치 온</p></div>
+    <span class="parrow">→</span>
+    <div class="pnode"><div class="pi">👩‍⚕️</div><h6>상담사 검토</h6><p>AI 초안, 인간 발행<br>자동 발송 금지</p></div>
+    <span class="parrow">→</span>
+    <div class="pnode"><div class="pi">📲</div><h6>원탭 발행</h6><p>필드노트 완료 화면<br>모바일 주경로 · web 보완</p></div>
+    <span class="parrow">→</span>
+    <div class="pnode"><div class="pi">🏠</div><h6>보호자 도착</h6><p>집 가는 차 안에서<br>푸시 → 적응형 히어로</p></div>
+  </div>
+  <div style="text-align:center"><span class="pill-note">⏱️ v1은 AI 없이 출시 — 수기 30초 템플릿. 파급 루프를 AI 승인 일정에 인질 잡히지 않게.</span></div>
+
+  <div class="tmpl">
+    <div class="tcard"><div class="tn">칸 1 · 사실만</div><h5>오늘 한 활동</h5><div class="ex">"OO 카드로 두 단어 문장 만들기를 연습했어요."</div></div>
+    <div class="tcard quest"><div class="tn">칸 2 · 퀘스트 슬롯</div><h5>집에서 해볼 것</h5><div class="ex">"이번 주엔 '주세요' 상황을 하루 한 번 만들어 주세요."</div></div>
+    <div class="tcard"><div class="tn">칸 3 · 자동 프리필</div><h5>다음 세션</h5><div class="ex">"6/24 (화) 오후 4:30 · 준비물: 없음" — 일정 데이터에서 자동.</div></div>
+  </div>
+  <div class="banned">🚫 제외: 아이 상태 평가어("집중을 잘했어요/못했어요") — 부모 불안·비교 유발, AI 초안에서 가장 위험한 칸. <b>케이스노트 원본 미러링 금지 원칙 계승.</b></div>
+
+  <div class="grid g3" style="margin-top:16px">
+    <div class="glass card"><div class="ci">👩‍👧</div><h4>보호자 Win</h4><p>10분 구두 → 영구·재열람·가족 공유. 매 세션 오는 "우리 아이의 창문".</p></div>
+    <div class="glass card"><div class="ci">🏥</div><h4>센터 Win</h4><p>"매 세션 브리핑 주는 센터" 차별화 + 구두 브리핑 부담 완화 + 필드노트 채택 유인.</p></div>
+    <div class="glass card"><div class="ci">🧩</div><h4>우리 Win</h4><p>SaaS를 <b>깊게</b> 써야만 나오는 콘텐츠 = 복제 불가능한 루프 연료.</p></div>
+  </div>
+</section>
+
+<!-- 4 QUEST -->
+<section>
+  <div class="shead"><span class="snum">04</span><h2>퀘스트 슬롯 — F12의 재배치</h2></div>
+  <p class="lead">F12 "AI 성장 가이드"는 Phase 3 구석에 붕 떠 있었다. <b>퀘스트는 브리핑 2번 칸의 진화형</b>, 인사이트·회기 비교는 원장 위의 뷰. 슬롯은 최종형 기준으로 설계, 콘텐츠만 3단 진화.</p>
+  <div class="evo">
+    <div class="estep now"><div class="ev">V1 · PHASE 1</div><span class="when">지금</span><h5>수기 한 줄</h5><p>"'주세요' 상황 하루 한 번" — 퇴화형 퀘스트. 레이아웃은 이미 최종형 슬롯.</p></div>
+    <div class="estep"><div class="ev" style="color:var(--violet)">V2 · AI 승인 후</div><span class="when">스위치 온</span><h5>AI 초안</h5><p>필드노트에서 활동 제안 생성 → 상담사 검토·발행. 레이아웃 변경 없음.</p></div>
+    <div class="estep"><div class="ev" style="color:var(--mint)">V3 · 연구 검증 후</div><span class="when">Phase 2</span><h5>구조화 퀘스트</h5><p>제목·방법·주 N회·완료 체크. 완료 데이터가 원장에 쌓여 F12 인사이트의 원료.</p></div>
+  </div>
+  <div class="banned" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#c4b5fd">🛡️ 게임 문법 가드: 스트릭·실패 표시·미완료 리마인더 <b style="color:#ddd6fe">금지</b>. 완료는 가볍게 축하, 미완료는 침묵.</div>
+</section>
+
+<!-- 5 HOME & HUB -->
+<section>
+  <div class="shead"><span class="snum">05</span><h2>홈 & 자녀 허브</h2></div>
+  <p class="lead">"자녀 선택 → 센터 선택"의 2단 전환은 축을 잘못 잡아 생기는 문제다. <b>홈 = "앞으로 뭐 하지"(미래), 허브 = "여기까지 왔다"(누적).</b></p>
+  <div class="axiom">축은 시간 하나 — 사람과 센터는 태그다</div>
+  <div class="split">
+    <div class="glass rules">
+      <div class="rule"><div class="rn">1</div><h5>새 브리핑</h5><p>미열람 ~24h<br>"오늘 서연이는…"</p></div>
+      <div class="rule"><div class="rn">2</div><h5>임박 예약</h5><p>D-1 이하 · 당일<br>시간·준비물·오시는 길</p></div>
+      <div class="rule"><div class="rn">3</div><h5>다음 예약</h5><p>평시 기본값 · D-day</p></div>
+      <div class="rule"><div class="rn">4</div><h5>예약 없음</h5><p>최근 회기 요약 + 센터 안내</p></div>
+      <p style="font-size:12px;color:var(--faint);padding:12px 0">적응형 히어로 — 슬롯 1개 고정, 규칙 4단뿐. 아래 구조(챙길 것 → 통합 타임라인 → 결과)는 불변. 필터 칩은 Profile 2개↑일 때만.</p>
+    </div>
+    <div class="glass stream">
+      <div class="sh">자녀 허브 = 여정 스트림 (원장이 보이는 화면)</div>
+      <div class="sitem"><span class="si">🎯</span><div><div class="st">진행 중인 활동 (퀘스트)</div><div class="ss">'주세요' 상황 만들기</div></div></div>
+      <div class="sitem"><span class="si">📩</span><div><div class="st">브리핑 · 놀이치료</div><div class="ss">6/17</div></div><span class="stag">🌳 마음숲</span></div>
+      <div class="sitem"><span class="si">✏️</span><div><div class="st">내 관찰기록</div><div class="ss">6/15</div></div></div>
+      <div class="sitem"><span class="si">📄</span><div><div class="st">검사 결과지 발행</div><div class="ss">6/10</div></div><span class="stag">🌳 마음숲</span></div>
+      <div class="sitem"><span class="si">📩</span><div><div class="st">브리핑 · 언어치료</div><div class="ss">6/12</div></div><span class="stag" style="background:rgba(45,212,191,.15);color:#5eead4;border-color:rgba(45,212,191,.3)">🌿 온마음</span></div>
+      <div class="foot-note">⋮ 끝까지 스크롤 = 처음 온 날까지 · "여정 공유" = 이 스트림의 내보내기</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 PRINCIPLES -->
+<section>
+  <div class="shead"><span class="snum">06</span><h2>여섯 개의 원칙</h2></div>
+  <p class="lead">논의 전체에서 반복 적용된 불변식. 이후 모든 화면·문구·기능 판단의 기준.</p>
+  <div class="grid g3">
+    <div class="glass card"><div class="ci">🚫</div><h4>원본 미러링 금지</h4><p>케이스노트·가설·평가어는 내담자 비노출. 큐레이션 뷰만.</p></div>
+    <div class="glass card"><div class="ci">🔐</div><h4>소유자 노출 통제</h4><p>유저 데이터는 유저가(링크 토글), 센터 데이터는 센터가(발행·설정).</p></div>
+    <div class="glass card"><div class="ci">⚖️</div><h4>부재의 비대칭</h4><p>미가입의 빈자리는 가시화(성장 레버), 가입 센터의 비공개는 침묵(고객 존중).</p></div>
+    <div class="glass card"><div class="ci">🕶️</div><h4>디스크리트</h4><p>잠금화면 기본 중립 문구 — 아이명·센터명·치료종류 비노출. "마인드스코프" = 웰니스 중립 통과.</p></div>
+    <div class="glass card"><div class="ci">🎛️</div><h4>가짜 어포던스 금지</h4><p>없으면 안 그린다 — 빈 스위처·버튼·위젯 없음. 스트림이 편차 흡수.</p></div>
+    <div class="glass card"><div class="ci">🕊️</div><h4>죄책감 메카닉 금지</h4><p>스트릭·실패·미완료 압박 없음. 완료는 축하, 미완료는 침묵.</p></div>
+  </div>
+</section>
+
+<!-- 7 ONBOARDING -->
+<section>
+  <div class="shead"><span class="snum">07</span><h2>온보딩 — 두 개의 문</h2></div>
+  <p class="lead">게스트 모드 없음 — 원장은 <b>계정 귀속이어야</b> 기기 변경에도 안전하다. 소셜로그인 한 탭이 관문.</p>
+  <div class="glass flow">
+    <div class="fline">
+      <div class="fnode">설치·실행<small>초대링크면 코드 자동</small></div><span class="farrow">→</span>
+      <div class="fnode">가치 소개 1~2장</div><span class="farrow">→</span>
+      <div class="fnode">소셜로그인<small>Account 생성</small></div><span class="farrow">→</span>
+      <div class="fnode" style="border-color:rgba(255,255,255,.35);font-weight:800">"초대코드가 있나요?"</div>
+    </div>
+    <div class="fbranch">
+      <div class="fpath linked">
+        <div class="fh">있음 → 연동 시작 (D3·D4)</div>
+        <ol><li>코드/링크 → 센터 식별</li><li>전화번호 OTP 본인확인</li><li>Client 자동 매칭 (실패 시 승인 큐)</li><li>Profile 자동 생성 → 연동 홈</li></ol>
+      </div>
+      <div class="fpath unlinked">
+        <div class="fh">없음 → 미연동 시작 (세그먼트 2 착지)</div>
+        <ol><li>"괜찮아요, 코드 없이 시작할 수 있어요"</li><li>Profile 만들기 (나 / 아이)</li><li>미연동 홈: 관찰기록 + "연결되면 자동" 프리뷰</li><li>[우리 센터에 알리기] → 익명 집계 리드</li></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 PHASES -->
+<section>
+  <div class="shead"><span class="snum">08</span><h2>Phase 컷라인 — 3면 동시</h2></div>
+  <p class="lead">Phase 1은 앱 하나가 아니라 세 표면 — 브리핑이 킬러인 이상 <b>발행 경로와 노출 통제는 줄일 수 없다.</b> P1 = 원장에 벽돌이 쌓이기 시작하는 최소 구성(AI 없이 성립), 양방향은 전부 P1.5.</p>
+  <div class="board">
+    <div class="pcol p1">
+      <div class="ph">PHASE 1 — 첫 출시</div><h4>원장 가동</h4>
+      <div class="pgroup">내담자 앱 (마인드스코프)</div>
+      <ul><li><b>통합 홈</b> · 적응형 히어로 · 필터 칩</li><li><b>세션 브리핑 수신</b> (v1 수기)</li><li>관찰기록 (입력·열람)</li><li>자녀 허브 = 여정 스트림 + 퀘스트 슬롯</li><li>결과지 PDF · 일정 · 마이</li><li>미연동 모드 + [우리 센터에 알리기]</li><li>알림 (기본 중립)</li></ul>
+      <div class="pgroup">상담사 모바일</div>
+      <ul><li><b>필드노트 완료 → 브리핑 원탭 발행</b></li></ul>
+      <div class="pgroup">SaaS Web</div>
+      <ul><li>노출 설정 (회기·결제 토글)</li><li>초대코드 발송 · 승인 큐</li><li>브리핑 보완 발행·수정</li></ul>
+    </div>
+    <div class="pcol">
+      <div class="ph">PHASE 1.5 — 양방향</div><h4>루프 완성</h4>
+      <ul><li>관찰기록 공유 토글 + <b>상담사 수신 뷰</b></li><li>퀘스트 완료 체크 → 상담사 회신</li><li><b>AI 브리핑 초안</b> (승인 후 스위치 온)</li><li>센터 리드 신호 ("보호자 N명 연동 요청")</li></ul>
+    </div>
+    <div class="pcol">
+      <div class="ph">PHASE 2+ — 확장</div><h4>세그먼트 & AI</h4>
+      <ul><li>무소속(세그먼트 1) 마켓·디렉터리</li><li>구조화 퀘스트 v3 (연구 검증 후)</li><li>예약 변경·취소 write</li><li>성인 세그먼트 벽돌 (별도 설계)</li><li>F12 인사이트 · 회기 비교 · 성장 리포트</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- 9 OPEN -->
+<section>
+  <div class="shead"><span class="snum">09</span><h2>미해결 — 열려 있는 것</h2></div>
+  <div class="open">
+    <div class="ocard"><h4>대표님 정렬</h4><p>스토리: "화려한 앱 = SaaS 영업사원" — 내담자가 센터 도입을 끌어당기는 압력 장치이자 AI 차별화. 세련됨 + 티 안 남이 화려함 요구의 완성.</p></div>
+    <div class="ocard"><h4>AI 프로덕션 승인</h4><p>브리핑 v2·퀘스트 v2의 전제. v1이 AI 없이 성립하도록 잘라 출시가 인질 잡히지 않게 설계.</p></div>
+    <div class="ocard"><h4>퀘스트 콘텐츠 연구</h4><p>AI 치료 보조 활동의 임상 타당성 검증 (F12 전제 그대로). v3 진입 게이트.</p></div>
+  </div>
+</section>
+
+<footer>
+  <span>마인드스코프 · 내담자 앱 기획 v3 · 시안 B (글래스)</span>
+  <span>근거: 07-01 방향 재정립 → 07-02 오전 홈 설계(D1~D6) → 07-02 오후 논의 (D1·D2·D3·D5 개정)</span>
+</footer>
+
+</div>
+</body>
+</html>

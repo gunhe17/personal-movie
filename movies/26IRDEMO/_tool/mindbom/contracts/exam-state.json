@@ -1,0 +1,309 @@
+{
+  "_comment": "자동 생성 — 직접 고치지 말 것. 정본은 apps/api/app/modules/examination/common/state_machine.py, 갱신은 `uv run python -m scripts.export_state_contract`",
+  "statuses": [
+    "created",
+    "in_progress",
+    "ai_draft_ready",
+    "under_review",
+    "confirmed",
+    "report_generated"
+  ],
+  "labels": {
+    "created": "생성됨",
+    "in_progress": "검사 진행중",
+    "ai_draft_ready": "AI 초안 완료",
+    "under_review": "검토중",
+    "confirmed": "확인 완료",
+    "report_generated": "보고서 생성"
+  },
+  "exam_types": [
+    "htp",
+    "rorschach",
+    "sct"
+  ],
+  "confirmed_statuses": [
+    "completed",
+    "confirmed",
+    "report_generated"
+  ],
+  "transitions": [
+    {
+      "from": "created",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "created",
+      "to": "in_progress",
+      "allowed": true
+    },
+    {
+      "from": "created",
+      "to": "ai_draft_ready",
+      "allowed": false
+    },
+    {
+      "from": "created",
+      "to": "under_review",
+      "allowed": false
+    },
+    {
+      "from": "created",
+      "to": "confirmed",
+      "allowed": false
+    },
+    {
+      "from": "created",
+      "to": "report_generated",
+      "allowed": false
+    },
+    {
+      "from": "in_progress",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "in_progress",
+      "to": "in_progress",
+      "allowed": false
+    },
+    {
+      "from": "in_progress",
+      "to": "ai_draft_ready",
+      "allowed": true
+    },
+    {
+      "from": "in_progress",
+      "to": "under_review",
+      "allowed": false
+    },
+    {
+      "from": "in_progress",
+      "to": "confirmed",
+      "allowed": false
+    },
+    {
+      "from": "in_progress",
+      "to": "report_generated",
+      "allowed": false
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "in_progress",
+      "allowed": true
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "ai_draft_ready",
+      "allowed": false
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "under_review",
+      "allowed": true
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "confirmed",
+      "allowed": false
+    },
+    {
+      "from": "ai_draft_ready",
+      "to": "report_generated",
+      "allowed": false
+    },
+    {
+      "from": "under_review",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "under_review",
+      "to": "in_progress",
+      "allowed": true
+    },
+    {
+      "from": "under_review",
+      "to": "ai_draft_ready",
+      "allowed": false
+    },
+    {
+      "from": "under_review",
+      "to": "under_review",
+      "allowed": false
+    },
+    {
+      "from": "under_review",
+      "to": "confirmed",
+      "allowed": true
+    },
+    {
+      "from": "under_review",
+      "to": "report_generated",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "in_progress",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "ai_draft_ready",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "under_review",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "confirmed",
+      "allowed": false
+    },
+    {
+      "from": "confirmed",
+      "to": "report_generated",
+      "allowed": true
+    },
+    {
+      "from": "report_generated",
+      "to": "created",
+      "allowed": false
+    },
+    {
+      "from": "report_generated",
+      "to": "in_progress",
+      "allowed": false
+    },
+    {
+      "from": "report_generated",
+      "to": "ai_draft_ready",
+      "allowed": false
+    },
+    {
+      "from": "report_generated",
+      "to": "under_review",
+      "allowed": false
+    },
+    {
+      "from": "report_generated",
+      "to": "confirmed",
+      "allowed": false
+    },
+    {
+      "from": "report_generated",
+      "to": "report_generated",
+      "allowed": false
+    }
+  ],
+  "next_statuses": {
+    "created": [
+      "in_progress"
+    ],
+    "in_progress": [
+      "ai_draft_ready"
+    ],
+    "ai_draft_ready": [
+      "under_review",
+      "in_progress"
+    ],
+    "under_review": [
+      "confirmed",
+      "in_progress"
+    ],
+    "confirmed": [
+      "report_generated"
+    ],
+    "report_generated": []
+  },
+  "platform_mapping": {
+    "_comment": "마인드봄 → 마인드스코프 사상표 초안. 회의 합의 전이므로 구현에 쓰지 말 것 — 지금은 '무엇이 대응하고 무엇이 대응하지 않는가'를 고정하는 용도다.",
+    "platform_statuses": [
+      "pending",
+      "in_progress",
+      "submitted",
+      "completed",
+      "refused",
+      "cancelled"
+    ],
+    "platform_events": [
+      "created",
+      "started",
+      "cancelled",
+      "refused",
+      "updated",
+      "submitted",
+      "completed",
+      "reverted",
+      "cancel_reverted",
+      "deleted"
+    ],
+    "platform_terminal_statuses": [
+      "cancelled",
+      "completed",
+      "refused"
+    ],
+    "non_transition_events": [
+      "deleted",
+      "updated"
+    ],
+    "status_map": {
+      "created": "pending",
+      "in_progress": "in_progress",
+      "ai_draft_ready": "in_progress",
+      "under_review": "in_progress",
+      "confirmed": "in_progress",
+      "report_generated": "submitted"
+    },
+    "unmapped_platform_statuses": {
+      "completed": "동명이의. 플랫폼 담당자 검수 액션으로만 도달한다. 우리 축은 report_generated에서 끝나므로 사상하지 않는다 — 자동 매핑하면 사람의 검수가 조용히 사라진다(감사추적 구멍).",
+      "refused": "역방향 갭. 내담자 검사 거부를 우리는 표현할 수 없다. 우리 쪽 상태 추가 여부는 회의 안건(README '다음에 할 일' 3번).",
+      "cancelled": "역방향 갭. 센터/검사자 취소를 우리는 표현할 수 없다. refused와 같은 안건."
+    },
+    "event_map": {
+      "created": {
+        "from": "__none__",
+        "to": "created"
+      },
+      "started": {
+        "from": "created",
+        "to": "in_progress"
+      },
+      "cancelled": null,
+      "refused": null,
+      "updated": null,
+      "submitted": {
+        "from": "confirmed",
+        "to": "report_generated"
+      },
+      "completed": null,
+      "reverted": null,
+      "cancel_reverted": null,
+      "deleted": null
+    },
+    "event_notes": {
+      "created": "검사 생성. 우리 쪽 시작점이라 출발 상태가 없다(__none__).",
+      "started": "내담자가 검사를 시작. 우리 created → in_progress와 대응.",
+      "cancelled": "센터/검사자 취소. 우리에게 대응 상태가 없다(역방향 갭).",
+      "refused": "내담자 거부. 우리에게 대응 상태가 없다(역방향 갭).",
+      "updated": "status를 바꾸지 않는다 — changed dict만 싣는 CRUD 이벤트. 전이 사상의 정의역 밖.",
+      "submitted": "채점·보고서 완료 후 담당자 검수 대기로 넘어감. 우리 confirmed → report_generated와 대응하는 유일한 전이 트리거.",
+      "completed": "플랫폼 담당자 검수 완료. 우리 축 밖의 사건이다 — 위 UNMAPPED_PLATFORM_STATUSES['completed'] 참조.",
+      "reverted": "완료 되돌리기. **정적 전이 맵으로 표현 불가능하다** — 목적지가 고정값이 아니라 process['previous_status']에 저장된 값이다(revert_task.py:28, 없으면 'submitted'). 우리 VALID_TRANSITIONS는 정적 맵이므로 구조적으로 대응물이 없다.",
+      "cancel_reverted": "취소 되돌리기. reverted와 같은 이유로 표현 불가능하다 — 목적지가 process['previous_status']에서 나온다(revert_cancel_task.py:24, 없으면 'pending').",
+      "deleted": "status를 바꾸지 않는다(soft delete). 전이 사상의 정의역 밖."
+    }
+  }
+}

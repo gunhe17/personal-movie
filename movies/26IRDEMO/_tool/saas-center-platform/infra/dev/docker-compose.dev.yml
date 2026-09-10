@@ -1,0 +1,158 @@
+# ==============================================
+# 개발 서버 Docker Compose (브랜치별 배포)
+# ==============================================
+# 사용법: deploy.sh에서 환경변수 주입 후 실행
+#   BRANCH_TAG, WEB_PORT, API_PORT, DB_NAME 필요
+#   platform_admin은 추가로 ADMIN_PORT 필요
+#
+# 포트 매핑:
+#   main                → web:3000  api:3500
+#   agent               → web:3100  api:3600
+#   platform_admin      → web:3200  api:3700  admin:3400
+#   notification_system → web:3300  api:3800
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mindscope
+      POSTGRES_PASSWORD: mindscope_dev
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata_shared:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U mindscope -d ${DB_NAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # DB는 하나의 컨테이너만 (첫 실행 시 생성, 이후 공유)
+    profiles:
+      - db
+
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      - '${API_PORT}:8000'
+    environment:
+      # DB (deploy.sh가 자동 설정)
+      DATABASE_URL: postgresql+asyncpg://mindscope:mindscope_dev@${DB_HOST}:5432/${DB_NAME}
+      APP_ENV: development
+      DEBUG: 'true'
+      # JWT
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-secret-key-change-me}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      # AWS S3
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-ap-northeast-2}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-imomtae.dev}
+      # Kakao AlarmTalk
+      KAKAO_ALARM_TALK_AUTH_NUM: ${KAKAO_ALARM_TALK_AUTH_NUM}
+      KAKAO_ALARM_TALK_API_KEY: ${KAKAO_ALARM_TALK_API_KEY}
+      KAKAO_ALARM_TALK_API_PWD: ${KAKAO_ALARM_TALK_API_PWD}
+      KAKAO_ALARM_TALK_SENDER_KEY: ${KAKAO_ALARM_TALK_SENDER_KEY}
+      KAKAO_ALARM_TALK_CALLBACK: ${KAKAO_ALARM_TALK_CALLBACK}
+      # SMTP
+      SMTP_SERVER: ${SMTP_SERVER}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      HOST_EMAIL: ${HOST_EMAIL}
+      HOST_PASSWORD: ${HOST_PASSWORD}
+    networks:
+      - internal
+      - shared
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ['CMD', 'python', '-c', 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  migrate:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile.prod
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mindscope:mindscope_dev@${DB_HOST}:5432/${DB_NAME}
+    volumes:
+      - ./init-schema.py:/app/init-schema.py:ro
+      - ../../apps/api/scripts:/app/scripts:ro
+    command: ['python', 'init-schema.py']
+    networks:
+      - shared
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+    profiles:
+      - migration
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      - '${WEB_PORT}:3000'
+    environment:
+      API_URL: http://api:8000/api/v1
+      ORIGIN: http://${DEV_HOST:-192.168.1.57}:${WEB_PORT}
+      NODE_ENV: production
+      PORT: '3000'
+      # Firebase (Web Push)
+      PUBLIC_FIREBASE_API_KEY: ${PUBLIC_FIREBASE_API_KEY:-}
+      PUBLIC_FIREBASE_AUTH_DOMAIN: ${PUBLIC_FIREBASE_AUTH_DOMAIN:-}
+      PUBLIC_FIREBASE_PROJECT_ID: ${PUBLIC_FIREBASE_PROJECT_ID:-}
+      PUBLIC_FIREBASE_STORAGE_BUCKET: ${PUBLIC_FIREBASE_STORAGE_BUCKET:-}
+      PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${PUBLIC_FIREBASE_MESSAGING_SENDER_ID:-}
+      PUBLIC_FIREBASE_APP_ID: ${PUBLIC_FIREBASE_APP_ID:-}
+      PUBLIC_FIREBASE_VAPID_KEY: ${PUBLIC_FIREBASE_VAPID_KEY:-}
+    networks:
+      - internal
+    depends_on:
+      api:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: apps/admin/Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      - '${ADMIN_PORT}:3001'
+    environment:
+      API_URL: http://api:8000/api/v1
+      ORIGIN: http://${DEV_HOST:-192.168.1.57}:${ADMIN_PORT}
+      NODE_ENV: production
+      PORT: '3001'
+    networks:
+      - internal
+    depends_on:
+      api:
+        condition: service_healthy
+    # platform_admin 브랜치에서만 사용
+    profiles:
+      - admin
+
+# internal: 프로젝트 내부 (web↔api) — 브랜치별 격리
+# shared:   DB 접근용 공유 네트워크 (api/migrate↔db)
+networks:
+  internal:
+    # 프로젝트별 자동 생성 (saas-dev-main_internal, saas-dev-agent_internal 등)
+  shared:
+    external: true
+    name: saas-dev-network
+
+volumes:
+  pgdata_shared:
+    external: true
+    name: saas-dev-pgdata

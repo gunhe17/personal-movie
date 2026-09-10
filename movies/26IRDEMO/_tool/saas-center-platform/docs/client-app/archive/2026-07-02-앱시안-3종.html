@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>마인드스코프 · 홈 디자인 시안 3종</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;background:#e3e7ee;display:flex;gap:56px;flex-wrap:wrap;justify-content:center;align-items:flex-start;padding:40px 20px 90px;min-height:100vh;}
+.col{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.caption{max-width:395px;text-align:center;}
+.caption .pill{display:inline-block;font-size:11px;font-weight:800;border-radius:20px;padding:5px 14px;margin-bottom:8px;letter-spacing:.04em;}
+.caption h2{font-size:17px;margin-bottom:4px;color:#1b2330;}
+.caption p{font-size:12px;color:#48525f;line-height:1.65;}
+
+.phone{width:395px;height:856px;border-radius:48px;box-shadow:0 34px 80px rgba(15,22,35,.35);position:relative;overflow:hidden;border:10px solid #0b0f16;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:32px;background:#0b0f16;border-radius:0 0 20px 20px;z-index:40;}
+.sb{height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:13px;font-weight:700;position:relative;z-index:5;}
+.scr{height:calc(856px - 52px - 74px);overflow-y:auto;padding:0 18px 30px;position:relative;z-index:5;}
+.scr::-webkit-scrollbar{display:none;}
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:74px;display:flex;justify-content:space-around;align-items:center;padding:0 26px 10px;z-index:30;}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;width:72px;}
+.tab .ti{font-size:21px;}
+.hind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:128px;height:5px;border-radius:3px;z-index:35;}
+
+/* ═══════════ 시안 1 · CLEAN (토스풍 라이트) ═══════════ */
+.p1{background:#f6f8fb;color:#191f28;}
+.p1 .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 14px;}
+.p1 .hd .hi{font-size:13px;color:#8b95a1;}
+.p1 .hd .hi b{display:block;font-size:18px;color:#191f28;font-weight:800;margin-top:1px;}
+.p1 .bell{width:40px;height:40px;border-radius:14px;background:#fff;box-shadow:0 3px 14px rgba(25,31,40,.07);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.p1 .bell i{position:absolute;top:8px;right:9px;width:7px;height:7px;background:#f04452;border-radius:50%;border:2px solid #fff;font-style:normal;}
+.p1 .chips{display:flex;gap:7px;margin:0 -18px 16px;padding:0 18px 4px;overflow-x:auto;}
+.p1 .chips::-webkit-scrollbar{display:none;}
+.p1 .fc{flex:none;display:flex;align-items:center;gap:6px;background:#fff;border-radius:100px;padding:7px 14px 7px 7px;font-size:12.5px;font-weight:700;color:#6b7684;box-shadow:0 2px 10px rgba(25,31,40,.06);}
+.p1 .fc .av{width:23px;height:23px;border-radius:50%;font-size:10.5px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;}
+.p1 .fc.on{background:#191f28;color:#fff;}
+.p1 .fc.all{padding:7px 14px;}
+.p1 .hero{background:#fff;border-radius:24px;padding:22px 20px;box-shadow:0 6px 26px rgba(25,31,40,.08);}
+.p1 .hero .top{display:flex;align-items:center;gap:8px;}
+.p1 .hero .new{background:#e8f3ff;color:#3182f6;font-size:11px;font-weight:800;border-radius:100px;padding:4px 11px;}
+.p1 .hero .who{font-size:12px;color:#8b95a1;font-weight:600;margin-left:auto;}
+.p1 .hero h3{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:13px 0 7px;line-height:1.4;}
+.p1 .hero .bd{background:#f6f8fb;border-radius:16px;padding:14px 16px;font-size:13.5px;color:#4e5968;line-height:1.65;}
+.p1 .hero .bd b{color:#191f28;}
+.p1 .hero .ft{display:flex;align-items:center;margin-top:14px;gap:8px;}
+.p1 .hero .src{font-size:11.5px;color:#8b95a1;}
+.p1 .hero .go{margin-left:auto;background:#3182f6;color:#fff;font-size:13px;font-weight:800;border-radius:14px;padding:11px 20px;box-shadow:0 6px 16px rgba(49,130,246,.3);}
+.p1 .sec{margin-top:26px;}
+.p1 .sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;padding:0 2px;}
+.p1 .sh h4{font-size:16px;font-weight:800;letter-spacing:-.01em;}
+.p1 .sh a{font-size:12px;color:#8b95a1;text-decoration:none;}
+.p1 .todo{background:#fff;border-radius:20px;box-shadow:0 3px 16px rgba(25,31,40,.06);overflow:hidden;}
+.p1 .ti2{display:flex;gap:12px;align-items:center;padding:15px 17px;border-bottom:1px solid #f2f4f6;}
+.p1 .ti2:last-child{border-bottom:none;}
+.p1 .ti2 .ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;}
+.p1 .ti2 .t{font-size:13.5px;font-weight:700;}
+.p1 .ti2 .s{font-size:11.5px;color:#8b95a1;margin-top:1px;}
+.p1 .ti2 .bg{margin-left:auto;font-size:10px;font-weight:800;border-radius:100px;padding:3px 9px;flex:none;}
+.p1 .ti2 .ar{margin-left:auto;color:#c9d0d8;font-size:16px;}
+.p1 .tl{background:#fff;border-radius:20px;box-shadow:0 3px 16px rgba(25,31,40,.06);}
+.p1 .tr{display:flex;gap:13px;align-items:center;padding:14px 17px;border-bottom:1px solid #f2f4f6;}
+.p1 .tr:last-child{border-bottom:none;}
+.p1 .dt{width:42px;text-align:center;flex:none;}
+.p1 .dt .d{font-size:16px;font-weight:800;}
+.p1 .dt .m{font-size:10px;color:#8b95a1;margin-top:1px;}
+.p1 .tin{flex:1;min-width:0;}
+.p1 .tin .t{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.p1 .tin .s{font-size:11.5px;color:#8b95a1;margin-top:1px;}
+.p1 .pav{width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.p1 .ctg{flex:none;font-size:10px;font-weight:700;border-radius:8px;padding:3px 8px;}
+.p1 .tr.ghost{opacity:.92;}
+.p1 .tr.ghost .t,.p1 .tr.ghost .d{color:#a5aeb9;}
+.p1 .link-cta{background:linear-gradient(92deg,#eef4ff,#e9fbf7);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:12px;margin-top:12px;}
+.p1 .link-cta .em{font-size:22px;}
+.p1 .link-cta .t{font-size:13px;font-weight:800;color:#2e3b4e;}
+.p1 .link-cta .s{font-size:11.5px;color:#71809a;margin-top:1px;}
+.p1 .link-cta .btn{margin-left:auto;background:#191f28;color:#fff;font-size:11.5px;font-weight:800;border-radius:100px;padding:8px 14px;flex:none;}
+.p1 .tabbar{background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-top:1px solid #eef1f4;}
+.p1 .tab{color:#adb5bf;} .p1 .tab.on{color:#3182f6;}
+.p1 .hind{background:#0b0f16;opacity:.85;}
+
+/* ═══════════ 시안 2 · VIVID (그라디언트 · 소프트 3D) ═══════════ */
+.p2{background:#f3f2fb;color:#241f3d;}
+.p2 .deco{position:absolute;top:-90px;left:-70px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,#d9d4ff 0%,rgba(217,212,255,0) 68%);z-index:1;}
+.p2 .deco2{position:absolute;top:120px;right:-110px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,#cdeee6 0%,rgba(205,238,230,0) 68%);z-index:1;}
+.p2 .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 14px;}
+.p2 .hd .hi{font-size:13px;color:#7a739c;}
+.p2 .hd .hi b{display:block;font-size:18.5px;color:#241f3d;font-weight:800;margin-top:1px;}
+.p2 .bell{width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #e4e0f2,0 12px 24px rgba(36,31,61,.1);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.p2 .bell i{position:absolute;top:8px;right:9px;width:8px;height:8px;background:#ff6b81;border-radius:50%;border:2px solid #fff;font-style:normal;}
+.p2 .chips{display:flex;gap:8px;margin:0 -18px 18px;padding:0 18px 6px;overflow-x:auto;}
+.p2 .chips::-webkit-scrollbar{display:none;}
+.p2 .fc{flex:none;display:flex;align-items:center;gap:7px;background:#fff;border-radius:100px;padding:7px 15px 7px 7px;font-size:12.5px;font-weight:800;color:#7a739c;box-shadow:0 3px 0 #e4e0f2,0 8px 18px rgba(36,31,61,.07);}
+.p2 .fc .av{width:24px;height:24px;border-radius:50%;font-size:10.5px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;}
+.p2 .fc.on{background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;box-shadow:0 3px 0 #5a3fd6,0 10px 22px rgba(124,92,255,.35);}
+.p2 .fc.all{padding:7px 15px;}
+.p2 .hero{background:linear-gradient(135deg,#7c5cff 0%,#5f8dff 58%,#38cdb7 130%);border-radius:28px;padding:22px 20px 20px;color:#fff;box-shadow:0 5px 0 #5140b8,0 22px 44px rgba(124,92,255,.4);position:relative;overflow:hidden;}
+.p2 .hero .shine{position:absolute;top:-46px;right:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.14);}
+.p2 .hero .shine2{position:absolute;bottom:-60px;left:-24px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.08);}
+.p2 .hero .top{display:flex;align-items:center;gap:8px;position:relative;}
+.p2 .hero .new{background:rgba(255,255,255,.24);font-size:11px;font-weight:800;border-radius:100px;padding:4px 12px;backdrop-filter:blur(4px);}
+.p2 .hero .who{font-size:12px;opacity:.85;font-weight:700;margin-left:auto;}
+.p2 .hero h3{font-size:19.5px;font-weight:800;letter-spacing:-.02em;margin:14px 0 9px;line-height:1.4;position:relative;}
+.p2 .hero .bd{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:14px 16px;font-size:13.5px;line-height:1.65;backdrop-filter:blur(6px);position:relative;}
+.p2 .hero .ft{display:flex;align-items:center;margin-top:15px;gap:8px;position:relative;}
+.p2 .hero .src{font-size:11.5px;opacity:.85;}
+.p2 .hero .go{margin-left:auto;background:#fff;color:#5a3fd6;font-size:13px;font-weight:800;border-radius:100px;padding:11px 22px;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.p2 .sec{margin-top:26px;position:relative;}
+.p2 .sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;padding:0 2px;}
+.p2 .sh h4{font-size:16.5px;font-weight:800;}
+.p2 .sh a{font-size:12px;color:#9a92bb;text-decoration:none;font-weight:700;}
+.p2 .quest{background:#fff;border-radius:24px;padding:17px 18px;display:flex;gap:14px;align-items:center;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);}
+.p2 .quest .qi{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#ffd66b,#ffab2e);display:flex;align-items:center;justify-content:center;font-size:25px;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.1);}
+.p2 .quest .t{font-size:14px;font-weight:800;}
+.p2 .quest .s{font-size:12px;color:#9a92bb;margin-top:2px;}
+.p2 .quest .done{margin-left:auto;width:34px;height:34px;border-radius:50%;border:2.5px dashed #d9d3f0;flex:none;}
+.p2 .card3{background:#fff;border-radius:24px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);overflow:hidden;}
+.p2 .ti2{display:flex;gap:12px;align-items:center;padding:15px 18px;border-bottom:1.5px dashed #efecf8;}
+.p2 .ti2:last-child{border-bottom:none;}
+.p2 .ti2 .ic{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.06);}
+.p2 .ti2 .t{font-size:13.5px;font-weight:800;}
+.p2 .ti2 .s{font-size:11.5px;color:#9a92bb;margin-top:1px;}
+.p2 .ti2 .bg{margin-left:auto;font-size:10px;font-weight:800;border-radius:100px;padding:4px 10px;flex:none;}
+.p2 .tr{display:flex;gap:13px;align-items:center;padding:14px 18px;border-bottom:1.5px dashed #efecf8;}
+.p2 .tr:last-child{border-bottom:none;}
+.p2 .dt{width:46px;height:46px;border-radius:15px;background:#f3f2fb;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;box-shadow:inset 0 2px 0 #fff,0 2px 0 #e4e0f2;}
+.p2 .dt .d{font-size:15px;font-weight:800;line-height:1;}
+.p2 .dt .m{font-size:9.5px;color:#9a92bb;margin-top:2px;}
+.p2 .tin{flex:1;min-width:0;}
+.p2 .tin .t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px;}
+.p2 .tin .s{font-size:11.5px;color:#9a92bb;margin-top:1px;}
+.p2 .pav{width:19px;height:19px;border-radius:50%;font-size:9px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 0 rgba(0,0,0,.15);}
+.p2 .ctg{flex:none;font-size:10px;font-weight:800;border-radius:100px;padding:4px 10px;}
+.p2 .tr.ghost .t,.p2 .tr.ghost .d{color:#b3accf;}
+.p2 .link-cta{background:linear-gradient(120deg,#fff,#f2effe);border-radius:24px;padding:17px 18px;display:flex;align-items:center;gap:13px;margin-top:12px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.07);}
+.p2 .link-cta .em{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#c3b5ff,#8b6cf5);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+.p2 .link-cta .t{font-size:13px;font-weight:800;}
+.p2 .link-cta .s{font-size:11.5px;color:#9a92bb;margin-top:1px;}
+.p2 .link-cta .btn{margin-left:auto;background:#241f3d;color:#fff;font-size:11.5px;font-weight:800;border-radius:100px;padding:9px 15px;flex:none;box-shadow:0 3px 0 #100d1f;}
+.p2 .tabbar{background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-top:1px solid #eceaf5;border-radius:28px 28px 0 0;box-shadow:0 -8px 30px rgba(36,31,61,.08);}
+.p2 .tab{color:#b3accf;font-weight:700;} .p2 .tab.on{color:#7c5cff;}
+.p2 .tab.on .ti{transform:translateY(-2px);}
+.p2 .hind{background:#241f3d;opacity:.8;}
+
+/* ═══════════ 시안 3 · CALM (다크 프리미엄 · 글래스) ═══════════ */
+.p3{background:linear-gradient(180deg,#101725 0%,#0c1220 100%);color:#eef2f9;}
+.p3 .glow{position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:420px;height:340px;background:radial-gradient(ellipse,rgba(79,140,255,.28),transparent 70%);z-index:1;}
+.p3 .glow2{position:absolute;top:44%;right:-130px;width:300px;height:300px;background:radial-gradient(circle,rgba(45,212,191,.14),transparent 70%);z-index:1;}
+.p3 .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 14px;position:relative;}
+.p3 .hd .hi{font-size:13px;color:#8ea0bd;}
+.p3 .hd .hi b{display:block;font-size:18px;color:#f2f6fd;font-weight:800;margin-top:1px;}
+.p3 .bell{width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:17px;position:relative;}
+.p3 .bell i{position:absolute;top:8px;right:9px;width:7px;height:7px;background:#fb7185;border-radius:50%;font-style:normal;}
+.p3 .chips{display:flex;gap:7px;margin:0 -18px 16px;padding:0 18px 4px;overflow-x:auto;position:relative;}
+.p3 .chips::-webkit-scrollbar{display:none;}
+.p3 .fc{flex:none;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:7px 14px 7px 7px;font-size:12.5px;font-weight:700;color:#8ea0bd;backdrop-filter:blur(8px);}
+.p3 .fc .av{width:23px;height:23px;border-radius:50%;font-size:10.5px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;}
+.p3 .fc.on{background:linear-gradient(92deg,#4f8cff,#2dd4bf);color:#06121f;border:none;font-weight:800;}
+.p3 .fc.all{padding:7px 14px;}
+.p3 .hero{background:linear-gradient(140deg,rgba(79,140,255,.2),rgba(45,212,191,.1));border:1px solid rgba(120,165,255,.3);border-radius:26px;padding:22px 20px;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(20,60,180,.25),inset 0 1px 0 rgba(255,255,255,.14);position:relative;}
+.p3 .hero .top{display:flex;align-items:center;gap:8px;}
+.p3 .hero .new{background:rgba(79,140,255,.3);border:1px solid rgba(120,165,255,.4);color:#cfe0ff;font-size:11px;font-weight:800;border-radius:100px;padding:4px 11px;}
+.p3 .hero .who{font-size:12px;color:#8ea0bd;font-weight:600;margin-left:auto;}
+.p3 .hero h3{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:13px 0 8px;line-height:1.4;}
+.p3 .hero .bd{background:rgba(6,14,28,.45);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;font-size:13.5px;color:#b9c6da;line-height:1.65;}
+.p3 .hero .bd b{color:#eef2f9;}
+.p3 .hero .ft{display:flex;align-items:center;margin-top:14px;gap:8px;}
+.p3 .hero .src{font-size:11.5px;color:#7488a5;}
+.p3 .hero .go{margin-left:auto;background:linear-gradient(92deg,#4f8cff,#2dd4bf);color:#06121f;font-size:13px;font-weight:800;border-radius:14px;padding:11px 20px;box-shadow:0 8px 22px rgba(60,140,255,.4);}
+.p3 .sec{margin-top:26px;position:relative;}
+.p3 .sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;padding:0 2px;}
+.p3 .sh h4{font-size:16px;font-weight:800;color:#f2f6fd;}
+.p3 .sh a{font-size:12px;color:#7488a5;text-decoration:none;}
+.p3 .glassc{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:20px;backdrop-filter:blur(12px);overflow:hidden;}
+.p3 .ti2{display:flex;gap:12px;align-items:center;padding:15px 17px;border-bottom:1px solid rgba(255,255,255,.07);}
+.p3 .ti2:last-child{border-bottom:none;}
+.p3 .ti2 .ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;}
+.p3 .ti2 .t{font-size:13.5px;font-weight:700;color:#e6ecf6;}
+.p3 .ti2 .s{font-size:11.5px;color:#7488a5;margin-top:1px;}
+.p3 .ti2 .bg{margin-left:auto;font-size:10px;font-weight:800;border-radius:100px;padding:3px 10px;flex:none;}
+.p3 .tr{display:flex;gap:13px;align-items:center;padding:14px 17px;border-bottom:1px solid rgba(255,255,255,.07);}
+.p3 .tr:last-child{border-bottom:none;}
+.p3 .dt{width:42px;text-align:center;flex:none;}
+.p3 .dt .d{font-size:16px;font-weight:800;color:#e6ecf6;}
+.p3 .dt .m{font-size:10px;color:#7488a5;margin-top:1px;}
+.p3 .tin{flex:1;min-width:0;}
+.p3 .tin .t{font-size:13.5px;font-weight:700;color:#e6ecf6;display:flex;align-items:center;gap:6px;}
+.p3 .tin .s{font-size:11.5px;color:#7488a5;margin-top:1px;}
+.p3 .pav{width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.p3 .ctg{flex:none;font-size:10px;font-weight:700;border-radius:8px;padding:3px 8px;}
+.p3 .tr.ghost .t,.p3 .tr.ghost .d{color:#5d6f8c;}
+.p3 .link-cta{background:linear-gradient(120deg,rgba(79,140,255,.12),rgba(45,212,191,.08));border:1px dashed rgba(120,165,255,.35);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:12px;margin-top:12px;}
+.p3 .link-cta .em{font-size:22px;}
+.p3 .link-cta .t{font-size:13px;font-weight:800;color:#dbe6f7;}
+.p3 .link-cta .s{font-size:11.5px;color:#7488a5;margin-top:1px;}
+.p3 .link-cta .btn{margin-left:auto;background:#eef2f9;color:#101725;font-size:11.5px;font-weight:800;border-radius:100px;padding:8px 14px;flex:none;}
+.p3 .tabbar{background:rgba(13,19,32,.85);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);}
+.p3 .tab{color:#5d6f8c;} .p3 .tab.on{color:#6ea8ff;}
+.p3 .hind{background:#fff;opacity:.3;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ 시안 1 · CLEAN ═══════════════════ -->
+<div class="col">
+  <div class="caption">
+    <span class="pill" style="background:#e8f3ff;color:#3182f6">시안 1 · CLEAN</span>
+    <h2>토스풍 라이트 — 정보가 주인공</h2>
+    <p>화이트 캔버스 + 잉크 타이포. 색은 상태 신호에만 사용.<br>신뢰·차분함 우선 — "센터 도구답지 않게 정갈한" 방향.</p>
+  </div>
+  <div class="phone p1">
+    <div class="notch"></div>
+    <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="scr">
+      <div class="hd">
+        <div class="hi">좋은 오후예요 ☀️<b>지현 님</b></div>
+        <div class="bell">🔔<i></i></div>
+      </div>
+      <div class="chips">
+        <div class="fc all on">전체</div>
+        <div class="fc"><span class="av" style="background:#3182f6">지</span>나</div>
+        <div class="fc"><span class="av" style="background:#8b6cf5">서</span>서연</div>
+        <div class="fc"><span class="av" style="background:#00c2a8">준</span>준</div>
+      </div>
+
+      <!-- 적응형 히어로: 새 브리핑 -->
+      <div class="hero">
+        <div class="top"><span class="new">✨ 새 브리핑</span><span class="who">방금 · 놀이치료 40분</span></div>
+        <h3>오늘 서연이는<br>감정 카드로 마음을 말했어요</h3>
+        <div class="bd">역할놀이에서 <b>"속상해"를 말로 표현</b>하는 연습을 했어요. 이번 주엔 <b>'기분 묻기'를 하루 한 번</b> 해봐 주세요.</div>
+        <div class="ft"><span class="src">🌳 마음숲 · 김하늘 선생님</span><span class="go">브리핑 보기</span></div>
+      </div>
+
+      <!-- 챙길 것 -->
+      <div class="sec">
+        <div class="sh"><h4>챙길 것</h4></div>
+        <div class="todo">
+          <div class="ti2">
+            <div class="ic" style="background:#fff4e0">🎯</div>
+            <div><div class="t">'기분 묻기' 하루 한 번</div><div class="s">서연 · 이번 주 활동 · 김하늘 선생님</div></div>
+            <div class="bg" style="background:#fff4e0;color:#c97b00">진행 중</div>
+          </div>
+          <div class="ti2">
+            <div class="ic" style="background:#e8f3ff">📝</div>
+            <div><div class="t">보호자 설문 응답</div><div class="s">CBCL · 준 · 6/20까지</div></div>
+            <div class="bg" style="background:#fdeaec;color:#f04452">응답 필요</div>
+          </div>
+          <div class="ti2">
+            <div class="ic" style="background:#e0f7f3">🎟️</div>
+            <div><div class="t">서연 남은 회기 5회</div><div class="s">바우처 잔여 3회 포함</div></div>
+            <div class="ar">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 통합 타임라인 -->
+      <div class="sec">
+        <div class="sh"><h4>우리 가족 일정</h4><a href="#">전체 ›</a></div>
+        <div class="tl">
+          <div class="tr">
+            <div class="dt"><div class="d">17</div><div class="m">내일</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#8b6cf5">서</span>놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div>
+            <span class="ctg" style="background:#e6f4ea;color:#237a46">🌳 마음숲</span>
+          </div>
+          <div class="tr">
+            <div class="dt"><div class="d">19</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#3182f6">지</span>개인상담</div><div class="s">오후 7:00 · 이수진 선생님</div></div>
+            <span class="ctg" style="background:#e6f4ea;color:#237a46">🌳 마음숲</span>
+          </div>
+          <div class="tr ghost">
+            <div class="dt"><div class="d">20</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#00c2a8">준</span>감각통합 <span style="font-size:10px;color:#b6bfca">· 직접 입력</span></div><div class="s">오전 11:00</div></div>
+            <span class="ctg" style="background:#f0f2f5;color:#9aa4b0">미연동</span>
+          </div>
+        </div>
+        <div class="link-cta">
+          <span class="em">🔗</span>
+          <div><div class="t">준이의 해솔센터, 아직 연결 전이에요</div><div class="s">연결되면 일정·브리핑이 자동으로 와요</div></div>
+          <span class="btn">알리기</span>
+        </div>
+      </div>
+
+      <!-- 검사 결과 -->
+      <div class="sec">
+        <div class="sh"><h4>검사 결과</h4><a href="#">아카이브 ›</a></div>
+        <div class="todo">
+          <div class="ti2">
+            <div class="ic" style="background:#f1ebff">📄</div>
+            <div><div class="t">종합심리검사 결과지 · 서연</div><div class="s">6/10 발행 · 마음숲</div></div>
+            <div class="bg" style="background:#e8f3ff;color:#3182f6">PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="hind"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 시안 2 · VIVID ═══════════════════ -->
+<div class="col">
+  <div class="caption">
+    <span class="pill" style="background:#efeaff;color:#7c5cff">시안 2 · VIVID</span>
+    <h2>그라디언트 · 소프트 3D — 감성이 주인공</h2>
+    <p>입체 카드(듀얼 섀도)·둥근 지오메트리·그라디언트 히어로.<br>대표님 "화려함" 직역 — 키즈노트 세대가 아닌 토스 세대의 화사함.</p>
+  </div>
+  <div class="phone p2">
+    <div class="notch"></div>
+    <span class="deco"></span><span class="deco2"></span>
+    <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="scr">
+      <div class="hd">
+        <div class="hi">좋은 오후예요 ☀️<b>지현 님</b></div>
+        <div class="bell">🔔<i></i></div>
+      </div>
+      <div class="chips">
+        <div class="fc all on">전체</div>
+        <div class="fc"><span class="av" style="background:#5f8dff">지</span>나</div>
+        <div class="fc"><span class="av" style="background:#8b6cf5">서</span>서연</div>
+        <div class="fc"><span class="av" style="background:#00c2a8">준</span>준</div>
+      </div>
+
+      <!-- 히어로 -->
+      <div class="hero">
+        <span class="shine"></span><span class="shine2"></span>
+        <div class="top"><span class="new">✨ 새 브리핑</span><span class="who">방금 · 놀이치료 40분</span></div>
+        <h3>오늘 서연이는<br>감정 카드로 마음을 말했어요</h3>
+        <div class="bd">역할놀이에서 <b>"속상해"를 말로 표현</b>하는 연습을 했어요. 이번 주엔 <b>'기분 묻기'를 하루 한 번</b> 해봐 주세요.</div>
+        <div class="ft"><span class="src">🌳 마음숲 · 김하늘 선생님</span><span class="go">브리핑 보기</span></div>
+      </div>
+
+      <!-- 퀘스트 -->
+      <div class="sec">
+        <div class="sh"><h4>이번 주 활동</h4><a href="#">지난 활동 ›</a></div>
+        <div class="quest">
+          <div class="qi">🎯</div>
+          <div><div class="t">'기분 묻기' 하루 한 번</div><div class="s">서연 · 김하늘 선생님이 보냈어요</div></div>
+          <div class="done"></div>
+        </div>
+      </div>
+
+      <!-- 챙길 것 -->
+      <div class="sec">
+        <div class="sh"><h4>챙길 것</h4></div>
+        <div class="card3">
+          <div class="ti2">
+            <div class="ic" style="background:#e9efff">📝</div>
+            <div><div class="t">보호자 설문 응답</div><div class="s">CBCL · 준 · 6/20까지</div></div>
+            <div class="bg" style="background:#ffe9ec;color:#ff6b81">응답 필요</div>
+          </div>
+          <div class="ti2">
+            <div class="ic" style="background:#dff8f3">🎟️</div>
+            <div><div class="t">서연 남은 회기 5회</div><div class="s">바우처 잔여 3회 포함</div></div>
+            <div class="bg" style="background:#f3f2fb;color:#9a92bb">보기</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 타임라인 -->
+      <div class="sec">
+        <div class="sh"><h4>우리 가족 일정</h4><a href="#">전체 ›</a></div>
+        <div class="card3">
+          <div class="tr">
+            <div class="dt"><div class="d">17</div><div class="m">내일</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#8b6cf5">서</span>놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div>
+            <span class="ctg" style="background:#e2f6ea;color:#1d9a55">🌳 마음숲</span>
+          </div>
+          <div class="tr">
+            <div class="dt"><div class="d">19</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#5f8dff">지</span>개인상담</div><div class="s">오후 7:00 · 이수진 선생님</div></div>
+            <span class="ctg" style="background:#e2f6ea;color:#1d9a55">🌳 마음숲</span>
+          </div>
+          <div class="tr ghost">
+            <div class="dt"><div class="d">20</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#00c2a8">준</span>감각통합 <span style="font-size:10px;color:#c5bfdd">· 직접 입력</span></div><div class="s">오전 11:00</div></div>
+            <span class="ctg" style="background:#f0eef8;color:#a49cc4">미연동</span>
+          </div>
+        </div>
+        <div class="link-cta">
+          <span class="em">🔗</span>
+          <div><div class="t">준이의 해솔센터, 아직 연결 전이에요</div><div class="s">연결되면 일정·브리핑이 자동으로 와요</div></div>
+          <span class="btn">알리기</span>
+        </div>
+      </div>
+
+      <!-- 검사 결과 -->
+      <div class="sec">
+        <div class="sh"><h4>검사 결과</h4><a href="#">아카이브 ›</a></div>
+        <div class="card3">
+          <div class="ti2">
+            <div class="ic" style="background:#efeaff">📄</div>
+            <div><div class="t">종합심리검사 결과지 · 서연</div><div class="s">6/10 발행 · 마음숲</div></div>
+            <div class="bg" style="background:#e9efff;color:#4a7dff">PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="hind"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 시안 3 · CALM ═══════════════════ -->
+<div class="col">
+  <div class="caption">
+    <span class="pill" style="background:#101725;color:#6ea8ff">시안 3 · CALM</span>
+    <h2>다크 프리미엄 · 글래스 — 고요가 주인공</h2>
+    <p>딥네이비 + 글래스 카드 + 은은한 글로우.<br>디스크리트 원칙의 시각화 — 병원도 게임도 아닌 프라이빗 웰니스.</p>
+  </div>
+  <div class="phone p3">
+    <div class="notch"></div>
+    <span class="glow"></span><span class="glow2"></span>
+    <div class="sb"><span style="color:#eef2f9">9:41</span><span style="color:#eef2f9">📶 🔋</span></div>
+    <div class="scr">
+      <div class="hd">
+        <div class="hi">좋은 저녁이에요 🌙<b>지현 님</b></div>
+        <div class="bell">🔔<i></i></div>
+      </div>
+      <div class="chips">
+        <div class="fc all on">전체</div>
+        <div class="fc"><span class="av" style="background:#4f8cff">지</span>나</div>
+        <div class="fc"><span class="av" style="background:#a78bfa">서</span>서연</div>
+        <div class="fc"><span class="av" style="background:#2dd4bf">준</span>준</div>
+      </div>
+
+      <!-- 히어로 -->
+      <div class="hero">
+        <div class="top"><span class="new">✨ 새 브리핑</span><span class="who">방금 · 놀이치료 40분</span></div>
+        <h3>오늘 서연이는<br>감정 카드로 마음을 말했어요</h3>
+        <div class="bd">역할놀이에서 <b>"속상해"를 말로 표현</b>하는 연습을 했어요. 이번 주엔 <b>'기분 묻기'를 하루 한 번</b> 해봐 주세요.</div>
+        <div class="ft"><span class="src">🌳 마음숲 · 김하늘 선생님</span><span class="go">브리핑 보기</span></div>
+      </div>
+
+      <!-- 챙길 것 -->
+      <div class="sec">
+        <div class="sh"><h4>챙길 것</h4></div>
+        <div class="glassc">
+          <div class="ti2">
+            <div class="ic" style="background:rgba(251,191,36,.15)">🎯</div>
+            <div><div class="t">'기분 묻기' 하루 한 번</div><div class="s">서연 · 이번 주 활동 · 김하늘 선생님</div></div>
+            <div class="bg" style="background:rgba(251,191,36,.16);color:#fcd34d">진행 중</div>
+          </div>
+          <div class="ti2">
+            <div class="ic" style="background:rgba(79,140,255,.15)">📝</div>
+            <div><div class="t">보호자 설문 응답</div><div class="s">CBCL · 준 · 6/20까지</div></div>
+            <div class="bg" style="background:rgba(251,113,133,.16);color:#fda4af">응답 필요</div>
+          </div>
+          <div class="ti2">
+            <div class="ic" style="background:rgba(45,212,191,.14)">🎟️</div>
+            <div><div class="t">서연 남은 회기 5회</div><div class="s">바우처 잔여 3회 포함</div></div>
+            <div class="bg" style="background:rgba(255,255,255,.08);color:#8ea0bd">보기</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 타임라인 -->
+      <div class="sec">
+        <div class="sh"><h4>우리 가족 일정</h4><a href="#">전체 ›</a></div>
+        <div class="glassc">
+          <div class="tr">
+            <div class="dt"><div class="d">17</div><div class="m">내일</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#a78bfa">서</span>놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div>
+            <span class="ctg" style="background:rgba(52,211,153,.14);color:#6ee7b7">🌳 마음숲</span>
+          </div>
+          <div class="tr">
+            <div class="dt"><div class="d">19</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#4f8cff">지</span>개인상담</div><div class="s">오후 7:00 · 이수진 선생님</div></div>
+            <span class="ctg" style="background:rgba(52,211,153,.14);color:#6ee7b7">🌳 마음숲</span>
+          </div>
+          <div class="tr ghost">
+            <div class="dt"><div class="d">20</div><div class="m">6월</div></div>
+            <div class="tin"><div class="t"><span class="pav" style="background:#2dd4bf">준</span>감각통합 <span style="font-size:10px;color:#5d6f8c">· 직접 입력</span></div><div class="s">오전 11:00</div></div>
+            <span class="ctg" style="background:rgba(255,255,255,.07);color:#5d6f8c">미연동</span>
+          </div>
+        </div>
+        <div class="link-cta">
+          <span class="em">🔗</span>
+          <div><div class="t">준이의 해솔센터, 아직 연결 전이에요</div><div class="s">연결되면 일정·브리핑이 자동으로 와요</div></div>
+          <span class="btn">알리기</span>
+        </div>
+      </div>
+
+      <!-- 검사 결과 -->
+      <div class="sec">
+        <div class="sh"><h4>검사 결과</h4><a href="#">아카이브 ›</a></div>
+        <div class="glassc">
+          <div class="ti2">
+            <div class="ic" style="background:rgba(167,139,250,.15)">📄</div>
+            <div><div class="t">종합심리검사 결과지 · 서연</div><div class="s">6/10 발행 · 마음숲</div></div>
+            <div class="bg" style="background:rgba(79,140,255,.16);color:#8ab8ff">PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="hind"></div>
+  </div>
+</div>
+
+</body>
+</html>

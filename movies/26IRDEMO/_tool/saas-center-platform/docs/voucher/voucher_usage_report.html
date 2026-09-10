@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>바우처 이용·청구 한눈에 — 2025/2026</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161a22;
+    --panel2: #1d222d;
+    --line: #2a3142;
+    --text: #e6e8ee;
+    --muted: #9aa3b2;
+    --accent: #4f8cff;
+    --accent2: #6cd4a0;
+    --warn: #f4a93a;
+    --danger: #ef6c6c;
+    --c-jang: #ff8a65;
+    --c-balgyu: #b388ff;
+    --c-balgnow: #ffd180;
+    --c-jarip: #80cbc4;
+    --c-jiyeok: #82b1ff;
+    --c-emergency: #ff8a80;
+    --c-pregnancy: #f48fb1;
+    --c-dolbom: #a5d6a7;
+    --c-jangin: #ce93d8;
+    --c-mental: #90caf9;
+    --c-edu: #ffe082;
+    --c-local: #a7c1a8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: 14px; line-height: 1.55; }
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14,17,22,0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+  }
+  header.top h1 { margin: 0 0 4px 0; font-size: 20px; font-weight: 700; }
+  header.top .meta { color: var(--muted); font-size: 12px; }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .filterbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .filterbar input[type=search] {
+    flex: 0 0 280px; background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+    padding: 6px 10px; border-radius: 6px; font-size: 13px;
+  }
+  .filterbar input[type=search]:focus { outline: 1px solid var(--accent); }
+  .chips { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    background: var(--panel2); border: 1px solid var(--line); color: var(--muted);
+    padding: 4px 10px; border-radius: 999px; font-size: 12px; cursor: pointer; user-select: none;
+  }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip:hover { color: var(--text); }
+  .count-info { color: var(--muted); font-size: 12px; margin-left: auto; }
+  main { max-width: 1500px; margin: 0 auto; padding: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(640px, 1fr)); gap: 18px; }
+
+  article.card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: border-color 0.15s;
+  }
+  article.card:hover { border-color: #3d4658; }
+  article.card.hidden { display: none; }
+
+  .card-head {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(79,140,255,0.06), rgba(108,212,160,0.04));
+  }
+  .card-head .title-row { display: flex; align-items: flex-start; gap: 8px; }
+  .card-head h2 {
+    margin: 0; font-size: 15.5px; font-weight: 700; flex: 1; line-height: 1.35;
+  }
+  .card-head .subtitle { color: var(--muted); font-size: 11.5px; margin-top: 4px; }
+  .badges { display: inline-flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10.5px; font-weight: 600; white-space: nowrap;
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+  }
+  .badge.year-2026 { background: rgba(108,212,160,0.15); color: var(--accent2); border-color: rgba(108,212,160,0.4); }
+  .badge.year-2025 { background: rgba(244,169,58,0.12); color: var(--warn); border-color: rgba(244,169,58,0.35); }
+  .badge.cat { color: #1a1a1a; }
+  .badge.cat-jang  { background: var(--c-jang); }
+  .badge.cat-balgyu { background: var(--c-balgyu); }
+  .badge.cat-balgnow { background: var(--c-balgnow); }
+  .badge.cat-jarip { background: var(--c-jarip); }
+  .badge.cat-jiyeok { background: var(--c-jiyeok); }
+  .badge.cat-emergency { background: var(--c-emergency); }
+  .badge.cat-pregnancy { background: var(--c-pregnancy); }
+  .badge.cat-dolbom { background: var(--c-dolbom); }
+  .badge.cat-jangin { background: var(--c-jangin); }
+  .badge.cat-mental { background: var(--c-mental); }
+  .badge.cat-edu { background: var(--c-edu); }
+  .badge.cat-local { background: var(--c-local); }
+
+  .eligibility {
+    padding: 10px 16px;
+    background: var(--panel2);
+    color: #cdd2dd; font-size: 12.5px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eligibility::before { content: "자격 "; color: var(--muted); font-weight: 600; }
+
+  .kpi-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--line);
+  }
+  .kpi {
+    padding: 10px 14px;
+    border-right: 1px solid var(--line);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi .label { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi .value { font-size: 13px; color: var(--text); margin-top: 3px; font-weight: 600; line-height: 1.35; }
+
+  .flow {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .flow-col {
+    padding: 12px 14px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .flow-col:last-child { border-right: none; }
+  .flow-col h3 {
+    margin: 0 0 8px 0; font-size: 11.5px; color: var(--accent2);
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .flow-col h3::before {
+    content: attr(data-step);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
+  }
+  .flow-col ol {
+    list-style: none; padding: 0; margin: 0;
+    font-size: 12px; color: #cdd2dd;
+  }
+  .flow-col ol li {
+    padding: 3px 0 3px 12px;
+    position: relative;
+    line-height: 1.45;
+  }
+  .flow-col ol li::before {
+    content: "•"; color: var(--accent); position: absolute; left: 2px; top: 2px; font-size: 14px;
+  }
+
+  .billing {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(244,169,58,0.04);
+    font-size: 12.5px; color: #d6d9e1;
+  }
+  .billing::before {
+    content: "정산 흐름";
+    display: block; font-size: 10.5px; font-weight: 700; color: var(--warn);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
+  }
+
+  .sources {
+    padding: 10px 16px 14px;
+    font-size: 11.5px; color: var(--muted);
+  }
+  .sources::before {
+    content: "출처";
+    display: block; font-size: 10.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
+  }
+  .sources .src-item {
+    display: block; margin-top: 2px;
+    color: #8e96a4;
+  }
+  .sources .src-item a { color: var(--accent); text-decoration: none; }
+  .sources .src-item a:hover { text-decoration: underline; }
+  .sources .src-item .note { color: #6f7785; margin-left: 4px; }
+
+  .category-section { margin-top: 28px; }
+  .category-section h2 {
+    font-size: 14px; color: var(--accent2);
+    border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 0 0 14px 0;
+    font-weight: 700;
+  }
+  .category-section .cnt { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 6px; }
+
+  .legend-row {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    padding: 12px 16px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; font-size: 11.5px; color: var(--muted); margin-bottom: 20px;
+  }
+  .legend-row b { color: var(--text); font-weight: 600; }
+
+  details.glossary {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 20px; font-size: 12.5px;
+  }
+  details.glossary summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+  details.glossary dl { margin: 10px 0 0 0; display: grid; grid-template-columns: 180px 1fr; gap: 6px 14px; }
+  details.glossary dt { color: var(--accent2); font-weight: 600; }
+  details.glossary dd { margin: 0; color: #cdd2dd; }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .flow-col { border-right: none; border-bottom: 1px solid var(--line); }
+    .kpi-row { grid-template-columns: 1fr; }
+    .kpi { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>바우처 이용·청구 한눈에 보기</h1>
+  <div class="meta">
+    각 바우처를 <b>신청 → 사용 → 결제·정산</b> 흐름으로 정리.
+    18개 사업안내 · 총 <b id="totalCount">31</b>개 항목 · 출처는 <code>first-collect/&lt;가이드&gt;/contents/*.md</code> ·
+    생성일 2026-05-18
+  </div>
+  <div class="filterbar">
+    <input type="search" id="searchBox" placeholder="검색 (바우처명·자격·키워드)" autocomplete="off">
+    <div class="chips" id="yearChips">
+      <span class="chip active" data-year="all">전체 연도</span>
+      <span class="chip" data-year="2026">2026</span>
+      <span class="chip" data-year="2025">2025</span>
+    </div>
+    <div class="chips" id="catChips"></div>
+    <div class="count-info" id="visibleCount"></div>
+  </div>
+</header>
+
+<main>
+  <div class="legend-row">
+    <span><b>지원금액</b>: 정부지원금 또는 한도</span>
+    <span><b>본인부담</b>: 이용자가 직접 부담하는 금액</span>
+    <span><b>사용매체</b>: 결제·수령 수단</span>
+    <span><b>① 신청</b>·<b>② 이용</b>·<b>③ 결제·정산</b> 으로 카드 구성</span>
+  </div>
+
+  <details class="glossary">
+    <summary>용어 한 줄 정리</summary>
+    <dl>
+      <dt>국민행복카드</dt><dd>BC·롯데·삼성·KB국민·신한 5사가 발급하는 전자바우처 결제용 신용/체크카드. 영유아·발달재활·임신출산 등 다수 사회서비스 공통 매체.</dd>
+      <dt>사회서비스 전용카드</dt><dd>14세 미만·75세 이상·발달장애인 등 일반 금융카드 발급이 어려운 이용자에게 한국사회보장정보원이 직접 발급(우체국 배송).</dd>
+      <dt>전자바우처시스템</dt><dd>한국사회보장정보원이 운영. 제공기관이 단말기/QR로 결제하면 정부지원금이 월 3회(15일·25일·익월 5일) 입금.</dd>
+      <dt>본인부담금</dt><dd>이용자가 직접 부담하는 금액. 보통 소득구간별 차등. 일부 사업은 제공기관 계좌에 사전 납부, 일부는 카드 결제 시 동시 차감.</dd>
+      <dt>이용자 직접청구</dt><dd>이용자는 청구하지 않고, 제공기관이 정보원·심평원·공단을 통해 청구. 이용자는 매체 사용 또는 본인부담만 부담.</dd>
+    </dl>
+  </details>
+
+  <div id="cardsRoot"></div>
+</main>
+
+<script type="application/json" id="dataset">
+[
+  {
+    "voucher_name": "장애아가족 양육지원 (돌봄 + 휴식지원)",
+    "parent_guide": "(보건복지부)2026장애아동가족지원사업안내",
+    "year": "2026",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "만 18세 미만, 「장애인복지법」상 장애정도가 심한 등록장애아동 가정. 소득기준에 따라 무료/유료 차등(기준 중위소득 120% 이하/초과). 휴식지원프로그램은 소득 무관.",
+    "apply_flow": [
+      "주소지 읍·면·동 방문 또는 복지로 온라인 신청 (연중, 1~2월 집중)",
+      "사회보장급여 신청서[서식1호] + 개인정보 동의 + 건강보험증·소득 증빙",
+      "시·군·구 소득(건강보험료) 조사 후 대상자 선정",
+      "사업시행기관이 즉시지원자/대기자 결정(중증·자폐·뇌병변 우선)",
+      "사업시행기관·돌보미와 일정 협의·연계"
+    ],
+    "use_flow": [
+      "이용자가족 서약서·응급처치 동의서 작성",
+      "정보시스템에 월간 이용계획 등록, 본인부담 대상자는 선납",
+      "가정 또는 돌보미 가정에서 돌봄서비스 (월 160시간 이내, 연 1,200시간 한도)",
+      "돌보미가 정보시스템으로 시작·종료 체크, 활동일지에 부모 서명",
+      "변경·취소는 3일 전 시행기관에 요청"
+    ],
+    "user_payment": "중위 120% 이하: 1,200시간까지 무료, 초과 시 시간당 12,800원 전액. 중위 120% 초과: 시간당 5,120원(40%) 본인부담. 맞벌이 합산소득 25% 감경. 카드납부 불가 — 시행기관 지정 계좌로 선납 필수.",
+    "billing_flow": "이용자가 시행기관 지정 계좌에 본인부담금 사전 납부 → 시행기관이 정보시스템으로 시간·실적 관리 → 돌보미에게 급여 지급. 국비·지방비는 시·도가 시행기관에 교부.",
+    "card_or_voucher_type": "카드/바우처 없음 — 사업시행기관(18개 시·도 위탁) 통한 돌보미 파견, 본인부담금 계좌 입금",
+    "monthly_amount": "연 1,200시간 한도 / 월 160시간 이내 / 시간당 12,800원",
+    "sources": [
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/10_제1편_사업개요.md", "note": "사업 개요 표"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/11_제1편_지원대상_및_지원내용.md", "note": "지원대상·내용, 시행기관 목록"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/12_제1편_돌봄서비스_대상자_선정.md", "note": "신청·선정 절차"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/13_제1편_본인부담금.md", "note": "이용금액·본인부담·선납"}
+    ]
+  },
+  {
+    "voucher_name": "장애아가족 양육지원 (돌봄 + 휴식지원)",
+    "parent_guide": "(보건복지부)2025장애아동가족지원사업안내",
+    "year": "2025",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "2026과 동일. 연 지원시간 한도가 1,080시간 (2026은 1,200시간).",
+    "apply_flow": ["2026과 동일 — 읍·면·동/복지로 신청 → 시·군·구 조사 → 시행기관 연계"],
+    "use_flow": ["2026과 동일 — 정보시스템 등록, 본인부담 선납, 가정 돌봄, 활동일지 부모 확인"],
+    "user_payment": "이용금액 시간당 12,180원. 중위 120% 이하 1,080시간 무료, 초과 시 전액. 중위 120% 초과 시간당 4,870원(40%). 카드납부 불가.",
+    "billing_flow": "2026과 동일 (선납 → 시행기관이 돌보미 급여 지급)",
+    "card_or_voucher_type": "카드/바우처 없음",
+    "monthly_amount": "연 1,080시간 / 시간당 12,180원",
+    "sources": [
+      {"file": "(보건복지부)2025장애아동가족지원사업안내-지침서/contents/01_장애아가족_양육지원_사업_상.md", "note": "사업 개요, 본인부담금"},
+      {"file": "(보건복지부)2025장애아동가족지원사업안내-지침서/contents/02_장애아가족_양육지원_사업_하.md", "note": "돌보미 역할"}
+    ]
+  },
+  {
+    "voucher_name": "발달재활서비스",
+    "parent_guide": "(보건복지부)2026장애아동가족지원사업안내",
+    "year": "2026",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "만 18세 미만, 시각·청각·언어·지적·자폐성·뇌병변 등록장애아동, 기준 중위소득 180% 이하. 9세 미만은 의뢰서+검사자료로 등록 갈음 가능.",
+    "apply_flow": [
+      "주소지 읍·면·동 방문 신청 (연중, 1월부터)",
+      "읍·면·동이 소득재산 확인·욕구조사 (기존자는 매년 1·7월 재조사)",
+      "시·군·구가 5등급(가·나·다·라·마형) 결정·통지 → 한국사회보장정보원에 자료 전송",
+      "국민행복카드 미보유자는 신청 (14세 미만은 사회서비스 전용카드)"
+    ],
+    "use_flow": [
+      "카드사 또는 정보원이 국민행복카드 제작·우체국 배송(1주)",
+      "시·군·구 내 제공기관 선택·이용 신청",
+      "서비스 제공계획서[서식8,9] 작성·부모 동의, 이용계약[서식6]",
+      "본인부담금을 제공기관 계좌에 사전 납부(예외적 카드·현금)",
+      "전자바우처시스템에서 바우처 생성 확인 후 1회 50분(월 8회, 주 2회) 제공",
+      "결제단말기에 카드 접촉 + 인력 ID 입력 + 단가 입력으로 회당 결제",
+      "월 생성 바우처는 해당월 말일까지만 결제 가능, 잔여 소멸"
+    ],
+    "user_payment": "다형(기초수급) 면제 / 가형(차상위) 2만원 / 나형 4만원 / 라형 6만원 / 마형 8만원. 미납자는 납부 시까지 서비스 중단.",
+    "billing_flow": "이용자가 제공기관 계좌에 본인부담금 직접 납부 → 제공기관이 회당 국민행복카드로 정부지원금 결제 → 한국사회보장정보원에 청구 → 정보원이 월 3회(10일 단위) 제공기관에 지급. 시·군·구 예탁금에서 출금.",
+    "card_or_voucher_type": "국민행복카드(BC·롯데·삼성·KB국민·신한) 또는 사회서비스 전용카드(14세 미만 등)",
+    "monthly_amount": "월 26만원 / 회당 32,500원 × 월 8회(주 2회) / 도서벽지 교통지원 3,000원/회",
+    "sources": [
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/20_제2편_사업개요.md", "note": "대상자, 본인부담 5등급, 업무흐름도"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/22_제2편_서비스내용_및_단가.md", "note": "단가 32,500원"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/23_제2편_바우처_지급_및_이용.md", "note": "카드 발급, 바우처 생성, 결제"},
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/24_제2편_서비스_실시.md", "note": "이용 6단계 절차"}
+    ]
+  },
+  {
+    "voucher_name": "발달재활서비스",
+    "parent_guide": "(보건복지부)2025장애아동가족지원사업안내",
+    "year": "2025",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "2026과 동일.",
+    "apply_flow": ["2026과 동일 — 읍·면·동 신청 → 시·군·구 등급 결정 → 카드 발급"],
+    "use_flow": ["2026과 동일 — 제공기관 계약, 본인부담 사전 납부, 회당 카드 결제, 월말 잔여 소멸"],
+    "user_payment": "다형 면제 / 가형 2만원 / 나형 4만원 / 라형 6만원 / 마형 8만원 (2026과 동일)",
+    "billing_flow": "2026과 동일",
+    "card_or_voucher_type": "국민행복카드 / 사회서비스 전용카드",
+    "monthly_amount": "월 25만원 / 회당 30,000원 × 월 8회",
+    "sources": [
+      {"file": "(보건복지부)2025장애아동가족지원사업안내-지침서/contents/03_발달재활서비스_사업_상.md", "note": "사업 개요·바우처 지원액·단가"},
+      {"file": "(보건복지부)2025장애아동가족지원사업안내-지침서/contents/04_발달재활서비스_사업_하.md", "note": "제공기관 지정"}
+    ]
+  },
+  {
+    "voucher_name": "언어발달지원서비스",
+    "parent_guide": "(보건복지부)2026장애아동가족지원사업안내",
+    "year": "2026",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "12세 미만 비장애아동 중 한쪽 부모(또는 조부모)가 등록장애인. 기준 중위소득 120% 이하 4등급 차등. 양쪽 부모/조부모 장애인 가정 우선.",
+    "apply_flow": [
+      "주소지 읍·면·동 방문 신청 (연중, 1월부터)",
+      "읍·면·동 소득 확인·욕구조사 (매년 1·7월 재조사)",
+      "시·군·구가 4등급(가·나·다·라형) 결정·통지 후 정보원 전송",
+      "정보원이 바우처 카드 발급·송부(사회서비스 전용카드 포함)"
+    ],
+    "use_flow": [
+      "제공기관 선택·이용 신청",
+      "서비스 제공계획서 작성·계약",
+      "본인부담금을 제공기관 계좌에 직접 납부(카드·현금도 가능)",
+      "잔량 확인 후 언어재활·청능재활·독서지도·수어지도 제공",
+      "회당 결제단말기 카드 결제, 잔량 조회 가능"
+    ],
+    "user_payment": "다형(기초수급) 면제 / 가형(차상위) 2만원 / 나형 4만원 / 라형 6만원. 발달재활과 달리 4등급(마형 없음).",
+    "billing_flow": "이용자가 제공기관 계좌에 본인부담금 납부 → 제공기관이 회당 카드 결제 → 정보원이 월 3회(10일 단위) 제공기관에 지급. 시·군·구 예탁금 사용.",
+    "card_or_voucher_type": "국민행복카드 / 사회서비스 전용카드(정보원 발급)",
+    "monthly_amount": "월 24만원 / 회당 30,000원 × 월 8회(주 2회)",
+    "sources": [
+      {"file": "(보건복지부)2026장애아동가족지원사업안내-지침서/contents/40_제3편_사업개요.md", "note": "자격, 소득 120% 이하, 4등급 바우처 표"}
+    ]
+  },
+  {
+    "voucher_name": "언어발달지원서비스",
+    "parent_guide": "(보건복지부)2025장애아동가족지원사업안내",
+    "year": "2025",
+    "category": "장애아동·가족",
+    "cat_key": "jang",
+    "eligibility_short": "2026과 동일.",
+    "apply_flow": ["2026과 동일"],
+    "use_flow": ["2026과 동일"],
+    "user_payment": "다형 면제 / 가형 2만원 / 나형 4만원 / 라형 6만원 (2026과 동일)",
+    "billing_flow": "2026과 동일",
+    "card_or_voucher_type": "국민행복카드 / 사회서비스 전용카드",
+    "monthly_amount": "월 22만원 / 회당 27,500원 × 월 8회",
+    "sources": [
+      {"file": "(보건복지부)2025장애아동가족지원사업안내-지침서/contents/05_언어발달지원_사업_상.md", "note": "사업 개요·바우처 표·단가"}
+    ]
+  },
+
+  {
+    "voucher_name": "발달장애인 주간활동서비스",
+    "parent_guide": "(보건복지부)2026발달장애인활동서비스사업안내",
+    "year": "2026",
+    "category": "발달장애인",
+    "cat_key": "balgyu",
+    "eligibility_short": "만 18세 이상 등록 지적·자폐성 장애인(소득 무관). 취업·거주시설·주간보호·평생교육 중복 시 제외.",
+    "apply_flow": [
+      "주소지 읍·면·동 방문 또는 복지로 온라인 신청 (대리 가능)",
+      "사회보장급여 신청서[서식1] + 바우처카드 신청서[서식2] + 기초상담조사표[서식6]",
+      "행복e음 전송 → 시·군·구가 지역발달장애인지원센터에 종합조사 의뢰",
+      "지역센터 가정방문·면접 종합조사(서식7, 22점 이상 우선지원)",
+      "시·군·구 수급자격심의위원회(매월 14~23일) 심의·의결 (30일 이내 처리)",
+      "결정통지서[서식8]+이용 안내문[서식9] 수령, 기본형/확장형 결정",
+      "국민행복카드 미보유 시 카드사 발급(14~19세 영업점, 19세↑ 상담전화)"
+    ],
+    "use_flow": [
+      "국민행복카드 수령(금융형 3~7일, 사회서비스 전용 우체국 1주)",
+      "거주지 또는 인접 시·군·구 제공기관 등록·계약",
+      "제공기관 전자바우처시스템 등록 → 매월 말일 바우처 포인트 생성",
+      "월~금 09:00~18:00, 2~3인 소그룹 주간활동(외부활동 30%↑)",
+      "제공인력이 단말기(UT-99L) 또는 스마트폰 NFC/QR로 바우처 카드 실시간 결제",
+      "사회서비스전자바우처포털에서 잔량·내역 조회"
+    ],
+    "user_payment": "원칙적으로 본인부담 없음(소득 무관). 점심식사·송영 등 일부는 자부담(제공기관 별도 회계). 활동지원 동시 이용 시 확장형 선택하면 활동지원 국비 22시간 차감.",
+    "billing_flow": "이용자는 바우처 카드 결제만. 제공기관이 결제 → 시·군·구청장에게 비용 청구 → 한국사회보장정보원이 월 3회(15/25/익월 5일) 제공기관 계좌로 지급. 미결제는 시·군·구 인정 시 예외지급청구(매월 26일).",
+    "card_or_voucher_type": "국민행복카드(금융형) 또는 사회서비스 전용카드",
+    "monthly_amount": "기본형 132h/월(일 6h), 확장형 176h/월(일 8h). 시간당 17,270원, 1인집중 25,910원(150%), 2인 17,270원, 3인 13,820원(80%)",
+    "sources": [
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/03_1부_제1장_사업개요.md", "note": "지원기준·단가·차등단가표"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/04_1부_제2장_대상자선정.md", "note": "신청·선정 30일"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/07_1부_제4장_바우처지급및이용.md", "note": "카드 발급·바우처 생성·결제"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/08_1부_제5장_예산집행및정산.md", "note": "월 3회 정기지급일"}
+    ]
+  },
+  {
+    "voucher_name": "청소년 발달장애인 방과후활동서비스",
+    "parent_guide": "(보건복지부)2026발달장애인활동서비스사업안내",
+    "year": "2026",
+    "category": "발달장애인",
+    "cat_key": "balgyu",
+    "eligibility_short": "만 6세 이상 18세 미만 등록 지적·자폐성 장애인(주간활동과 택1). 18세 이상 재학생은 재학증명서 첨부 가능.",
+    "apply_flow": [
+      "주소지 읍·면·동 또는 복지로 신청(대리 가능)",
+      "사회보장급여 신청서[서식1] + 바우처카드 신청서 + 유사서비스 이용 확인서[별첨2]",
+      "방과후는 별도 종합조사·심의 없이 시·군·구가 직접 결정 (14일 이내)",
+      "우선선발(돌봄취약가구·도전적 행동·중복장애 등) 우선",
+      "결정통지서[서식6]+이용 안내문[서식7] 수령",
+      "국민행복카드 미보유 시 14세 미만은 사회서비스 전용카드, 14~19세 영업점, 19세↑ 상담전화"
+    ],
+    "use_flow": [
+      "국민행복카드 수령",
+      "제공기관(직접제공형·학교연계형) 등록·계약, 2~4인 소그룹",
+      "월~토 09:00~21:00(일·공휴일 제외) 취미·여가·자립·체험 (월 66시간)",
+      "제공인력이 단말기 결제 + 결제ID 입력 실시간 결제",
+      "18세 생일 시 자격 자동 종료, 재학생 갱신 가능(서식4)"
+    ],
+    "user_payment": "원칙적으로 본인부담 없음(소득 무관). 식사·일부 활동은 자부담.",
+    "billing_flow": "제공기관 단말기 결제 → 시·군·구청장 청구 → 정보원이 월 3회(15/25/익월 5일) 지급. 시·군·구 인정 시 예외지급청구 가능.",
+    "card_or_voucher_type": "국민행복카드(14세 미만 사회서비스 전용카드, 14~19세 체크카드, 19세↑ 신용/체크 또는 전용카드)",
+    "monthly_amount": "월 66시간. 시간당 17,270원, 1인집중 25,910원, 2인 17,270원, 3인 15,540원, 4인 13,820원",
+    "sources": [
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/13_2부_제1장_사업개요.md", "note": "지원기준·단가표"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/14_2부_제2장_대상자선정.md", "note": "신청·우선선발·14일 처리"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/17_2부_제4장_바우처지급및이용.md", "note": "카드 발급·결제"},
+      {"file": "(보건복지부)2026발달장애인활동서비스사업안내-지침서/contents/18_2부_제5장_예산집행및정산.md", "note": "비용 청구·지급·정산"}
+    ]
+  },
+  {
+    "voucher_name": "발달장애인 긴급돌봄서비스",
+    "parent_guide": "(보건복지부)2026발달장애인긴급돌봄서비스사업안내",
+    "year": "2026",
+    "category": "발달장애인",
+    "cat_key": "balgyu",
+    "eligibility_short": "만 6~65세 미만 등록 발달장애인 중 보호자의 치료·입원·경조사·심리적 소진·재난 등 긴급상황(소득 무관). 거주시설 입소자·의료지원 필요자·감염병·무연고자 제외.",
+    "apply_flow": [
+      "평일 주간(09~18시) 지역발달장애인지원센터 / 평일 야간·주말·당일 긴급돌봄센터(broso.or.kr 또는 유선)",
+      "이용 3일 전까지 예약 원칙(긴급 시 당일 가능)",
+      "이용신청서[서식1] + 개인정보 동의서[서식4] + 가족관계·복지카드 + 사유증빙 + (대리)위임장",
+      "지역센터가 초기상담·우선순위 검토(기초수급·차상위·다장애·한부모·무연고·개인별지원계획)",
+      "이용 통지서[서식5] 전화/문자/메일(3일 내 회신)",
+      "지역센터가 사정평가·일시돌봄계획[서식12] → 긴급돌봄센터 배치",
+      "사전등록제 활용 가능(상황 발생 전 미리 등록)"
+    ],
+    "use_flow": [
+      "긴급돌봄센터 입소(기본 오전 11시 입·퇴소), 이용 계약서[서식9]",
+      "개인별 일시돌봄계획에 따라 1회 1~7일 24시간 돌봄 (연 최대 30일, 15일 후 재입소)",
+      "낮 활동·식사·야간 돌봄·응급/안전 제공",
+      "기존 학교·직장·활동지원·낮 활동은 가능한 범위에서 유지",
+      "퇴소 시 만족도 조사·인권 모니터링, 증빙 보완 제출"
+    ],
+    "user_payment": "1일 이용료 15,000원 + 1일 식비 본인부담 15,000원 = 1일 30,000원 보호자 선납. 식비 15,000원은 센터 운영비로 추가 지원(총 식비 30,000원). 기초수급·차상위 이용료 면제(식비는 부담). 계약 초과 시 이용료 50% 가산 + 식비 100% 부과. 보호자 사유 중도 퇴소 시 반환 불가, 센터 사유 시 100% 반환.",
+    "billing_flow": "전자바우처 없음. 보호자가 지역센터 안내에 따라 긴급돌봄센터에 이용료·식비 직접 선납. 센터는 납부내역을 지역센터에 통보. 수급자·차상위 면제분은 시·도 국비로 센터에 지원.",
+    "card_or_voucher_type": "전자바우처 미해당. 입소형 일시돌봄, 보호자가 센터에 직접 비용 납부.",
+    "monthly_amount": "1일 30,000원(이용료 15,000원+식비 15,000원, 식비 추가 15,000원은 센터 지원). 1회 최대 7일, 연 최대 30일.",
+    "sources": [
+      {"file": "(보건복지부)2026발달장애인긴급돌봄서비스사업안내-발달장애인긴급돌봄서비스/contents/01_사업개요.md", "note": "지원대상·이용기간·이용료 요약"},
+      {"file": "(보건복지부)2026발달장애인긴급돌봄서비스사업안내-발달장애인긴급돌봄서비스/contents/02_대상자선정.md", "note": "지원·제외대상·우선순위"},
+      {"file": "(보건복지부)2026발달장애인긴급돌봄서비스사업안내-발달장애인긴급돌봄서비스/contents/03_서비스지원.md", "note": "신청 채널·이용료·입소/퇴소"}
+    ]
+  },
+  {
+    "voucher_name": "발달장애인 거점병원·행동발달증진센터",
+    "parent_guide": "(보건복지부)2026발달장애인거점병원행동발달증진센터사업안내",
+    "year": "2026",
+    "category": "발달장애인",
+    "cat_key": "balgyu",
+    "eligibility_short": "「장애인복지법」상 지적·자폐성 장애인. 행동발달증진센터는 자해·타해 등 행동중재가 필요한 발달장애인(전문의 소견).",
+    "apply_flow": [
+      "이용자(보호자)가 거점병원·행동발달증진센터 진료 코디네이터에게 직접 의뢰",
+      "코디네이터가 관련 진료과목 협진 일정 조정·안내",
+      "행동발달증진센터는 (소아청소년)정신건강의학과 전문의 검진 후 연계, 치료 서약·사후관리 동의",
+      "지역발달장애인지원센터에서 행동발달증진센터로 연계 의뢰도 가능"
+    ],
+    "use_flow": [
+      "거점병원: 진료 코디네이터 동행, 협진(치과·마취과·정신건강의학과), 위기개입팀, 입원·외래·퇴원 지원",
+      "행동발달증진센터: BPI-01·K-CSCB 분석, 중재계획(BIP), 중증기 입원치료 또는 주 3회·매회 100분 1:1 치료, 통원·가정 방문",
+      "가족 부모교육·심리상담, 약 2개월 주기로 보호자에게 진행 공유",
+      "치료 종결 후 지역사회(복지관·특수학교·지역센터) 연계"
+    ],
+    "user_payment": "사업안내 문서에 이용자 본인부담 명시 없음. 사업비는 국비 100%로 지정 의료기관 직접 보조(연 3억 8,800만원). 의료 진료비는 일반 건보 체계(문서 미명시).",
+    "billing_flow": "이용자 직접 청구·바우처 사용 구조 아님. 보건복지부가 지정 의료기관(거점병원·행동발달증진센터)에 국고보조금으로 운영비 직접 지원. 이용자는 일반 의료기관 이용과 동일하게 병원에 진료비 지불(건보 적용).",
+    "card_or_voucher_type": "바우처 미해당 — 보건복지부 지정 의료기관 운영 보조사업",
+    "monthly_amount": "기관 운영비 연 3억 8,800만원(지정일부터 3년). 이용자별 단가·한도 문서 미명시.",
+    "sources": [
+      {"file": "(보건복지부)2026발달장애인거점병원행동발달증진센터사업안내-지침서/contents/01_사업개요.md", "note": "지원대상·내용·이용 흐름도"},
+      {"file": "(보건복지부)2026발달장애인거점병원행동발달증진센터사업안내-지침서/contents/02_거점병원_운영.md", "note": "진료 코디네이터·협진"},
+      {"file": "(보건복지부)2026발달장애인거점병원행동발달증진센터사업안내-지침서/contents/03_행동발달증진센터_운영.md", "note": "치료대상자 초기 면담·중재계획"}
+    ]
+  },
+  {
+    "voucher_name": "발달장애인지원센터 (전달체계)",
+    "parent_guide": "(보건복지부)2026발달장애인지원센터사업안내",
+    "year": "2026",
+    "category": "발달장애인",
+    "cat_key": "balgyu",
+    "eligibility_short": "발달장애인·가족 대상 지원체계 자체. 개별 사업(개인별지원계획·주간/방과후·긴급돌봄·통합돌봄·부모상담·권리구제·공공후견·부모교육) 신청 창구.",
+    "apply_flow": [
+      "주소지 읍·면·동 또는 17개 시·도 지역발달장애인지원센터로 문의·신청",
+      "각 개별 사업별 별도 신청 절차를 거침",
+      "지원센터는 접수·종합조사·개인별지원계획·연계·모니터링 수행"
+    ],
+    "use_flow": [
+      "개인별지원계획 수립으로 맞춤형 복지 정보 제공·제공기관 연계",
+      "주간/방과후·통합돌봄·긴급돌봄 등 개별 바우처 사업으로 안내",
+      "권리구제·공공후견·부모상담·부모교육·가족휴식 등 비바우처 서비스 직접 제공"
+    ],
+    "user_payment": "지원센터 자체에는 이용료 없음(상담·연계·계획수립 무료). 연계되는 개별 사업(긴급돌봄 1일 30,000원, 활동서비스 본인부담 없음 등)에 따라 별도 부담.",
+    "billing_flow": "이용자 직접 청구 구조 아님. 보건복지부 → 중앙장애아동·발달장애인지원센터(broso.or.kr) + 17개 시·도 지역센터에 운영비 보조. 이용자는 무료 이용.",
+    "card_or_voucher_type": "바우처 미해당 — 발달장애인지원법 통합지원 전달체계 기관(중앙 1+지역 17)",
+    "monthly_amount": "이용자별 단가 없음(센터 자체는 무료 상담·연계·계획수립).",
+    "sources": [
+      {"file": "(보건복지부)2026발달장애인지원센터사업안내-발달장애인지원센터/contents/02_지원사업소개.md", "note": "12개 지원사업 개요·신청·문의처"},
+      {"file": "(보건복지부)2026발달장애인지원센터사업안내-발달장애인지원센터/contents/03_지원센터소개.md", "note": "중앙·지역센터 조직·역할"}
+    ]
+  },
+
+  {
+    "voucher_name": "지역사회서비스 투자사업 (통합)",
+    "parent_guide": "(보건복지부)2026지역사회서비스투자사업안내",
+    "year": "2026",
+    "category": "지역사회서비스",
+    "cat_key": "jiyeok",
+    "eligibility_short": "지자체장이 선정한 자. 서비스별 상이(기본 중위 140%, 아동청소년심리 160%, 노인 기초연금 등). 2026 기준중위소득 갱신, 정신건강 심리상담 바우처 분리.",
+    "apply_flow": [
+      "읍·면·동 주민센터 방문 신청 (연중 수시)",
+      "신청서[제1호]+이용자 준수사항 동의서[제7호]+증빙(의사소견서·심리검사·추천서 6개월 이내)",
+      "당월 긴급 신청은 매월 10일까지 전송 → 다음날부터 바우처 생성·이용 가능",
+      "시·군·구가 14일(부득이 30일) 내 적합/대상제외 통보, 60일 내 이의신청 가능",
+      "선정 후 국민행복카드 발급 또는 사회서비스 전용카드 발급"
+    ],
+    "use_flow": [
+      "통보서로 제공기관 선택(전자바우처 홈페이지, 품질평가결과 활용)",
+      "초기상담(intake)·서비스 제공계획·계약서 작성, 본인부담 합의",
+      "사전검사 후 회당 50분(서비스별 상이) 서비스, 카드 소지 필수",
+      "단말기 또는 사회서비스 전자바우처 모바일앱 QR결제로 회당 결제 (현대카드 2026.7부터 신규)",
+      "반기별 모니터링 → 12개월 종료 후 사후검사·재판정(최대 6년)"
+    ],
+    "user_payment": "본인부담금 = 서비스가격의 10~50% (소득구간별 차등). 5등급: A 10% / B 20% / C 30% / D 40% / E 50%. 최소 10% 이상 부과 의무. 해당 월 내 제공기관에 직접 납부(대납 시 미징수 간주, 부정행위).",
+    "billing_flow": "제공기관이 단말기/QR로 한국사회보장정보원에 실시간 청구 → 월 3회(1~10일분 15일, 11~20일분 25일, 21~말일분 익월 5일) 제공기관 지급. 매월 15일 시·도/시·군·구에 정산 통보, 회계 종료 후 2개월 내 최종 정산. 부당이득 차감.",
+    "card_or_voucher_type": "국민행복카드(신용/체크) + 사회서비스 전용카드. QR결제(모바일앱) 확대.",
+    "monthly_amount": "서비스별 상이. 예) 아동청소년심리지원 월 18만원, 노인맞춤형운동처방 월 12회 108,000원 등",
+    "sources": [
+      {"file": "(보건복지부)2026지역사회서비스투자사업안내-지침서/contents/07_이용자_선정_및_관리.md", "note": "선정·신청·본인부담·재판정·자격관리"},
+      {"file": "(보건복지부)2026지역사회서비스투자사업안내-지침서/contents/06_아동청소년심리지원서비스_표준모델.md", "note": "대표 서비스 가격·내용"}
+    ]
+  },
+  {
+    "voucher_name": "지역사회서비스 투자사업 (통합)",
+    "parent_guide": "(보건복지부)2025지역사회서비스투자사업안내",
+    "year": "2025",
+    "category": "지역사회서비스",
+    "cat_key": "jiyeok",
+    "eligibility_short": "2026과 동일 골격. 기준 중위소득은 2025년 기준 적용.",
+    "apply_flow": ["2026과 동일 — 읍·면·동 신청 → 시·군·구 선정 → 카드 발급"],
+    "use_flow": ["2026과 동일 — 제공기관 선택, 단말기 회당 결제, 12개월 지원 후 재판정"],
+    "user_payment": "2026과 동일 (소득구간별 10~50%, 최소 10%)",
+    "billing_flow": "2026과 동일 (월 3회 청구·정산, 정보원 위탁)",
+    "card_or_voucher_type": "국민행복카드 + 사회서비스 전용카드",
+    "monthly_amount": "서비스별 상이. 예) 아동·청소년 심리지원 월 18만원",
+    "sources": [
+      {"file": "(보건복지부)2025지역사회서비스투자사업안내-지침서/contents/04_이용자선정및관리.md", "note": "선정·본인부담·자격관리"},
+      {"file": "(보건복지부)2025지역사회서비스투자사업안내-지침서/contents/02_지역사회서비스투자사업운영.md", "note": "전자바우처·청구지급"}
+    ]
+  },
+  {
+    "voucher_name": "아동·청소년 심리지원서비스 (표준모델)",
+    "parent_guide": "(보건복지부)2026지역사회서비스투자사업안내",
+    "year": "2026",
+    "category": "지역사회서비스",
+    "cat_key": "jiyeok",
+    "eligibility_short": "기준 중위소득 160% 이하, 만 18세 이하(고교 재학 18세 이상 포함). ADHD·정서·사회성·발달경계·품행 등 진단서·소견서(6개월 이내).",
+    "apply_flow": [
+      "지역사회서비스투자 공통 신청절차(읍·면·동 → 시·군·구 선정)",
+      "임상심리평가 결과지(부모보고+전문가보고 각 1개): K-CBCL/K-ARS/RCMAS + K-WISC-IV/V 또는 K-ABC2",
+      "정신건강복지센터 추천 시 30% 우선선발 연계"
+    ],
+    "use_flow": [
+      "제공기관 선택 → 초기상담 → 서비스계획 → 계약",
+      "사전검사(별표3 도구 2종) 실시 후 기본프로그램(언어/놀이/미술/음악/심리상담 中 택1) 주1회 50분(프로그램 40분+부모상담 10분)",
+      "1:1 원칙. 예외 소집단 1:2(70분), 1:3(90분)",
+      "6개월 중간점검 → 12개월 종료 후 사후검사 → 1회 재판정(최대 2년)"
+    ],
+    "user_payment": "1등급(수급/차상위) 18,000원 / 2등급(중위 120% 이하) 36,000원 / 3등급(120~160%) 54,000원. 제공기관에 직접 납부.",
+    "billing_flow": "회당 결제(월정부지원금 ÷ 월제공횟수). 예) 2등급 144,000원 / 월 4회 = 회당 36,000원. 단말기 또는 QR/스마트폰 실시간 결제.",
+    "card_or_voucher_type": "국민행복카드 (전자바우처)",
+    "monthly_amount": "월 18만원 (정부지원금 162,000/144,000/126,000 + 본인부담 18,000/36,000/54,000)",
+    "sources": [
+      {"file": "(보건복지부)2026지역사회서비스투자사업안내-지침서/contents/06_아동청소년심리지원서비스_표준모델.md", "note": "대상·가격·서비스 내용"}
+    ]
+  },
+  {
+    "voucher_name": "긴급돌봄 지원사업",
+    "parent_guide": "(보건복지부)2026긴급돌봄지원사업안내",
+    "year": "2026",
+    "category": "긴급돌봄",
+    "cat_key": "emergency",
+    "eligibility_short": "긴급성(질병·부상·퇴원, 주돌봄자 부재, 대기, 재난) + 돌봄 필요성 + 보충성(타 공적 돌봄 미수혜) + 13세↑ 한국 국적(예외 위원회 심의). 소득 제한 없음.",
+    "apply_flow": [
+      "읍·면·동/복지로/전화 신청 (대표번호 1522-0365), 직권 가능",
+      "읍·면·동/광역지원기관/제공기관 중 가장 신속한 주체가 현장방문 → 요구도 평가표[서식5]",
+      "시·군·구 대상자 승인·통지 → 국민행복카드 발급",
+      "광역지원기관(시·도 사회서비스원)이 적정 제공기관 연계",
+      "급박한 경우 '선 지원, 후 행정처리' 가능 (광역지원기관 사업비2로 사후 정산)"
+    ],
+    "use_flow": [
+      "제공기관이 가정 방문(재가 원칙) → 서비스 제공계획",
+      "기본돌봄(재가돌봄·가사·이동지원) 시간당 19,000원 + 방문목욕(차량) 회당 88,000원",
+      "최대 72시간 / 1일 8h(1회 최소 2h) / 가급적 30일 내 소진 / 바우처 생성일 90일 내 종료",
+      "예외 인정 시 1회 추가(72시간/방문목욕 4회) 가능",
+      "전출 시 자격 상실, 전입지 재신청"
+    ],
+    "user_payment": "소득기준 차등: ①기초수급·차상위 면제, ②중위 160% 초과자 전액 본인부담, ③그 외는 광역지자체가 자율 차등. 야간(22~06)·휴일 가산수가 30분당 1,500원 초과분은 지방비/본인부담. 본인부담은 서비스 개시 하루 전까지 제공기관 계좌 입금 원칙(현금·카드 가능).",
+    "billing_flow": "제공기관이 단말기/QR로 정보원에 실시간 청구 → 정보원이 지급·정산. '선 지원' 건은 광역지원기관 사업비2로 수기정산[서식15]. 시·군·구가 국비+시·도비+시·군·구비를 정보원 지정계좌에 예탁.",
+    "card_or_voucher_type": "국민행복카드 (전자바우처). 행복이음/전자바우처시스템 통합. QR결제 가능. 바우처 생성일 90일 내 사용. 12.31 미사용분 차기 이월·재생성.",
+    "monthly_amount": "기본돌봄 시간당 19,000원, 방문목욕 회당 88,000원. 1인 한도 최대 72시간 + 방문목욕 4회 (추가 1회 가능)",
+    "sources": [
+      {"file": "(보건복지부)2026긴급돌봄지원사업안내-지침서/contents/01_사업개요.md", "note": "대상·단가·절차·예산"},
+      {"file": "(보건복지부)2026긴급돌봄지원사업안내-지침서/contents/02_긴급돌봄_지원_제공_상.md", "note": "선 지원 후 행정처리, 대상요건"},
+      {"file": "(보건복지부)2026긴급돌봄지원사업안내-지침서/contents/03_사회서비스_전자바우처_운영_상.md", "note": "카드·QR·바우처 생성/소멸·본인부담"}
+    ]
+  },
+  {
+    "voucher_name": "위기임신 및 보호출산 지원사업",
+    "parent_guide": "(보건복지부)2026위기임신및보호출산지원사업안내",
+    "year": "2026",
+    "category": "위기임신",
+    "cat_key": "pregnancy",
+    "eligibility_short": "대한민국 국적 위기임산부(경제·심리·신체적 사유로 출산·양육 곤란). 보호출산 신청 시 위기임신 상담 선행. 보호출산 산모·아동·생부 포함. 14세 미만/피성년후견인은 보호자 대리.",
+    "apply_flow": [
+      "지역상담기관 또는 1308 전화·온라인·대면 상담 (연중, 거부 불가)",
+      "상담 후 보호출산 희망 시 사전상담(절차·법적효력·숙려기간·출생증서)",
+      "보호출산 신청서 → 시·군·구에 전산관리번호 발급 요청 → 비식별 가명·번호 부여",
+      "지역상담기관이 임산부확인서 발급(유효 출산후 6개월), 의료비·숙려비용 지원 신청서 함께"
+    ],
+    "use_flow": [
+      "임산부확인서 + 모바일 건강보험증(가명·전산관리번호)을 의료기관에 제시하여 가명 산전·출산",
+      "의료기관 비식별 진료기록부 작성, 심평원으로 출생통보(법 절차)",
+      "출산 후 7일 이상 숙려기간 동안 산모가 아동과 생활·양육 시도",
+      "숙려 후 산모 의사 확인 → 시·군·구청장에 아동 인도 → 친권 정지 → 후견인 보호조치",
+      "지역상담기관이 출생증서 작성·밀봉 → 아동권리보장원 영구보존",
+      "추후 아동 성장 시 출생증서 공개 청구 가능, 신청 철회도 일정 요건 하 가능"
+    ],
+    "user_payment": "비용 청구·본인부담 구조 아님. 산모가 의료기관 본인부담금을 일단 납부 후 지원. 무기명 선불카드(신한카드)로 산모에게 직접 지급: ①의료비 1회 100만원(다태아 비례, 의료기관·약국 한정, 유효 1년), ②숙려비용 1회 최대 140만원(일 20만원×7일, 클린카드 수준, 유효 6개월).",
+    "billing_flow": "건강보험/의료급여 진료비는 의료기관이 가명·번호로 심평원에 청구 → 건보공단/지자체가 의료기관에 지급(일반 흐름). 산모 지원비용은 보건복지부 → 중앙상담지원기관(아동권리보장원) → 신한카드 예치 → 지역상담기관이 빈 카드 받아 충전 요청 → 신한카드 충전 → 지역상담기관이 산모에게 지급. 미지급/만료분 반납·불용처리.",
+    "card_or_voucher_type": "무기명 선불카드(신한카드, 최대 50만원 충전형). 사회서비스 전자바우처 아님. 의료서비스는 임산부확인서+가명 모바일 건강보험증.",
+    "monthly_amount": "의료비 1회 100만원(다태아 비례), 숙려비용 1일 20만원×최대 7일=140만원. 양육 관련 일반 사회보장급여는 아동 인도 시점부터 수급 불가.",
+    "sources": [
+      {"file": "(보건복지부)2026위기임신및보호출산지원사업안내-지침서/contents/03_사업개요.md", "note": "운영절차·추진주체·예산"},
+      {"file": "(보건복지부)2026위기임신및보호출산지원사업안내-지침서/contents/05_보호출산_및_출산후_아동보호.md", "note": "신청·비식별화·임산부확인서·비용지원·선불카드"}
+    ]
+  },
+  {
+    "voucher_name": "지역아동센터 지원사업",
+    "parent_guide": "(보건복지부)2026지역아동센터지원사업안내",
+    "year": "2026",
+    "category": "아동돌봄",
+    "cat_key": "dolbom",
+    "eligibility_short": "18세 미만 초·중학생. 우선돌봄(수급·차상위·의료급여·장애가구·다문화·한부모·조손·교육비·2자녀이상·돌봄특례) 50%↑ + 일반아동 50%↓. 농어촌 70%/도시 60%. 이용자 직접 청구 구조 아님 — 시설 운영보조.",
+    "apply_flow": [
+      "보호자/읍·면·동/지역아동센터가 방과후 돌봄서비스 신청서[서식4호]를 주소지 시·군·구에 제출",
+      "정부24 '온종일돌봄 원스톱' 온라인 신청 가능",
+      "우선돌봄 증빙(또는 돌봄특례 맞벌이는 재직증명)",
+      "시·군·구 7일 내 결정 → 보호자에게 결정통지서[서식5호] + 센터 배치",
+      "센터가 응급처치·귀가 동의[서식6호] 받고 희망이음에 등록"
+    ],
+    "use_flow": [
+      "센터 등원하여 방과후 돌봄(보호·교육·정서·문화·급식) 이용",
+      "필수 운영시간 13~20시(2024부터 확대)",
+      "변경(이동·결정 변경) 시 변경신청서 제출"
+    ],
+    "user_payment": "이용료 무료 원칙. 일반아동에 한해 시설장이 운영위원회·보호자 동의 후 월 10만원 한도 수납 가능(우선돌봄은 금지). 부록 야간연장돌봄 1일 5,000원(취약계층 무료).",
+    "billing_flow": "이용자 직접 청구 구조 아님. 국가·지자체가 센터에 보조금(인건비·운영비·급식비 등) 직접 지원, 이용자는 무료(또는 월 최대 10만원) 이용.",
+    "card_or_voucher_type": "전자바우처 사용 안 함. 시설 등록 방식.",
+    "monthly_amount": "0원(원칙) ~ 월 최대 10만원(일반아동 자율 수납). 야간연장 1일 5,000원 내.",
+    "sources": [
+      {"file": "(보건복지부)2026지역아동센터지원사업안내-지침서/contents/02_사업개요.md", "note": "사업 목적·추진체계"},
+      {"file": "(보건복지부)2026지역아동센터지원사업안내-지침서/contents/04_지역아동센터_운영.md", "note": "신청 7단계"},
+      {"file": "(보건복지부)2026지역아동센터지원사업안내-지침서/contents/07_지역아동센터_예산지원_하.md", "note": "월 10만원 한도"},
+      {"file": "(보건복지부)2026지역아동센터지원사업안내-지침서/contents/11_부록1_야간연장돌봄.md", "note": "야간 1일 5,000원"}
+    ]
+  },
+
+  {
+    "voucher_name": "자립수당",
+    "parent_guide": "(보건복지부)2026아동분야사업안내",
+    "year": "2026",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "아동복지시설·가정위탁에서 과거 2년↑ 보호 후 만 18세 이후 만기·연장 종료된 자(2018.8 이후, 보호종료 5년 이내). 만 15세 이후 조기 보호종료된 자도 만 18세부터 5년 이내.",
+    "apply_flow": [
+      "본인 또는 대리(친족 8촌, 시설장·종사자, 위탁부모, 공무원) 신청",
+      "보호종료 예정자: 종료 30일 이내 사전신청 — 시설은 시설 관할 읍·면·동, 위탁은 본인 주소지",
+      "일반: 주소지 읍·면·동 방문 / 우편·팩스(해외·군) / 복지로 온라인",
+      "신청서[서식1호] + 사이버강의 이수증(아동권리보장원 또는 서금원) 또는 국민연금공단 재무상담 확인서 + 신분증",
+      "읍·면·동 → 행복e음 → 본인 주소지 시·군·구 보장결정(30일, 최장 60일), SMS·이메일 통지"
+    ],
+    "use_flow": [
+      "지정 본인 명의 계좌(또는 압류방지통장)에 시·군·구 직접 입금",
+      "매월 20일 지급(공휴일은 전일)",
+      "거주지·계좌·국적·교정시설 입소 등 변경 시 30일 내 신고",
+      "자립준비청년 의료비 지원 함께 안내"
+    ],
+    "user_payment": "본인부담 없음 (전액 정부 지원)",
+    "billing_flow": "이용자 청구 없음. 본인 주소지 시·군·구청장이 결정 후 본인 명의 계좌로 매월 20일 직접 입금. 국비(서울 50%/지방 70%)+지방비 매칭. 부정수급 시 환수.",
+    "card_or_voucher_type": "현금지급 (본인 명의 계좌 이체)",
+    "monthly_amount": "매월 50만원, 보호종료일로부터 최대 60개월(5년). 보호종료 60일 내 신청 시 보호종료월부터 소급.",
+    "sources": [
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/33a_v2_제4장_자립수당_상.md", "note": "사업 개요·신청·업무흐름도"},
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/33b_v2_제4장_자립수당_하.md", "note": "사후관리·환수"}
+    ]
+  },
+  {
+    "voucher_name": "자립수당",
+    "parent_guide": "(보건복지부)2025아동분야사업안내",
+    "year": "2025",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "2026과 동일.",
+    "apply_flow": ["2026과 동일 — 읍·면·동/우편·팩스/복지로 신청"],
+    "use_flow": ["2026과 동일 — 매월 20일 본인 명의 계좌 입금"],
+    "user_payment": "본인부담 없음",
+    "billing_flow": "2026과 동일",
+    "card_or_voucher_type": "현금지급",
+    "monthly_amount": "매월 50만원, 최대 60개월",
+    "sources": [
+      {"file": "(보건복지부)2025아동분야사업안내-지침서/contents/33_v2_제4장_자립수당.md", "note": "사업 개요·업무흐름도"}
+    ]
+  },
+  {
+    "voucher_name": "디딤씨앗통장 (CDA)",
+    "parent_guide": "(보건복지부)2026아동분야사업안내",
+    "year": "2026",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "(1) 만 18세 미만 보호대상아동(시설·공동생활·가정위탁·장애인거주·소년소녀가정), (2) 기초생활수급가구 아동, (3) 차상위계층 만 17세 이하. 2025부터 차상위 만 17세 이하로 확대.",
+    "apply_flow": [
+      "시설보호아동: 시설이 명단을 시·군·구에 제출",
+      "가정위탁·차상위: 본인/보호자가 디딤씨앗통장 계좌 신청서를 읍·면·동에 제출(매월 취합 후 시·군·구로)",
+      "시·군·구가 발급 대상자 지정·심사·확정",
+      "신한은행이 디딤씨앗통장 발급"
+    ],
+    "use_flow": [
+      "아동(보호자·후원자)이 월 최대 50만원까지 본인 적립(매칭은 월 5만원까지)",
+      "당월 1~말일 입금 원칙(소급 불가)",
+      "시·군·구가 정부 매칭지원금을 익월 적립",
+      "신한SOL 앱에서 적립·매칭 현황 조회",
+      "만 18세 이후 시·군·구에 사용 신청 — 학자금·자격·취업·창업·주거·의료·결혼 등 자립 용도",
+      "만 24세까지 자립용도 미발생 시 용도 제한 없이 인출"
+    ],
+    "user_payment": "본인부담 개념 없음. 자발 적립 + 정부 매칭.",
+    "billing_flow": "아동(후원자) 적립 → 정부(국비+지자체 매칭)가 시·군·구 통해 신한은행 계좌에 매칭 → 만기/조기인출 시 시·군·구청장 승인 후 자립 용도로 지급. 후원금은 아동권리보장원 관리.",
+    "card_or_voucher_type": "금융 통장(신한은행 위탁). 매칭금은 국공채투자신탁, 본인 적립은 정기적금.",
+    "monthly_amount": "본인 적립 월 5만원에 1:2 매칭 → 정부 월 최대 10만원 지원. 본인 한도 월 50만원·연 600만원. 가입~만 18세 미만.",
+    "sources": [
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/31a_v2_제2장_디딤씨앗통장_상.md", "note": "사업 개요·매칭·사용 용도"},
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/31b_v2_제2장_디딤씨앗통장_중.md", "note": "신청·계좌개설"},
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/31c_v2_제2장_디딤씨앗통장_하.md", "note": "조기인출·만기지급"}
+    ]
+  },
+  {
+    "voucher_name": "디딤씨앗통장 (CDA)",
+    "parent_guide": "(보건복지부)2025아동분야사업안내",
+    "year": "2025",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "2026과 동일. 2025부터 차상위 만 17세 이하 확대.",
+    "apply_flow": ["2026과 동일"],
+    "use_flow": ["2026과 동일 — 본인 월 5만원 적립 → 정부 1:2 매칭 → 만 18세 이후 자립 용도 인출"],
+    "user_payment": "본인부담 없음",
+    "billing_flow": "2026과 동일",
+    "card_or_voucher_type": "금융 통장(신한은행 위탁)",
+    "monthly_amount": "본인 월 5만원 + 정부 매칭 월 최대 10만원",
+    "sources": [
+      {"file": "(보건복지부)2025아동분야사업안내-지침서/contents/31a_v2_제2장_디딤씨앗통장_상.md", "note": "사업 개요"},
+      {"file": "(보건복지부)2025아동분야사업안내-지침서/contents/31b_v2_제2장_디딤씨앗통장_중.md", "note": "신청"},
+      {"file": "(보건복지부)2025아동분야사업안내-지침서/contents/31c_v2_제2장_디딤씨앗통장_하.md", "note": "만기·조기인출"}
+    ]
+  },
+  {
+    "voucher_name": "자립준비청년 의료비 지원",
+    "parent_guide": "(보건복지부)2026아동분야사업안내",
+    "year": "2026",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "자립수당과 동일 요건(보호종료 5년 이내) + 건강보험 가입자/피부양자 (차상위 본인부담경감 제외, 의료급여 수급자도 신청은 가능하나 건보 전환 후 적용).",
+    "apply_flow": [
+      "본인/대리 주소지 읍·면·동 방문 신청(사전신청은 보호종료 30일 이내)",
+      "해외·군·질병 사유 시 우편·팩스 가능",
+      "신청서(자립수당과 통합 예정) + 신분증, 대리는 위임장",
+      "읍·면·동 → 행복e음 → 시·군·구 결정(자립수당 수급자는 별도 심사 없이 결정, 30일/최장 60일)",
+      "시·군·구가 행복e음 → 국민건강보험공단 시스템으로 결정정보 연계 → 익일 0시부터 요양기관정보마당 반영"
+    ],
+    "use_flow": [
+      "별도 카드 발급 없음. 의료기관·약국 방문 시 본인 신분증",
+      "요양기관이 요양기관정보마당 수진자 자격조회로 대상자 확인",
+      "요양기관이 대상자에게 본인부담률 14%만 징수(일반 30~60% 대비 차액 국고 지원)",
+      "약국 직접조제(4,000원 이하)는 면제",
+      "요양기관이 특정기호 'F028'로 심평원에 청구",
+      "지원개시일~종료일(보호종료일+60개월 마지막 달) 동안 횟수·금액 제한 없이 이용"
+    ],
+    "user_payment": "외래·입원·처방조제 요양급여비용의 14%만 본인부담. 약국 직접조제 4,000원 이하 면제. 식대 20%, 격리입원료 5% 등 별도. 선별급여·전액본인부담·비급여 제외.",
+    "billing_flow": "요양기관이 의료비 지원분(국고)+공단부담금을 심평원에 청구 → 심평원 심사 → 국민건강보험공단이 일괄 지급 → 의료비 지원금은 보건복지부 예탁금에서 건보재정으로 사후정산. 이용자는 창구에서 14% 본인부담만 직접 납부.",
+    "card_or_voucher_type": "직접지원 (별도 카드/바우처 없음, 공단 시스템 자격 자동 반영)",
+    "monthly_amount": "한도·횟수 제한 없음. 보호종료일로부터 최대 60개월. 실비보험 등과 중복 가능.",
+    "sources": [
+      {"file": "(보건복지부)2026아동분야사업안내-지침서/contents/35_v2_제6장_자립준비청년의료비지원.md", "note": "지원대상·본인부담률·청구 흐름·F028"}
+    ]
+  },
+  {
+    "voucher_name": "자립준비청년 의료비 지원",
+    "parent_guide": "(보건복지부)2025아동분야사업안내",
+    "year": "2025",
+    "category": "아동·자립",
+    "cat_key": "jarip",
+    "eligibility_short": "2026과 동일.",
+    "apply_flow": ["2026과 동일 — 읍·면·동/우편·팩스 신청 후 공단 시스템 연계"],
+    "use_flow": ["2026과 동일 — 의료기관에서 본인부담률 14%만 납부, F028 청구"],
+    "user_payment": "본인부담률 14% (2026과 동일)",
+    "billing_flow": "2026과 동일",
+    "card_or_voucher_type": "직접지원",
+    "monthly_amount": "한도·횟수 제한 없음, 보호종료 60개월",
+    "sources": [
+      {"file": "(보건복지부)2025아동분야사업안내-지침서/contents/35_v2_제6장_자립준비청년의료비지원.md", "note": "본인부담률·신청·청구"}
+    ]
+  },
+
+  {
+    "voucher_name": "장애인 건강검진 지원사업",
+    "parent_guide": "(보건복지부)2026장애인건강검진지원사업안내지침",
+    "year": "2026",
+    "category": "장애인",
+    "cat_key": "jangin",
+    "eligibility_short": "건강검진 대상 등록장애인(별도 자격 없이 건강검진표 발송 대상자).",
+    "apply_flow": [
+      "국민건강보험공단이 매년 초 「건강검진표」를 개인별 주소지로 발송",
+      "수검자는 장애인 건강검진기관(2026.1 기준 111개) 또는 일반 검진기관 선택",
+      "건강검진표·장애인등록증 지참하여 검진기관 방문",
+      "사후관리 희망 시 결과 활용 동의서[별지12호] 제출"
+    ],
+    "use_flow": [
+      "지정 검진기관 방문",
+      "기본 국가건강검진 수행(장애유형별 안내·편의 제공)",
+      "유소견 시 보건소·지역장애인보건의료센터·구강진료센터 연계"
+    ],
+    "user_payment": "이용자 본인부담 없음(일반 국가건강검진과 동일). 장애 정도가 심한 장애인 대상 검진기관에 '안전편의관리비' 83,830원(2026) 추가 지급되나, 이는 검진기관 수가로 이용자 부담 아님.",
+    "billing_flow": "이용자는 직접 청구하지 않음. 검진기관이 공단을 통해 수가 청구·정산. 정부는 검진기관에 시설·장비비(167.5백만원, 2년 분할, 국비 50%+지방비 50%)·안전편의관리비 지원.",
+    "card_or_voucher_type": "별도 카드·바우처 없음. 건강검진표(국민건강보험공단 발송) 지참 방식.",
+    "monthly_amount": "이용자 단가 없음(국가건강검진 체계 내). 검진기관 가산수가 '안전편의관리비' 건당 83,830원.",
+    "sources": [
+      {"file": "(보건복지부)2026장애인건강검진지원사업안내지침-지침서/contents/02_사업내용.md", "note": "지원내용·안전편의관리비"},
+      {"file": "(보건복지부)2026장애인건강검진지원사업안내지침-지침서/contents/04_사업절차.md", "note": "이용자 절차"}
+    ]
+  },
+  {
+    "voucher_name": "장애인 의료비 지원",
+    "parent_guide": "(보건복지부)2026장애인복지사업안내2",
+    "year": "2026",
+    "category": "장애인",
+    "cat_key": "jangin",
+    "eligibility_short": "의료급여 2종 수급권자인 등록장애인 또는 건강보험 차상위 본인부담경감 대상 등록장애인(만성질환자·18세 미만).",
+    "apply_flow": [
+      "별도 사전 신청 없음 — 의료급여증·건강보험증·장애인등록증 자격이 있으면 자동 대상",
+      "의료기관 방문 시 「장애인등록증」·「의료급여증」·「건강보험증」 제시",
+      "의료기관이 요양정보마당으로 장애등록·보장정보 확인"
+    ],
+    "use_flow": [
+      "의료급여기관(1·2·3차) 또는 약국에서 외래·입원·약 조제",
+      "의료기관이 본인부담금 면제·차감 후 수납",
+      "연 외래 365회 초과 시 지원 중단(중증·예외자는 계속)"
+    ],
+    "user_payment": "외래 1차: 본인 750원(나머지 750원 지원) / 2·3차 외래: 본인부담 전액 지원 / 입원: 전액 지원(식대 제외) / 약국 조제 500~900원, 식대는 미지원.",
+    "billing_flow": "이용자 직접 청구 없음. 의료기관이 본인부담금 공제 수납 후 심평원에 청구 → 공단이 시·군·구 예탁금 범위 내 의료기관 지급 → 시·군·구가 예탁금(가상계좌) 관리.",
+    "card_or_voucher_type": "별도 카드·바우처 없음. 등록증 + 의료급여증/건강보험증 제시.",
+    "monthly_amount": "월 한도 없음. 진료비 항목별 본인부담금 차액을 건당 지원(외래 1차 750원 등).",
+    "sources": [
+      {"file": "(보건복지부)2026장애인복지사업안내2-지침서/contents/16_의료비_자립자금.md", "note": "6-1 장애인 의료비 지원"}
+    ]
+  },
+  {
+    "voucher_name": "장애인 자립자금 대여",
+    "parent_guide": "(보건복지부)2026장애인복지사업안내2",
+    "year": "2026",
+    "category": "장애인",
+    "cat_key": "jangin",
+    "eligibility_short": "소득인정액 기준 중위소득 50% 초과 100% 이하 가구의 성년(만 19세↑) 등록장애인.",
+    "apply_flow": [
+      "예산 범위 내 연중 신청(2026 국민은행 신규 대여 실행 4.1부터)",
+      "읍·면·동에 사회보장급여 신청서[서식1] + 자금대여 신청서·사업계획서[서식2] + 소득·재산 신고서[서식3] + 개인정보 동의[서식4] + 신분증",
+      "출퇴근용 자동차 구입은 재직증명·근로계약 등 근로자 증빙",
+      "읍·면·동 공무원이 조사서[서식5] 작성 → 시·군·구 적격 심사 후 추천",
+      "시·군·구청장이 자금대여 추천 통지서[서식6] 발급(유효 6개월, 자동차는 2개월)",
+      "추천 대상자는 국민은행 방문 융자 신청(은행 여신규정에 따라 최종 결정)"
+    ],
+    "use_flow": [
+      "대출 실행 후 자금 용도별 집행: 생업, 생업/출퇴근용 자동차, 취업 지도·기술훈련, 기능회복 보조기기, 사무보조기기, 자기개발 훈련, 장애 완화·극복 의료비",
+      "생활가계자금·주택전세·학자금 용도 불가"
+    ],
+    "user_payment": "이자 부담. '21년 2분기↑ 신규 최고 2%, 그 이전 최고 3%. 상환: 5년 거치 5년 분할.",
+    "billing_flow": "정부 보조금 직접 지급이 아닌 융자. 시·군·구가 적격 대상자를 국민은행에 추천 → 은행이 융자 실행·원리금 회수. 부당이득·미상환은 결과보고서·상환관리대장으로 사후관리.",
+    "card_or_voucher_type": "현금 융자(은행 대출). 별도 카드·바우처 없음.",
+    "monthly_amount": "월 한도가 아닌 가구당 대여 한도. 무보증 1,200만원(자동차 특수설비 1,500만원), 담보 5,000만원 이하.",
+    "sources": [
+      {"file": "(보건복지부)2026장애인복지사업안내2-지침서/contents/16_의료비_자립자금.md", "note": "6-2 장애인 자립자금 대여"}
+    ]
+  },
+  {
+    "voucher_name": "장애인 보조기기 교부",
+    "parent_guide": "(보건복지부)2026장애인복지사업안내2",
+    "year": "2026",
+    "category": "장애인",
+    "cat_key": "jangin",
+    "eligibility_short": "기초수급자·차상위계층 중 지원품목별 장애유형(지체·뇌병변·시각·청각·심장·호흡기·지적·자폐성·언어) 등록장애인.",
+    "apply_flow": [
+      "주소지 시·군·구 및 읍·면·동에 신청[서식2] 또는 복지로 온라인(연중, 대리 가능)",
+      "시·군·구가 국민연금공단에 서비스 지원 종합조사[서식4] 의뢰 → 20일 내 결과 통보",
+      "시·군·구가 지역보조기기센터에 맞춤형 상담·평가[서식5] 의뢰(7일 내)",
+      "지역센터 20일 내 상담·평가(34개 품목 대면, 그 외 전화) → 평가표[서식6]",
+      "시·군·구 7일 내 교부 결정 → 보조기기 교부등 의뢰서[서식8] 발급"
+    ],
+    "use_flow": [
+      "의뢰서[서식8]를 보조기기업체에 제출",
+      "업체가 의뢰서에 따라 보조기기 교부(결정 후 14일 내)",
+      "담당공무원이 가정방문 등으로 7일 내 교부 확인서[서식9] 작성",
+      "교부 후 1~6개월 내 사후관리(사용·양도·대여·안전)"
+    ],
+    "user_payment": "원칙적으로 본인부담 없음(현물 교부). 지원기준액 초과 고가품 선택 시 차액은 자비.",
+    "billing_flow": "이용자 직접 청구 없음. 업체가 교부 확인서[서식9]+비용청구서[서식10]를 시·군·구에 제출 → 시·군·구가 15일 내 업체에 지급. 시·군·구 직접 구입 교부 가능.",
+    "card_or_voucher_type": "별도 카드·바우처 없음. 현물(보조기기) 교부. 의뢰서[서식8]가 매체.",
+    "monthly_amount": "연 200만원 범위 내, 1인 최대 3품목(단일 200만원 초과 시 1품목). 품목별 지원기준액 46종(욕창예방방석 35만원, 영상확대 270만원, 대화용장치 220만원 등).",
+    "sources": [
+      {"file": "(보건복지부)2026장애인복지사업안내2-지침서/contents/17_보조기기_교부.md", "note": "6-3 보조기기 교부 — 46종·서식1~10"}
+    ]
+  },
+  {
+    "voucher_name": "정신건강 심리상담 바우처",
+    "parent_guide": "(보건복지부)2026정신건강심리상담바우처사업안내",
+    "year": "2026",
+    "category": "정신건강",
+    "cat_key": "mental",
+    "eligibility_short": "우울·불안 등 정서적 어려움 있는 국민(나이·소득 무관). 의뢰서/진단서/소견서/PHQ-9 10점↑/자립준비청년·보호연장아동/재난피해자/정신건강복지센터 등록회원 중 1개↑ 충족.",
+    "apply_flow": [
+      "주소지 읍·면·동 방문 또는 복지로 온라인 신청(만 19세↑ 본인만 온라인, 19세 미만 보호자 동의)",
+      "신청 시 서비스 유형(1급/2급) 결정",
+      "사회보장급여 신청서[서식1] + 준수사항 동의서[서식2] + 증빙(의뢰서/진단서/소견서/검진 결과/보호종료확인서 등 3개월~1년 이내) 1종↑",
+      "필요 시 사회서비스 전용 국민행복카드 발급 신청서[서식3]",
+      "시·군·구(보건소) 자격 확인 후 예산 범위 선착순 → 10일 내 정보원 전송",
+      "신청일 14일 내 결정통지서[서식7]+안내문[서식8] 통지"
+    ],
+    "use_flow": [
+      "선정 후 전자바우처 포털 또는 정신건강 복지서비스 시스템(mhws.or.kr)에서 제공기관 검색·선택(주소지 무관)",
+      "제공기관과 사전 계약(일정표 포함 제공계획서[서식26])",
+      "사전 등록된 상담장소에서 1:1 대면, 회당 50분↑, 총 8회",
+      "8회차 종결 시 1회차와 동일 검사(PHQ-9 등) 재시행, 제공기록지[서식10]",
+      "지원기간 바우처 생성일~120일, 연장 불가, 1년 1회",
+      "카드 미소지 시 원칙적으로 이용 불가"
+    ],
+    "user_payment": "본인부담률 4구간: 가(수급·차상위·법정한부모) 0% / 나 10% / 다 30% / 라 50%. 자립준비청년·보호연장아동·법정한부모는 0%.",
+    "billing_flow": "회당 단말기 바우처 카드 실시간 결제. 제공기관이 정부지원금+본인부담금 청구 → 정보원이 시·군·구 예탁금에서 정산. 본인부담금은 결제 시 함께 차감.",
+    "card_or_voucher_type": "사회서비스 전용 국민행복카드 (전자바우처). 8회 회당 결제.",
+    "monthly_amount": "1급(정신건강전문요원 1급) 회당 80,000원 × 8회 = 640,000원 / 2급(2급·임상심리사 1급·학사·석사 1,000시간) 회당 70,000원 × 8회 = 560,000원",
+    "sources": [
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/01_사업개요.md", "note": "사업목적·추진체계"},
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/02_바우처지원대상.md", "note": "7개 지원대상 분류·증빙"},
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/03_바우처신청.md", "note": "신청·소득조사·통지"},
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/07_서비스가격.md", "note": "단가 1급 8만/2급 7만, 본인부담률 가~라"},
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/08_서비스기간및내용.md", "note": "총 8회·회당 50분·120일"},
+      {"file": "(보건복지부)2026정신건강심리상담바우처사업안내-정신건강심리상담/contents/10_서비스제공.md", "note": "단말기 카드 결제·기록지"}
+    ]
+  },
+  {
+    "voucher_name": "특수교육 치료·방과후 지원 (꿈이든카드)",
+    "parent_guide": "(시도교육청)2026특수교육꿈이든카드길잡이",
+    "year": "2026",
+    "category": "특수교육(경기)",
+    "cat_key": "edu",
+    "eligibility_short": "경기도 내 특수교육대상영아·유·초·중·고·특수학교 재학 특수교육대상학생 중 치료·방과후 지원 신청자(소득 무관).",
+    "apply_flow": [
+      "학교가 수요조사 실시[양식1]",
+      "보호자가 신청서[서식1] 학교 제출(개별화교육지원팀이 장애·치료영역 검토)",
+      "학교가 관리자 홈페이지에 학생 등록 → 특수교육지원센터에서 카드 수령·발급 → 대상자 전달",
+      "꿈이든카드 홈페이지(dreame.goe.or.kr)에서 지정 기관 검색·방문하여 이용 신청",
+      "대상자·기관 협의하여 지원 계획서[서식2] 작성 → 기관이 홈페이지 등록 → 교육지원청 영역·인력·단가 검토 후 승인"
+    ],
+    "use_flow": [
+      "포인트 매월 1일 정기 생성(신규는 등록 시), 사용기간 매년 3월~다음해 2월, 미사용 자동 이월",
+      "지원방법: 학교방문형 / 가정방문형 / 기관방문형 / 특수교육지원센터 내방형",
+      "회당 50분(보호자상담 포함), 회당 결제 원칙(주2회↑ 그룹수업은 주1회 결제 가능)",
+      "학원은 월 출석 1/2↑ 시 월말 일괄결제(출석부 업로드 필수, 월초 선결제 불가)",
+      "결제 후 기관이 일지·평가서 홈페이지 업로드(10회↑ 평가서 필수)"
+    ],
+    "user_payment": "월 15만원 한도 내 소요액 지원, 초과분 보호자 부담. 진단서비·검사비·평가비 결제 불가.",
+    "billing_flow": "교육청 → 은행 → 기관 흐름 정산. 기관이 전용단말기/PC승인+카드리더기/모바일 앱으로 회당 카드 결제 → 교육지원청이 결제정보·출결 모니터링 → 부정사용 시 환수(특수교육운영위원회 결정).",
+    "card_or_voucher_type": "꿈이든카드 (경기도교육청 발급 전자카드, 금융기능 없음, 학생 명의 1장). 가맹점은 지정 치료·방과후 기관(병·의원, 복지관, 발달재활 제공기관, 비영리, 예체능·직업교육, 등록학원, 체육 신고기관).",
+    "monthly_amount": "월 15만원 한도(특수학교 방과후교실 동시 이용 시 합계 월 15만원 이내). 회당 단가는 기관 자율, 학교 방과후·돌봄·자유수강권과 중복 불가.",
+    "sources": [
+      {"file": "(시도교육청)2026특수교육꿈이든카드길잡이-꿈이든카드/contents/01_사업개요.md", "note": "사용절차·결제방법"},
+      {"file": "(시도교육청)2026특수교육꿈이든카드길잡이-꿈이든카드/contents/02_대상자.md", "note": "대상·제외"},
+      {"file": "(시도교육청)2026특수교육꿈이든카드길잡이-꿈이든카드/contents/03_지원내용및단가.md", "note": "월 15만원·회당 50분"},
+      {"file": "(시도교육청)2026특수교육꿈이든카드길잡이-꿈이든카드/contents/04_꿈이든카드_발급및이용.md", "note": "발급·포인트·결제·부정사용"},
+      {"file": "(시도교육청)2026특수교육꿈이든카드길잡이-꿈이든카드/contents/05_지원실시.md", "note": "이용 9단계"}
+    ]
+  },
+  {
+    "voucher_name": "경기도 360도 돌봄 (누구나돌봄)",
+    "parent_guide": "(지자체)2026360도돌봄사업안내",
+    "year": "2026",
+    "category": "지자체돌봄(경기)",
+    "cat_key": "local",
+    "eligibility_short": "경기도 31개 시·군 도민 누구나(소득·연령 무관). 적격요건 1개↑: ①거동·일상생활 곤란, ②수발 가족 부재, ③공적돌봄 미이용 또는 공백.",
+    "apply_flow": [
+      "읍·면·동에 신청·접수(본인 신청 또는 발굴), 시급성 판단",
+      "복지공무원이 현장방문(긴급 즉시, 일반 72시간 내)하여 욕구·상황 파악",
+      "읍·면·동이 돌봄계획 수립 후 제공기관에 의뢰",
+      "문의: 시·군 대표번호(수원 1899-3300, 용인 1577-1122 등) 또는 경기도 콜센터 031-120"
+    ],
+    "use_flow": [
+      "제공기관이 서비스 수행(기본형 5개: 생활·동행·주거안전·식사·일시보호 / 확대형 3개: 재활·심리상담·방문의료)",
+      "생활·동행·주거안전: 연 최대 60시간(1일 8h, 60일 내)",
+      "식사지원: 1일 1~3식, 연 45식(60일 내)",
+      "일시보호: 연 15일",
+      "재활·심리상담: 연 10회(주 1~2회, 1h 내)",
+      "방문의료: 월 6회(60일 내)",
+      "복지공무원 모니터링·사후관리 후 시·군 정산으로 사례 종결"
+    ],
+    "user_payment": "소득 구간별 자부담: 중위 120% 이하 전액 지원(0%) / 120% 초과~150% 이하 50% 지원 / 150% 초과 전액 자부담.",
+    "billing_flow": "이용자가 별도 결제하지 않음(120% 이하). 사례종결 단계에서 시·군이 결과보고 확인 후 제공기관에 이용금액 정산 지급. 자부담 발생 시 이용자 본인 부담분 별도 납부.",
+    "card_or_voucher_type": "별도 카드·바우처 명시 없음. 읍·면·동 → 제공기관 의뢰 → 시·군 정산 방식.",
+    "monthly_amount": "1인당 연 최대 150만원 한도(월 한도 별도 없음). 서비스별 한도는 시간/일/회로 별도.",
+    "sources": [
+      {"file": "(지자체)2026360도돌봄사업안내-누구나돌봄/contents/01_사업내용및지원대상.md", "note": "31개 시·군 도민·적격요건"},
+      {"file": "(지자체)2026360도돌봄사업안내-누구나돌봄/contents/02_지원내용.md", "note": "연 150만원·자부담"},
+      {"file": "(지자체)2026360도돌봄사업안내-누구나돌봄/contents/03_돌봄분야.md", "note": "기본형 5+확대형 3"},
+      {"file": "(지자체)2026360도돌봄사업안내-누구나돌봄/contents/04_제공절차.md", "note": "신청~사례종결 6단계"},
+      {"file": "(지자체)2026360도돌봄사업안내-누구나돌봄/contents/05_문의처.md", "note": "시군 대표번호·콜센터"}
+    ]
+  }
+]
+</script>
+
+<script>
+const data = JSON.parse(document.getElementById('dataset').textContent);
+const root = document.getElementById('cardsRoot');
+const totalCount = document.getElementById('totalCount');
+const visibleCount = document.getElementById('visibleCount');
+const searchBox = document.getElementById('searchBox');
+const yearChips = document.getElementById('yearChips');
+const catChips = document.getElementById('catChips');
+
+const CATEGORY_ORDER = [
+  ['장애아동·가족', 'jang'],
+  ['발달장애인', 'balgyu'],
+  ['지역사회서비스', 'jiyeok'],
+  ['긴급돌봄', 'emergency'],
+  ['위기임신', 'pregnancy'],
+  ['아동돌봄', 'dolbom'],
+  ['아동·자립', 'jarip'],
+  ['장애인', 'jangin'],
+  ['정신건강', 'mental'],
+  ['특수교육(경기)', 'edu'],
+  ['지자체돌봄(경기)', 'local'],
+];
+
+totalCount.textContent = data.length;
+
+// Build category chips
+const catCounts = {};
+data.forEach(d => { catCounts[d.category] = (catCounts[d.category] || 0) + 1; });
+const allChip = document.createElement('span');
+allChip.className = 'chip active';
+allChip.dataset.cat = 'all';
+allChip.textContent = '전체 분야';
+catChips.appendChild(allChip);
+CATEGORY_ORDER.forEach(([cat, key]) => {
+  if (!catCounts[cat]) return;
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.dataset.cat = cat;
+  chip.dataset.catKey = key;
+  chip.textContent = `${cat} (${catCounts[cat]})`;
+  catChips.appendChild(chip);
+});
+
+const state = { year: 'all', cat: 'all', q: '' };
+
+function chipClick(group, key, value) {
+  group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  const target = [...group.querySelectorAll('.chip')].find(c => c.dataset[key] === value);
+  if (target) target.classList.add('active');
+}
+
+yearChips.addEventListener('click', e => {
+  const t = e.target.closest('.chip');
+  if (!t) return;
+  state.year = t.dataset.year;
+  chipClick(yearChips, 'year', state.year);
+  render();
+});
+
+catChips.addEventListener('click', e => {
+  const t = e.target.closest('.chip');
+  if (!t) return;
+  state.cat = t.dataset.cat;
+  chipClick(catChips, 'cat', state.cat);
+  render();
+});
+
+searchBox.addEventListener('input', e => {
+  state.q = e.target.value.trim().toLowerCase();
+  render();
+});
+
+function escape(s) {
+  return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+}
+
+function renderCard(item) {
+  const sources = item.sources.map(s => {
+    const href = `${s.file}`;
+    return `<span class="src-item">› <a href="${escape(href)}" target="_blank">${escape(s.file)}</a><span class="note">— ${escape(s.note)}</span></span>`;
+  }).join('');
+
+  const apply = item.apply_flow.map(s => `<li>${escape(s)}</li>`).join('');
+  const use = item.use_flow.map(s => `<li>${escape(s)}</li>`).join('');
+
+  return `
+  <article class="card" data-year="${item.year}" data-cat="${escape(item.category)}">
+    <div class="card-head">
+      <div class="title-row">
+        <h2>${escape(item.voucher_name)}</h2>
+        <div class="badges">
+          <span class="badge cat cat-${item.cat_key}">${escape(item.category)}</span>
+          <span class="badge year-${item.year}">${item.year}</span>
+        </div>
+      </div>
+      <div class="subtitle">${escape(item.parent_guide)}</div>
+    </div>
+    <div class="eligibility">${escape(item.eligibility_short)}</div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">지원금액</div><div class="value">${escape(item.monthly_amount)}</div></div>
+      <div class="kpi"><div class="label">본인부담</div><div class="value">${escape(item.user_payment)}</div></div>
+      <div class="kpi"><div class="label">사용매체</div><div class="value">${escape(item.card_or_voucher_type)}</div></div>
+    </div>
+    <div class="flow">
+      <div class="flow-col"><h3 data-step="1">신청</h3><ol>${apply}</ol></div>
+      <div class="flow-col"><h3 data-step="2">이용</h3><ol>${use}</ol></div>
+      <div class="flow-col"><h3 data-step="3">결제·정산</h3><ol><li>${escape(item.billing_flow)}</li></ol></div>
+    </div>
+    <div class="sources">${sources}</div>
+  </article>
+  `;
+}
+
+function render() {
+  // Group by category, preserving CATEGORY_ORDER
+  const filtered = data.filter(item => {
+    if (state.year !== 'all' && item.year !== state.year) return false;
+    if (state.cat !== 'all' && item.category !== state.cat) return false;
+    if (state.q) {
+      const hay = (item.voucher_name + ' ' + item.eligibility_short + ' ' + item.card_or_voucher_type + ' ' + item.category + ' ' + item.parent_guide).toLowerCase();
+      if (!hay.includes(state.q)) return false;
+    }
+    return true;
+  });
+
+  let html = '';
+  const grouped = {};
+  filtered.forEach(it => { (grouped[it.category] ||= []).push(it); });
+  CATEGORY_ORDER.forEach(([cat]) => {
+    const items = grouped[cat];
+    if (!items || !items.length) return;
+    html += `<section class="category-section"><h2>${escape(cat)}<span class="cnt">${items.length}개</span></h2><div class="grid">`;
+    items.forEach(it => html += renderCard(it));
+    html += `</div></section>`;
+  });
+
+  root.innerHTML = html || '<p style="color:var(--muted); text-align:center; padding:60px 0;">조건에 맞는 바우처가 없습니다.</p>';
+  visibleCount.textContent = `${filtered.length}개 표시 / ${data.length}개 중`;
+}
+
+render();
+</script>
+</body>
+</html>

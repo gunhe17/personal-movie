@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-web
+  namespace: mindscope-staging
+  labels:
+    app: mindscope-web
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # 스테이징 노드 1대·파드 상한 11개 — surge 슬롯이 없어 구 파드 먼저 내리고 교체
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mindscope-web
+        environment: staging
+    spec:
+      containers:
+        - name: web
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-staging/web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: mindscope-web-config
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mindscope-admin-config
+  namespace: mindscope-prod
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  ORIGIN: "https://console.mindscope.kr"
+  # Admin server-side proxy → API internal DNS
+  API_URL: "http://mindscope-api-svc.mindscope-prod.svc.cluster.local:80/api/v1"
+  # Grafana 대시보드 (iframe 임베드용)
+  GRAFANA_URL: "https://monitoring.mindscope.kr"

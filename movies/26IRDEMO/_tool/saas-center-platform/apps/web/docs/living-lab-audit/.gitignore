@@ -1,0 +1,12 @@
+# 감사 과정의 일회성 산출물은 버전 관리하지 않는다.
+# 결론 문서(상위 *.md, *.html)만 커밋한다.
+
+# E2E·탐색 스크립트, 실행 로그, 스크린샷
+e2e/
+scale-adoption/
+staging-adoption/
+walkthrough-24/
+walkthrough-mobile/
+
+# 캡처 이미지
+*.png

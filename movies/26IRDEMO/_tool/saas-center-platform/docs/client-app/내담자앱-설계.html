@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내담자 앱 설계 — 시각화 (대시보드 + 시안 갤러리)</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #fff; --ink: #191f28; --ink2: #4e5968; --ink3: #8b95a1;
+    --line: #e5e8eb; --gray-bg: #f2f4f6;
+    --blue: #3182f6; --blue-bg: #e8f3ff; --blue-dark: #1b64da;
+    --green: #04b56c; --green-bg: #e6f7f0; --green-dark: #027a4c;
+    --orange: #f28b00; --orange-bg: #fff3e0; --orange-dark: #c26a00;
+    --red: #e5484d; --red-bg: #fdebec;
+    --purple: #7048e8; --purple-bg: #f0ebfd;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    background: var(--bg); color: var(--ink); padding: 36px 24px 100px;
+    -webkit-font-smoothing: antialiased; font-size: 15px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header { margin-bottom: 12px; }
+  h1 { font-size: 27px; font-weight: 800; letter-spacing: -0.02em; }
+  .header-sub { margin-top: 10px; font-size: 15px; color: var(--ink2); line-height: 1.65; }
+  .header-sub b { color: var(--ink); }
+
+  .legend { display:flex; gap:10px; flex-wrap:wrap; margin: 18px 0 30px; }
+  .legend span { font-size: 13px; font-weight: 600; color: var(--ink2); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+
+  section { margin-bottom: 22px; }
+  .card {
+    background: var(--card); border-radius: 20px; padding: 26px 28px;
+    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  }
+  .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .card .h2-sub { font-size: 14px; color: var(--ink3); margin-bottom: 18px; line-height: 1.6; }
+
+  .badge { display:inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .b-done { background: var(--green-bg); color: var(--green-dark); }
+  .b-talk { background: var(--orange-bg); color: var(--orange-dark); }
+  .b-later { background: var(--gray-bg); color: var(--ink3); }
+
+  /* 상황 3카드 */
+  .cases { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .cases { grid-template-columns: 1fr; } }
+  .case-box { border-radius: 16px; padding: 20px; position: relative; }
+  .case-box.c1 { background: var(--blue-bg); }
+  .case-box.c2 { background: var(--orange-bg); }
+  .case-box.c3 { background: var(--green-bg); }
+  .case-box .num { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+  .c1 .num { color: var(--blue-dark); } .c2 .num { color: var(--orange-dark); } .c3 .num { color: var(--green-dark); }
+  .case-box .t { font-size: 17px; font-weight: 800; line-height: 1.35; margin-bottom: 8px; }
+  .case-box .d { font-size: 13.5px; color: var(--ink2); line-height: 1.6; }
+  .case-box .st { margin-top: 12px; }
+  .case-flow { margin-top: 14px; font-size: 13.5px; color: var(--ink2); background: var(--gray-bg); border-radius: 12px; padding: 12px 16px; line-height: 1.6; }
+
+  /* 스토리 타임라인 */
+  .story { display: grid; gap: 0; }
+  .story-item { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--gray-bg); }
+  .story-item:last-child { border-bottom: none; }
+  .story-item .when { font-size: 13px; font-weight: 700; color: var(--ink3); padding-top: 2px; }
+  .story-item .what { font-size: 14.5px; line-height: 1.65; color: var(--ink2); }
+  .story-item .what b { color: var(--ink); }
+  .story-item .app { display:inline-block; margin-top: 4px; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 3px 10px; }
+  .story-item .app.a1 { background: var(--blue-bg); color: var(--blue-dark); }
+  .story-item .app.a2 { background: var(--orange-bg); color: var(--orange-dark); }
+  .story-item .app.a3 { background: var(--green-bg); color: var(--green-dark); }
+
+  /* 기능 테이블 */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 700; color: var(--ink3); font-size: 12.5px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 10px; border-bottom: 1px solid var(--gray-bg); vertical-align: top; line-height: 1.6; }
+  tr:last-child td { border-bottom: none; }
+  td.name { font-weight: 700; white-space: nowrap; }
+  td.desc { color: var(--ink2); }
+  td.st { white-space: nowrap; }
+
+  .callout { margin-top: 14px; font-size: 13.5px; color: var(--ink2); background: var(--gray-bg); border-radius: 12px; padding: 12px 16px; line-height: 1.65; }
+  .callout b { color: var(--ink); }
+
+  .sec-label { font-size: 13px; font-weight: 800; letter-spacing: .04em; margin: 26px 0 10px; }
+  .sec-label.first { margin-top: 0; }
+  .c1-label { color: var(--blue-dark); } .c2-label { color: var(--orange-dark); } .c3-label { color: var(--green-dark); }
+
+  /* 규칙 카드 */
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 900px) { .rules { grid-template-columns: 1fr; } }
+  .rule { background: var(--gray-bg); border-radius: 14px; padding: 16px 18px; }
+  .rule .rt { font-size: 14.5px; font-weight: 800; margin-bottom: 6px; }
+  .rule .rd { font-size: 13.5px; color: var(--ink2); line-height: 1.65; }
+  .rule .no { color: var(--red); font-weight: 700; }
+  .rule .yes { color: var(--green-dark); font-weight: 700; }
+
+  .todo { list-style: none; }
+  .todo li { display: flex; gap: 10px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--gray-bg); font-size: 14px; line-height: 1.65; color: var(--ink2); }
+  .todo li:last-child { border-bottom: none; }
+  .todo li b { color: var(--ink); }
+  .todo .ico { flex: 0 0 auto; margin-top: 1px; }
+
+  .files a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .files a:hover { text-decoration: underline; }
+  .muted { color: var(--ink3); }
+  footer { margin-top: 30px; font-size: 12.5px; color: var(--ink3); text-align: center; line-height: 1.7; }
+
+/* ============ 시안 갤러리 (스코프 격리) ============ */
+/* 마인드스코프 디자인 언어 — 토스 아이덴티티 (2026-07-09)
+   특징: 플랫(그림자 최소) · radius 20 · 배경 없는 큰 아이콘 · 크고 굵은 타이포 · 토스 그레이 · 액센트 #3182F6
+   브랜드 블루(#4486FF)로 되돌리려면 --blue 계열 3개 변수만 교체 */
+.gallery {
+  --blue:#3182F6; --blue-600:#1B64DA; --blue-100:#E8F3FF; --blue-50:#F2F7FF;
+  --g0:#FFFFFF; --g50:#F9FAFB; --g100:#F2F4F6; --g200:#E5E8EB; --g300:#D1D6DB;
+  --g400:#B0B8C1; --g500:#8B95A1; --g600:#6B7684; --g700:#4E5968; --g800:#333D4B; --g900:#191F28;
+  --c-rec:#00C9B7; --c-rec-deep:#009B8E; --c-sch:#3182F6; --c-sup:#FF9F0A; --c-sup-deep:#C77800; --c-fam:#7C5CFF; --c-doc:#6B7684;
+  background:#15171b; padding:48px 36px 110px; color:#e8eaed;
+}
+.gallery * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif; letter-spacing:-0.02em; }
+.gallery .wrap { max-width:1420px; margin:0 auto; }
+.gallery h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.gallery .page-sub { margin-top:10px; font-size:14px; color:#9aa0a6; line-height:1.7; max-width:880px; }
+.gallery .page-sub a { color:#8ab4f8; font-weight:700; text-decoration:none; }
+.gallery .cap { margin-top:16px; }
+.gallery .cap .t { font-size:14.5px; font-weight:700; color:#e8eaed; }
+.gallery .cap .t .tag { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:7px; vertical-align:2px; }
+.gallery .tag.t0 { background:#2a2e35; color:#9aa0a6; }
+.gallery .tag.t1 { background:rgba(49,130,246,.18); color:#8ab4f8; }
+.gallery .tag.t2 { background:rgba(255,159,10,.16); color:#ffb45e; }
+.gallery .tag.t3 { background:rgba(0,201,183,.15); color:#5fd9d4; }
+.gallery .cap .d { margin-top:7px; font-size:12.5px; color:#9aa0a6; line-height:1.7; }
+.gallery .cap .rule { margin-top:9px; font-size:12px; color:#7f8790; line-height:1.65; padding:9px 12px; background:#1d2026; border-radius:10px; }
+.gallery .cap .rule b { color:#b9c0c8; }
+
+/* ===== 폰 프레임 ===== */
+.gallery .phone { width:312px; background:#0b0d10; border-radius:50px; padding:8px; box-shadow:0 30px 60px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.06) inset; }
+.gallery .screen { position:relative; background:var(--g100); border-radius:42px; overflow:hidden; height:668px; display:flex; flex-direction:column; }
+.gallery .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:90px; height:25px; border-radius:999px; background:#0b0d10; z-index:60; }
+.gallery .statusbar { flex:none; height:48px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 4px; font-size:12px; font-weight:600; color:var(--g900); }
+.gallery .homebar { position:absolute; bottom:7px; left:50%; transform:translateX(-50%); width:118px; height:5px; border-radius:99px; background:rgba(25,31,40,.2); z-index:60; }
+.gallery .scroll { flex:1; overflow:hidden; padding:8px 18px 0; display:flex; flex-direction:column; gap:12px; }
+
+/* ===== 헤더 — 크고 굵게 ===== */
+.gallery .appbar { display:flex; align-items:center; justify-content:space-between; padding:2px 2px 0; }
+.gallery .appbar .logo { font-size:16px; font-weight:800; color:var(--g900); }
+.gallery .appbar .logo em { font-style:normal; color:var(--blue); }
+.gallery .appbar .bell { width:36px; height:36px; border-radius:50%; background:transparent; display:flex; align-items:center; justify-content:center; color:var(--g600); }
+.gallery .appbar .bell svg { width:21px; height:21px; }
+.gallery .hello { padding:10px 4px 6px; }
+.gallery .hello .day { font-size:13.5px; font-weight:600; color:var(--g500); margin-bottom:7px; }
+.gallery .hello .line { font-size:25px; font-weight:800; color:var(--g900); line-height:1.36; letter-spacing:-0.03em; }
+.gallery .hello .line em { font-style:normal; color:var(--blue); }
+.gallery .navback { padding:8px 2px 0; font-size:19px; color:var(--g700); font-weight:600; }
+
+/* ===== 사람 칩 ===== */
+.gallery .people { display:flex; gap:8px; padding:0 2px; }
+.gallery .pchip { display:flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; padding:8px 14px 8px 9px; border-radius:999px; background:var(--g0); color:var(--g600); }
+.gallery .pchip.all { padding:8px 16px; }
+.gallery .pchip.on { background:var(--g900); color:#fff; }
+.gallery .av { flex:none; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; }
+.gallery .av.a1 { background:linear-gradient(135deg,#64A8FF,#3182F6); }
+.gallery .av.a2 { background:linear-gradient(135deg,#4DDCCB,#00C9B7); }
+.gallery .av.plus { background:var(--g200); color:var(--g500); }
+
+/* ===== 카드 — 플랫 · radius 20 · 그림자 없음 ===== */
+.gallery .c { background:var(--g0); border-radius:20px; padding:18px; box-shadow:none; }
+.gallery .c .row { display:flex; align-items:center; gap:13px; }
+.gallery .tile { flex:none; width:42px; height:42px; border-radius:0; background:none !important; display:flex; align-items:center; justify-content:center; font-size:30px; }
+.gallery .c .k { font-size:13px; font-weight:700; margin-bottom:3px; }
+.gallery .k.blue { color:var(--c-sch); } .gallery .k.mint { color:var(--c-rec-deep); } .gallery .k.orange { color:var(--c-sup-deep); } .gallery .k.gray { color:var(--c-doc); } .gallery .k.purple { color:#6B4DEB; }
+.gallery .c .t { font-size:16.5px; font-weight:700; color:var(--g900); line-height:1.4; letter-spacing:-0.02em; }
+.gallery .c .t small { font-size:13.5px; font-weight:500; color:var(--g500); margin-left:4px; }
+.gallery .c .d { font-size:14.5px; font-weight:500; color:var(--g600); line-height:1.5; margin-top:4px; }
+.gallery .c .who { display:inline-flex; align-items:center; font-size:11.5px; font-weight:700; border-radius:6px; padding:2.5px 7px; margin-right:6px; vertical-align:2px; }
+.gallery .who.w1 { background:rgba(49,130,246,.09); color:var(--c-sch); }
+.gallery .who.w2 { background:rgba(0,201,183,.1); color:var(--c-rec-deep); }
+.gallery .btns { margin-top:15px; display:flex; gap:9px; }
+.gallery .btn { flex:1; display:flex; align-items:center; justify-content:center; height:48px; font-size:15.5px; font-weight:700; border-radius:14px; }
+.gallery .btn.pri { background:var(--blue); color:#fff; }
+.gallery .btn.dark { background:var(--g900); color:#fff; }
+.gallery .btn.mint { background:var(--c-rec); color:#fff; }
+.gallery .btn.tint { background:rgba(49,130,246,.09); color:var(--blue); }
+.gallery .btn.asst { background:var(--g100); color:var(--g700); }
+.gallery .bar { margin-top:13px; height:8px; border-radius:99px; background:var(--g100); overflow:hidden; }
+.gallery .bar i { display:block; height:100%; border-radius:99px; }
+.gallery .quiet { text-align:center; font-size:13.5px; font-weight:500; color:var(--g500); padding:2px 0; line-height:1.7; }
+.gallery .quiet b { color:var(--g600); }
+
+/* 히어로 — 토스 블루 솔리드 */
+.gallery .c.heroed { background:var(--blue); box-shadow:none; position:relative; overflow:hidden; }
+.gallery .c.heroed::after { content:""; position:absolute; right:-40px; top:-46px; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.09); }
+.gallery .c.heroed .k { color:rgba(255,255,255,.72); }
+.gallery .c.heroed .t { color:#fff; }
+.gallery .c.heroed .d { color:rgba(255,255,255,.78); }
+.gallery .c.heroed .btn.pri { background:#fff; color:var(--blue); }
+.gallery .c.heroed .btn.asst { background:rgba(255,255,255,.18); color:#fff; }
+
+/* ===== 탭바 ===== */
+.gallery .tabbar { flex:none; display:flex; background:var(--g0); border-top:1px solid var(--g100); padding:9px 6px 20px; }
+.gallery .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; font-weight:600; color:var(--g400); }
+.gallery .tab .ic { display:flex; }
+.gallery .tab .ic svg { width:23px; height:23px; }
+.gallery .tab.on { color:var(--blue); font-weight:700; }
+
+/* ===== 투명성 배지 ===== */
+.gallery .pbadge { flex:none; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-left:auto; }
+.gallery .pbadge svg { width:15px; height:15px; }
+.gallery .pbadge.lock { background:var(--g100); color:var(--g500); }
+.gallery .pbadge.shared { background:var(--blue-100); color:var(--blue); }
+
+/* ===== 온보딩 ===== */
+.gallery .ob-screen { background:var(--g0); }
+.gallery .ob { flex:1; display:flex; flex-direction:column; gap:12px; padding:22px 22px 18px; }
+.gallery .ob .hi { font-size:14px; font-weight:700; color:var(--blue); }
+.gallery .ob .q { font-size:25px; font-weight:800; color:var(--g900); line-height:1.36; letter-spacing:-0.03em; padding-bottom:6px; }
+.gallery .ob .q em { font-style:normal; color:var(--blue); }
+.gallery .ob .cta { margin-top:auto; }
+.gallery .ob .cta .btn { display:flex; height:56px; font-size:17px; border-radius:16px; }
+.gallery .opt { display:flex; align-items:center; gap:14px; background:var(--g50); border:none; border-radius:18px; padding:17px 18px; box-shadow:none; }
+.gallery .opt.sel { background:var(--blue-50); box-shadow:inset 0 0 0 1.5px var(--blue); }
+.gallery .opt .ot { font-size:16.5px; font-weight:700; color:var(--g900); }
+.gallery .opt .od { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:3px; }
+.gallery .opt .chk { margin-left:auto; width:24px; height:24px; border-radius:50%; background:var(--blue); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.gallery .opt .tile { width:38px; height:38px; font-size:30px; }
+.gallery .opt .av { width:44px; height:44px; font-size:16px; }
+
+/* ===== 시트 ===== */
+.gallery .dim { flex:1; background:rgba(25,31,40,.55); display:flex; flex-direction:column; justify-content:flex-end; }
+.gallery .dim .peek { padding:60px 22px 0; opacity:.5; }
+.gallery .sheet { background:var(--g0); border-radius:24px 24px 42px 42px; padding:10px 22px 32px; }
+.gallery .sheet .grab { width:40px; height:4px; border-radius:99px; background:var(--g300); margin:8px auto 20px; }
+.gallery .sheet .st { font-size:22px; font-weight:800; color:var(--g900); letter-spacing:-0.03em; line-height:1.38; }
+.gallery .sheet .sd { margin-top:7px; font-size:15px; font-weight:500; color:var(--g600); line-height:1.6; }
+.gallery .sheet .quote { margin-top:16px; background:var(--g100); border-radius:16px; padding:15px 17px; }
+.gallery .sheet .quote .ql { font-size:13px; font-weight:700; color:var(--blue); margin-bottom:4px; }
+.gallery .sheet .quote .qt { font-size:15.5px; font-weight:700; color:var(--g900); line-height:1.5; }
+.gallery .recwrap { display:flex; flex-direction:column; align-items:center; padding:24px 0 4px; }
+.gallery .recbtn { width:80px; height:80px; border-radius:50%; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 0 0 12px rgba(49,130,246,.08), 0 0 0 24px rgba(49,130,246,.04); }
+.gallery .recbtn svg { width:30px; height:30px; }
+.gallery .reclabel { margin-top:14px; font-size:14.5px; font-weight:700; color:var(--g900); }
+.gallery .sheet .alt { margin-top:18px; display:flex; align-items:center; justify-content:center; height:52px; font-size:15.5px; font-weight:700; color:var(--g700); background:var(--g100); border-radius:14px; }
+.gallery .sheet .fine { margin-top:15px; text-align:center; font-size:13.5px; font-weight:500; color:var(--g500); line-height:1.7; }
+
+/* ===== 빈 홈 ===== */
+.gallery .zen { text-align:center; padding:26px 16px 18px; }
+.gallery .zen .orb { width:96px; height:96px; margin:0 auto; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:64px; }
+.gallery .zen .zt { margin-top:14px; font-size:17px; font-weight:700; color:var(--g900); }
+.gallery .zen .zd { margin-top:5px; font-size:14px; font-weight:500; color:var(--g500); }
+
+/* ===== 공유 토글 ===== */
+.gallery .share-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--g100); }
+.gallery .share-row:last-child { border-bottom:none; }
+.gallery .share-row .sl { font-size:15px; font-weight:600; color:var(--g700); display:flex; align-items:center; gap:8px; }
+.gallery .share-row .sv { font-size:13.5px; font-weight:700; color:var(--g900); }
+.gallery .switch { width:50px; height:30px; border-radius:99px; background:var(--blue); position:relative; flex:none; }
+.gallery .switch::after { content:""; position:absolute; top:3px; right:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.15); }
+.gallery .switch.off { background:var(--g200); }
+.gallery .switch.off::after { right:auto; left:3px; }
+.gallery .thumb { width:100%; height:120px; border-radius:16px; background:linear-gradient(135deg,#E3ECF5,#CFDCEB); margin-top:13px; position:relative; display:flex; align-items:center; justify-content:center; }
+.gallery .thumb .play { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.94); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--g900); }
+.gallery .thumb .dur { position:absolute; right:11px; bottom:10px; font-size:11.5px; font-weight:700; color:#fff; background:rgba(25,31,40,.55); border-radius:7px; padding:3px 8px; }
+
+/* ===== 소셜 버튼 ===== */
+.gallery .sns { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.gallery .sns .s { display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:700; height:54px; border-radius:14px; }
+.gallery .s.kakao { background:#FEE500; color:#191F28; }
+.gallery .s.apple { background:#17171C; color:#fff; }
+.gallery .s.google { background:var(--g100); color:var(--g900); }
+
+/* ===== 동의 ===== */
+.gallery .agree-all { display:flex; align-items:center; gap:12px; background:var(--g100); border:none; border-radius:16px; padding:17px 18px; }
+.gallery .agree-all .bt { font-size:17px; font-weight:800; color:var(--g900); }
+.gallery .ckc { flex:none; width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.gallery .ckc.off { background:var(--g200); color:#fff; box-shadow:none; }
+.gallery .agree { display:flex; align-items:center; gap:11px; padding:13px 6px; }
+.gallery .agree .al { flex:1; font-size:14.5px; font-weight:500; color:var(--g600); }
+.gallery .agree .al b { color:var(--g900); font-weight:700; }
+.gallery .agree .req { font-size:11.5px; font-weight:700; color:var(--blue); background:rgba(49,130,246,.09); border-radius:6px; padding:2px 7px; margin-right:6px; }
+.gallery .agree .req.opt { color:var(--g500); background:var(--g100); }
+.gallery .agree .more { font-size:14px; color:var(--g400); }
+.gallery .agree .ckc { width:22px; height:22px; font-size:11px; }
+
+/* ===== 입력 ===== */
+.gallery .fieldset { display:flex; flex-direction:column; gap:11px; }
+.gallery .flabel { font-size:13.5px; font-weight:600; color:var(--g500); margin:4px 2px -4px; }
+.gallery .field { background:var(--g100); border-radius:14px; padding:16px 17px; font-size:17px; font-weight:700; color:var(--g900); box-shadow:none; display:flex; align-items:center; justify-content:space-between; }
+.gallery .field .ph { color:var(--g400); font-weight:500; }
+.gallery .field .cursor { display:inline-block; width:2px; height:19px; background:var(--blue); vertical-align:-3px; margin-left:1px; }
+.gallery .checkline { display:flex; align-items:center; gap:10px; padding:14px 4px 2px; }
+.gallery .checkline .cl { font-size:14.5px; font-weight:600; color:var(--g700); line-height:1.5; }
+.gallery .searchbar { display:flex; align-items:center; gap:9px; background:var(--g0); border-radius:14px; padding:15px 17px; font-size:15.5px; font-weight:600; color:var(--g900); }
+.gallery .searchbar .ph { color:var(--g400); }
+.gallery .linkbadge { font-size:11.5px; font-weight:700; color:var(--blue); background:rgba(49,130,246,.09); border-radius:6px; padding:2.5px 7px; margin-left:6px; vertical-align:2px; white-space:nowrap; }
+.gallery .result { display:flex; align-items:center; gap:13px; background:var(--g0); border-radius:18px; padding:15px 17px; }
+.gallery .result .rt { font-size:15.5px; font-weight:700; color:var(--g900); }
+.gallery .result .rd { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:2px; }
+.gallery .result .go { margin-left:auto; font-size:16px; color:var(--g400); }
+.gallery .result .tile { width:40px; height:40px; font-size:26px; }
+.gallery .codes { display:flex; gap:9px; padding:4px 2px; }
+.gallery .code { width:45px; height:56px; border-radius:14px; background:var(--g100); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:var(--g900); }
+.gallery .code.on { background:var(--g0); box-shadow:inset 0 0 0 2px var(--blue); }
+.gallery .code.empty { color:var(--g400); }
+
+/* ===== 완료 히어로 ===== */
+.gallery .done-hero { text-align:center; padding:26px 16px 8px; }
+.gallery .done-hero .orb { width:96px; height:96px; margin:0 auto; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:66px; }
+.gallery .done-hero .dt { margin-top:14px; font-size:23px; font-weight:800; color:var(--g900); line-height:1.38; letter-spacing:-0.03em; }
+.gallery .done-hero .dt em { font-style:normal; color:var(--blue); }
+.gallery .done-hero .dd { margin-top:7px; font-size:14px; font-weight:500; color:var(--g500); }
+.gallery .flowlist { display:flex; flex-direction:column; }
+.gallery .flowlist .f { display:flex; align-items:center; gap:11px; padding:12px 2px; border-bottom:1px solid var(--g100); font-size:14.5px; font-weight:500; color:var(--g600); }
+.gallery .flowlist .f:last-child { border-bottom:none; }
+.gallery .flowlist .f .fi { flex:none; width:32px; height:32px; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.gallery .flowlist .f b { color:var(--g900); font-weight:700; }
+.gallery .flowlist .f .auto { margin-left:auto; font-size:11.5px; font-weight:700; color:var(--c-rec-deep); background:rgba(0,201,183,.1); border-radius:6px; padding:3px 8px; }
+
+/* ===== 가족 ===== */
+.gallery .member { display:flex; align-items:center; gap:12px; padding:13px 2px; border-bottom:1px solid var(--g100); }
+.gallery .member:last-child { border-bottom:none; }
+.gallery .member .mn { font-size:15.5px; font-weight:700; color:var(--g900); }
+.gallery .member .md { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:2px; }
+.gallery .rolechip { margin-left:auto; font-size:11.5px; font-weight:700; border-radius:6px; padding:3px 9px; }
+.gallery .rolechip.admin { color:var(--blue); background:rgba(49,130,246,.09); }
+.gallery .rolechip.fam { color:var(--g500); background:var(--g100); }
+
+/* ============ 시안 뷰어 ============ */
+.gallery .gv-head { margin-bottom:26px; }
+.gallery .gv { display:flex; gap:32px; align-items:flex-start; }
+.gallery .gv-nav { flex:none; width:228px; max-height:700px; overflow-y:auto; display:flex; flex-direction:column; gap:3px; padding-right:6px; position:sticky; top:24px; }
+.gallery .gv-g { font-size:11px; font-weight:800; color:#8ab4f8; letter-spacing:.06em; margin:14px 0 5px; text-transform:uppercase; }
+.gallery .gv-g:first-child { margin-top:0; }
+.gallery .gv-b { text-align:left; font-size:13px; font-weight:600; color:#9aa0a6; background:transparent; border:none; border-radius:10px; padding:8px 12px; cursor:pointer; font-family:inherit; letter-spacing:-0.3px; }
+.gallery .gv-b:hover { background:#22252b; color:#c6cbd2; }
+.gallery .gv-b.on { background:rgba(68,134,255,.16); color:#8ab4f8; font-weight:700; }
+.gallery .gv-stage { flex:none; width:312px; }
+.gallery .gv-slide { display:none; }
+.gallery .gv-slide.on { display:block; }
+.gallery .gv-ctrl { margin-top:18px; display:flex; align-items:center; justify-content:center; gap:16px; }
+.gallery .gv-arrow { width:40px; height:40px; border-radius:50%; border:1px solid #2e3238; background:#22252b; color:#c6cbd2; font-size:19px; cursor:pointer; font-family:inherit; }
+.gallery .gv-arrow:hover { background:#2b2f36; color:#fff; }
+.gallery .gv-count { font-size:12.5px; font-weight:700; color:#9aa0a6; min-width:56px; text-align:center; }
+.gallery .gv-capwrap { flex:1; min-width:250px; max-width:430px; position:sticky; top:24px; }
+.gallery .gv-capslide { display:none; }
+.gallery .gv-capslide.on { display:block; }
+.gallery .gv-capslide .cap { margin-top:0; }
+.gallery .gv-capslide .cap .t { font-size:17px; }
+.gallery .gv-capslide .cap .d { font-size:13.5px; margin-top:10px; }
+.gallery .gv-capslide .cap .rule { font-size:12.5px; margin-top:12px; }
+@media (max-width: 980px) { .gallery .gv { flex-wrap:wrap; } .gallery .gv-nav { width:100%; position:static; flex-direction:row; flex-wrap:wrap; max-height:none; } .gallery .gv-capwrap { position:static; } }
+
+  /* 기능명세서 */
+  .fs-nav { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+  .fs-b { font-size:13px; font-weight:700; color:var(--ink2); background:var(--gray-bg); border:none; border-radius:999px; padding:8px 15px; cursor:pointer; font-family:inherit; }
+  .fs-b:hover { background:#e8ebee; }
+  .fs-b.on { background:var(--ink); color:#fff; }
+  .fs-panel { display:none; }
+  .fs-panel.on { display:block; }
+  .fs-limit { color:#a05716; }
+  .fs-limit::before { content:"⛔ "; font-size:11px; }
+  .fs-ref { color: var(--ink3); font-weight:700; font-size:12.5px; white-space:nowrap; }
+</style>
+</head>
+<body>
+<div style="max-width:900px;margin:0 auto 24px;padding:16px 20px;border:2px solid #b45309;border-radius:12px;background:#fef3e2;font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;line-height:1.6;">
+  <div style="font-weight:800;font-size:15px;color:#b45309;margin-bottom:6px;">⚠️ 이 문서는 더 이상 갱신되지 않습니다 (07-13 스냅샷)</div>
+  <div style="font-size:13.5px;color:#5b6577;">
+    시각화본이라 내용을 이중 유지하면 드리프트가 생겨, 07-13 시점 스냅샷으로 동결합니다.
+    <b>내용 정본은 <code>내담자앱-설계.md</code></b> — 결정 로그·구현 스냅샷은 그쪽만 최신입니다.
+    이 HTML의 07-13 이후 서술(일정 탭 2축·2평면 구조·MVP 구현·가족·알림 등)은 반영돼 있지 않습니다.
+  </div>
+</div>
+<div class="wrap">
+
+  <header>
+    <h1>내담자 앱 — 무엇을 만드는가</h1>
+    <div class="header-sub">
+      상담·발달 센터에 <b>다니는 중이거나, 다니려고 알아보는 중인 보호자·내담자</b>를 위한 모바일 앱입니다.<br>
+      한 문장으로: <b>"아이(또는 나)의 센터 여정에서 지금 해야 할 일과 그동안의 기록을 한곳에 모아주는 앱."</b><br>
+      우리 회사의 본업은 센터용 운영 프로그램(SaaS)이고, 이 앱은 그 센터의 고객(보호자)에게 주는 앱입니다. 최종 목표는 <b>상황 ③(센터와 연동된 상태)</b>이 가장 중요하지만, 연동 전 상태(①·②)도 앱이 혼자 설 수 있게 설계했습니다.
+    </div>
+    <div class="legend">
+      <span>✅ 확정 — 이대로 만들면 됨</span>
+      <span>🟡 논의 중 — 아직 바뀔 수 있음</span>
+      <span>⏸ 나중에 — 이번 범위 아님</span>
+      <span>기준일 2026-07-09</span>
+    </div>
+  </header>
+
+  <!-- 1. 세 가지 상황 -->
+  <section class="card">
+    <h2>구조는 딱 하나만 기억하면 됩니다: 사용자의 상황 3가지</h2>
+    <div class="h2-sub">같은 앱인데, 사용자가 어떤 상황이냐에 따라 홈에 보이는 것이 달라집니다. 첫 실행 때 "지금 어느 쪽에 가까우세요?"라고 물어서 시작점을 정합니다.</div>
+    <div class="cases">
+      <div class="case-box c1">
+        <div class="num">상황 ①</div>
+        <div class="t">센터가 처음이에요</div>
+        <div class="d">아이 발달이 걱정되기 시작했거나, 상담을 알아보기 시작한 사람. 아직 다니는 센터가 없다.<br><br>홈에 보이는 것: 아이 관찰 기록(글+영상), 무료 발달검사 안내, 치료비 지원(바우처) 정보, 센터 찾기, 센터에 전화할 때 물어볼 것 안내, "5월에 다시 전화하기" 알림.</div>
+        <div class="st"><span class="badge b-done">✅ 설계 확정</span></div>
+      </div>
+      <div class="case-box c2">
+        <div class="num">상황 ②</div>
+        <div class="t">센터는 다니는데, 그 센터가 우리 프로그램을 안 써요</div>
+        <div class="d">주 1~2회 센터에 다니는 중. 센터에서 데이터가 안 내려오므로 사용자가 직접 남기는 것으로 산다.<br><br>홈에 보이는 것: "다녀왔어요" 체크 → 선생님 말씀 담기(녹음/메모), 이번 주 숙제 카드, 관찰 기록, 종이 결과지 사진 보관.</div>
+        <div class="st"><span class="badge b-done">✅ 설계 확정</span></div>
+      </div>
+      <div class="case-box c3">
+        <div class="num">상황 ③</div>
+        <div class="t">다니는 센터가 우리 프로그램을 써요 (연동)</div>
+        <div class="d">센터의 운영 데이터가 앱으로 자동으로 내려온다. <b>회사 입장에서 가장 중요한 상황.</b><br><br>홈에 보이는 것: ②의 전부 + 예약 알림·휴강 변경, 온라인 검사·설문, 결과지, 바우처 잔여 횟수(진짜 숫자).</div>
+        <div class="st"><span class="badge b-done">✅ 설계 확정</span></div>
+      </div>
+    </div>
+    <div class="case-flow">
+      흐름: <b>① → (센터 등록) → ② 또는 ③</b> · ②의 센터가 우리 프로그램을 도입하면 ③으로 올라감 · 사용자의 기록은 상황이 바뀌어도 전부 이어짐.
+      상황은 다시 묻지 않고 사용자의 행동(센터 찜, 등록, 연동)에 따라 자동으로 넘어갑니다.
+    </div>
+  </section>
+
+  <!-- 2. 사용자 스토리 -->
+  <section class="card">
+    <h2>한 사람의 이야기로 전체 흐름 읽기</h2>
+    <div class="h2-sub">기획 논의에서 기준으로 삼은 가상 사용자: 38세 워킹맘, 5세 아이가 어린이집에서 "언어가 좀 느린 것 같다"는 말을 들은 상태.</div>
+    <div class="story">
+      <div class="story-item"><div class="when">걱정 시작</div><div class="what">밤마다 검색과 맘카페. 아직 아무 데도 전화 못 함. 앱 설치 → "아직 지켜보고 있어요" 선택. <b>앱이 주는 것: "지금은 이것만 하면 돼요"</b> — 관찰 기록 시작(글 한 줄·30초 영상, 뭘 찍으면 좋은지 가이드 제공), 무료 발달검사 안내, 치료비 지원 정보.<span class="app a1">상황 ①</span></div></div>
+      <div class="story-item"><div class="when">알아보기</div><div class="what">센터를 찾기 시작. <b>앱이 주는 것:</b> 바우처 되는 센터 지도, "전화하면 이걸 물어보세요" 안내, 전화한 뒤 "6개월 대기래요, 5월에 다시 전화" 알림 등록.<span class="app a1">상황 ①</span></div></div>
+      <div class="story-item"><div class="when">대기 · 첫 방문</div><div class="what">기다리는 몇 주 동안 기록이 쌓임. 첫 방문(초진)이 잡히면 <b>그동안의 기록을 시간순 한 장으로 정리</b>해서 선생님에게 보여줄 수 있음.<span class="app a1">상황 ①</span></div></div>
+      <div class="story-item"><div class="when">등록 후 매주</div><div class="what">주 1회 언어치료 시작(이 센터는 우리 프로그램 미사용). 수업 40분은 대기실에서 대기 — 이때가 앱 쓰는 시간. 끝나면 "다녀왔어요" 누르고 <b>선생님이 해주는 5분 설명을 녹음(양해 구하고)하거나 몇 줄 메모.</b> 숙제는 일주일간 홈에 떠 있음.<span class="app a2">상황 ②</span></div></div>
+      <div class="story-item"><div class="when">연동 후</div><div class="what">센터가 우리 프로그램 도입. 예약·휴강 알림, 검사와 설문, 결과지, 바우처 잔여 횟수가 자동으로 들어옴. 매주 하던 기록 습관은 그대로, 손으로 하던 것만 자동으로 바뀜.<span class="app a3">상황 ③</span></div></div>
+    </div>
+  </section>
+
+  <!-- 3. 상황별 기능 -->
+  <section class="card">
+    <h2>상황별 기능 목록</h2>
+    <div class="h2-sub">각 줄이 화면 또는 기능 하나입니다. 상태가 ✅인 것은 그대로 만들면 됩니다.</div>
+
+    <div class="sec-label c1-label first">상황 ① — 센터가 처음</div>
+    <table>
+      <thead><tr><th style="width:200px">기능</th><th>내용</th><th style="width:90px">상태</th></tr></thead>
+      <tbody>
+        <tr><td class="name">시작 질문</td><td class="desc">첫 실행에서 "지금 어느 쪽에 가까우세요?" — 아직 지켜보고 있어요 / 센터를 알아보고 있어요 / 다니는 센터가 있어요. 진단 느낌의 단어는 쓰지 않는다.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">가입 시점</td><td class="desc">둘러보기(센터 찾기·지원 정보)는 가입 없이 가능. <b>무언가를 처음 저장하는 순간</b>(기록 작성·센터 찜·알림 등록)에 소셜 로그인. 전화번호 인증은 여기선 없음(센터 연동 때만).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">관찰 기록</td><td class="desc">글 한 줄 + 사진/영상. 날짜 자동, 매일 쓰라고 요구하지 않음. 쓰고 나면 "어디서 있었던 일이에요?" 선택 태그(집/어린이집 등, 선택사항). <b>영상이 중요:</b> "이럴 때 30초만 찍어두면 좋아요" 촬영 가이드 제공(문구는 치료사 감수 예정).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">무료 검사 안내</td><td class="desc">공공 무료 발달검사로 안내. 사용자 상황에 따라 3갈래: 아직 검진 안 받음 / 받았는데 추가검사 권고 나옴 / 결과는 괜찮은데 걱정됨. 문구는 치료사 감수 예정.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">치료비 지원 정보</td><td class="desc">바우처(정부 지원) 제도 설명 + 신청 기간 알림. 걱정 단계 홈에도 입구를 둔다 — 겁주는 톤이 아니라 "지원받을 수 있어요" 안심 톤.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">센터 찾기 (리스트 + 지도 토글)</td><td class="desc">기본 데이터 = 정부가 공개하는 바우처 제공기관 명단 — 전국 2,843곳이라 첫날부터 채워짐(07-09 확인). 형식은 <b>검색바 + 카드 리스트가 기본, 지도는 토글</b>(07-09 확정 — 시골은 빈 지도 대신 "가까운 순, 옆 지역까지"로). 리뷰·후기는 어떤 형태로도 넣지 않는다(운영 리스크). 사용자가 남긴 대기 정보의 익명 통계는 <b>모으기만 하고 보여주지 않음</b>(공개 시점은 나중에 별도 결정).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">전화 도우미</td><td class="desc">"전화하면 이걸 물어보세요" 질문 목록 → 전화 후 "언제 다시 확인하기로 했어요?" 한 줄 입력 → 그 날짜에 알림. 대기 순번 관리 같은 복잡한 기능은 만들지 않음(센터가 순번을 안 알려주는 게 현실이라).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">첫 방문 준비</td><td class="desc">첫 방문 날짜를 넣으면 디데이 표시 + 그동안의 기록을 시간순 한 장으로 정리한 화면(선생님에게 보여주는 용도). 앱이 기록을 해석하거나 평가하는 문구는 절대 넣지 않음.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-label c2-label">상황 ② — 센터는 다니는데 미연동</div>
+    <table>
+      <thead><tr><th style="width:200px">기능</th><th>내용</th><th style="width:90px">상태</th></tr></thead>
+      <tbody>
+        <tr><td class="name">센터 등록 분기</td><td class="desc">"다니는 센터가 있어요" → 센터 검색 → (a) 우리 프로그램 쓰는 센터면 상황 ③ 연결 절차로 (b) 아니면 상황 ② 모드 (c) 검색에 없으면 직접 입력 후 ② 모드.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">수업 일정</td><td class="desc">"매주 화 4시" 반복 일정 하나만 등록. 휴강·보강 관리 기능은 일부러 안 만듦 — 센터 데이터 없이 만들면 어차피 틀리고, 연동(③)되면 자동으로 해결되는 영역.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">다녀왔어요 체크</td><td class="desc">수업 끝나고 한 번 탭 → 기록 타임라인에 "이번 세션" 항목 생성. 다녀온 횟수는 보여주되 <b>"남은 횟수" 계산은 절대 안 함</b> — 남은 횟수는 센터 장부의 영역이라 앱이 계산하면 숫자가 어긋나 신뢰가 깨진다.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">선생님 말씀 담기</td><td class="desc">수업 후 선생님의 5분 설명을 붙잡는 기능. <b>녹음이 기본, 직접 적기가 대안</b>(같은 자리에 저장). 녹음 시작 화면에 "선생님께 '잊어버릴까 봐 담아둘게요'라고 말씀드려 보세요" — 양해 구하는 프레임 내장. 몰래 녹음 모드는 절대 제공 금지. 음성을 글로 자동 정리하는 것(AI)은 나중(회사 AI 배포 승인 이후).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">숙제 카드</td><td class="desc">"집에서 이렇게 해보세요"를 적어두면 일주일간 홈에 상주. 안 했다고 표시·경고하지 않음.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">종이 문서 보관</td><td class="desc">센터에서 종이로 주는 평가 보고서 등을 사진으로 찍어 기록에 붙임.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">연동 안내</td><td class="desc">"연동된 센터에서는 이게 자동으로 돼요" 안내는 <b>상시 배너 금지.</b> 아쉬운 순간(일정을 수동으로 옮길 때, 종이 결과지를 찍을 때)에만 한 번씩, 월 1회 이하, 센터를 탓하는 톤 금지. + 치료사가 앱에 관심 보이면 [센터에 소개장 보내기] 버튼(사용자가 조르는 구조가 아니라 관심을 받아주는 구조).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">센터 찾기 (② 프레임)</td><td class="desc">탭 이름은 "센터 찾기"로 모든 상황에서 동일(07-09 확정 — 상황별 개명 폐지). ②에서는 내용이 병행 니즈(언어+감각통합+놀이) 중심으로 구성되고, 내용은 선택된 아이를 따라간다.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-label c3-label">상황 ③ — 연동 (설계 진행 중)</div>
+    <table>
+      <thead><tr><th style="width:200px">기능</th><th>내용</th><th style="width:90px">상태</th></tr></thead>
+      <tbody>
+        <tr><td class="name">홈 구조</td><td class="desc">①②와 같은 구조(급한 것이 위로 오는 카드 목록) 유지. 센터 데이터가 세 번째 공급원으로 합류할 뿐, 사용자의 기록·타임라인은 계속 사용자 것.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">센터에서 자동으로 오는 것</td><td class="desc">예약 D-1 확인·휴강/변경 알림 · 온라인 검사 실시 · 사전 설문 · 검사 결과지 · 바우처 잔여 횟수(이제 센터의 진짜 숫자). 전부 센터가 이미 운영 중에 만드는 데이터라 상담사가 앱 때문에 추가로 일하지 않아도 돌아감.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">세션 기록 자동화</td><td class="desc">"다녀왔어요" 수동 체크가 필요 없어짐 — 센터 데이터로 자동 생성. "선생님 말씀 담기"는 그대로 유지: 연동 직후 신규 사용자에게만 수업 종료 시각 알림(습관 형성기 한정, 쓰기 시작하면 조기 종료) → 이후엔 홈 상단 안내만.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">센터 연결(초대) 절차</td><td class="desc">기본: 센터가 보내는 문자(예약 안내 등)에 연결 링크 → 전화번호 본인인증 후 연결. 추가: 사용자가 앱에서 먼저 "연결 요청"하는 역방향 경로 — 센터 직원이 명부 확인 후 승인(전화번호만으로 자동 연결은 금지, 오연결은 개인정보 사고). 기존 사용자는 새 계정이 아니라 쓰던 계정에 연결(아이 프로필 확인 단계 포함).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">부모 → 상담사 공유</td><td class="desc">"보내기"가 아니라 <b>"보여주기 허용"</b>: 기록·영상마다 공유 스위치를 켜면 상담사의 센터 프로그램 화면(그 아이의 "가정 기록" 영역)에 조용히 나타남. 상담사에게 알림·읽음 표시 없음, 세션 준비 때 본인 리듬으로 확인, 응답 의무 없음을 부모 화면에 명시(상담사의 새 업무가 되지 않게).</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">여러 아이 · 여러 센터</td><td class="desc">홈은 하나(아이 구분은 이름 칩), 기록 화면은 아이별. 한 가족 안에 상황 ①②③이 섞여 있어도 됨(첫째는 연동 센터+미연동 센터 병행, 둘째는 아직 무소속 등). 센터끼리는 서로의 데이터가 절대 안 보임.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">가족 공유</td><td class="desc">권한 2등급 — <b>관리자</b>(계정을 만든 주 보호자: 가족 초대·내보내기, 공유 설정, 아이 프로필 관리) / <b>가족 구성원</b>(보기+쓰기 전부 가능: 기록 작성, 다녀왔어요, 말씀 담기). 등급을 더 쪼개지 않음. 가정 분쟁 상황에서 문지기는 관리자.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">센터 찾기 (연동 사용자)</td><td class="desc">유지하되 — 첫 번째 결과는 항상 <b>지금 다니는 센터의 다른 프로그램</b>("다니시는 센터에도 감각통합이 있어요" — 센터에게는 추가 등록 채널). 사용자가 직접 검색할 때만 열리고, 홈 배너·추천·알림으로 다른 센터를 먼저 보여주는 일은 없음.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">상담사가 보내주는 것</td><td class="desc">상담사가 쓰는 세션 요약(브리핑), 과제 발행 등 — 상담사에게 새 일이 생기는 기능이라 다음 단계로.</td><td class="st"><span class="badge b-later">⏸</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. 전 화면 공통 규칙 (디자이너용) -->
+  <section class="card">
+    <h2>전 화면 공통 규칙</h2>
+    <div class="h2-sub">주로 디자이너용. 이 앱의 사용자는 지친 30~40대 부모이고, 대기실에서 한 손으로 봅니다. 규칙의 공통 뿌리는 하나 — <b>"이 앱은 사용자를 채근하지 않는다."</b></div>
+    <div class="rules">
+      <div class="rule"><div class="rt">죄책감을 만드는 장치 금지</div><div class="rd"><span class="no">금지:</span> 빨간 배지, 미완료 개수, 연속 기록(스트릭), 달력에 빈칸 보여주기.<br><span class="yes">대신:</span> 할 일은 때가 지나면 조용히 사라지고, 흔적을 남기지 않는다. 집계는 긍정문만("이번 주 3개를 챙기셨어요").</div></div>
+      <div class="rule"><div class="rt">앱은 아이를 평가하지 않는다</div><div class="rd"><span class="no">금지:</span> 기록을 보고 "괜찮아 보여요" / "걱정되네요" 같은 판정 뉘앙스의 문구 일체. 근거: 거짓 안심이 가장 위험(치료 시기를 놓치게 함).<br><span class="yes">대신:</span> 정리와 안내만. 해석은 전문가(사람)의 몫.</div></div>
+      <div class="rule"><div class="rt">글은 최소, 숫자와 명사로</div><div class="rd">공감 문구는 화면당 1문장까지(크게, 19px+). 본문 14px 이상, 카드당 텍스트 2줄까지. 형용사보다 명사·숫자("잔여 2회", "0.8km"). 설명문·훈계·응원 강요 금지.</div></div>
+      <div class="rule"><div class="rt">알림은 남이 봐도 무해하게</div><div class="rd">잠금화면에 뜨는 문구는 중립적으로 — 어깨너머로 보여도 아이 정보가 드러나지 않게. 알림 남발 금지(주 단위 반복 알림은 곧 무음 처리당한다).</div></div>
+      <div class="rule"><div class="rt">해당 없으면 아예 안 보이게</div><div class="rd">바우처가 없는 사용자에게 바우처 영역 자체가 안 뜬다. 빈 상태를 "여기 아직 없어요"로 보여주지 않고, 표면 자체를 없앤다. 아동 발달은 첫 시장일 뿐 — 구조는 성인 상담 센터에도 그대로 성립해야 한다.</div></div>
+      <div class="rule"><div class="rt">빈 홈은 실패가 아니다</div><div class="rd">할 일이 없는 날은 "다 챙기셨어요"의 평온한 상태. 채우기용 콘텐츠(읽을거리 등)로 메우지 않는다.</div></div>
+    </div>
+  </section>
+
+  <!-- 5. 개발 메모 -->
+  <section class="card">
+    <h2>개발 메모 — 데이터는 어디에 저장되나</h2>
+    <div class="h2-sub">프론트 개발자용 핵심 요약. 저장 위치가 기능별로 다르고, 이게 이 앱 설계의 중요한 축입니다.</div>
+    <table>
+      <thead><tr><th style="width:250px">데이터</th><th>저장 위치</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td class="name">글 기록 · 선생님 말씀 메모 · 전화 이력 · 알림 · 일정</td><td class="desc">서버 (계정 귀속)</td><td class="desc">폰을 바꿔도 살아야 함. 계정은 소셜 로그인 — 첫 저장 시점에 가입.</td></tr>
+        <tr><td class="name">영상 · 사진 · 녹음 파일</td><td class="desc">서버 (암호화, 동의 기반)</td><td class="desc">폰을 바꿔도 기록이 살아야 하고, 사용자 기대도 클라우드(07-08 확정). 갤러리 "참조"가 아니라 <b>가져올 때 복사 후 업로드</b>(OS 권한·원본 삭제 문제 때문), 앱 내 촬영·녹음이 기본 경로. 압축과 "30초 촬영 가이드"로 용량 관리. <b>지켜야 할 4가지: 암호화 저장 · 열람은 본인 + 본인이 항목별로 허용한 센터 담당자만 · 다른 목적 사용(AI 학습 등) 금지 · 어디 저장되고 누가 볼 수 있는지 항상 표시.</b></td></tr>
+        <tr><td class="name">센터 데이터 (상황 ③)</td><td class="desc">서버 (읽기 전용)</td><td class="desc">예약·검사·설문·바우처의 원본은 센터 SaaS. 앱은 파생 화면만 — 원본이 바뀌면 카드가 자동으로 사라지는 구조라 정합이 깨질 수 없음.</td></tr>
+        <tr><td class="name">대기 정보 익명 통계</td><td class="desc">서버 (수집만, 비공개)</td><td class="desc">선택지 입력만 받고 자유 텍스트 없음. 공개는 별도 결정 전까지 금지.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">가입 흐름 요약: <b>게스트 둘러보기 가능 → 첫 저장 행위에서 소셜 로그인 → 전화번호 인증은 센터 연동(상황 ③ 연결) 때만.</b> · 음성→글 변환, AI 요약 종류는 전부 "나중"(회사 AI 프로덕션 승인 전에는 탑재 불가).</div>
+  </section>
+
+  <!-- 5-1. 동의와 데이터 권한 -->
+  <section class="card">
+    <h2>동의와 데이터 권한 — 07-09 확정</h2>
+    <div class="h2-sub">영상·녹음까지 서버에 저장하기로 하면서(07-08) 필요해진 설계. "누구의 동의로 저장하고, 누가 볼 수 있고, 어떻게 지우나"의 전체 답입니다.</div>
+    <table>
+      <thead><tr><th style="width:200px">항목</th><th>내용</th><th style="width:90px">상태</th></tr></thead>
+      <tbody>
+        <tr><td class="name">동의 받는 시점</td><td class="desc">가입(첫 저장 행위) 화면에서 한 번에. 이후 기능을 쓸 때마다 동의창이 다시 뜨지 않음 — 사용 순간에는 안내 표시만. 동의 항목: 필수 3(이용약관 · 개인정보 · 민감정보=아이의 발달 기록) + 선택(마케팅). <b>"전체 동의" 한 번에 가능.</b> 무서운 법률 용어는 본문에, 안내 문구는 "아이의 기록을 안전하게 보관하기 위해" 톤으로.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">민감정보 동의는 필수</td><td class="desc">이 앱의 본질이 아이 기록이므로, 기록 동의 없이 가입만 하는 어정쩡한 상태를 만들지 않음. 가입 = 전체 동의.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">보호자 확인</td><td class="desc">아이 프로필 만들 때 "저는 이 아이의 보호자입니다" 확인 한 줄. 센터 연동 때는 기존 절차(센터의 명부 확인 + 전화번호 인증)가 법적인 보호자 확인을 겸함 — 새 절차 추가 없음.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">녹음 파일의 공유 범위</td><td class="desc">선생님 목소리가 담긴 녹음은 <b>그 선생님이 소속된 센터에만</b> 공유 가능(다른 센터에는 공유 스위치 자체가 없음). 다른 센터에 내용을 전하고 싶으면 메모로 옮겨서. 이유: 목소리 주인(선생님)이 동의한 적 없는 제3자 공개는 치료사들의 신뢰를 깨뜨림.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">탈퇴·동의 철회</td><td class="desc">먼저 "기록 내보내기"(파일로 저장) 제안 → 30일 안에 다시 로그인하면 복구 → 이후 완전 삭제. 센터 연결을 끊으면 상담사 화면에서 가정 기록이 즉시 사라짐(삭제 아님, 보여주기 중단). 가족을 내보내면 그 사람 접근만 끊기고 작성했던 기록은 아이 타임라인에 남음.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+        <tr><td class="name">"누가 볼 수 있나" 표시</td><td class="desc">기록 목록에는 자물쇠 아이콘만 → 상세 화면에 "해맑음센터 김○○ 선생님이 볼 수 있어요" 한 줄 → 누르면 자세히. 녹음·촬영 시작 화면에는 항상 한 줄 표시. 마이에 <b>"내 기록과 동의"</b> 화면 — 동의 현황, 어떤 기록이 어느 센터에 열려 있는지, 내보내기·철회·탈퇴가 전부 여기에.</td><td class="st"><span class="badge b-done">✅</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout">개발·운영 이월: 동의 이력 로그(언제·어떤 버전에 동의했는지 서버 기록) · 개인정보처리방침과 앱스토어 프라이버시 라벨 작성 · 백업 사본 파기 주기 · 14세 이상 자녀의 본인 동의 절차(나중).</div>
+  </section>
+
+  <!-- 5-2. 기능명세서 링크 -->
+  <section class="card files" id="spec">
+    <h2>기능명세서 (별도 문서)</h2>
+    <div class="h2-sub">확정 설계를 구현 단위로 분해한 개발 명세 — 기능 ID·우선순위·사전조건·동작 명세·예외 처리·제약사항. 별도 페이지로 분리되어 있습니다.</div>
+    <table>
+      <tbody>
+        <tr><td style="width:340px"><a href="내담자앱-기능명세서.html">내담자앱-기능명세서.html</a></td><td class="desc">MSP-FS-001 v1.0 · 12영역 61개 기능 · P0/P1/P2 빌드 순서 · 근거 § 역추적 가능</td><td style="width:90px"><span class="badge b-done">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 6. 아직 정하지 않은 것 -->
+  <section class="card">
+    <h2>아직 정하지 않은 것</h2>
+    <ul class="todo">
+      <li><span class="ico">🟡</span><span><b>화면 시안</b> — 완료(총 24종, 아래 갤러리). 검사 실시·마이 전체 등 세부 화면은 핵심 패턴이 다 있어 구현 단계에서 파생.</span></li>
+      <li><span class="ico">🟡</span><span><b>문구 일체</b> — 가안 정리 완료(<a href="내담자앱-설계.md">설계.md §11 문구집</a>: 화면별 문구 + 금지 문구 안티 패턴). 치료사·법무 감수 대기.</span></li>
+      <li><span class="ico">🟡</span><span><b>개인정보처리방침 · 스토어 프라이버시 라벨</b> — 초안 완료(<a href="내담자앱-설계.md">설계.md §12</a>: 처리방침 11개 조항 + Apple/Google 라벨 매핑). 법무 감수와 회사 정보 등 빈칸 확정 대기.</span></li>
+      <li><span class="ico">🟡</span><span><b>대기 정보 통계 공개 시점</b> — 표본이 쌓이고 센터 커뮤니케이션 방침이 선 뒤에.</span></li>
+    </ul>
+  </section>
+
+  <!-- 7. 문서 안내 -->
+  <section class="card files">
+    <h2>문서 안내</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><a href="내담자앱-설계.md">내담자앱-설계.md</a></td><td class="desc">설계 본문 — 정체성 · 상황 ①②③ · 공통 시스템(계정·동의·데이터) · 공통 규칙 · 화면 인벤토리 · 미정 · 결정 로그</td></tr>
+        <tr><td>내담자앱-설계.html</td><td class="desc">이 파일 — 팀 공유용 요약 + 아래 시안 갤러리(화면 19종)</td></tr>
+        <tr><td><a href="내담자앱-기능명세서.html">내담자앱-기능명세서.html</a></td><td class="desc">개발 기능명세서(MSP-FS-001) — 설계에서 파생되는 구현 산출물. 설계 변경 시 함께 갱신</td></tr>
+        <tr><td><a href="내담자앱-프로토타입-v1.0.html">내담자앱-프로토타입-v1.0.html</a></td><td class="desc"><b>인터랙티브 프로토타입 v1.0 (07-13)</b> — 기능명세서 61기능 중 UI 표면 전부: 홈 카드 엔진(§13 준수) · 연결 엣지(실패 폴백·역방향·후회 유예·해지) · 공유(녹음 잠금·종결 리뷰) · 가족 2등급 · 마이 허브 · 출구 30일 유예 · 다자녀 혼합. 시나리오 9종 + 푸시·운영 이벤트 시뮬레이션, 화면마다 기능 ID 표기</td></tr>
+        <tr><td><a href="내담자앱-프로토타입.html">내담자앱-프로토타입.html</a></td><td class="desc">인터랙티브 프로토타입 v0.1 — 상태 머신이 동작하는 클릭 프로토(온보딩→①②③ 승격→연결→공유), 시나리오 점프 패널 포함. v1.0의 초기 버전(보존)</td></tr>
+        <tr><td><a href="2026-07-08-내담자앱-노출요소-인벤토리.md">내담자앱-노출요소-인벤토리.md</a></td><td class="desc">자매 문서 — 코드 스캔 기반 노출 매트릭스(3대 게이트)·백엔드 선행 과제. 센터 데이터 노출 판정의 근거</td></tr>
+        <tr><td class="muted">archive/</td><td class="desc muted">과거 날짜별 논의·확정 문서와 개별 시안 파일 (출처 보존용, 더 이상 갱신 안 함)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<div class="gallery">
+<div class="wrap">
+  <div class="gv-head">
+    <h1>시안 갤러리</h1>
+    <p class="page-sub">화면 24종 · 왼쪽 목록 또는 ‹ › (키보드 ←→)로 전환 · <b style="color:#c6cbd2">마인드스코프 디자인 언어 = 토스 아이덴티티</b>(플랫 카드 radius 20 · 배경 없는 큰 아이콘 · 굵은 타이포 25/800 · 토스 그레이 · 액센트 #3182F6 — 브랜드 블루 복귀는 변수 3개) · 색=콘텐츠 종류 · SVG 배지 · 문구는 가안</p>
+  </div>
+  <div class="gv">
+    <div class="gv-nav">
+    <div class="gv-g">첫 실행</div>
+    <button class="gv-b on" data-i="0">시작 질문</button>
+    <button class="gv-b" data-i="1">상황 ① — 지켜보는 중</button>
+    <button class="gv-b" data-i="2">상황 ① — 알아보는 중</button>
+    <div class="gv-g">상황 ②</div>
+    <button class="gv-b" data-i="3">상황 ② — 수업 끝난 직후</button>
+    <button class="gv-b" data-i="4">말씀 담기 시트</button>
+    <button class="gv-b" data-i="5">상황 ② — 연동 안내 (원샷)</button>
+    <div class="gv-g">상황 ③</div>
+    <button class="gv-b" data-i="6">상황 ③ — 연동 + 다자녀</button>
+    <button class="gv-b" data-i="7">상황 ③ — 할 일 없는 날</button>
+    <button class="gv-b" data-i="8">기록 공유 설정</button>
+    <div class="gv-g">가입 게이트</div>
+    <button class="gv-b" data-i="9">가입 게이트</button>
+    <button class="gv-b" data-i="10">동의 스택 — 한 장</button>
+    <button class="gv-b" data-i="11">아이 프로필 + 보호자 확인</button>
+    <div class="gv-g">센터 등록</div>
+    <button class="gv-b" data-i="12">센터 검색 — 세 갈래의 입구</button>
+    <div class="gv-g">연결 절차</div>
+    <button class="gv-b" data-i="13">초대 링크 진입</button>
+    <button class="gv-b" data-i="14">전화번호 본인인증</button>
+    <button class="gv-b" data-i="15">아이 프로필 확인</button>
+    <button class="gv-b" data-i="16">연결 완료</button>
+    <button class="gv-b" data-i="17">역방향 연결 요청</button>
+    <div class="gv-g">가족 초대</div>
+    <button class="gv-b" data-i="18">가족 관리 — 2등급</button>
+    <div class="gv-g">센터 찾기</div>
+    <button class="gv-b" data-i="19">센터 찾기 — 리스트 우선 (A안)</button>
+    <div class="gv-g">바우처</div>
+    <button class="gv-b" data-i="20">바우처 상세 (L3) — 진짜 숫자</button>
+    <div class="gv-g">기록</div>
+    <button class="gv-b" data-i="21">기록 타임라인 (아이별)</button>
+    <button class="gv-b" data-i="22">첫 방문 정리 한 장</button>
+    <div class="gv-g">마이</div>
+    <button class="gv-b" data-i="23">내 기록과 동의 (허브)</button>
+    </div>
+    <div class="gv-stage">
+  <div class="gv-slide on" data-i="0">
+
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">반가워요 👋</div>
+            <div class="q">지금 어느 쪽에<br>가까우세요?</div>
+            <div class="opt sel">
+              <div class="tile mint" style="width:42px;height:42px;border-radius:13px;">🌱</div>
+              <div><div class="ot">아직 지켜보고 있어요</div><div class="od">뭔가 마음에 걸리는 게 있어요</div></div>
+              <div class="chk">✓</div>
+            </div>
+            <div class="opt">
+              <div class="tile blue" style="width:42px;height:42px;border-radius:13px;">🧭</div>
+              <div><div class="ot">센터를 알아보고 있어요</div><div class="od">어디로 가야 할지 찾는 중이에요</div></div>
+            </div>
+            <div class="opt">
+              <div class="tile orange" style="width:42px;height:42px;border-radius:13px;">🏡</div>
+              <div><div class="ot">다니는 센터가 있어요</div><div class="od">이미 다니고 있어요</div></div>
+            </div>
+            <div class="cta">
+              <div class="quiet">나중에 언제든 달라져도 괜찮아요</div>
+              <div class="btn pri" style="margin-top:8px;">시작하기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="1">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">지켜보는 것도<br><em>돌봄</em>이에요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t">오늘 마음에 걸린 순간이 있었나요?</div></div>
+              </div>
+              <div class="btns"><div class="btn mint">한 줄 남기기</div><div class="btn asst">30초 찍기</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">📋</div>
+                <div><div class="k blue">무료 검사</div><div class="t">무료 발달 선별검사 알아보기</div><div class="d">받아보셨는지에 따라 알려드려요</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile orange">🎁</div>
+                <div><div class="k orange">지원 제도</div><div class="t">치료비, 지원받을 수 있어요</div><div class="d">발달재활 바우처 · 신청은 연중</div></div>
+              </div>
+            </div>
+            <div class="quiet">센터 찾기는 필요할 때, 아래에 있어요</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="2">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">오늘은 <em>전화 하나</em>만<br>하면 돼요</div></div>
+            <div class="c heroed">
+              <div class="k">오늘 · 다시 확인하기로 한 날</div>
+              <div class="t" style="margin-top:2px;">해솔아동발달센터</div>
+              <div class="d">3월에 문의 · "자리 나면 연락드려요"</div>
+              <div class="btns"><div class="btn pri">전화하기</div><div class="btn asst">물어볼 것 3</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">📅</div>
+                <div><div class="k blue">첫 방문 D-7</div><div class="t">7월 15일 · 마음숲센터</div><div class="d">기록 12개를 한 장으로 정리해 드릴게요</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🎬</div>
+                <div><div class="k mint">기다리는 동안</div><div class="t">30초 영상 하나 어때요?</div><div class="d">밥 먹을 때 · 친구랑 놀 때 · 원하는 게 있을 때</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="3">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>4:42</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">오늘도 <em>다녀왔네요</em></div></div>
+            <div class="c heroed">
+              <div class="k">오늘 세션 · 언어치료 4:00</div>
+              <div class="t" style="margin-top:2px;">해솔센터, 수업이 끝났어요</div>
+              <div class="btns"><div class="btn pri">다녀왔어요 ✓</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile purple">🏡</div>
+                <div><div class="k purple">이번 주 집에서</div><div class="t">그림책 읽고 한 단어씩 따라 말하기</div><div class="d">지난주 선생님 말씀에서</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t">요즘 새로 보이는 모습이 있나요?</div></div>
+              </div>
+            </div>
+            <div class="quiet">남은 회기는 센터에 확인해 주세요</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="4">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="dim">
+            <div class="sheet">
+              <div class="grab"></div>
+              <div class="st">선생님 말씀 담기</div>
+              <div class="quote">
+                <div class="ql">이렇게 말씀드려 보세요</div>
+                <div class="qt">"잊어버릴까 봐 담아둘게요"</div>
+              </div>
+              <div class="recwrap">
+                <div class="recbtn"><svg viewBox="0 0 24 24"><rect x="9.2" y="3.5" width="5.6" height="10" rx="2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="reclabel">눌러서 녹음</div>
+              </div>
+              <div class="alt">직접 적을게요</div>
+              <div class="fine">우리 가족과, 내가 허용한 선생님만 들을 수 있어요<br>지금 안 담아도 괜찮아요 — 기록에서 언제든지</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="5">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>5:12</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello"><div class="day">기록 저장됨</div><div class="line">평가 보고서를<br>잘 담아뒀어요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile gray">📄</div>
+                <div><div class="k gray">7월 8일 · 기록</div><div class="t">언어평가 보고서 <small>사진 2장</small></div><div class="d">지우의 기록에 추가됐어요</div></div>
+              </div>
+              <div class="thumb"><div class="play">📄</div><div class="dur">2장</div></div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">✨</div>
+                <div><div class="k blue">이런 방법도 있어요</div><div class="t">연동 센터에선 결과지가 자동으로 들어와요</div></div>
+              </div>
+              <div class="btns"><div class="btn tint">알아보기</div><div class="btn asst">괜찮아요</div></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="6">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">내일 <em>하나만</em><br>확인하면 돼요</div></div>
+            <div class="people">
+              <div class="pchip all on">전체</div>
+              <div class="pchip"><span class="av a1">지</span>지우</div>
+              <div class="pchip"><span class="av a2">서</span>서준</div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🗓️</div>
+                <div><div class="k blue">내일 4:00 · 해솔센터</div><div class="t"><span class="who w1">지우</span>언어치료</div></div>
+              </div>
+              <div class="btns"><div class="btn pri">확인했어요</div><div class="btn asst">변경 문의</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">📄</div>
+                <div><div class="k mint">새로 도착</div><div class="t"><span class="who w1">지우</span>언어평가 결과지</div></div>
+                <div style="margin-left:auto;font-size:15px;color:var(--ink4);">›</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile orange">🎟️</div>
+                <div style="flex:1;"><div class="k orange">발달재활 바우처</div><div class="t"><span class="who w1">지우</span>잔여 2회 <small>8/31까지</small></div>
+                <div class="bar"><i style="width:18%;background:linear-gradient(90deg,#FFB65C,#FF9200);"></i></div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t"><span class="who w2">서준</span>요즘 모습, 한 줄 남겨볼까요?</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="7">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            <div class="hello"><div class="day">7월 10일 목요일</div><div class="line">오늘은 챙길 일이<br><em>없어요</em></div></div>
+            <div class="c" style="padding:8px 16px 20px;">
+              <div class="zen">
+                <div class="orb">🌿</div>
+                <div class="zt">이번 주 3개를 챙기셨어요</div>
+                <div class="zd">잠시 쉬어가도 좋은 날이에요</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">📔</div>
+                <div><div class="k mint">기록</div><div class="t">지난 기록 다시 보기</div><div class="d">지우 187개 · 서준 4개</div></div>
+                <div style="margin-left:auto;font-size:15px;color:var(--ink4);">›</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="8">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello" style="padding-top:14px;"><div class="day">기록 · 7월 5일</div><div class="line" style="font-size:20px;">이 기록, 누가<br>볼 수 있나요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🎬</div>
+                <div><div class="k blue">영상 32초</div><div class="t">친구랑 블록놀이 하는 모습</div></div>
+              </div>
+              <div class="thumb"><div class="play">▶</div><div class="dur">0:32</div></div>
+            </div>
+            <div class="c">
+              <div class="share-row"><div class="sl">👨‍👩‍👧 우리 가족</div><div class="sv">항상 볼 수 있어요</div></div>
+              <div class="share-row"><div class="sl">🏡 해솔센터 김하윤 선생님</div><div class="switch"></div></div>
+            </div>
+            <div class="quiet" style="text-align:left;padding:2px 8px;line-height:1.8;">
+              선생님에게 알림이 가지 않아요.<br>
+              수업 준비하실 때 직접 열어보시는 방식이에요.<br>
+              끄면 선생님 화면에서 바로 사라져요.
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div>
+            <div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div>
+            <div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="9">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="dim">
+            <div class="peek">
+              <div class="c">
+                <div class="row">
+                  <div class="tile mint">🌱</div>
+                  <div><div class="k mint">오늘 · 기록</div><div class="t">"물"이라고 두 번 말했다</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet">
+              <div class="grab"></div>
+              <div class="st">첫 기록이에요!<br>안전하게 보관해 드릴게요</div>
+              <div class="sd">로그인하면 폰이 바뀌어도 기록이 이어져요.</div>
+              <div class="sns">
+                <div class="s kakao">카카오로 계속하기</div>
+                <div class="s apple"> Apple로 계속하기</div>
+                <div class="s google">G Google로 계속하기</div>
+              </div>
+              <div class="fine">방금 쓴 기록은 그대로 있어요 · 둘러보기는 로그인 없이도 계속할 수 있어요</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="10">
+
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">거의 다 됐어요</div>
+            <div class="q">기록을 안전하게 지키기 위한<br><em>약속</em>이에요</div>
+            <div class="agree-all"><div class="ckc">✓</div><div class="bt">모두 동의하기</div></div>
+            <div style="background:#fff;border-radius:16px;padding:4px 12px;box-shadow:0 1px 12px rgba(2,28,51,.06);">
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>서비스 이용약관</b></div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>개인정보 수집·이용</b> — 계정과 기본 기록</div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>아이 기록 보관</b> — 글·사진·영상·녹음, 암호화 저장</div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc off" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req opt">선택</span>소식·혜택 알림</div><div class="more">›</div></div>
+            </div>
+            <div class="quiet">기록은 우리 가족만 볼 수 있고, 다른 목적에 쓰지 않아요<br>동의는 마이 > 내 기록과 동의에서 언제든 바꿀 수 있어요</div>
+            <div class="cta"><div class="btn pri">동의하고 시작하기</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="11">
+
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">마지막이에요</div>
+            <div class="q">누구의 기록인가요?</div>
+            <div class="fieldset">
+              <div class="flabel">이름 또는 애칭</div>
+              <div class="field">지우<span class="cursor"></span></div>
+              <div class="flabel">태어난 해</div>
+              <div class="field"><span>2021년</span><span style="font-size:13px;color:var(--ink4);">선택 ▾</span></div>
+            </div>
+            <div class="checkline"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="cl">저는 이 아이의 보호자입니다</div></div>
+            <div class="quiet" style="text-align:left;padding-left:34px;margin-top:-6px;">내 기록이라면 <b style="color:var(--ink2);">"내 이야기예요"</b>를 선택하세요</div>
+            <div class="cta">
+              <div class="quiet">이름 대신 애칭도 괜찮아요</div>
+              <div class="btn pri" style="margin-top:8px;">기록 이어가기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="12">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello" style="padding-top:10px;"><div class="day">다니는 센터 등록</div><div class="line" style="font-size:20px;">어느 센터에<br>다니고 있나요?</div></div>
+            <div class="searchbar">🔍 <span>해맑음</span><span class="cursor" style="display:inline-block;width:2px;height:16px;background:var(--blue);"></span></div>
+            <div class="result">
+              <div class="tile blue" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음아동발달센터<span class="linkbadge">바로 연결</span></div><div class="rd">서울 마포구 · 언어 · 감각통합 · 놀이</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="result">
+              <div class="tile gray" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음심리상담센터</div><div class="rd">서울 서대문구 · 아동상담 · 놀이</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="result">
+              <div class="tile gray" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음키즈발달연구소</div><div class="rd">경기 고양시 · 언어 · 인지</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="quiet">찾는 센터가 없나요? <b style="color:var(--blue-600);">직접 입력하기</b></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="13">
+
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:17</span><span>􀙇 􀛨</span></div>
+          <div class="ob" style="justify-content:center;gap:14px;">
+            <div style="text-align:center;">
+              <div class="tile blue" style="width:76px;height:76px;border-radius:24px;margin:0 auto;font-size:34px;box-shadow:0 10px 24px rgba(68,134,255,.18);">🏡</div>
+              <div style="margin-top:16px;font-size:12.5px;font-weight:700;color:var(--blue-600);">해맑음아동발달센터</div>
+              <div style="margin-top:6px;font-size:23px;font-weight:800;color:var(--ink);line-height:1.35;letter-spacing:-0.6px;">지우 보호자님,<br>센터가 초대했어요</div>
+              <div style="margin-top:8px;font-size:13.5px;color:var(--ink2);line-height:1.6;">연결하면 예약·검사·결과지가<br>앱으로 자동으로 들어와요</div>
+            </div>
+            <div class="cta">
+              <div class="btn pri">쓰던 계정으로 연결하기</div>
+              <div class="btn asst" style="margin-top:8px;">처음이에요</div>
+              <div class="quiet" style="margin-top:10px;">새 계정을 만들 필요 없어요 — 지금까지의 기록에 센터가 더해져요</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="14">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:18</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">해맑음아동발달센터 연결 1/2</div><div class="line" style="font-size:20px;">본인 확인이<br>필요해요</div></div>
+            <div class="fieldset">
+              <div class="flabel">휴대폰 번호</div>
+              <div class="field"><span>010-4728-55</span><span class="cursor"></span></div>
+            </div>
+            <div class="codes"><div class="code">7</div><div class="code">3</div><div class="code on">2</div><div class="code empty">·</div><div class="code empty">·</div><div class="code empty">·</div></div>
+            <div class="quiet" style="text-align:left;padding:2px 6px;">
+              센터에 등록된 보호자 번호와 맞는지 확인해요.<br>
+              이 확인은 보호자(법정대리인) 확인을 함께 해요.
+            </div>
+            <div style="margin-top:auto;padding-bottom:14px;"><div class="btn pri" style="display:block;padding:15px 0;font-size:15.5px;border-radius:14px;">확인</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="15">
+
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:18</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">해맑음아동발달센터 연결 2/2</div>
+            <div class="q">센터의 <em>김지우</em> 님,<br>누구와 연결할까요?</div>
+            <div class="opt sel">
+              <div class="av a1">지</div>
+              <div><div class="ot">지우</div><div class="od">내 기록 34개 · 2021년생</div></div>
+              <div class="chk">✓</div>
+            </div>
+            <div class="opt">
+              <div class="av a2">서</div>
+              <div><div class="ot">서준</div><div class="od">내 기록 4개 · 2023년생</div></div>
+            </div>
+            <div class="opt">
+              <div class="av plus">＋</div>
+              <div><div class="ot">새 프로필 만들기</div><div class="od">앱에 아직 없는 아이라면</div></div>
+            </div>
+            <div class="cta">
+              <div class="quiet">잘못 연결해도 마이에서 언제든 풀 수 있어요</div>
+              <div class="btn pri" style="margin-top:8px;">지우와 연결하기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="16">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:19</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="done-hero">
+              <div class="orb">🎉</div>
+              <div class="dt">해맑음센터와<br><em>연결됐어요</em></div>
+              <div class="dd">이제 이런 것들이 자동으로 들어와요</div>
+            </div>
+            <div class="c" style="padding:8px 16px;">
+              <div class="flowlist">
+                <div class="f"><div class="fi">🗓️</div><b>예약 알림</b> · 변경과 휴강도<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">📋</div><b>검사와 설문</b> · 종이 대신 앱에서<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">📄</div><b>결과지</b> · 나오면 바로<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">🎟️</div><b>바우처 잔여 횟수</b> · 센터의 진짜 숫자<div class="auto">자동</div></div>
+              </div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">🔒</div>
+                <div><div class="k blue">그리고 변하지 않는 것</div><div class="t" style="font-size:14.5px;">기록 34개는 그대로 내 것</div><div class="d">센터는 내가 공유를 켠 기록만 볼 수 있어요</div></div>
+              </div>
+            </div>
+            <div style="padding-bottom:14px;"><div class="btn pri" style="display:block;padding:15px 0;font-size:15.5px;border-radius:14px;">홈으로</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="17">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">해맑음아동발달센터</div><div class="line" style="font-size:20px;">이 센터, 연결할 수<br>있어요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🏡</div>
+                <div><div class="k blue">바로 연결 센터</div><div class="t" style="font-size:14.5px;">다니고 있다면 연결을 요청하세요</div><div class="d">센터에서 등록 정보를 확인하고 연결해 드려요</div></div>
+              </div>
+              <div class="btns"><div class="btn pri">연결 요청하기</div></div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">⏳</div>
+                <div><div class="k blue">요청 보냄 · 7월 9일</div><div class="t" style="font-size:14.5px;">센터 확인을 기다리고 있어요</div><div class="d">보통 다음 방문 전에 연결돼요 · 데스크에 말씀하시면 더 빨라요</div></div>
+              </div>
+            </div>
+            <div class="quiet">기다리는 동안에도 기록은 평소처럼</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="18">
+
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">마이 · 가족</div><div class="line" style="font-size:20px;">함께 보고,<br>함께 기록해요</div></div>
+            <div class="c" style="padding:8px 16px;">
+              <div class="member">
+                <div class="av a1" style="width:38px;height:38px;font-size:14px;">나</div>
+                <div><div class="mn">나</div><div class="md">기록 · 공유 설정 · 가족 관리</div></div>
+                <div class="rolechip admin">관리자</div>
+              </div>
+              <div class="member">
+                <div class="av a2" style="width:38px;height:38px;font-size:14px;">아</div>
+                <div><div class="mn">지우 아빠</div><div class="md">기록 보기 · 쓰기 · 다녀왔어요 · 말씀 담기</div></div>
+                <div class="rolechip fam">가족</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">💌</div>
+                <div><div class="k mint">가족 초대</div><div class="t" style="font-size:14.5px;">할머니도, 아빠도 함께</div><div class="d">초대받은 가족도 기록을 쓸 수 있어요</div></div>
+              </div>
+              <div class="btns"><div class="btn mint">초대 링크 보내기</div></div>
+            </div>
+            <div class="quiet">공유 설정과 가족 내보내기는 관리자만 할 수 있어요</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+  </div>
+  <div class="gv-slide" data-i="19">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+<div class="scroll">
+<div class="hello" style="padding-top:10px;"><div class="day">센터 찾기</div><div class="line" style="font-size:20px;">천천히 둘러봐도<br>괜찮아요</div></div>
+<div class="searchbar">🔍 <span class="ph">센터 이름으로 검색</span></div>
+<div style="display:flex;gap:7px;padding:0 2px;flex-wrap:wrap;">
+<span style="font-size:12px;font-weight:700;background:#1D2227;color:#fff;border-radius:999px;padding:7px 13px;">📍 송파구</span>
+<span style="font-size:12px;font-weight:700;background:#fff;color:#58626C;border-radius:999px;padding:7px 13px;box-shadow:0 1px 8px rgba(2,28,51,.05);">언어치료</span>
+<span style="font-size:12px;font-weight:700;background:#fff;color:#58626C;border-radius:999px;padding:7px 13px;box-shadow:0 1px 8px rgba(2,28,51,.05);">바우처</span>
+</div>
+<div class="result"><div class="tile mint" style="width:40px;height:40px;border-radius:12px;">🌱</div><div><div class="rt">해솔아동발달센터</div><div class="rd">0.8km · 송파구 문정동 · 발달재활 바우처</div></div><div class="go">›</div></div>
+<div class="result"><div class="tile blue" style="width:40px;height:40px;border-radius:12px;">🏡</div><div><div class="rt">마음숲 심리발달센터<span class="linkbadge">바로 연결</span></div><div class="rd">1.2km · 송파구 가락동 · 발달재활 바우처</div></div><div class="go">›</div></div>
+<div class="result"><div class="tile gray" style="width:40px;height:40px;border-radius:12px;">🏡</div><div><div class="rt">아이온 언어심리연구소</div><div class="rd">1.9km · 송파구 방이동</div></div><div class="go">›</div></div>
+<div class="btn asst" style="flex:none;">지도로 보기</div>
+<div class="quiet">정보 출처: 보건복지부 발달재활 제공기관 명단</div>
+</div><div class="tabbar"><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div><div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div></div>
+<div class="homebar"></div>
+</div></div>
+  </div>
+  <div class="gv-slide" data-i="20">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+<div class="scroll">
+<div class="navback">‹</div>
+<div class="hello" style="padding-top:2px;"><div class="day">지우 · 해맑음센터</div><div class="line" style="font-size:20px;">발달재활 바우처</div></div>
+<div class="c">
+<div class="row"><div class="tile orange">🎟️</div><div style="flex:1;"><div class="k orange">이번 달 잔여</div><div class="t">2회 <small>8월 31일까지</small></div>
+<div class="bar"><i style="width:18%;background:linear-gradient(90deg,#FFB65C,#FF9200);"></i></div></div></div>
+<div class="d" style="margin-top:10px;">센터에서 알려주는 진짜 숫자예요</div>
+</div>
+<div class="c" style="padding:8px 16px;">
+<div class="flowlist">
+<div class="f"><div class="fi">✓</div><b>7월 22일</b> · 언어치료<div class="auto">사용</div></div>
+<div class="f"><div class="fi">✓</div><b>7월 15일</b> · 언어치료<div class="auto">사용</div></div>
+<div class="f"><div class="fi">✓</div><b>7월 8일</b> · 언어치료<div class="auto">사용</div></div>
+</div>
+</div>
+<div class="c"><div class="row"><div class="tile blue">📅</div><div><div class="k blue">다음 달</div><div class="t" style="font-size:14.5px;">8월분은 8월 1일에 새로 채워져요</div></div></div></div>
+<div class="quiet">본인부담금은 센터에 확인해 주세요</div>
+</div><div class="tabbar"><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div><div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div></div>
+<div class="homebar"></div>
+</div></div>
+  </div>
+  <div class="gv-slide" data-i="21">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+<div class="scroll">
+<div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2.5H4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+<div class="people"><div class="pchip on"><span class="av a1" style="width:20px;height:20px;font-size:10px;">지</span>지우</div><div class="pchip"><span class="av a2" style="width:20px;height:20px;font-size:10px;">서</span>서준</div></div>
+<div class="c"><div class="row"><div class="tile mint">🌱</div><div style="flex:1;"><div class="k mint">오늘</div><div class="t" style="font-size:14.5px;">"물 줘"라고 두 단어로 말했다</div></div><div class="pbadge lock" role="img" aria-label="나와 가족만"><svg viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+<div class="c"><div class="row"><div class="tile blue">🎬</div><div style="flex:1;"><div class="k blue">어제 · 영상 32초</div><div class="t" style="font-size:14.5px;">친구랑 블록놀이</div></div><div class="pbadge shared" role="img" aria-label="공유 중"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 19c.9-2.6 3-3.9 5.5-3.9s4.6 1.3 5.5 3.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 6.6a3 3 0 1 1 1.4 5.7M16.8 15.4c1.9.4 3.2 1.6 3.7 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+<div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);"><div class="row"><div class="tile gray">🏡</div><div style="flex:1;"><div class="k gray">7월 8일 · 자동</div><div class="t" style="font-size:14.5px;">언어치료 34번째 시간 <small>해맑음센터</small></div></div></div></div>
+<div class="c"><div class="row"><div class="tile purple">🎙</div><div style="flex:1;"><div class="k purple">7월 8일 · 선생님 말씀</div><div class="t" style="font-size:14.5px;">녹음 0:42 · "집에서 그림책을…"</div></div><div class="pbadge lock" role="img" aria-label="나와 가족만"><svg viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+<div class="c"><div class="row"><div class="tile gray">📄</div><div style="flex:1;"><div class="k gray">7월 1일</div><div class="t" style="font-size:14.5px;">언어평가 결과지 <small>사진 2장</small></div></div><div class="pbadge shared" role="img" aria-label="공유 중"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 19c.9-2.6 3-3.9 5.5-3.9s4.6 1.3 5.5 3.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 6.6a3 3 0 1 1 1.4 5.7M16.8 15.4c1.9.4 3.2 1.6 3.7 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+<div class="quiet">지우의 기록 187개 · 처음부터 보기</div>
+</div><div class="tabbar"><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div><div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div></div>
+<div class="homebar"></div>
+</div></div>
+  </div>
+  <div class="gv-slide" data-i="22">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+<div class="scroll">
+<div class="navback">‹</div>
+<div class="hello" style="padding-top:2px;"><div class="day">마음숲센터 첫 방문 D-7</div><div class="line" style="font-size:20px;">그동안의 기록,<br><em>한 장</em>으로 준비했어요</div></div>
+<div class="c" style="padding:8px 16px;">
+<div class="flowlist">
+<div class="f"><div class="fi">📝</div><b>5월 12일</b> · 첫 기록 — "이름을 불러도…"</div>
+<div class="f"><div class="fi">🎬</div><b>5월 26일</b> · 영상 30초 — 밥 먹을 때</div>
+<div class="f"><div class="fi">📝</div><b>6월 3일</b> · "물" 한 단어를 자주</div>
+<div class="f"><div class="fi">🎬</div><b>6월 21일</b> · 영상 28초 — 친구랑 놀 때</div>
+<div class="f"><div class="fi">📝</div><b>7월 2일</b> · "물 줘" 두 단어</div>
+</div>
+</div>
+<div class="btns" style="margin-top:2px;"><div class="btn pri">선생님께 보여드리기</div><div class="btn asst">PDF로 저장</div></div>
+<div class="quiet">시간순 정리만 해드려요 — 판단은 선생님과 함께</div>
+</div><div class="tabbar"><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div><div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div></div>
+<div class="homebar"></div>
+</div></div>
+  </div>
+  <div class="gv-slide" data-i="23">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+<div class="scroll">
+<div class="navback">‹</div>
+<div class="hello" style="padding-top:2px;"><div class="day">마이</div><div class="line" style="font-size:20px;">내 기록과 동의</div></div>
+<div class="c">
+<div class="share-row"><div class="sl">📄 이용약관 · 개인정보</div><div class="sv">동의함 · 25.7.9</div></div>
+<div class="share-row"><div class="sl">🔒 아이 기록 보관 (민감정보)</div><div class="sv">동의함 · 25.7.9</div></div>
+<div class="share-row"><div class="sl">📣 소식·혜택 알림</div><div class="switch off"></div></div>
+</div>
+<div class="c"><div class="row"><div class="tile blue">👥</div><div style="flex:1;"><div class="k blue">공유 현황</div><div class="t" style="font-size:14.5px;">해맑음센터에 열린 기록 3개</div><div class="d">영상 1 · 결과지 1 · 글 1</div></div><div style="font-size:15px;color:#AAB2BE;">›</div></div></div>
+<div class="c" style="padding:8px 16px;">
+<div class="flowlist">
+<div class="f"><div class="fi">📦</div><b>기록 내보내기</b> · 전체를 파일로</div>
+<div class="f"><div class="fi">🔗</div><b>센터 연결 관리</b> · 해맑음센터</div>
+<div class="f"><div class="fi">👋</div>동의 철회 · 탈퇴</div>
+</div>
+</div>
+<div class="quiet">기록은 암호화되어 저장되고, 나와 가족<br>그리고 내가 허용한 선생님만 볼 수 있어요</div>
+</div><div class="tabbar"><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 3.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>홈</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 7.5h6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>기록</div><div class="tab"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m20 20-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>센터 찾기</div><div class="tab on"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>마이</div></div>
+<div class="homebar"></div>
+</div></div>
+  </div>
+      <div class="gv-ctrl">
+        <button class="gv-arrow" id="gv-prev">‹</button>
+        <span class="gv-count" id="gv-count">1 / 24</span>
+        <button class="gv-arrow" id="gv-next">›</button>
+      </div>
+    </div>
+    <div class="gv-capwrap">
+  <div class="gv-capslide on" data-i="0">
+<div class="cap">
+          <div class="t">시작 질문 <span class="tag t0">온보딩 · 게스트</span></div>
+          <div class="d">진단 언어 없음, "가까우세요"로 선언의 무게를 낮춤. 가입 요구 없음 — 첫 저장 때 소셜 로그인.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="1">
+<div class="cap">
+          <div class="t">상황 ① — 지켜보는 중 <span class="tag t1">상황 ①</span></div>
+          <div class="d">공급원 = 사용자 + 공공 정보. 기록이 첫 카드, 검사·지원은 안심 톤.</div>
+          <div class="rule"><b>규칙:</b> 공감 1문장(22px 강조), 카드 2줄, 지시형("검사 받으세요") 대신 질문·초대형 문구.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="2">
+<div class="cap">
+          <div class="t">상황 ① — 알아보는 중 <span class="tag t1">상황 ①</span></div>
+          <div class="d">급한 것이 위로: 오늘의 전화(히어로) → 첫 방문 디데이 → 촬영 가이드. 히어로 카드는 화면당 1개.</div>
+          <div class="rule"><b>규칙:</b> "대기 12주째" 같은 부정 집계 없음 — 다음 행동만. 히어로=Primary 1곳 원칙.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="3">
+<div class="cap">
+          <div class="t">상황 ② — 수업 끝난 직후 <span class="tag t2">상황 ②</span></div>
+          <div class="d">대기실 프라임타임. 종료 시각이 지나면 히어로가 "다녀왔어요"로 바뀜. 숙제는 일주일 상주.</div>
+          <div class="rule"><b>규칙:</b> 잔여 회기 계산 안 함(센터 장부 존중) — 정직한 한 줄로 대체. 탭 명칭 "센터 찾기" 전상황 고정(07-09 판정).</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="4">
+<div class="cap">
+          <div class="t">말씀 담기 시트 <span class="tag t2">상황 ②·③ 공용</span></div>
+          <div class="d">"다녀왔어요" 직후 자동 등장. 녹음 기본 + 직접 적기 폴백. 양해 대사를 화면이 쥐여줌.</div>
+          <div class="rule"><b>규칙:</b> 몰래 녹음 방지 프레임 내장 · 저장 위치/열람 범위 한 줄(투명성) · "안 담아도 괜찮아요"(죄책감 금지).</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="5">
+<div class="cap">
+          <div class="t">상황 ② — 연동 안내 (원샷) <span class="tag t2">상황 ②</span></div>
+          <div class="d">상시 배너 금지 — 종이 결과지를 찍은 직후에만 한 장. 월 1회 이하 쿨다운.</div>
+          <div class="rule"><b>규칙:</b> "여긴 안 돼요"(센터 탓) 대신 "이런 방법도 있어요". [괜찮아요]로 조용히 닫힘.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="6">
+<div class="cap">
+          <div class="t">상황 ③ — 연동 + 다자녀 <span class="tag t3">상황 ③</span></div>
+          <div class="d">센터 데이터가 세 번째 공급원으로 합류. 홈은 하나, 아이는 칩. 첫째(연동)와 둘째(지켜보는 중)가 한 스택에.</div>
+          <div class="rule"><b>규칙:</b> 바우처 잔여 = 센터의 진짜 숫자, 임박은 주황 바만(빨간색·독촉 없음).</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="7">
+<div class="cap">
+          <div class="t">상황 ③ — 할 일 없는 날 <span class="tag t3">상황 ③</span></div>
+          <div class="d">빈 홈 = 평온. 소프트 3D 오브 + 긍정 집계 한 줄. 채우기용 콘텐츠 없음.</div>
+          <div class="rule"><b>규칙:</b> 미완료·놓침의 흔적 없음. 빈 상태가 실패처럼 보이지 않게.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="8">
+<div class="cap">
+          <div class="t">기록 공유 설정 <span class="tag t3">상황 ③</span></div>
+          <div class="d">"보여주기 허용" 모델 — 항목별 스위치, 열람 범위 상시 표기, 즉시 철회.</div>
+          <div class="rule"><b>규칙:</b> 투명성 가드레일 + 풀 원칙("알림이 가지 않아요") 문구가 UI에 상주.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="9">
+<div class="cap">
+          <div class="t">가입 게이트 <span class="tag t0">공통 · 첫 저장</span></div>
+          <div class="d">둘러보기는 끝까지 게스트. 첫 저장 행위(기록·찜·리마인더)에서만 이 시트가 올라옴 — 방금 쓴 기록이 뒤에 비쳐 "이걸 지키려고 가입한다"가 보이게.</div>
+          <div class="rule"><b>규칙:</b> 가입 이유를 앱 사정("회원이 되어주세요")이 아니라 사용자 이익("기록이 이어져요")으로. 전화번호 인증 없음 — 그건 센터 연결 때만.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="10">
+<div class="cap">
+          <div class="t">동의 스택 — 한 장 <span class="tag t0">R1 · R2</span></div>
+          <div class="d">가입 플로우 안의 단 한 장. 전체 동의 원탭 + 항목별 체크 병존. 민감정보 항목은 법정 명칭 대신 "아이 기록 보관"으로 리드하고, 펼침(›)에 정식 고지 4요소.</div>
+          <div class="rule"><b>규칙:</b> 일괄 ≠ 포괄 — 항목은 법적으로 분리. 필수 3 + 선택. 가드레일(암호화·가족만·2차 활용 금지·철회처)이 quiet 문구로 이 화면에 이미 등장.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="11">
+<div class="cap">
+          <div class="t">아이 프로필 + 보호자 확인 <span class="tag t0">R3</span></div>
+          <div class="d">법정대리인 확인은 별도 화면이 아니라 체크 한 줄. "내 이야기예요" 갈림길로 성인 본인 사용(센터 유형 중립)이 같은 화면에서 성립.</div>
+          <div class="rule"><b>규칙:</b> 필수 입력은 이름 하나(생년도 선택) — 진단명·발달 상태 등 프로파일링 질문 없음. CTA가 "가입 완료"가 아니라 "기록 이어가기" — 하던 일로 복귀.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="12">
+<div class="cap">
+          <div class="t">센터 검색 — 세 갈래의 입구 <span class="tag t2">②R3 확정</span></div>
+          <div class="d">"바로 연결" 배지 = 연동 센터(a) → 03 연결 절차로. 배지 없음(b) = 등록만 하고 상황 ② 모드. 검색 결과 없음(c) = 직접 입력 후 ② 모드.</div>
+          <div class="rule"><b>규칙:</b> 연동 센터를 "좋은 센터"처럼 표현하지 않음 — 배지는 기능 사실("바로 연결")만. 미연동 센터 폄하 문구 금지.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="13">
+<div class="cap">
+          <div class="t">초대 링크 진입 <span class="tag t3">경로 1 · 문자 편승</span></div>
+          <div class="d">센터가 보내는 예약 안내 문자의 링크로 진입. 기존 유저는 "쓰던 계정으로" — 새 계정이 아니라 쓰던 계정에 센터가 부착(기존 계정 합류).</div>
+          <div class="rule"><b>규칙:</b> 데스크 QR·가족 초대 경로도 같은 랜딩으로 수렴. "지금까지의 기록에 센터가 더해져요" — 원장의 주인이 안 바뀜을 첫 화면부터.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="14">
+<div class="cap">
+          <div class="t">전화번호 본인인증 <span class="tag t3">③R2 · 동의 R3</span></div>
+          <div class="d">인증은 연결 때만(가입 때는 없음). 07-09 확정 — 이 절차가 법정대리인 확인을 겸한다는 것을 화면에 한 줄로 명시.</div>
+          <div class="rule"><b>규칙:</b> 전화번호가 맞아도 자동 연결 아님 — 센터 초대(또는 승인)가 선행돼 있어야 함. 오연결 = 개인정보 사고.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="15">
+<div class="cap">
+          <div class="t">아이 프로필 확인 <span class="tag t3">③R2 · 기존 계정 합류</span></div>
+          <div class="d">센터 명부의 이름과 앱 프로필을 사람이 확인하고 잇는 단계 — 형제가 있는 집의 오연결 방지가 목적.</div>
+          <div class="rule"><b>규칙:</b> 센터 쪽 실명("김지우")과 앱 쪽 애칭("지우")이 달라도 성립. 자동 매칭 없음 — 항상 사용자가 지목.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="16">
+<div class="cap">
+          <div class="t">연결 완료 <span class="tag t3">상황 ③ 시작</span></div>
+          <div class="d">받는 것(자동 4종)과 변하지 않는 것(기록 소유·공유 기본 OFF)을 같은 화면에서. ③ 정체성 "손으로 하던 것이 자동으로, 내 것은 계속 내 것" 그대로.</div>
+          <div class="rule"><b>규칙:</b> 공유는 기본 꺼짐 — 연결이 열람 허용이 아님을 완료 화면에서 못박음(투명성 가드레일).</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="17">
+<div class="cap">
+          <div class="t">역방향 연결 요청 <span class="tag t3">경로 4 · ③R2 신규</span></div>
+          <div class="d">초대를 못 받은 기존 유저가 먼저 요청 → 센터 web에 "연결 요청 N건" → 직원이 명부 확인 후 승인. 위(요청 전)와 아래(대기 중) 두 상태를 한 화면에 병기.</div>
+          <div class="rule"><b>규칙:</b> 대기 중에도 앱은 ② 모드로 온전히 동작 — 요청이 막힘이 되지 않게. 데스크 언급 = 활성화의 영업 부수효과.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="18">
+<div class="cap">
+          <div class="t">가족 관리 — 2등급 <span class="tag t3">③R4 · 경로 3</span></div>
+          <div class="d">관리자(주 보호자) / 가족(보기+쓰기 전부) 딱 두 등급. 문지기 권한(초대·내보내기·공유 설정)만 관리자에게.</div>
+          <div class="rule"><b>규칙:</b> 등급을 더 쪼개지 않음(열람 전용 없음). 초대받은 가족도 가입 시 동일한 동의 스택을 밟음(동의 설계 R3) — 아이에 대한 보호자 확인은 관리자 것 하나로 성립.</div>
+        </div>
+  </div>
+  <div class="gv-capslide" data-i="19">
+<div class="cap"><div class="t">센터 찾기 — A안 확정 반영 <span class="tag t1">상황 ① · 07-09 확정</span></div>
+<div class="d">검색바 최상단 크게(맘카페 이름 검색 동선) + 세 줄 카드(이름·거리·바우처 — 공공 명단 팩트만) + 지도는 토글. "바로 연결" 배지는 연동 센터의 기능 사실만.</div>
+<div class="rule"><b>규칙:</b> 후기·평점 어떤 형태로도 없음. 지방은 가까운 순 + 옆 지역 확장(빈 화면 금지). 출처 표기로 신뢰 확보.</div></div>
+  </div>
+  <div class="gv-capslide" data-i="20">
+<div class="cap"><div class="t">바우처 상세 (L3) <span class="tag t3">상황 ③ · 07-07 승계</span></div>
+<div class="d">3층 노출의 마지막 층. 연동 후라 잔여가 센터의 진짜 숫자(②의 "세 번째 숫자" 문제 해소). 회기 수만 — 금액은 비노출(본인부담금은 센터 안내로 위임).</div>
+<div class="rule"><b>규칙:</b> L1(홈)은 임박할 때만, L2(마이)는 상시, L3는 상세. 임박은 주황 온도만 — 빨강·경고 없음.</div></div>
+  </div>
+  <div class="gv-capslide" data-i="21">
+<div class="cap"><div class="t">기록 타임라인 — 아이별 <span class="tag t3">전 상황 공용</span></div>
+<div class="d">글·영상·세션 마디(자동)·말씀·결과지가 한 줄기로. 홈은 하나지만 타임라인은 아이별(사람 칩). 투명성은 R6 계단 1단 — 목록엔 아이콘만(🔒 가족만 / 👥 공유 중).</div>
+<div class="rule"><b>규칙:</b> 달력 뷰 없음(구멍을 보여주는 장치) — 흐르는 목록만. 빈 날짜 개념 자체가 없음. 마디는 은은한 배경으로 구분(자동 생성 표시).</div></div>
+  </div>
+  <div class="gv-capslide" data-i="22">
+<div class="cap"><div class="t">첫 방문 정리 한 장 <span class="tag t1">상황 ① · 초진</span></div>
+<div class="d">첫 방문(초진) 확정 시 그동안의 기록을 시간순 한 장으로. 치료사에게 보여주는 용도 — ②의 노이즈 마케팅 접점 ①이기도. 탈퇴 시 내보내기와 같은 엔진.</div>
+<div class="rule"><b>규칙:</b> 요약·해석·경향 분석 없음 — 순수 시간순 나열(판정 무음). "준비했어요"로 부모의 노력을 인정하는 톤.</div></div>
+  </div>
+  <div class="gv-capslide" data-i="23">
+<div class="cap"><div class="t">내 기록과 동의 — 허브 <span class="tag t0">공통 · 동의 R6</span></div>
+<div class="d">동의 현황(항목별) · 역방향 공유 목록(어떤 기록이 어느 센터에 열려 있나) · 내보내기 · 철회·탈퇴가 한곳에. 출구 4개(R5)가 전부 여기서 시작.</div>
+<div class="rule"><b>규칙:</b> 철회·탈퇴를 숨기지 않음(신뢰 문구) — 단 첫 화면은 현황, 출구는 목록 마지막. 하단 한 줄 = 가드레일 ④ 상시 문구.</div></div>
+  </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var N = 24, cur = 0;
+  var btns = document.querySelectorAll('.gv-b');
+  function show(i) {
+    cur = (i + N) % N;
+    document.querySelectorAll('.gv-slide, .gv-capslide, .gv-b').forEach(function (el) {
+      el.classList.toggle('on', +el.dataset.i === cur);
+    });
+    document.getElementById('gv-count').textContent = (cur + 1) + ' / ' + N;
+    var b = document.querySelector('.gv-b.on');
+    if (b) b.scrollIntoView({ block: 'nearest' });
+  }
+  btns.forEach(function (b) { b.dataset.i = b.getAttribute('data-i'); b.addEventListener('click', function () { show(+b.dataset.i); }); });
+  document.getElementById('gv-prev').addEventListener('click', function () { show(cur - 1); });
+  document.getElementById('gv-next').addEventListener('click', function () { show(cur + 1); });
+  var hm = location.hash.match(/^#s(\d+)$/);
+  if (hm) { show(+hm[1] - 1); setTimeout(function () { document.querySelector('.gv').scrollIntoView(); }, 50); }
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { show(cur - 1); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { show(cur + 1); e.preventDefault(); }
+  });
+})();
+</script>
+
+<div class="wrap">
+  <footer>
+    내담자 앱 설계 · 기준일 2026-07-09 · 내용 = <a href="내담자앱-설계.md" style="color:inherit;">내담자앱-설계.md</a> / 시각화 = 이 파일(내담자앱-설계.html). 두 파일이 항상 최신본입니다.<br>
+    설계 본문(결정 로그 포함)은 <a href="내담자앱-설계.md" style="color:inherit;">내담자앱-설계.md</a> · 과거 날짜별 문서는 archive/ 폴더.
+  </footer>
+</div>
+</body>
+</html>

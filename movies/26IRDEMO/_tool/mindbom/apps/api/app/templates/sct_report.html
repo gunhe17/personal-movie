@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* ============================================================
+     마인드봄 — SCT 검사 보고서
+     디자인 시스템: brand #2563eb / sidebar #34363d / gray scale
+     ============================================================ */
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-size: 9px;
+      color: #9ca3af;
+    }
+    @bottom-right {
+      content: "마인드봄";
+      font-size: 9px;
+      color: #9ca3af;
+    }
+  }
+
+  @page cover {
+    size: A4;
+    margin: 0;
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "NanumGothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 10px;
+    color: #2d333b;
+    line-height: 1.55;
+  }
+
+  /* ===== 표지 ===== */
+  .cover {
+    page: cover;
+    width: 100%;
+    height: 297mm;
+    background: linear-gradient(180deg, #34363d 0%, #232830 100%);
+    color: #fff;
+    position: relative;
+    page-break-after: always;
+  }
+  .cover-inner {
+    padding: 50mm 25mm 30mm 25mm;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-brand {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #93c5fd;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cover-brand-ko {
+    font-size: 14px;
+    color: #d1d5db;
+    margin-bottom: 60px;
+  }
+  .cover-divider {
+    width: 50px;
+    height: 3px;
+    background: #2563eb;
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -1px;
+  }
+  .cover-subtitle {
+    font-size: 13px;
+    color: #aab2be;
+    margin-bottom: 70px;
+    letter-spacing: 1px;
+  }
+  .cover-info-block {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 30px;
+  }
+  .cover-info-row {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cover-info-row:last-child { border-bottom: none; }
+  .cover-info-label {
+    width: 100px;
+    color: #aab2be;
+    font-size: 11px;
+  }
+  .cover-info-value {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .cover-spacer { flex: 1; }
+  .cover-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 9.5px;
+    color: #aab2be;
+  }
+  .cover-footer .badge {
+    display: inline-block;
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid #2563eb;
+    color: #93c5fd;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== 본문 공통 ===== */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2563eb;
+  }
+  .page-header .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3a8a;
+  }
+  .page-header .meta {
+    font-size: 9px;
+    color: #7d848f;
+    text-align: right;
+  }
+  .page-header .meta .name { font-weight: 600; color: #2d333b; font-size: 10px; }
+
+  /* ===== Info Table ===== */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 10px;
+    border: 1px solid #e2e5e9;
+  }
+  .info-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .info-table tr:last-child td { border-bottom: none; }
+  .info-table .label {
+    background: #f7f8f8;
+    font-weight: 600;
+    color: #464f58;
+    width: 88px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+    padding: 8px 14px;
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    margin-bottom: 12px;
+  }
+
+  /* ===== 영역별 점수 요약 ===== */
+  .score-summary {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e5e9;
+  }
+  .score-summary th {
+    background: #f7f8f8;
+    font-weight: 600;
+    color: #464f58;
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e5e9;
+    text-align: left;
+  }
+  .score-summary td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #eef1f3;
+  }
+  .score-summary tr:last-child td { border-bottom: none; }
+  .score-summary .domain-name { font-weight: 600; color: #2d333b; }
+
+  .score-bar-cell { width: 200px; }
+  .score-bar {
+    width: 100%;
+    height: 8px;
+    background: #eef1f3;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #60a5fa, #2563eb);
+    border-radius: 4px;
+  }
+  .pct-cell { font-weight: 600; color: #1e3a8a; width: 50px; }
+
+  /* ===== 영역별 상세 (카드 블록) ===== */
+  .domain-block {
+    margin-bottom: 14px;
+    border: 1px solid #e2e5e9;
+    border-radius: 6px;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .domain-block-header {
+    background: #1e3a8a;
+    color: #fff;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .domain-block-header .domain-name {
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .domain-block-header .domain-score {
+    margin-left: auto;
+    background: rgba(255,255,255,0.18);
+    padding: 2px 9px;
+    border-radius: 3px;
+    font-size: 9.5px;
+    font-weight: 700;
+  }
+
+  .item-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+  }
+  .item-table th {
+    background: #f7f8f8;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e5e9;
+    text-align: left;
+    color: #464f58;
+  }
+  .item-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #eef1f3;
+    vertical-align: top;
+  }
+  .item-table tr.item-row td { border-bottom: none; padding-bottom: 3px; }
+  .item-table tr.reason-row td {
+    padding: 0 10px 8px 10px;
+    color: #606a74;
+    font-size: 9px;
+    background: transparent;
+  }
+  .item-table tr.reason-row td .reason-box {
+    background: #fafbfc;
+    border-left: 2px solid #d1d5db;
+    padding: 5px 9px;
+    border-radius: 0 3px 3px 0;
+  }
+  .item-table tr.reason-row td .reason-box strong {
+    color: #2563eb;
+    margin-right: 4px;
+  }
+  .item-table .stem-cell {
+    color: #464f58;
+    width: 38%;
+  }
+  .item-table .answer-cell {
+    color: #2d333b;
+    font-weight: 500;
+  }
+  .item-table .answer-cell.empty {
+    color: #aab2be;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .item-table .score-cell {
+    text-align: center;
+    font-weight: 700;
+    width: 56px;
+  }
+  /* 점수 색상 스케일: 0(긍정/안정) → 6(부정/주의) */
+  .score-0 { color: #16a34a; }
+  .score-1 { color: #65a30d; }
+  .score-2 { color: #ca8a04; }
+  .score-3 { color: #ea580c; }
+  .score-4, .score-5, .score-6 { color: #dc2626; }
+
+  /* ===== 고지 / 푸터 ===== */
+  .disclaimer {
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: #fafbfc;
+    border: 1px solid #e2e5e9;
+    border-left: 4px solid #2563eb;
+    border-radius: 3px;
+    font-size: 9px;
+    color: #464f58;
+    line-height: 1.6;
+    page-break-inside: avoid;
+  }
+  .disclaimer strong {
+    color: #1e3a8a;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+  .report-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e5e9;
+    font-size: 8.5px;
+    color: #aab2be;
+    text-align: center;
+  }
+  .empty-state {
+    padding: 14px;
+    text-align: center;
+    color: #aab2be;
+    font-size: 10px;
+    background: #fafbfc;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 표지 ===== -->
+<section class="cover">
+  <div class="cover-inner">
+    <div class="cover-brand">MINDBOM</div>
+    <div class="cover-brand-ko">마인드봄 · 투사적 심리검사 해석 보조 시스템</div>
+
+    <div class="cover-divider"></div>
+    <div class="cover-title">SCT 검사 보고서</div>
+    <div class="cover-subtitle">Sentence Completion Test Analysis</div>
+
+    <div class="cover-info-block">
+      <div class="cover-info-row">
+        <div class="cover-info-label">내담자</div>
+        <div class="cover-info-value">{{ client_name or "미등록" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">성별 / 생년월일</div>
+        <div class="cover-info-value">{{ gender_label }} &nbsp;·&nbsp; {{ birth_date or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사일</div>
+        <div class="cover-info-value">{{ exam_date }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">검사자</div>
+        <div class="cover-info-value">{{ examiner_name or "-" }}</div>
+      </div>
+      <div class="cover-info-row">
+        <div class="cover-info-label">응답 현황</div>
+        <div class="cover-info-value">{{ completed_count }} / {{ total_count }} 문항 응답</div>
+      </div>
+    </div>
+
+    <div class="cover-spacer"></div>
+
+    <div class="cover-footer">
+      <div>
+        <div class="badge">SaMD CLASS Ⅱ</div>
+        <div>임상의사결정지원시스템 (CDSS)</div>
+      </div>
+      <div style="text-align: right;">
+        <div>보고서 생성일</div>
+        <div style="color: #fff; font-weight: 500; margin-top: 2px;">{{ report_date_short }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 본문 ===== -->
+<div class="page-header">
+  <div class="title">검사 정보</div>
+  <div class="meta">
+    <div class="name">{{ client_name or "미등록" }}</div>
+    <div>{{ exam_date }}</div>
+  </div>
+</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">내담자</td>
+    <td>{{ client_name or "미등록" }}</td>
+    <td class="label">성별</td>
+    <td>{{ gender_label }}</td>
+    <td class="label">생년월일</td>
+    <td>{{ birth_date or "-" }}</td>
+  </tr>
+  <tr>
+    <td class="label">검사일</td>
+    <td>{{ exam_date }}</td>
+    <td class="label">검사자</td>
+    <td>{{ examiner_name or "-" }}</td>
+    <td class="label">보고서 생성</td>
+    <td>{{ report_date }}</td>
+  </tr>
+  <tr>
+    <td class="label">응답 현황</td>
+    <td colspan="5"><strong style="color:#1e3a8a;">{{ completed_count }} / {{ total_count }}</strong> 문항 응답</td>
+  </tr>
+</table>
+
+<!-- ===== 1. 영역별 점수 요약 ===== -->
+<div class="section">
+  <div class="section-title">1. 영역별 점수 요약</div>
+  {% if domains %}
+  <table class="score-summary">
+    <thead>
+      <tr>
+        <th style="width:160px;">영역</th>
+        <th style="width:80px;">점수</th>
+        <th class="score-bar-cell">분포</th>
+        <th>비율</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in domains %}
+      <tr>
+        <td class="domain-name">{{ d.label }}</td>
+        <td>{{ d.total_score }} / {{ d.max_score }}</td>
+        <td class="score-bar-cell">
+          <div class="score-bar">
+            <div class="score-bar-fill" style="width: {{ d.percent }}%;"></div>
+          </div>
+        </td>
+        <td class="pct-cell">{{ '%.0f'|format(d.percent) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">점수 데이터가 없습니다.</div>
+  {% endif %}
+</div>
+
+<!-- ===== 2. 영역별 응답 상세 ===== -->
+<div class="section">
+  <div class="section-title">2. 영역별 응답 상세</div>
+  {% for d in domains %}
+  <div class="domain-block">
+    <div class="domain-block-header">
+      <span class="domain-name">{{ d.label }}</span>
+      <span class="domain-score">{{ d.total_score }} / {{ d.max_score }}</span>
+    </div>
+    {% if d.score_items %}
+    <table class="item-table">
+      <thead>
+        <tr>
+          <th>문항</th>
+          <th>응답</th>
+          <th class="score-cell">점수</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in d.score_items %}
+        <tr class="item-row">
+          <td class="stem-cell">{{ item.stem }}</td>
+          <td class="answer-cell {% if not item.answer %}empty{% endif %}">{{ item.answer or "(미응답)" }}</td>
+          <td class="score-cell score-{{ item.score }}">{{ item.score }}</td>
+        </tr>
+        {% if item.reason %}
+        <tr class="reason-row">
+          <td colspan="3"><div class="reason-box"><strong>이유</strong>{{ item.reason }}</div></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="margin: 0; border-radius: 0;">응답이 없습니다.</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ===== 고지 ===== -->
+<div class="disclaimer">
+  <strong>[CDSS 임상의사결정지원시스템 고지]</strong><br>
+  본 보고서는 AI 기반 임상의사결정지원시스템(CDSS)이 생성한 초안을 바탕으로 임상가가 검토 및 확인한 결과입니다.
+  AI 채점 결과는 참고 자료이며, 최종 임상적 판단은 담당 전문가의 책임 하에 이루어졌습니다.
+  본 시스템은 SaMD 2등급 의료기기 소프트웨어로서, 독립적인 진단 도구가 아닌 임상가의 판단을 보조하는 도구입니다.
+</div>
+
+<div class="report-footer">
+  마인드봄 (MindBom) &middot; 투사적 심리검사 해석 보조 시스템 &middot; 보고서 생성: {{ report_date }}
+</div>
+
+</body>
+</html>

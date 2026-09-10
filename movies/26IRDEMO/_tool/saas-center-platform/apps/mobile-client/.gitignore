@@ -1,0 +1,9 @@
+# Expo 로컬 캐시·생성물
+.expo/
+
+# iOS 프리빌드 — 로컬 생성물(전문가앱과 동일). android/ 는 커밋 대상이라 예외.
+/ios
+
+# FCM 자격증명 — 저장소에 넣지 않는다(전문가앱과 동일)
+google-services.json
+GoogleService-Info.plist

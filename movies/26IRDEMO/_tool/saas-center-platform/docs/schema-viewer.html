@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Center Platform - Schema Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .module-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .module-btn {
+            padding: 1rem 2rem;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .module-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .module-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .module-info {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .module-info h2 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-info p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .table-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table-section h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .table-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .meta-badge.tenant {
+            background: #28a745;
+            color: white;
+        }
+
+        .meta-badge.no-tenant {
+            background: #6c757d;
+            color: white;
+        }
+
+        .meta-badge.module {
+            background: #667eea;
+            color: white;
+        }
+
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .schema-table thead {
+            background: #f8f9fa;
+        }
+
+        .schema-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .schema-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .schema-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .field-name {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .field-type {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: #e83e8c;
+        }
+
+        .constraint-badge {
+            display: inline-block;
+            padding: 0.15rem 0.4rem;
+            background: #ffc107;
+            color: #000;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.25rem;
+        }
+
+        .constraint-badge.pk {
+            background: #dc3545;
+            color: white;
+        }
+
+        .constraint-badge.fk {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .constraint-badge.uk {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .relationships {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .relationships h4 {
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .relationships ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .relationships li {
+            padding: 0.25rem 0;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .relationships li code {
+            background: #fff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .schema-table {
+                font-size: 0.8rem;
+            }
+
+            .schema-table th,
+            .schema-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗂 SaaS Center Platform - Database Schema</h1>
+        <p>모듈러 모놀리스 아키텍처 | Row-level Multi-tenancy</p>
+    </div>
+
+    <div class="container">
+        <div class="module-selector" id="module-selector"></div>
+        <div class="tabs" id="tabs"></div>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // ========================================
+        // 스키마 데이터 정의
+        // ========================================
+        const modules = {
+            overview: {
+                name: '📊 Overview',
+                description: '모든 모듈의 테이블 개요를 보여줍니다.',
+                submodules: {
+                    main: {
+                        name: '전체 개요',
+                        description: '모든 테이블 목록',
+                        tables: [
+                            { name: 'assessments', module: 'assessment/template', tenant: false, description: '검사 템플릿 마스터' },
+                            { name: 'assessment_items', module: 'assessment/template', tenant: false, description: '검사 문항' },
+                            { name: 'assessment_scoring_rules', module: 'assessment/template', tenant: false, description: '채점 규칙' },
+                            { name: 'assessment_cases', module: 'assessment/case', tenant: true, description: '검사 케이스' },
+                            { name: 'assessment_sessions', module: 'assessment/session', tenant: true, description: '검사 세션' },
+                            { name: 'assessment_tasks', module: 'assessment/task', tenant: true, description: '개별 검사 수행' },
+                            { name: 'assessment_packages', module: 'assessment/package', tenant: true, description: '검사 패키지' },
+                            { name: 'assessment_package_relations', module: 'assessment/package', tenant: false, description: '패키지-검사 관계' },
+                            { name: 'assessment_send_links', module: 'assessment/link', tenant: true, description: '바로링크' },
+                            { name: 'assessment_final_reports', module: 'assessment/report', tenant: true, description: '종합 보고서' },
+                            { name: 'schedules', module: 'schedule', tenant: true, description: '일정 (Polymorphic)' }
+                        ]
+                    }
+                }
+            },
+
+            assessment: {
+                name: '🧪 Assessment',
+                description: '검사 관리 모듈',
+                submodules: {
+                    template: {
+                        name: 'Template (템플릿)',
+                        description: '검사 템플릿, 문항, 채점 규칙',
+                tables: [
+                    {
+                        name: 'assessments',
+                        tenant: false,
+                        module: 'assessment/template',
+                        description: '검사 템플릿 마스터',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'code', type: 'VARCHAR(50)', constraints: ['UK'], comment: '검사 코드' },
+                            { name: 'eng_name', type: 'VARCHAR(200)', constraints: [], comment: '영문명' },
+                            { name: 'kor_name', type: 'VARCHAR(200)', constraints: [], comment: '한글명' },
+                            { name: 'description', type: 'TEXT', constraints: [], comment: '설명' },
+                            { name: 'assessment_type', type: 'VARCHAR(20)', constraints: [], comment: '검사 유형 (Enum)' },
+                            { name: 'target_age_group', type: 'VARCHAR(100)', constraints: [], comment: '대상 연령' },
+                            { name: 'estimated_duration_minutes', type: 'INTEGER', constraints: [], comment: '예상 소요시간' },
+                            { name: 'is_online_available', type: 'BOOLEAN', constraints: [], comment: '온라인 가능 여부' },
+                            { name: 'is_ai_supported', type: 'BOOLEAN', constraints: [], comment: 'AI 지원 여부' },
+                            { name: 'has_standard_report', type: 'BOOLEAN', constraints: [], comment: '표준 보고서 여부' },
+                            { name: 'supports_self_scoring', type: 'BOOLEAN', constraints: [], comment: '자가채점 지원 여부' },
+                            { name: 'supports_report_upload', type: 'BOOLEAN', constraints: [], comment: '보고서 업로드 지원' },
+                            { name: 'external_assessment_url', type: 'VARCHAR(500)', constraints: [], comment: '외부 검사 URL' },
+                            { name: 'status', type: 'VARCHAR(20)', constraints: [], comment: '공개 상태 (Enum)' },
+                            { name: 'owner_center_id', type: 'INTEGER', constraints: [], comment: '소유 센터 ID (PRIVATE인 경우)' },
+                            { name: 'deleted_at', type: 'TIMESTAMP', constraints: [], comment: 'Soft Delete' }
+                        ],
+                        relationships: [
+                            '→ assessment_items (1:N)',
+                            '→ assessment_scoring_rules (1:N)',
+                            '↔ assessment_packages (N:M via assessment_package_relations)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_items',
+                        tenant: false,
+                        module: 'assessment/template',
+                        description: '검사 문항',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'assessment_id', type: 'INTEGER', constraints: ['FK'], comment: '검사 ID' },
+                            { name: 'item_number', type: 'INTEGER', constraints: [], comment: '문항 번호' },
+                            { name: 'question_text', type: 'TEXT', constraints: [], comment: '질문 텍스트' },
+                            { name: 'question_type', type: 'VARCHAR(30)', constraints: [], comment: '질문 유형 (Enum)' },
+                            { name: 'options', type: 'JSONB', constraints: [], comment: '선택지 (JSON)' },
+                            { name: 'is_required', type: 'BOOLEAN', constraints: [], comment: '필수 여부' },
+                            { name: 'is_reverse_scored', type: 'BOOLEAN', constraints: [], comment: '역채점 여부' },
+                            { name: 'subscale', type: 'VARCHAR(100)', constraints: [], comment: '하위척도' },
+                            { name: 'display_order', type: 'INTEGER', constraints: [], comment: '표시 순서' }
+                        ],
+                        relationships: [
+                            '← assessments (N:1, FK: assessment_id, ON DELETE CASCADE)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_scoring_rules',
+                        tenant: false,
+                        module: 'assessment/template',
+                        description: '채점 규칙',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'assessment_id', type: 'INTEGER', constraints: ['FK'], comment: '검사 ID' },
+                            { name: 'scoring_method', type: 'VARCHAR(20)', constraints: [], comment: '채점 방식 (Enum)' },
+                            { name: 'subscale', type: 'VARCHAR(100)', constraints: [], comment: '하위척도 (NULL=총점)' },
+                            { name: 'rule_config', type: 'JSONB', constraints: [], comment: '규칙 설정 (JSON)' },
+                            { name: 'interpretation_criteria', type: 'JSONB', constraints: [], comment: '해석 기준 (JSON)' },
+                            { name: 'interpretation_text', type: 'TEXT', constraints: [], comment: '해석 텍스트' }
+                        ],
+                        relationships: [
+                            '← assessments (N:1, FK: assessment_id, ON DELETE CASCADE)'
+                        ]
+                    }
+                        ]
+                    },
+
+                    case: {
+                        name: 'Case (케이스)',
+                        description: '검사 케이스, 세션, 수행',
+                        tables: [
+                    {
+                        name: 'assessment_cases',
+                        tenant: true,
+                        module: 'assessment/case',
+                        description: '검사 케이스 (내담자별 검사 세트)',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'case_code', type: 'VARCHAR(50)', constraints: [], comment: '케이스 코드' },
+                            { name: 'client_id', type: 'INTEGER', constraints: [], comment: '내담자 ID (향후)' },
+                            { name: 'client_snapshot', type: 'JSONB', constraints: [], comment: '내담자 스냅샷' },
+                            { name: 'assigned_specialist_id', type: 'INTEGER', constraints: [], comment: '담당자 ID' },
+                            { name: 'specialist_snapshot', type: 'JSONB', constraints: [], comment: '담당자 스냅샷' },
+                            { name: 'assessment_ids', type: 'INTEGER[]', constraints: [], comment: '검사 ID 목록' },
+                            { name: 'assessment_snapshots', type: 'JSONB', constraints: [], comment: '검사 스냅샷' },
+                            { name: 'package_id', type: 'INTEGER', constraints: ['FK'], comment: '패키지 ID' },
+                            { name: 'package_snapshot', type: 'JSONB', constraints: [], comment: '패키지 스냅샷' },
+                            { name: 'case_type', type: 'VARCHAR(20)', constraints: [], comment: '케이스 유형 (Enum)' },
+                            { name: 'require_final_report', type: 'BOOLEAN', constraints: [], comment: '종합보고서 필요 여부' },
+                            { name: 'organization_name', type: 'VARCHAR(200)', constraints: [], comment: '기관명 (집단검사)' },
+                            { name: 'status', type: 'VARCHAR(20)', constraints: [], comment: '상태 (Enum)' },
+                            { name: 'completed_at', type: 'TIMESTAMP', constraints: [], comment: '완료 시각' }
+                        ],
+                        relationships: [
+                            '→ assessment_sessions (1:N)',
+                            '→ assessment_tasks (1:N)',
+                            '→ assessment_send_links (1:N)',
+                            '→ assessment_final_reports (1:1)',
+                            '← assessment_packages (N:1, FK: package_id, ON DELETE SET NULL)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_sessions',
+                        tenant: true,
+                        module: 'assessment/session',
+                        description: '검사 세션/회기',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'case_id', type: 'INTEGER', constraints: ['FK'], comment: '케이스 ID' },
+                            { name: 'scheduled_at', type: 'TIMESTAMP', constraints: [], comment: '예약 시각' },
+                            { name: 'started_at', type: 'TIMESTAMP', constraints: [], comment: '시작 시각' },
+                            { name: 'completed_at', type: 'TIMESTAMP', constraints: [], comment: '완료 시각' },
+                            { name: 'status', type: 'VARCHAR(20)', constraints: [], comment: '상태 (Enum)' }
+                        ],
+                        relationships: [
+                            '← assessment_cases (N:1, FK: case_id, ON DELETE CASCADE)',
+                            '→ schedules (1:1, Polymorphic)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_tasks',
+                        tenant: true,
+                        module: 'assessment/task',
+                        description: '개별 검사 수행',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'assessment_id', type: 'INTEGER', constraints: ['FK'], comment: '검사 ID' },
+                            { name: 'case_id', type: 'INTEGER', constraints: ['FK'], comment: '케이스 ID' },
+                            { name: 'process', type: 'JSONB', constraints: [], comment: '진행 정보 (JSON)' },
+                            { name: 'status', type: 'VARCHAR(20)', constraints: [], comment: '상태 (Enum)' },
+                            { name: 'report_payload', type: 'JSONB', constraints: [], comment: '보고서 데이터 (JSON)' },
+                            { name: 'report_visible_to_guardian', type: 'BOOLEAN', constraints: [], comment: '보호자 공개 여부' },
+                            { name: 'completed_at', type: 'TIMESTAMP', constraints: [], comment: '완료 시각' }
+                        ],
+                        relationships: [
+                            '← assessment_cases (N:1, FK: case_id, ON DELETE CASCADE)',
+                            '← assessments (N:1, FK: assessment_id, ON DELETE RESTRICT)'
+                        ]
+                    }
+                        ]
+                    },
+
+                    package: {
+                        name: 'Package (패키지)',
+                        description: '검사 패키지 관리',
+                        tables: [
+                    {
+                        name: 'assessment_packages',
+                        tenant: true,
+                        module: 'assessment/package',
+                        description: '검사 패키지',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'name', type: 'VARCHAR(200)', constraints: [], comment: '패키지명' },
+                            { name: 'description', type: 'TEXT', constraints: [], comment: '설명' },
+                            { name: 'deleted_at', type: 'TIMESTAMP', constraints: [], comment: 'Soft Delete' }
+                        ],
+                        relationships: [
+                            '↔ assessments (N:M via assessment_package_relations)',
+                            '→ assessment_cases (1:N)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_package_relations',
+                        tenant: false,
+                        module: 'assessment/package',
+                        description: '패키지-검사 관계 (N:M)',
+                        fields: [
+                            { name: 'package_id', type: 'INTEGER', constraints: ['PK', 'FK'], comment: '패키지 ID' },
+                            { name: 'assessment_id', type: 'INTEGER', constraints: ['PK', 'FK'], comment: '검사 ID' },
+                            { name: 'display_order', type: 'INTEGER', constraints: [], comment: '표시 순서' }
+                        ],
+                        relationships: [
+                            '← assessment_packages (N:1, FK: package_id, ON DELETE CASCADE)',
+                            '← assessments (N:1, FK: assessment_id, ON DELETE CASCADE)'
+                        ]
+                    }
+                        ]
+                    },
+
+                    other: {
+                        name: 'Link & Report',
+                        description: '바로링크, 종합 보고서',
+                        tables: [
+                    {
+                        name: 'assessment_send_links',
+                        tenant: true,
+                        module: 'assessment/link',
+                        description: '바로링크 (온라인 검사)',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'unique_token', type: 'VARCHAR(100)', constraints: ['UK'], comment: '고유 토큰' },
+                            { name: 'case_id', type: 'INTEGER', constraints: ['FK'], comment: '케이스 ID' },
+                            { name: 'recipients', type: 'JSONB', constraints: [], comment: '수신자 정보 (JSON)' },
+                            { name: 'expired_at', type: 'TIMESTAMP', constraints: [], comment: '만료 시각' }
+                        ],
+                        relationships: [
+                            '← assessment_cases (N:1, FK: case_id, ON DELETE CASCADE)'
+                        ]
+                    },
+                    {
+                        name: 'assessment_final_reports',
+                        tenant: true,
+                        module: 'assessment/report',
+                        description: '종합 보고서',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'case_id', type: 'INTEGER', constraints: ['FK', 'UK'], comment: '케이스 ID (1:1)' },
+                            { name: 'payload', type: 'JSONB', constraints: [], comment: '보고서 데이터 (JSON)' }
+                        ],
+                        relationships: [
+                            '← assessment_cases (1:1, FK: case_id, ON DELETE CASCADE)'
+                        ]
+                    }
+                        ]
+                    }
+                }
+            },
+
+            schedule: {
+                name: '📅 Schedule',
+                description: '일정 관리 모듈',
+                submodules: {
+                    main: {
+                        name: 'Schedule (일정)',
+                        description: '다양한 도메인의 일정 관리 (Polymorphic)',
+                        tables: [
+                    {
+                        name: 'schedules',
+                        tenant: true,
+                        module: 'schedule',
+                        description: '일정 (Assessment, Counseling 등)',
+                        fields: [
+                            { name: 'id', type: 'INTEGER', constraints: ['PK'], comment: 'Primary Key' },
+                            { name: 'uid', type: 'UUID', constraints: ['UK'], comment: '외부 식별자' },
+                            { name: 'created_at', type: 'TIMESTAMP', constraints: [], comment: '생성 시각' },
+                            { name: 'updated_at', type: 'TIMESTAMP', constraints: [], comment: '수정 시각' },
+                            { name: 'center_id', type: 'INTEGER', constraints: ['FK'], comment: '센터 ID (테넌트)' },
+                            { name: 'related_type', type: 'VARCHAR(20)', constraints: [], comment: '연결 타입 (Enum: ASSESSMENT/COUNSELING)' },
+                            { name: 'related_id', type: 'INTEGER', constraints: [], comment: '연결 ID (Polymorphic FK)' },
+                            { name: 'start_time', type: 'TIMESTAMP', constraints: [], comment: '시작 시각' },
+                            { name: 'end_time', type: 'TIMESTAMP', constraints: [], comment: '종료 시각' },
+                            { name: 'assigned_specialist_id', type: 'INTEGER', constraints: [], comment: '담당자 ID' },
+                            { name: 'room_name', type: 'VARCHAR(100)', constraints: [], comment: '검사실/상담실' },
+                            { name: 'status', type: 'VARCHAR(20)', constraints: [], comment: '상태 (Enum)' },
+                            { name: 'notes', type: 'TEXT', constraints: [], comment: '메모' }
+                        ],
+                        relationships: [
+                            '← assessment_sessions (1:1, Polymorphic: related_type=ASSESSMENT)',
+                            '← counseling_sessions (1:1, Polymorphic: related_type=COUNSELING, 향후)'
+                        ]
+                    }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // ========================================
+        // State
+        // ========================================
+        let currentModule = 'overview';
+        let currentSubmodule = 'main';
+
+        // ========================================
+        // UI 렌더링
+        // ========================================
+        function renderOverview(tables) {
+            let html = '<div class="table-section"><h3>테이블 목록</h3>';
+            html += '<table class="schema-table"><thead><tr>';
+            html += '<th>테이블명</th><th>모듈</th><th>테넌트</th><th>설명</th>';
+            html += '</tr></thead><tbody>';
+
+            tables.forEach(table => {
+                html += '<tr>';
+                html += `<td><span class="field-name">${table.name}</span></td>`;
+                html += `<td><span class="meta-badge module">${table.module}</span></td>`;
+                html += `<td><span class="meta-badge ${table.tenant ? 'tenant' : 'no-tenant'}">${table.tenant ? '✅ Tenant' : '❌ No Tenant'}</span></td>`;
+                html += `<td>${table.description}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        function renderTables(tables) {
+            let html = '';
+
+            tables.forEach(table => {
+                html += '<div class="table-section">';
+                html += `<h3>${table.name}</h3>`;
+                html += '<div class="table-meta">';
+                html += `<span class="meta-badge ${table.tenant ? 'tenant' : 'no-tenant'}">${table.tenant ? '✅ Tenant' : '❌ No Tenant'}</span>`;
+                html += `<span class="meta-badge module">${table.module}</span>`;
+                html += '</div>';
+                html += `<p>${table.description}</p>`;
+
+                html += '<table class="schema-table"><thead><tr>';
+                html += '<th>컬럼명</th><th>타입</th><th>제약조건</th><th>설명</th>';
+                html += '</tr></thead><tbody>';
+
+                table.fields.forEach(field => {
+                    html += '<tr>';
+                    html += `<td><span class="field-name">${field.name}</span></td>`;
+                    html += `<td><span class="field-type">${field.type}</span></td>`;
+                    html += '<td>';
+                    field.constraints.forEach(c => {
+                        html += `<span class="constraint-badge ${c.toLowerCase()}">${c}</span>`;
+                    });
+                    html += '</td>';
+                    html += `<td>${field.comment}</td>`;
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+
+                if (table.relationships && table.relationships.length > 0) {
+                    html += '<div class="relationships">';
+                    html += '<h4>🔗 관계</h4><ul>';
+                    table.relationships.forEach(rel => {
+                        html += `<li><code>${rel}</code></li>`;
+                    });
+                    html += '</ul></div>';
+                }
+
+                html += '</div>';
+            });
+
+            return html;
+        }
+
+        function renderModuleSelector() {
+            const selector = document.getElementById('module-selector');
+            selector.innerHTML = '';
+
+            Object.keys(modules).forEach((key, index) => {
+                const module = modules[key];
+                const btn = document.createElement('button');
+                btn.className = `module-btn ${index === 0 ? 'active' : ''}`;
+                btn.textContent = module.name;
+                btn.onclick = () => switchModule(key);
+                selector.appendChild(btn);
+            });
+        }
+
+        function switchModule(moduleKey) {
+            currentModule = moduleKey;
+            currentSubmodule = Object.keys(modules[moduleKey].submodules)[0];
+
+            // 메인 모듈 버튼 활성화
+            document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 서브모듈 탭과 콘텐츠 렌더링
+            renderSubmoduleTabs();
+            renderContent();
+        }
+
+        function renderSubmoduleTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            tabsContainer.innerHTML = '';
+
+            const submodules = modules[currentModule].submodules;
+            Object.keys(submodules).forEach((key, index) => {
+                const submodule = submodules[key];
+                const tab = document.createElement('button');
+                tab.className = `tab ${index === 0 ? 'active' : ''}`;
+                tab.textContent = submodule.name;
+                tab.onclick = () => switchSubmodule(key);
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        function switchSubmodule(submoduleKey) {
+            currentSubmodule = submoduleKey;
+
+            // 서브모듈 탭 활성화
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 콘텐츠 렌더링
+            renderContent();
+        }
+
+        function renderContent() {
+            const contentContainer = document.getElementById('content');
+            const submodule = modules[currentModule].submodules[currentSubmodule];
+
+            let html = `
+                <div class="module-info">
+                    <h2>${submodule.name}</h2>
+                    <p>${submodule.description}</p>
+                </div>
+            `;
+
+            if (currentModule === 'overview') {
+                html += renderOverview(submodule.tables);
+            } else {
+                html += renderTables(submodule.tables);
+            }
+
+            contentContainer.innerHTML = html;
+        }
+
+        // ========================================
+        // 초기화
+        // ========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderModuleSelector();
+            renderSubmoduleTabs();
+            renderContent();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>센터 디렉터리 시안 — 배민 형식 vs 네이버지도 형식 (2026-07-06)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; }
+  body { background:#1a1d21; color:#e8eaed; padding:48px 32px 96px; }
+
+  .page-header { max-width:1280px; margin:0 auto 12px; }
+  .page-header h1 { font-size:26px; font-weight:800; color:#fff; }
+  .page-header p { margin-top:8px; font-size:14px; color:#9aa0a6; line-height:1.7; }
+  .page-header .doc-ref { color:#6b9fff; }
+  .section { max-width:1280px; margin:56px auto 0; }
+  .section > h2 { font-size:18px; font-weight:700; color:#fff; padding-bottom:12px; border-bottom:1px solid #33373d; }
+  .section > h2 .num { color:#6b9fff; margin-right:8px; }
+  .section > .section-desc { margin-top:10px; font-size:13.5px; color:#9aa0a6; line-height:1.7; }
+  .frames { display:flex; gap:48px; margin-top:28px; flex-wrap:wrap; align-items:flex-start; justify-content:center; }
+  .frame-col { width:320px; }
+  .caption { margin-top:16px; font-size:12.5px; line-height:1.75; color:#9aa0a6; }
+  .caption b { color:#d7dade; font-weight:700; }
+  .caption .good { color:#7ee2a8; }
+  .caption .bad { color:#ff9d9d; }
+  .caption .principle { display:inline-block; margin:6px 4px 0 0; padding:2px 8px; border-radius:6px; background:#26313f; color:#8ab4f8; font-size:11px; font-weight:600; }
+  .ver-badge { display:inline-block; padding:4px 12px; border-radius:8px; font-size:13px; font-weight:800; margin-bottom:12px; }
+  .ver-a { background:#2ac1bc22; color:#2ac1bc; border:1px solid #2ac1bc55; }
+  .ver-b { background:#03c75a22; color:#03c75a; border:1px solid #03c75a55; }
+
+  /* ===== 폰 프레임 ===== */
+  .phone { width:320px; height:660px; background:#F2F4F6; border-radius:36px; border:6px solid #2c2f33; overflow:hidden; position:relative; display:flex; flex-direction:column; box-shadow:0 24px 48px rgba(0,0,0,.4); }
+  .statusbar { flex:none; height:32px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:11px; font-weight:600; color:#191F28; position:relative; z-index:30; }
+  .screen { flex:1; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+
+  .t-title { font-size:19px; font-weight:800; color:#191F28; line-height:1.35; letter-spacing:-0.3px; }
+  .t-sub { font-size:12.5px; color:#8B95A1; line-height:1.6; }
+
+  /* ===== 공감 톤 라인 — 1문장 상한, 크게 ===== */
+  .tone-line { padding:6px 18px 14px; }
+  .tone-line .tt { font-size:20px; font-weight:800; color:#191F28; letter-spacing:-0.4px; line-height:1.35; }
+
+  /* ===== 버전 A: 배민 형식 ===== */
+  .filter-row { display:flex; gap:7px; padding:0 16px 10px; overflow:hidden; }
+  .f-chip { flex:none; padding:8px 13px; border-radius:20px; background:#fff; border:1px solid #E5E8EB; font-size:13.5px; font-weight:600; color:#4E5968; cursor:pointer; transition:all .18s cubic-bezier(.2,.8,.4,1); user-select:none; }
+  .f-chip:active { transform:scale(.94); }
+  .f-chip.on { background:#191F28; color:#fff; border-color:#191F28; }
+  .list-scroll { flex:1; overflow-y:auto; padding:2px 16px 90px; scrollbar-width:none; }
+  .list-scroll::-webkit-scrollbar { display:none; }
+
+  .c-card { background:#fff; border-radius:18px; padding:16px; margin-bottom:10px; cursor:pointer; transition:transform .18s cubic-bezier(.2,.8,.4,1), box-shadow .18s; }
+  .c-card:active { transform:scale(.975); }
+  .c-card .top { display:flex; gap:12px; align-items:flex-start; }
+  .c-thumb { flex:none; width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px;
+    background:linear-gradient(145deg,#EAF3FE 0%,#D8E9FD 55%,#C4DDFA 100%);
+    box-shadow:inset 0 -3px 6px rgba(49,130,246,.12), inset 0 2px 3px rgba(255,255,255,.9), 0 2px 6px rgba(49,130,246,.10); }
+  .c-thumb.g { background:linear-gradient(145deg,#E8F7EF 0%,#D2F0DF 55%,#BCE8CF 100%); box-shadow:inset 0 -3px 6px rgba(4,181,108,.12), inset 0 2px 3px rgba(255,255,255,.9), 0 2px 6px rgba(4,181,108,.10); }
+  .c-thumb.p { background:linear-gradient(145deg,#F1EDFE 0%,#E4DBFC 55%,#D5C8F9 100%); box-shadow:inset 0 -3px 6px rgba(112,72,232,.12), inset 0 2px 3px rgba(255,255,255,.9), 0 2px 6px rgba(112,72,232,.10); }
+  .c-thumb.y { background:linear-gradient(145deg,#FFF6E0 0%,#FEECC2 55%,#FDE1A4 100%); box-shadow:inset 0 -3px 6px rgba(242,139,0,.12), inset 0 2px 3px rgba(255,255,255,.9), 0 2px 6px rgba(242,139,0,.10); }
+  .c-card .body { flex:1; min-width:0; }
+  .c-card .nm { font-size:16px; font-weight:800; color:#191F28; letter-spacing:-0.2px; }
+  .c-card .meta { font-size:13px; color:#8B95A1; margin-top:3px; }
+  .c-card .meta b { color:#4E5968; font-weight:700; }
+  .c-card .tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+  .tag { padding:4px 9px; border-radius:6px; font-size:12px; font-weight:700; }
+  .tag.domain { background:#EAF3FE; color:#3182F6; }
+  .tag.voucher { background:#E8F7EF; color:#04B56C; }
+  .tag.gray { background:#F2F4F6; color:#8B95A1; }
+  .src-note { text-align:center; font-size:11.5px; color:#B0B8C1; padding:6px 0 4px; }
+
+  .map-fab { position:absolute; bottom:76px; left:50%; transform:translateX(-50%); background:#191F28; color:#fff; font-size:12.5px; font-weight:700; padding:11px 18px; border-radius:24px; display:flex; align-items:center; gap:6px; box-shadow:0 6px 16px rgba(0,0,0,.25); cursor:pointer; transition:transform .18s cubic-bezier(.2,.8,.4,1); z-index:20; }
+  .map-fab:active { transform:translateX(-50%) scale(.93); }
+
+  /* ===== 버전 B: 네이버지도 형식 ===== */
+  .searchbar-float { position:absolute; top:40px; left:14px; right:14px; z-index:20; background:#fff; border-radius:14px; padding:11px 14px; display:flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(0,0,0,.12); font-size:13px; color:#8B95A1; }
+  .searchbar-float b { color:#191F28; font-weight:700; }
+  .map-area { position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, transparent 48%, #DCE3D8 48%, #DCE3D8 52%, transparent 52%),
+      linear-gradient(0deg, transparent 30%, #DCE3D8 30%, #DCE3D8 33%, transparent 33%),
+      linear-gradient(35deg, transparent 62%, #D5DFD0 62%, #D5DFD0 65%, transparent 65%),
+      linear-gradient(0deg, transparent 68%, #DCE3D8 68%, #DCE3D8 70%, transparent 70%),
+      linear-gradient(145deg, #EDF2EA 0%, #E4EBE0 50%, #E9EFE5 100%);
+  }
+  .map-block { position:absolute; background:#DFE7DA; border-radius:5px; }
+  .map-water { position:absolute; right:-30px; top:110px; width:110px; height:90px; background:#CFE3EE; border-radius:50% 40% 55% 45%; opacity:.8; }
+  .pin { position:absolute; width:34px; height:34px; border-radius:50% 50% 50% 4px; transform:rotate(-45deg); background:#fff; border:2.5px solid #03C75A; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .22s cubic-bezier(.34,1.56,.64,1); box-shadow:0 3px 8px rgba(0,0,0,.18); z-index:5; }
+  .pin span { transform:rotate(45deg); font-size:14px; }
+  .pin.sel { background:#03C75A; transform:rotate(-45deg) scale(1.28); z-index:6; }
+  .pin-label { position:absolute; font-size:11.5px; font-weight:700; color:#2b5c3f; text-shadow:0 1px 2px #fff,0 0 4px #fff; white-space:nowrap; }
+  .my-loc { position:absolute; width:16px; height:16px; border-radius:50%; background:#3182F6; border:3px solid #fff; box-shadow:0 0 0 6px rgba(49,130,246,.18), 0 2px 6px rgba(0,0,0,.2); }
+  .my-loc::after { content:""; position:absolute; inset:-14px; border-radius:50%; border:1.5px solid rgba(49,130,246,.35); animation:pulse 2.2s ease-out infinite; }
+  @keyframes pulse { 0% { transform:scale(.5); opacity:1; } 100% { transform:scale(1.4); opacity:0; } }
+
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:22px 22px 0 0; box-shadow:0 -8px 28px rgba(0,0,0,.14); z-index:25; transition:height .32s cubic-bezier(.2,.8,.3,1); height:196px; display:flex; flex-direction:column; overflow:hidden; }
+  .sheet.open { height:430px; }
+  .sheet .handle { flex:none; padding:10px 0 4px; cursor:pointer; text-align:center; }
+  .sheet .handle .bar { display:inline-block; width:38px; height:4px; border-radius:2px; background:#E5E8EB; }
+  .sheet .tone-line { padding:2px 18px 10px; }
+  .sheet .tone-line .tt { font-size:16px; }
+  .sheet-body { flex:1; overflow-y:auto; padding:0 16px 16px; scrollbar-width:none; }
+  .sheet-body::-webkit-scrollbar { display:none; }
+  .sheet .c-card { background:#F9FAFB; border:1px solid #F2F4F6; }
+
+  /* ===== 공통: 탭바 ===== */
+  .tabbar { flex:none; display:flex; background:#fff; border-top:1px solid #EEF0F2; padding:8px 0 14px; position:relative; z-index:30; }
+  .tabbar .tab { flex:1; text-align:center; font-size:10px; color:#B0B8C1; font-weight:600; }
+  .tabbar .tab .ico { display:block; font-size:17px; margin-bottom:2px; }
+  .tabbar .tab.on { color:#3182F6; }
+
+  /* 비교표 */
+  .cmp-table { width:100%; max-width:1280px; margin:24px auto 0; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { text-align:left; padding:10px 14px; color:#9aa0a6; font-size:12px; border-bottom:1px solid #33373d; }
+  .cmp-table td { padding:11px 14px; border-bottom:1px solid #26292e; color:#c8cbd0; line-height:1.6; vertical-align:top; }
+  .cmp-table td:first-child { color:#8ab4f8; font-weight:700; white-space:nowrap; }
+  .win { color:#7ee2a8; font-weight:700; }
+  .lose { color:#ff9d9d; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>센터 디렉터리 시안 — 배민 형식 vs 네이버지도 형식</h1>
+  <p>
+    2026-07-06 · 무소속(미연동) 사용자 대상 · 데이터 출처 = <span class="doc-ref">아맘때 수집 센터</span> · 조회 전용(read-only)<br>
+    기준 문서: <span class="doc-ref">2026-07-03 기획 v4 액션퍼스트</span> — 미연동 모드의 진입점으로 편입.
+    두 시안 모두 공감 톤 라인 · 소프트 3D 아이콘 · 마이크로 인터랙션(카드·칩·핀을 직접 눌러보세요)을 공통 반영.
+  </p>
+</div>
+
+<div class="section">
+  <h2><span class="num">A vs B</span>같은 데이터, 두 가지 탐색 형식</h2>
+  <p class="section-desc">인터랙티브 시안입니다 — A: 필터 칩 토글·카드 프레스, B: 핀 탭 → 시트 카드 변경, 핸들 탭 → 시트 확장.</p>
+
+  <div class="frames">
+
+    <!-- ============ 버전 A: 배민 형식 ============ -->
+    <div class="frame-col">
+      <div class="ver-badge ver-a">A · 배민 형식 — 리스트 우선 + 지도 토글</div>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>🔋 100%</span></div>
+        <div class="screen">
+          <div class="tone-line">
+            <div class="tt">천천히 둘러봐도<br>괜찮아요 🌱</div>
+          </div>
+          <div class="filter-row">
+            <div class="f-chip on" onclick="this.classList.toggle('on')">📍 송파구</div>
+            <div class="f-chip on" onclick="this.classList.toggle('on')">언어치료</div>
+            <div class="f-chip" onclick="this.classList.toggle('on')">감각통합</div>
+            <div class="f-chip" onclick="this.classList.toggle('on')">놀이치료</div>
+            <div class="f-chip" onclick="this.classList.toggle('on')">바우처</div>
+          </div>
+          <div class="list-scroll">
+            <div class="c-card">
+              <div class="top">
+                <div class="c-thumb">🌱</div>
+                <div class="body">
+                  <div class="nm">해솔아동발달센터</div>
+                  <div class="meta"><b>0.8km</b> · 송파구 문정동 · 주차 가능</div>
+                </div>
+              </div>
+              <div class="tags">
+                <span class="tag domain">언어치료</span><span class="tag domain">감각통합</span><span class="tag voucher">발달재활 바우처</span>
+              </div>
+            </div>
+            <div class="c-card">
+              <div class="top">
+                <div class="c-thumb g">🌿</div>
+                <div class="body">
+                  <div class="nm">마음숲 심리발달센터</div>
+                  <div class="meta"><b>1.2km</b> · 송파구 가락동</div>
+                </div>
+              </div>
+              <div class="tags">
+                <span class="tag domain">언어치료</span><span class="tag domain">놀이치료</span><span class="tag gray">평일 야간</span>
+              </div>
+            </div>
+            <div class="c-card">
+              <div class="top">
+                <div class="c-thumb p">🔮</div>
+                <div class="body">
+                  <div class="nm">아이온 언어심리연구소</div>
+                  <div class="meta"><b>1.9km</b> · 송파구 방이동</div>
+                </div>
+              </div>
+              <div class="tags">
+                <span class="tag domain">언어치료</span><span class="tag voucher">발달재활 바우처</span>
+              </div>
+            </div>
+            <div class="c-card">
+              <div class="top">
+                <div class="c-thumb y">☀️</div>
+                <div class="body">
+                  <div class="nm">봄빛 아동청소년센터</div>
+                  <div class="meta"><b>2.4km</b> · 강동구 성내동 · 주차 가능</div>
+                </div>
+              </div>
+              <div class="tags">
+                <span class="tag domain">감각통합</span><span class="tag domain">놀이치료</span><span class="tag gray">주말 운영</span>
+              </div>
+            </div>
+            <div class="src-note">센터 정보 출처 · 아맘때 ⓘ</div>
+          </div>
+          <div class="map-fab">🗺 지도로 보기</div>
+          <div class="tabbar">
+            <div class="tab"><span class="ico">🏠</span>홈</div>
+            <div class="tab on"><span class="ico">🔍</span>센터 찾기</div>
+            <div class="tab"><span class="ico">📖</span>기록</div>
+            <div class="tab"><span class="ico">👤</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption">
+        <b>배민 형식</b> — 카드가 주인공. 치료 영역·바우처·운영 특징을 카드 안에서 바로 비교.
+        <span class="good">✓ 커버리지 얇아도 빈 화면이 안 됨</span> ·
+        <span class="good">✓ 공감 톤을 얹을 표면이 있음</span> ·
+        <span class="good">✓ 선택 기준(프로그램·바우처)과 정합</span> ·
+        <span class="bad">✗ 공간 감각은 토글 뒤에 숨음</span><br>
+        <span class="principle">가짜 어포던스 금지</span><span class="principle">디스크리트</span><span class="principle">죄책감 금지 톤</span>
+      </div>
+    </div>
+
+    <!-- ============ 버전 B: 네이버지도 형식 ============ -->
+    <div class="frame-col">
+      <div class="ver-badge ver-b">B · 네이버지도 형식 — 지도 우선 + 바텀시트</div>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>🔋 100%</span></div>
+        <div class="screen">
+          <div class="map-area">
+            <div class="map-block" style="left:18px; top:96px; width:64px; height:44px;"></div>
+            <div class="map-block" style="left:110px; top:140px; width:80px; height:56px;"></div>
+            <div class="map-block" style="left:30px; top:230px; width:56px; height:70px;"></div>
+            <div class="map-block" style="left:210px; top:250px; width:70px; height:48px;"></div>
+            <div class="map-water"></div>
+            <div class="my-loc" style="left:148px; top:236px;"></div>
+
+            <div class="pin sel" data-c="0" style="left:70px; top:150px;"><span>🌱</span></div>
+            <div class="pin-label" style="left:52px; top:188px;">해솔아동발달</div>
+            <div class="pin" data-c="1" style="left:196px; top:120px;"><span>🌿</span></div>
+            <div class="pin-label" style="left:180px; top:158px;">마음숲</div>
+            <div class="pin" data-c="2" style="left:236px; top:212px;"><span>🔮</span></div>
+            <div class="pin-label" style="left:222px; top:250px;">아이온</div>
+            <div class="pin" data-c="3" style="left:96px; top:300px;"><span>☀️</span></div>
+            <div class="pin-label" style="left:82px; top:338px;">봄빛</div>
+          </div>
+
+          <div class="searchbar-float">🔍 <b>송파구 언어치료</b> · 센터 4곳</div>
+
+          <div class="sheet" id="sheetB">
+            <div class="handle" onclick="document.getElementById('sheetB').classList.toggle('open')"><span class="bar"></span></div>
+            <div class="tone-line">
+              <div class="tt">근처 센터 4곳</div>
+            </div>
+            <div class="sheet-body" id="sheetBody">
+              <!-- JS로 렌더 -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption">
+        <b>네이버지도 형식</b> — 공간이 주인공. 내 위치 중심으로 분포를 한눈에.
+        <span class="good">✓ "우리 동네에 뭐가 있지" 즉답</span> ·
+        <span class="good">✓ 이사·신규 지역 탐색에 강함</span> ·
+        <span class="bad">✗ 데이터 얇은 지역 = 빈 지도가 그대로 노출</span> ·
+        <span class="bad">✗ 톤·정보 비교는 시트를 열어야 시작</span> ·
+        <span class="bad">✗ 지도 UI 특성상 차가운 인상</span><br>
+        <span class="principle">공간 탐색 우선</span><span class="principle">핀 = 즉각 피드백</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h2><span class="num">비교</span>판단 관점 정리</h2>
+  <table class="cmp-table">
+    <thead><tr><th style="width:180px;">관점</th><th>A · 배민 형식</th><th>B · 네이버지도 형식</th></tr></thead>
+    <tbody>
+      <tr><td>선택 기준 정합</td><td class="win">치료영역·바우처·대기 = 카드에서 즉시 비교</td><td class="lose">거리 중심 — 발달센터 선택은 거리가 1순위가 아님</td></tr>
+      <tr><td>아맘때 커버리지 리스크</td><td class="win">밀도가 얇아도 리스트는 티가 안 남</td><td class="lose">핀 2~3개짜리 빈 지도 = 죽은 서비스 인상 (가짜 어포던스 금지 위반 소지)</td></tr>
+      <tr><td>공감 톤(요구 ②) 표면</td><td class="win">헤더·카드 사이에 자연스럽게 삽입</td><td class="lose">시트 안으로 밀려남 — 지도 위엔 얹을 곳이 없음</td></tr>
+      <tr><td>공간 감각</td><td class="lose">지도 토글 한 겹 뒤</td><td class="win">즉시 — 병행 센터 간 동선 감각에 유리</td></tr>
+      <tr><td>디스크리트</td><td class="win">중립적 리스트 화면</td><td class="lose">내 위치 + 발달센터 핀 = 어깨너머 노출 시 민감</td></tr>
+      <tr><td>구현 비용 (P1)</td><td class="win">리스트 + 필터 — 지도 SDK 없이 시작 가능</td><td class="lose">지도 SDK·좌표 정제·클러스터링 선행 필요</td></tr>
+    </tbody>
+  </table>
+  <p class="section-desc" style="margin-top:18px;">
+    권고는 <b style="color:#7ee2a8;">A(배민 형식)를 기본, B의 지도는 A의 [지도로 보기] 토글로 흡수</b> — 배민도 실제로 이 구조입니다.
+    단, 아맘때 데이터의 지역 커버리지가 충분히 두껍다면 B의 매력(즉각적 공간 파악)이 살아나므로, 데이터 밀도 확인 후 최종 확정 권장.
+  </p>
+</div>
+
+<script>
+  const CENTERS = [
+    { emoji:'🌱', cls:'', nm:'해솔아동발달센터', meta:'<b>0.8km</b> · 송파구 문정동 · 주차 가능', tags:'<span class="tag domain">언어치료</span><span class="tag domain">감각통합</span><span class="tag voucher">발달재활 바우처</span>' },
+    { emoji:'🌿', cls:'g', nm:'마음숲 심리발달센터', meta:'<b>1.2km</b> · 송파구 가락동', tags:'<span class="tag domain">언어치료</span><span class="tag domain">놀이치료</span><span class="tag gray">평일 야간</span>' },
+    { emoji:'🔮', cls:'p', nm:'아이온 언어심리연구소', meta:'<b>1.9km</b> · 송파구 방이동', tags:'<span class="tag domain">언어치료</span><span class="tag voucher">발달재활 바우처</span>' },
+    { emoji:'☀️', cls:'y', nm:'봄빛 아동청소년센터', meta:'<b>2.4km</b> · 강동구 성내동 · 주차 가능', tags:'<span class="tag domain">감각통합</span><span class="tag domain">놀이치료</span><span class="tag gray">주말 운영</span>' },
+  ];
+  function cardHTML(c) {
+    return `<div class="c-card"><div class="top"><div class="c-thumb ${c.cls}">${c.emoji}</div><div class="body"><div class="nm">${c.nm}</div><div class="meta">${c.meta}</div></div></div><div class="tags">${c.tags}</div></div>`;
+  }
+  function renderSheet(selIdx) {
+    const body = document.getElementById('sheetBody');
+    const order = [CENTERS[selIdx], ...CENTERS.filter((_,i)=>i!==selIdx)];
+    body.innerHTML = order.map(cardHTML).join('') + '<div class="src-note">센터 정보 출처 · 아맘때 ⓘ</div>';
+  }
+  renderSheet(0);
+  document.querySelectorAll('.pin').forEach(pin => {
+    pin.addEventListener('click', () => {
+      document.querySelectorAll('.pin').forEach(p => p.classList.remove('sel'));
+      pin.classList.add('sel');
+      renderSheet(parseInt(pin.dataset.c, 10));
+    });
+  });
+</script>
+</body>
+</html>

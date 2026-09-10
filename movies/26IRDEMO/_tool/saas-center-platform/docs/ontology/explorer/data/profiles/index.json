@@ -1,0 +1,8 @@
+{
+  "profiles": [
+    "center",
+    "school",
+    "hospital",
+    "military"
+  ]
+}

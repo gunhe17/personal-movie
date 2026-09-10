@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept A — 카드 대시보드</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+    position: relative;
+    border: 8px solid #1a1a1a;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #0a1628 0%, #132244 40%, #1a3066 100%);
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .status-bar .right { display: flex; gap: 6px; align-items: center; }
+  .status-bar .right svg { width: 16px; height: 16px; }
+
+  /* Header */
+  .header {
+    padding: 8px 24px 20px;
+    color: #fff;
+  }
+  .greeting {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+  }
+  .user-name {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .user-name span {
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* Today Summary Ring */
+  .today-ring {
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px 8px;
+    position: relative;
+  }
+  .ring-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+  .ring-container svg {
+    width: 160px;
+    height: 160px;
+    transform: rotate(-90deg);
+  }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+  .ring-progress {
+    fill: none;
+    stroke: url(#ringGrad);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 408;
+    stroke-dashoffset: 245;
+    animation: ringFill 1.5s ease-out forwards;
+  }
+  @keyframes ringFill {
+    from { stroke-dashoffset: 408; }
+    to { stroke-dashoffset: 245; }
+  }
+  .ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+  }
+  .ring-number {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #60a5fa, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ring-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 12px 24px 20px;
+  }
+  .stat-item { text-align: center; }
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+  }
+
+  /* Center Cards */
+  .section-title {
+    padding: 4px 24px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .center-cards {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .center-card {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 18px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .center-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+  }
+  .center-card.blue::before { background: linear-gradient(180deg, #3b82f6, #60a5fa); }
+  .center-card.purple::before { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+  .center-card.green::before { background: linear-gradient(180deg, #10b981, #34d399); }
+
+  .center-card:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+
+  .cc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .cc-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .cc-role {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .cc-role.admin { background: rgba(59,130,246,0.2); color: #60a5fa; }
+  .cc-role.counselor { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+  .cc-stats {
+    display: flex;
+    gap: 16px;
+  }
+  .cc-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cc-stat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .cc-stat-icon.sessions { background: rgba(59,130,246,0.15); }
+  .cc-stat-icon.clients { background: rgba(16,185,129,0.15); }
+  .cc-stat-icon.notes { background: rgba(245,158,11,0.15); }
+  .cc-stat-text .num { font-size: 15px; font-weight: 700; color: #fff; line-height: 1; }
+  .cc-stat-text .lbl { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  /* Timeline */
+  .timeline-section {
+    padding: 0 24px;
+    margin-bottom: 24px;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: rgba(255,255,255,0.08);
+  }
+  .tl-item {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    align-items: flex-start;
+    position: relative;
+  }
+  .tl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+    z-index: 1;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+  }
+  .tl-dot.blue { background: #3b82f6; }
+  .tl-dot.purple { background: #8b5cf6; }
+  .tl-dot.gray { background: rgba(255,255,255,0.2); border: 2px dashed rgba(255,255,255,0.3); }
+  .tl-dot.now {
+    background: #10b981;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    50% { box-shadow: 0 0 0 8px rgba(16,185,129,0.2); }
+  }
+
+  .tl-content { flex: 1; }
+  .tl-time {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+  .tl-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .tl-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 1px;
+  }
+  .tl-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 4px;
+    display: inline-block;
+    font-weight: 500;
+  }
+  .tl-badge.blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .tl-badge.purple { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+  /* Quick Actions */
+  .quick-actions {
+    padding: 0 24px 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .qa-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .qa-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+  }
+  .qa-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .qa-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    background: rgba(10,22,40,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .nav-item.active { opacity: 1; }
+  .nav-item svg { width: 24px; height: 24px; }
+  .nav-label { font-size: 10px; color: #fff; font-weight: 500; }
+
+  /* Floating Add */
+  .fab {
+    position: absolute;
+    bottom: 100px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(59,130,246,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 10;
+  }
+  .fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 40px rgba(59,130,246,0.5);
+  }
+  .fab svg { width: 28px; height: 28px; fill: #fff; }
+
+  /* Description Panel */
+  .desc-panel {
+    width: 393px;
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .desc-panel h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  .desc-panel h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 16px 0 6px;
+  }
+  .desc-panel p, .desc-panel li {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+  }
+  .desc-panel ul { padding-left: 18px; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f0f4ff;
+    color: #3b82f6;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 2px;
+  }
+</style>
+</head>
+<body>
+<div>
+<div class="phone-frame">
+  <div class="screen">
+    <!-- SVG Defs -->
+    <svg width="0" height="0">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/>
+          <stop offset="50%" stop-color="#8b5cf6"/>
+          <stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="right">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24" fill="white"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="greeting">Good morning ☀️</div>
+      <div class="user-name"><span>김상담</span> 님의 워크스페이스</div>
+      <div class="subtitle">오늘도 의미있는 하루 되세요</div>
+    </div>
+
+    <!-- Progress Ring -->
+    <div class="today-ring">
+      <div class="ring-container">
+        <svg viewBox="0 0 140 140">
+          <circle class="ring-bg" cx="70" cy="70" r="65"/>
+          <circle class="ring-progress" cx="70" cy="70" r="65"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number">4/10</div>
+          <div class="ring-label">오늘 일정</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-value">3</div>
+        <div class="stat-label">남은 상담</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">1</div>
+        <div class="stat-label">검사 예정</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">2</div>
+        <div class="stat-label">개인 일정</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <div class="qa-btn">
+        <div class="qa-icon">📝</div>
+        <div class="qa-label">개인 메모</div>
+      </div>
+      <div class="qa-btn">
+        <div class="qa-icon">📅</div>
+        <div class="qa-label">일정 추가</div>
+      </div>
+      <div class="qa-btn">
+        <div class="qa-icon">📊</div>
+        <div class="qa-label">주간 리포트</div>
+      </div>
+      <div class="qa-btn">
+        <div class="qa-icon">🎯</div>
+        <div class="qa-label">오늘 목표</div>
+      </div>
+    </div>
+
+    <!-- My Centers -->
+    <div class="section-title">소속 센터</div>
+    <div class="center-cards">
+      <div class="center-card blue">
+        <div class="cc-header">
+          <div class="cc-name">마음숲 상담센터</div>
+          <div class="cc-role admin">관리자</div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat">
+            <div class="cc-stat-icon sessions">💬</div>
+            <div class="cc-stat-text">
+              <div class="num">5</div>
+              <div class="lbl">오늘 세션</div>
+            </div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-icon clients">👥</div>
+            <div class="cc-stat-text">
+              <div class="num">23</div>
+              <div class="lbl">담당 내담자</div>
+            </div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-icon notes">📋</div>
+            <div class="cc-stat-text">
+              <div class="num">2</div>
+              <div class="lbl">미작성 노트</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="center-card purple">
+        <div class="cc-header">
+          <div class="cc-name">해맑음 심리연구소</div>
+          <div class="cc-role counselor">상담사</div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat">
+            <div class="cc-stat-icon sessions">💬</div>
+            <div class="cc-stat-text">
+              <div class="num">3</div>
+              <div class="lbl">오늘 세션</div>
+            </div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-icon clients">👥</div>
+            <div class="cc-stat-text">
+              <div class="num">12</div>
+              <div class="lbl">담당 내담자</div>
+            </div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-icon notes">📋</div>
+            <div class="cc-stat-text">
+              <div class="num">0</div>
+              <div class="lbl">미작성 노트</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section-title">오늘 타임라인</div>
+    <div class="timeline-section">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot blue"></div>
+          <div class="tl-content">
+            <div class="tl-time">09:00 - 09:50</div>
+            <div class="tl-title">김민수 상담 (5회기)</div>
+            <div class="tl-sub">PTSD 외상 처리 - 점진적 노출</div>
+            <div class="tl-badge blue">마음숲</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot now"></div>
+          <div class="tl-content">
+            <div class="tl-time">10:00 - 10:50 · 진행중</div>
+            <div class="tl-title">이수진 상담 (3회기)</div>
+            <div class="tl-sub">불안장애 - CBT 인지재구성</div>
+            <div class="tl-badge blue">마음숲</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot purple"></div>
+          <div class="tl-content">
+            <div class="tl-time">13:00 - 13:50</div>
+            <div class="tl-title">박지훈 심리검사</div>
+            <div class="tl-sub">MMPI-2 실시</div>
+            <div class="tl-badge purple">해맑음</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot gray"></div>
+          <div class="tl-content">
+            <div class="tl-time">15:00 - 16:00</div>
+            <div class="tl-title">슈퍼비전 스터디</div>
+            <div class="tl-sub">개인 일정</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot purple"></div>
+          <div class="tl-content">
+            <div class="tl-time">17:00 - 17:50</div>
+            <div class="tl-title">최영희 상담 (8회기)</div>
+            <div class="tl-sub">우울증 - 행동활성화</div>
+            <div class="tl-badge purple">해맑음</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spacer for bottom nav -->
+    <div style="height: 100px;"></div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="#60a5fa"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span class="nav-label" style="color:#60a5fa">홈</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+      <span class="nav-label">캘린더</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span class="nav-label">내담자</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      <span class="nav-label">더보기</span>
+    </div>
+  </div>
+</div>
+
+<!-- Description -->
+<div class="desc-panel">
+  <h2>Concept A — 카드 대시보드</h2>
+  <p>다크 테마 + 글래스모피즘 기반의 프리미엄 대시보드 뷰</p>
+
+  <h3>핵심 컨셉</h3>
+  <ul>
+    <li><strong>Progress Ring</strong> — 오늘 완료/전체 일정 진행률을 시각적으로 표현</li>
+    <li><strong>센터 카드</strong> — 소속 센터별 핵심 지표를 한눈에 (탭하면 센터 진입)</li>
+    <li><strong>통합 타임라인</strong> — 모든 센터 + 개인 일정을 시간순으로, 색상으로 센터 구분</li>
+    <li><strong>퀵 액션</strong> — 개인 메모, 일정 추가, 주간 리포트, 오늘 목표</li>
+  </ul>
+
+  <h3>재미 요소</h3>
+  <ul>
+    <li>링 애니메이션으로 오늘 진행률 시각화</li>
+    <li>"진행중" 세션에 펄스 애니메이션</li>
+    <li>카드 호버 시 떠오르는 인터랙션</li>
+    <li>그라디언트 + 글래스 효과로 고급스러운 느낌</li>
+  </ul>
+
+  <h3>키워드</h3>
+  <span class="tag">다크 테마</span>
+  <span class="tag">글래스모피즘</span>
+  <span class="tag">프로그레스 링</span>
+  <span class="tag">타임라인</span>
+  <span class="tag">프리미엄</span>
+</div>
+</div>
+</body>
+</html>

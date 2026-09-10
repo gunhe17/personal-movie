@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내담자 앱 — 바우처 3층 노출 시안 (2026-07-07)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; }
+  body { background:#1a1d21; color:#e8eaed; padding:48px 32px 96px; }
+
+  /* ===== 페이지 레이아웃 ===== */
+  .page-header { max-width:1280px; margin:0 auto 12px; }
+  .page-header h1 { font-size:26px; font-weight:800; color:#fff; }
+  .page-header p { margin-top:8px; font-size:14px; color:#9aa0a6; line-height:1.7; }
+  .page-header .doc-ref { color:#6b9fff; }
+  .section { max-width:1280px; margin:56px auto 0; }
+  .section > h2 { font-size:18px; font-weight:700; color:#fff; padding-bottom:12px; border-bottom:1px solid #33373d; }
+  .section > h2 .num { color:#6b9fff; margin-right:8px; }
+  .section > .section-desc { margin-top:10px; font-size:13.5px; color:#9aa0a6; line-height:1.7; }
+  .frames { display:flex; gap:40px; margin-top:28px; flex-wrap:wrap; align-items:flex-start; }
+  .frame-col { width:300px; }
+  .caption { margin-top:14px; font-size:12.5px; line-height:1.7; color:#9aa0a6; }
+  .caption b { color:#d7dade; font-weight:700; }
+  .caption .principle { display:inline-block; margin-top:6px; padding:2px 8px; border-radius:6px; background:#26313f; color:#8ab4f8; font-size:11px; font-weight:600; }
+  .flow-arrow { align-self:center; color:#5f6368; font-size:22px; margin-top:-80px; }
+  .note-block { max-width:1280px; margin:20px auto 0; background:#22262b; border:1px solid #33373d; border-radius:14px; padding:18px 22px; font-size:13px; color:#b6bcc4; line-height:1.8; }
+  .note-block b { color:#e8eaed; }
+
+  /* ===== 폰 프레임 ===== */
+  .phone { width:300px; height:640px; background:#F2F4F6; border-radius:36px; border:6px solid #2c2f33; overflow:hidden; position:relative; display:flex; flex-direction:column; box-shadow:0 24px 48px rgba(0,0,0,.4); }
+  .phone.white-bg { background:#fff; }
+  .statusbar { flex:none; height:34px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:11px; font-weight:600; color:#191F28; }
+  .screen { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+  .scroll { flex:1; overflow:hidden; padding:0 16px; }
+
+  /* ===== 토스 토큰 ===== */
+  .t-title { font-size:20px; font-weight:800; color:#191F28; line-height:1.35; letter-spacing:-0.3px; }
+  .t-sub { font-size:13px; color:#8B95A1; line-height:1.6; }
+  .t-blue { color:#3182F6; }
+  .card { background:#fff; border-radius:18px; padding:16px; margin-bottom:10px; }
+  .btn { display:block; width:100%; padding:13px 0; border-radius:12px; background:#3182F6; color:#fff; font-size:14.5px; font-weight:700; text-align:center; border:none; }
+  .btn.ghost { background:#F2F4F6; color:#4E5968; }
+  .btn.sm { display:inline-block; width:auto; padding:8px 14px; font-size:12.5px; border-radius:9px; }
+  .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+  .chip.person { background:#EAF3FE; color:#3182F6; }
+  .chip.center { background:#F2F4F6; color:#8B95A1; }
+
+  /* 앱 상단바 */
+  .appbar { flex:none; display:flex; align-items:center; justify-content:space-between; padding:10px 18px 6px; }
+  .appbar .logo { font-size:16px; font-weight:800; color:#191F28; letter-spacing:-0.3px; }
+  .appbar .logo span { color:#3182F6; }
+  .appbar .icons { font-size:16px; color:#4E5968; }
+  .appbar.detail { padding:12px 18px 8px; }
+  .appbar.detail .back { font-size:18px; color:#191F28; }
+  .appbar.detail .ttl { font-size:14px; font-weight:700; color:#191F28; }
+
+  /* 탭바 */
+  .tabbar { flex:none; display:flex; background:#fff; border-top:1px solid #EEF0F2; padding:8px 0 14px; }
+  .tabbar .tab { flex:1; text-align:center; font-size:10px; color:#B0B8C1; font-weight:600; }
+  .tabbar .tab .ico { display:block; font-size:17px; margin-bottom:2px; }
+  .tabbar .tab.on { color:#3182F6; }
+
+  /* 할 일 카드 */
+  .todo { background:#fff; border-radius:18px; padding:15px 16px; margin-bottom:9px; display:flex; align-items:center; gap:12px; }
+  .todo .ico { flex:none; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .todo .body { flex:1; min-width:0; }
+  .todo .body .tt { font-size:13.5px; font-weight:700; color:#191F28; line-height:1.4; }
+  .todo .body .ss { font-size:11.5px; color:#8B95A1; margin-top:2px; }
+  .todo .act { flex:none; }
+  .todo .act .btn.sm { background:#EAF3FE; color:#3182F6; }
+  .ico.c-blue { background:#EAF3FE; }
+  .ico.c-green { background:#E8F7EF; }
+  .ico.c-purple { background:#F1EDFE; }
+  .ico.c-yellow { background:#FFF6E0; }
+  .ico.c-gray { background:#F2F4F6; }
+  .todo.hl { outline:2px solid #6b9fff; outline-offset:2px; }
+
+  .sec-label { font-size:12px; font-weight:700; color:#8B95A1; margin:16px 4px 8px; }
+
+  /* 히어로 */
+  .hero { background:#3182F6; border-radius:20px; padding:18px; color:#fff; margin-bottom:9px; }
+  .hero .hd { font-size:11.5px; font-weight:600; opacity:.85; }
+  .hero .main { font-size:18px; font-weight:800; margin-top:5px; line-height:1.35; letter-spacing:-0.3px; }
+  .hero .meta { font-size:12px; opacity:.85; margin-top:4px; }
+
+  /* ===== 바우처 전용 ===== */
+  /* 프로그레스 (잔여 회기) */
+  .vbar { height:8px; border-radius:5px; background:#EEF0F2; overflow:hidden; }
+  .vbar i { display:block; height:100%; border-radius:5px; background:#3182F6; }
+  .vbar.warm i { background:#F5A623; }
+
+  /* 마이 탭 — 내 바우처 카드 */
+  .vcard { background:#fff; border-radius:18px; padding:16px; margin-bottom:9px; }
+  .vcard .top { display:flex; align-items:center; gap:12px; }
+  .vcard .top .ico { flex:none; width:38px; height:38px; border-radius:12px; background:#FFF6E0; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .vcard .top .nm { font-size:14px; font-weight:700; color:#191F28; }
+  .vcard .top .mt { font-size:11.5px; color:#8B95A1; margin-top:2px; }
+  .vcard .top .cnt { margin-left:auto; font-size:15px; font-weight:800; color:#191F28; }
+  .vcard .top .cnt small { font-size:11.5px; font-weight:600; color:#B0B8C1; }
+  .vcard .vbar { margin-top:12px; }
+
+  /* 마이 메뉴 행 */
+  .menu-row { display:flex; align-items:center; justify-content:space-between; padding:14px 4px; font-size:14px; font-weight:600; color:#333D4B; border-bottom:1px solid #F2F4F6; }
+  .menu-row .arr { color:#D1D6DB; }
+  .my-profile { display:flex; align-items:center; gap:12px; padding:18px 4px 14px; }
+  .my-profile .avt { width:48px; height:48px; border-radius:50%; background:#EAF3FE; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .my-profile .nm { font-size:17px; font-weight:800; color:#191F28; }
+  .my-profile .sb { font-size:12px; color:#8B95A1; margin-top:2px; }
+
+  /* 상세 — 현황 헤더 */
+  .v-head { padding:18px 6px 4px; }
+  .v-head .prog { font-size:12.5px; font-weight:700; color:#8B95A1; }
+  .v-head .big { font-size:26px; font-weight:800; color:#191F28; letter-spacing:-0.5px; margin-top:6px; }
+  .v-head .big .t-blue { font-size:26px; }
+  .v-head .meta { font-size:12.5px; color:#8B95A1; margin-top:5px; }
+  .v-head .vbar { margin-top:16px; }
+  .src-note { font-size:11px; color:#B0B8C1; margin:10px 6px 0; line-height:1.6; }
+
+  /* 상세 — 사용 내역 행 */
+  .use-row { display:flex; align-items:center; justify-content:space-between; padding:11px 2px; border-bottom:1px solid #F2F4F6; }
+  .use-row .l .d { font-size:13px; font-weight:700; color:#333D4B; }
+  .use-row .l .s { font-size:11.5px; color:#8B95A1; margin-top:2px; }
+  .use-row .r { font-size:12.5px; font-weight:700; color:#8B95A1; }
+
+  /* 상세 — 제도 정보 */
+  .info-card { background:#fff; border-radius:18px; padding:6px 16px; }
+  .info-card .row { display:flex; justify-content:space-between; gap:16px; padding:11px 0; font-size:12.5px; border-bottom:1px solid #F5F6F8; }
+  .info-card .row:last-child { border-bottom:none; }
+  .info-card .row .k { flex:none; color:#8B95A1; }
+  .info-card .row .v { color:#191F28; font-weight:600; text-align:right; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>바우처 3층 노출 시안</h1>
+  <p>기준 문서: <span class="doc-ref">2026-07-03-내담자앱-기획-v4-액션퍼스트.md</span> (할 일 카드 #6) + 07-07 바우처 논의<br>
+  구조: <b style="color:#fff">L1 할 일 카드(임박 시에만) → L2 상시 현황(마이) → L3 상세(현황 + 제도 정보)</b> · 원칙: 회기 수만 노출(금액 비노출), 명사·숫자, 죄책감 금지 — 데이터는 전부 기존 <span class="doc-ref">ClientVoucher · Voucher 카탈로그</span> 파생(상담사 신규 노동 제로).</p>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">①</span>3층이 이어지는 동선 — 홈 카드 → 마이 상시 → 상세</h2>
+  <div class="section-desc">평소에는 마이 탭에 조용히 상주(L2). 잔여가 임박하면 그때만 홈에 카드로 올라온다(L1). 어느 쪽에서든 탭하면 같은 상세(L3)로 — 잔여 현황과 제도 정보가 한 화면에 있다.</div>
+  <div class="frames">
+
+    <!-- L1: 홈 — 임박 시에만 카드 -->
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo">mind<span>scope</span></div><div class="icons">&#128276;</div></div>
+          <div class="scroll">
+            <div class="hero">
+              <div class="hd">내일 &#183; 마음샘아동발달센터</div>
+              <div class="main">오후 3:00 언어치료</div>
+              <div class="meta">지우 &#183; 김수현 선생님 &#183; 3치료실</div>
+            </div>
+            <div class="sec-label">할 일 2</div>
+            <div class="todo hl">
+              <div class="ico c-yellow">&#127915;</div>
+              <div class="body">
+                <div class="tt">발달재활 바우처 &#183; 잔여 2회</div>
+                <div class="ss"><span class="chip person">지우</span> 8/31까지 &#183; 센터 기준</div>
+              </div>
+              <div class="act"><span class="btn sm ghost" style="background:#F2F4F6;color:#8B95A1">보기</span></div>
+            </div>
+            <div class="todo">
+              <div class="ico c-purple">&#128203;</div>
+              <div class="body">
+                <div class="tt">발달 설문 실시하기 <span style="color:#8B95A1;font-weight:500">&#183; 10분</span></div>
+                <div class="ss"><span class="chip person">지우</span> K-CDI &#183; 7/8까지</div>
+              </div>
+              <div class="act"><span class="btn sm">시작</span></div>
+            </div>
+            <div class="sec-label">이번 주 기록</div>
+            <div class="todo">
+              <div class="ico c-blue">&#128247;</div>
+              <div class="body">
+                <div class="tt">지우의 순간 남기기</div>
+                <div class="ss">사진 &#183; 짧은 메모로 충분해요</div>
+              </div>
+              <div class="act"><span class="btn sm">기록</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>L1 — 할 일 카드 (v4 #6).</b> 잔여 &le;2회 또는 만료 30일 전에만 생성, 조건 해제(재발급·연장)되면 조용히 소멸 — 파생 뷰라 정합이 깨질 수 없다. 카피는 명사·숫자만: "잔여 2회 &#183; 8/31까지". "결제하세요" 류 압박 문구 없음, 빨간색 없음.<br><span class="principle">죄책감 금지 &#183; 파생 뷰 &#183; 임박 시에만</span></div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- L2: 마이 — 상시 현황 -->
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo" style="font-size:15px;color:#191F28">마이</div><div class="icons">&#9881;&#65039;</div></div>
+          <div class="scroll">
+            <div class="my-profile">
+              <div class="avt">&#128105;</div>
+              <div>
+                <div class="nm">박서연 님</div>
+                <div class="sb">지우 &#183; 서준의 보호자</div>
+              </div>
+            </div>
+            <div class="sec-label">내 바우처</div>
+            <div class="vcard">
+              <div class="top">
+                <div class="ico">&#127915;</div>
+                <div>
+                  <div class="nm">발달재활서비스</div>
+                  <div class="mt"><span class="chip person" style="padding:2px 7px">지우</span> 12/31까지</div>
+                </div>
+                <div class="cnt">7회 <small>/ 10회</small></div>
+              </div>
+              <div class="vbar"><i style="width:70%"></i></div>
+            </div>
+            <div class="vcard">
+              <div class="top">
+                <div class="ico" style="background:#E8F7EF">&#127915;</div>
+                <div>
+                  <div class="nm">언어치료 회기권</div>
+                  <div class="mt"><span class="chip person" style="padding:2px 7px">지우</span> 8/31까지</div>
+                </div>
+                <div class="cnt">2회 <small>/ 10회</small></div>
+              </div>
+              <div class="vbar warm"><i style="width:20%"></i></div>
+            </div>
+            <div class="src-note">마음샘아동발달센터 기준 &#183; 어제 업데이트</div>
+            <div class="sec-label">계정</div>
+            <div class="card" style="padding:2px 16px">
+              <div class="menu-row">연결된 센터 <span class="arr">&#8250;</span></div>
+              <div class="menu-row">가족 초대 <span class="arr">&#8250;</span></div>
+              <div class="menu-row" style="border-bottom:none">알림 설정 <span class="arr">&#8250;</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab on"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>L2 — 상시 현황 (신규 제안의 핵심).</b> "몇 회 남았지?"의 상설 답. 카드당 2줄 상한 — 프로그램명 + 사람 칩 + 기한 + <b>잔여/총 회기</b> + 바만. 임박(주황 바)은 색 온도로만 구분, 배지·카운트 없음. 바우처가 없는 Profile은 섹션 자체가 안 뜬다(부재의 비대칭 — 성인 상담 센터에서도 구조 그대로).<br><span class="principle">명사·숫자 &#183; 2줄 상한 &#183; 센터 유형 중립</span></div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- L3: 상세 -->
+    <div class="frame-col">
+      <div class="phone white-bg">
+        <div class="statusbar"><span>9:42</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar detail"><span class="back">&#8592;</span><span class="ttl">발달재활서비스</span><span style="width:18px"></span></div>
+          <div class="scroll">
+            <div class="v-head">
+              <div class="prog"><span class="chip person" style="padding:2px 7px">지우</span> &nbsp;마음샘아동발달센터</div>
+              <div class="big"><span class="t-blue">7회</span> 남았어요</div>
+              <div class="meta">총 10회 &#183; 2026년 12월 31일까지</div>
+              <div class="vbar"><i style="width:70%"></i></div>
+            </div>
+            <div class="src-note" style="margin:10px 6px 0">센터 등록 기준이에요. 정부 지원 잔액은 사회서비스 포털에서 확인할 수 있어요.</div>
+            <div class="sec-label">사용 내역</div>
+            <div class="card" style="padding:4px 16px">
+              <div class="use-row">
+                <div class="l"><div class="d">6/28 (토) 언어치료</div><div class="s">김수현 선생님</div></div>
+                <div class="r">1회 사용</div>
+              </div>
+              <div class="use-row">
+                <div class="l"><div class="d">6/21 (토) 언어치료</div><div class="s">김수현 선생님</div></div>
+                <div class="r">1회 사용</div>
+              </div>
+              <div class="use-row" style="border-bottom:none">
+                <div class="l"><div class="d">6/14 (토) 언어치료</div><div class="s">김수현 선생님</div></div>
+                <div class="r">1회 사용</div>
+              </div>
+            </div>
+            <div class="sec-label">이 바우처는</div>
+            <div class="info-card">
+              <div class="row"><span class="k">사업명</span><span class="v">발달재활서비스 (2026)</span></div>
+              <div class="row"><span class="k">주관</span><span class="v">보건복지부</span></div>
+              <div class="row"><span class="k">정부 지원</span><span class="v">월 180,000~250,000원<br><span style="font-weight:500;color:#8B95A1;font-size:11.5px">소득 구간별 상이</span></span></div>
+              <div class="row"><span class="k">문의</span><span class="v">읍면동 주민센터 &#183; 129</span></div>
+            </div>
+            <div style="height:16px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>L3 — 상세 = 현황 + 정보성 한 화면.</b> 위: 잔여 회기(큰 숫자 하나, 19px+ 규칙) + 사용 내역(BillableItem 파생 — 세션과 자동 연결). 아래: Voucher 카탈로그의 제도 정보 — "정부 지원"은 정부 고시 공개 정보라 노출 무해. <b>센터별 금액·잔액은 어디에도 없음.</b> 출처 문장으로 정합 어긋남에 선을 긋는다.<br><span class="principle">금액 비노출 &#183; 출처 표기 &#183; 읽을 것 하나만 크게</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">②</span>확장 여지 — 재신청 카드 (P1.5+)</h2>
+  <div class="section-desc">Voucher 카탈로그의 신청 기간(<span style="color:#d7dade">application_start/end_date</span>)에서 파생. 발달재활서비스는 매년 재신청인데 이 시기를 놓치는 게 보호자의 실제 페인 — 센터도 문자로 일일이 안내하던 일이라, 카드 하나가 센터 노동을 대체한다.</div>
+  <div class="frames">
+
+    <div class="frame-col">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>&#9679;&#9679;&#9679; &#128246;</span></div>
+        <div class="screen">
+          <div class="appbar"><div class="logo">mind<span>scope</span></div><div class="icons">&#128276;</div></div>
+          <div class="scroll">
+            <div class="sec-label">할 일 1</div>
+            <div class="todo hl">
+              <div class="ico c-yellow">&#128198;</div>
+              <div class="body">
+                <div class="tt">2027년 바우처 신청이 시작됐어요</div>
+                <div class="ss"><span class="chip person">지우</span> 발달재활 &#183; 2/28까지 &#183; 주민센터</div>
+              </div>
+              <div class="act"><span class="btn sm ghost" style="background:#F2F4F6;color:#8B95A1">안내</span></div>
+            </div>
+            <div class="sec-label">이번 주 기록</div>
+            <div class="todo">
+              <div class="ico c-blue">&#128247;</div>
+              <div class="body">
+                <div class="tt">지우의 순간 남기기</div>
+                <div class="ss">사진 &#183; 짧은 메모로 충분해요</div>
+              </div>
+              <div class="act"><span class="btn sm">기록</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ico">&#127968;</span>홈</div>
+            <div class="tab"><span class="ico">&#128197;</span>일정</div>
+            <div class="tab"><span class="ico">&#128218;</span>기록</div>
+            <div class="tab"><span class="ico">&#128100;</span>마이</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>재신청 카드.</b> 조건: 이용 중인 바우처의 차년도 카탈로그에 신청 기간이 열림. 탭하면 L3의 제도 정보 영역으로. 신청 기간이 지나면 자연 만료 — "놓침" 흔적 없음(B1 규칙 그대로).<br><span class="principle">자연 만료 &#183; 센터 노동 대체</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note-block">
+  <b>구현 메모</b> — 신규 엔티티 없음. L1·L2·L3 전부 기존 <b>ClientVoucher</b>(잔여/총 회기·유효기간) + <b>Voucher 카탈로그</b>(제도 정보) + <b>BillableItem</b>(사용 내역)의 파생 뷰. 앱 측 저장은 열람 view-state뿐(v4 D1 원칙).<br>
+  <b>열린 결정 2건</b> — ① 금액(본인부담금·잔액) 노출 여부: 이 시안은 <b>비노출</b> 전제(센터 내부 운영값·정부 포털과 어긋날 소지). ② 노출 토글 범위: web 초대 관리의 노출 토글에 바우처 항목 포함 여부 — 센터가 차감 관리를 안 하는 경우 틀린 숫자가 나가므로 센터 단위 off 필요.
+</div>
+
+</body>
+</html>

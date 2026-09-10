@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>앱 시안 v5 — 온보딩(가입·동의) + 연결 플로우 (2026-07-09)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root {
+    /* design system v2 */
+    --blue:#4486FF; --blue-600:#2566DD; --blue-100:#E5EEFF; --blue-50:#F4F8FF;
+    --mint:#00C3BC; --mint-600:#009B96;
+    --orange:#FF9200; --orange-50:#FFF3E5;
+    --ink:#1D2227; --ink2:#58626C; --ink3:#7D848F; --ink4:#AAB2BE;
+    --base:#F5F7F8; --sunken:#F0F3F5; --line:#E9EEF0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif; letter-spacing:-0.41px; }
+  body { background:#15171b; color:#e8eaed; padding:48px 36px 110px; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1420px; margin:0 auto; }
+
+  /* ===== 갤러리 ===== */
+  h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+  .page-sub { margin-top:10px; font-size:14px; color:#9aa0a6; line-height:1.7; max-width:880px; }
+  .page-sub a { color:#8ab4f8; font-weight:700; text-decoration:none; }
+  .rulebox { margin:20px 0 8px; display:flex; flex-wrap:wrap; gap:8px; }
+  .rulebox span { font-size:12.5px; font-weight:600; color:#c6cbd2; background:#22252b; border:1px solid #2e3238; border-radius:999px; padding:7px 14px; }
+  .section { margin-top:58px; }
+  .section > h2 { font-size:18px; font-weight:800; color:#fff; padding-bottom:14px; border-bottom:1px solid #2b2f35; }
+  .section > h2 .num { color:#8ab4f8; margin-right:10px; }
+  .frames { display:flex; gap:44px; margin-top:30px; flex-wrap:wrap; align-items:flex-start; }
+  .unit { width:312px; }
+  .cap { margin-top:16px; }
+  .cap .t { font-size:14.5px; font-weight:800; color:#e8eaed; }
+  .cap .t .tag { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:7px; vertical-align:2px; }
+  .tag.t0 { background:#2a2e35; color:#9aa0a6; }
+  .tag.t1 { background:rgba(68,134,255,.18); color:#8ab4f8; }
+  .tag.t2 { background:rgba(248,143,22,.16); color:#ffb45e; }
+  .tag.t3 { background:rgba(0,195,188,.15); color:#5fd9d4; }
+  .cap .d { margin-top:7px; font-size:12.5px; color:#9aa0a6; line-height:1.7; }
+  .cap .rule { margin-top:9px; font-size:12px; color:#7f8790; line-height:1.65; padding:9px 12px; background:#1d2026; border-radius:10px; }
+  .cap .rule b { color:#b9c0c8; }
+
+  /* ===== 폰 프레임 ===== */
+  .phone { width:312px; background:#0b0d10; border-radius:52px; padding:9px; box-shadow:0 30px 60px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.06) inset; }
+  .screen { position:relative; background:var(--base); border-radius:44px; overflow:hidden; height:668px; display:flex; flex-direction:column; }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:92px; height:26px; border-radius:999px; background:#0b0d10; z-index:60; }
+  .statusbar { flex:none; height:48px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 4px; font-size:12px; font-weight:700; color:var(--ink); }
+  .homebar { position:absolute; bottom:7px; left:50%; transform:translateX(-50%); width:118px; height:5px; border-radius:99px; background:rgba(29,34,39,.25); z-index:60; }
+  .scroll { flex:1; overflow:hidden; padding:4px 16px 0; display:flex; flex-direction:column; gap:10px; }
+
+  /* 헤더·타이포 */
+  .hello { padding:8px 4px 4px; }
+  .hello .day { font-size:12.5px; font-weight:600; color:var(--ink3); margin-bottom:5px; }
+  .hello .line { font-size:22px; font-weight:800; color:var(--ink); line-height:1.32; letter-spacing:-0.6px; }
+  .hello .line em { font-style:normal; color:var(--blue); }
+  .navback { padding:8px 4px 0; font-size:17px; color:var(--ink2); }
+
+  /* 카드 */
+  .c { background:#fff; border-radius:20px; padding:16px; box-shadow:0 1px 12px rgba(2,28,51,.06); }
+  .c .row { display:flex; align-items:center; gap:12px; }
+  .tile { flex:none; width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .tile.blue { background:linear-gradient(135deg,#EDF3FF,#DCE9FF); }
+  .tile.mint { background:linear-gradient(135deg,#E7FAF8,#D2F5F1); }
+  .tile.orange { background:linear-gradient(135deg,#FFF4E4,#FFEACC); }
+  .tile.gray { background:linear-gradient(135deg,#F3F5F7,#EAEEF1); }
+  .c .k { font-size:11.5px; font-weight:700; margin-bottom:3px; }
+  .k.blue { color:var(--blue-600); } .k.mint { color:var(--mint-600); } .k.orange { color:#c26a00; } .k.gray { color:var(--ink3); }
+  .c .t { font-size:16px; font-weight:800; color:var(--ink); line-height:1.38; letter-spacing:-0.4px; }
+  .c .t small { font-size:12.5px; font-weight:600; color:var(--ink3); margin-left:4px; }
+  .c .d { font-size:13.5px; color:var(--ink2); line-height:1.55; margin-top:5px; }
+  .btns { margin-top:13px; display:flex; gap:8px; }
+  .btn { flex:1; text-align:center; font-size:13.5px; font-weight:800; padding:12px 0; border-radius:12px; }
+  .btn.pri { background:var(--blue); color:#fff; box-shadow:0 4px 12px rgba(68,134,255,.28); }
+  .btn.mint { background:var(--mint); color:#fff; box-shadow:0 4px 12px rgba(0,195,188,.24); }
+  .btn.tint { background:var(--blue-100); color:var(--blue-600); }
+  .btn.asst { background:#F0F3F5; color:var(--ink2); }
+  .quiet { text-align:center; font-size:12px; font-weight:500; color:var(--ink4); padding:4px 0 2px; line-height:1.7; }
+
+  /* 시트 */
+  .dim { flex:1; background:linear-gradient(rgba(13,18,26,.45),rgba(13,18,26,.6)); display:flex; flex-direction:column; justify-content:flex-end; }
+  .dim .peek { padding:60px 22px 0; opacity:.55; }
+  .sheet { background:#fff; border-radius:28px 28px 44px 44px; padding:12px 22px 30px; box-shadow:0 -8px 30px rgba(0,0,0,.18); }
+  .sheet .grab { width:38px; height:4px; border-radius:99px; background:#D1D5DB; margin:0 auto 18px; }
+  .sheet .st { font-size:20px; font-weight:800; color:var(--ink); letter-spacing:-0.5px; line-height:1.35; }
+  .sheet .sd { margin-top:7px; font-size:13.5px; color:var(--ink2); line-height:1.6; }
+  .sheet .fine { margin-top:13px; text-align:center; font-size:11.5px; color:var(--ink3); line-height:1.65; }
+
+  /* 소셜 버튼 */
+  .sns { display:flex; flex-direction:column; gap:9px; margin-top:18px; }
+  .sns .s { display:flex; align-items:center; justify-content:center; gap:8px; font-size:14.5px; font-weight:800; padding:14px 0; border-radius:14px; }
+  .s.kakao { background:#FEE500; color:#1D2227; }
+  .s.apple { background:#111; color:#fff; }
+  .s.google { background:#fff; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line); }
+
+  /* 동의 리스트 */
+  .agree-all { display:flex; align-items:center; gap:11px; background:var(--blue-50); border:1.5px solid var(--blue); border-radius:16px; padding:15px 16px; }
+  .agree-all .bt { font-size:15.5px; font-weight:800; color:var(--ink); }
+  .ckc { flex:none; width:24px; height:24px; border-radius:50%; background:var(--blue); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .ckc.off { background:#fff; color:transparent; box-shadow:inset 0 0 0 1.5px #D1D8DE; }
+  .agree { display:flex; align-items:center; gap:11px; padding:12px 6px; }
+  .agree .al { flex:1; font-size:14px; font-weight:600; color:var(--ink2); }
+  .agree .al b { color:var(--ink); font-weight:700; }
+  .agree .req { font-size:11px; font-weight:800; color:var(--blue-600); background:var(--blue-100); border-radius:6px; padding:2px 7px; margin-right:6px; }
+  .agree .req.opt { color:var(--ink3); background:var(--sunken); }
+  .agree .more { font-size:14px; color:var(--ink4); }
+
+  /* 입력 필드 */
+  .fieldset { display:flex; flex-direction:column; gap:10px; }
+  .flabel { font-size:12.5px; font-weight:700; color:var(--ink3); margin:4px 2px -4px; }
+  .field { background:#fff; border-radius:14px; padding:15px 16px; font-size:15.5px; font-weight:700; color:var(--ink); box-shadow:0 1px 12px rgba(2,28,51,.06); display:flex; align-items:center; justify-content:space-between; }
+  .field .ph { color:var(--ink4); font-weight:600; }
+  .field .cursor { display:inline-block; width:2px; height:18px; background:var(--blue); vertical-align:-3px; margin-left:1px; }
+  .checkline { display:flex; align-items:center; gap:10px; padding:13px 4px 2px; }
+  .checkline .cl { font-size:13.5px; font-weight:600; color:var(--ink2); line-height:1.5; }
+
+  /* 온보딩류 풀스크린 */
+  .ob-screen { background:linear-gradient(180deg,#EAF2FF 0%,#F5F7F8 42%); }
+  .ob { flex:1; display:flex; flex-direction:column; gap:11px; padding:18px 20px 18px; }
+  .ob .hi { font-size:13px; font-weight:700; color:var(--blue-600); }
+  .ob .q { font-size:24px; font-weight:800; color:var(--ink); line-height:1.34; letter-spacing:-0.7px; padding-bottom:6px; }
+  .ob .q em { font-style:normal; color:var(--blue); }
+  .ob .cta { margin-top:auto; }
+  .ob .cta .btn { display:block; padding:15px 0; font-size:15.5px; border-radius:14px; }
+
+  /* 선택 옵션 (아이 확인 등) */
+  .opt { display:flex; align-items:center; gap:13px; background:#fff; border:1.5px solid transparent; border-radius:20px; padding:16px; box-shadow:0 1px 12px rgba(2,28,51,.06); }
+  .opt.sel { border-color:var(--blue); background:var(--blue-50); box-shadow:0 4px 16px rgba(68,134,255,.16); }
+  .opt .ot { font-size:15.5px; font-weight:800; color:var(--ink); }
+  .opt .od { font-size:12.5px; color:var(--ink3); margin-top:2px; }
+  .opt .chk { margin-left:auto; width:22px; height:22px; border-radius:50%; background:var(--blue); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .av { flex:none; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; }
+  .av.a1 { background:linear-gradient(135deg,#689DFF,#4486FF); }
+  .av.a2 { background:linear-gradient(135deg,#59CED8,#00C3BC); }
+  .av.plus { background:var(--sunken); color:var(--ink3); font-size:20px; }
+
+  /* 검색 */
+  .searchbar { display:flex; align-items:center; gap:9px; background:#fff; border-radius:14px; padding:13px 15px; box-shadow:0 1px 12px rgba(2,28,51,.06); font-size:14.5px; font-weight:600; color:var(--ink); }
+  .searchbar .ph { color:var(--ink4); }
+  .linkbadge { font-size:10.5px; font-weight:800; color:var(--blue-600); background:var(--blue-100); border-radius:7px; padding:3px 8px; margin-left:6px; vertical-align:2px; white-space:nowrap; }
+  .result { display:flex; align-items:center; gap:12px; background:#fff; border-radius:18px; padding:14px 15px; box-shadow:0 1px 12px rgba(2,28,51,.06); }
+  .result .rt { font-size:14.5px; font-weight:800; color:var(--ink); }
+  .result .rd { font-size:12px; color:var(--ink3); margin-top:2px; }
+  .result .go { margin-left:auto; font-size:14px; color:var(--ink4); }
+
+  /* 인증 코드 */
+  .codes { display:flex; gap:9px; padding:4px 2px; }
+  .code { width:46px; height:56px; border-radius:13px; background:#fff; box-shadow:0 1px 12px rgba(2,28,51,.06); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:var(--ink); }
+  .code.on { box-shadow:inset 0 0 0 1.5px var(--blue), 0 4px 14px rgba(68,134,255,.14); }
+  .code.empty { color:var(--ink4); }
+
+  /* 완료 히어로 */
+  .done-hero { text-align:center; padding:24px 16px 8px; }
+  .done-hero .orb { width:96px; height:96px; margin:0 auto; border-radius:50%; background:radial-gradient(circle at 34% 30%, #E9FBF4, #CFF3E6 58%, #B8E9DB); display:flex; align-items:center; justify-content:center; font-size:42px; box-shadow:0 14px 26px rgba(0,155,150,.16), inset 0 -6px 12px rgba(0,155,150,.08); }
+  .done-hero .dt { margin-top:16px; font-size:21px; font-weight:800; color:var(--ink); line-height:1.35; letter-spacing:-0.6px; }
+  .done-hero .dt em { font-style:normal; color:var(--mint-600); }
+  .done-hero .dd { margin-top:6px; font-size:13px; color:var(--ink3); }
+  .flowlist { display:flex; flex-direction:column; }
+  .flowlist .f { display:flex; align-items:center; gap:10px; padding:10.5px 4px; border-bottom:1px solid var(--line); font-size:14px; font-weight:600; color:var(--ink2); }
+  .flowlist .f:last-child { border-bottom:none; }
+  .flowlist .f .fi { flex:none; width:30px; height:30px; border-radius:10px; background:var(--sunken); display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .flowlist .f b { color:var(--ink); font-weight:700; }
+  .flowlist .f .auto { margin-left:auto; font-size:11px; font-weight:800; color:var(--mint-600); background:rgba(0,195,188,.1); border-radius:6px; padding:2.5px 8px; }
+
+  /* 가족 권한 */
+  .member { display:flex; align-items:center; gap:11px; padding:11px 2px; border-bottom:1px solid var(--line); }
+  .member:last-child { border-bottom:none; }
+  .member .mn { font-size:14.5px; font-weight:700; color:var(--ink); }
+  .member .md { font-size:12px; color:var(--ink3); margin-top:1px; }
+  .rolechip { margin-left:auto; font-size:11px; font-weight:800; border-radius:7px; padding:3px 9px; }
+  .rolechip.admin { color:var(--blue-600); background:var(--blue-100); }
+  .rolechip.fam { color:var(--ink3); background:var(--sunken); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>내담자 앱 시안 v5 — 온보딩(가입·동의) · 연결 플로우</h1>
+  <p class="page-sub">
+    2026-07-09 확정 기획 기준 — <a href="2026-07-09-내담자앱-동의-설계.md">동의 설계 확정안</a> + 케이스 ③ 연결 절차(<a href="기획-대시보드.html">기획-대시보드</a>).
+    홈 3상황 시안(<a href="2026-07-08-앱시안-v5-홈-3상황.html">07-08</a>)의 디자인 시스템 v2를 그대로 승계.
+    흐름: <b style="color:#c6cbd2">첫 저장 → 가입 게이트 → 동의 한 장 → 아이 프로필</b> / <b style="color:#c6cbd2">센터 검색 분기(a·b·c) → 인증 → 아이 확인 → 연결 완료</b>.
+  </p>
+  <div class="rulebox">
+    <span>동의는 가입 때 한 번 (R1)</span><span>전체 동의 원탭 · 필수 3 + 선택 (R2)</span><span>보호자 확인은 한 줄 (R3)</span><span>전화번호 자동 연결 금지</span><span>문구는 가안 (치료사·법무 감수 전)</span>
+  </div>
+
+  <!-- ============ 01. 가입과 동의 ============ -->
+  <div class="section">
+    <h2><span class="num">01</span>가입 게이트 — 첫 저장의 순간 (07-09 동의 설계)</h2>
+    <div class="frames">
+
+      <!-- 가입 게이트 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="dim">
+            <div class="peek">
+              <div class="c">
+                <div class="row">
+                  <div class="tile mint">🌱</div>
+                  <div><div class="k mint">오늘 · 기록</div><div class="t">"물"이라고 두 번 말했다</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet">
+              <div class="grab"></div>
+              <div class="st">첫 기록이에요!<br>안전하게 보관해 드릴게요</div>
+              <div class="sd">로그인하면 폰이 바뀌어도 기록이 이어져요.</div>
+              <div class="sns">
+                <div class="s kakao">💬 카카오로 계속하기</div>
+                <div class="s apple"> Apple로 계속하기</div>
+                <div class="s google">G Google로 계속하기</div>
+              </div>
+              <div class="fine">방금 쓴 기록은 그대로 있어요 · 둘러보기는 로그인 없이도 계속할 수 있어요</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">가입 게이트 <span class="tag t0">공통 · 첫 저장</span></div>
+          <div class="d">둘러보기는 끝까지 게스트. 첫 저장 행위(기록·찜·리마인더)에서만 이 시트가 올라옴 — 방금 쓴 기록이 뒤에 비쳐 "이걸 지키려고 가입한다"가 보이게.</div>
+          <div class="rule"><b>규칙:</b> 가입 이유를 앱 사정("회원이 되어주세요")이 아니라 사용자 이익("기록이 이어져요")으로. 전화번호 인증 없음 — 그건 센터 연결 때만.</div>
+        </div>
+      </div>
+
+      <!-- 동의 스택 -->
+      <div class="unit">
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">거의 다 됐어요</div>
+            <div class="q">기록을 안전하게 지키기 위한<br><em>약속</em>이에요</div>
+            <div class="agree-all"><div class="ckc">✓</div><div class="bt">모두 동의하기</div></div>
+            <div style="background:#fff;border-radius:16px;padding:4px 12px;box-shadow:0 1px 12px rgba(2,28,51,.06);">
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>서비스 이용약관</b></div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>개인정보 수집·이용</b> — 계정과 기본 기록</div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req">필수</span><b>아이 기록 보관</b> — 글·사진·영상·녹음, 암호화 저장</div><div class="more">›</div></div>
+              <div class="agree"><div class="ckc off" style="width:20px;height:20px;font-size:10px;">✓</div><div class="al"><span class="req opt">선택</span>소식·혜택 알림</div><div class="more">›</div></div>
+            </div>
+            <div class="quiet">기록은 우리 가족만 볼 수 있고, 다른 목적에 쓰지 않아요<br>동의는 마이 > 내 기록과 동의에서 언제든 바꿀 수 있어요</div>
+            <div class="cta"><div class="btn pri">동의하고 시작하기</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">동의 스택 — 한 장 <span class="tag t0">R1 · R2</span></div>
+          <div class="d">가입 플로우 안의 단 한 장. 전체 동의 원탭 + 항목별 체크 병존. 민감정보 항목은 법정 명칭 대신 "아이 기록 보관"으로 리드하고, 펼침(›)에 정식 고지 4요소.</div>
+          <div class="rule"><b>규칙:</b> 일괄 ≠ 포괄 — 항목은 법적으로 분리. 필수 3 + 선택. 가드레일(암호화·가족만·2차 활용 금지·철회처)이 quiet 문구로 이 화면에 이미 등장.</div>
+        </div>
+      </div>
+
+      <!-- 아이 프로필 -->
+      <div class="unit">
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">마지막이에요</div>
+            <div class="q">누구의 기록인가요?</div>
+            <div class="fieldset">
+              <div class="flabel">이름 또는 애칭</div>
+              <div class="field">지우<span class="cursor"></span></div>
+              <div class="flabel">태어난 해</div>
+              <div class="field"><span>2021년</span><span style="font-size:13px;color:var(--ink4);">선택 ▾</span></div>
+            </div>
+            <div class="checkline"><div class="ckc" style="width:20px;height:20px;font-size:10px;">✓</div><div class="cl">저는 이 아이의 보호자입니다</div></div>
+            <div class="quiet" style="text-align:left;padding-left:34px;margin-top:-6px;">내 기록이라면 <b style="color:var(--ink2);">"내 이야기예요"</b>를 선택하세요</div>
+            <div class="cta">
+              <div class="quiet">이름 대신 애칭도 괜찮아요</div>
+              <div class="btn pri" style="margin-top:8px;">기록 이어가기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">아이 프로필 + 보호자 확인 <span class="tag t0">R3</span></div>
+          <div class="d">법정대리인 확인은 별도 화면이 아니라 체크 한 줄. "내 이야기예요" 갈림길로 성인 본인 사용(센터 유형 중립)이 같은 화면에서 성립.</div>
+          <div class="rule"><b>규칙:</b> 필수 입력은 이름 하나(생년도 선택) — 진단명·발달 상태 등 프로파일링 질문 없음. CTA가 "가입 완료"가 아니라 "기록 이어가기" — 하던 일로 복귀.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 02. 센터 등록 분기 ============ -->
+  <div class="section">
+    <h2><span class="num">02</span>센터 등록 — 검색과 세 갈래 (a 연동 · b 미연동 · c 미등재)</h2>
+    <div class="frames">
+
+      <!-- 센터 검색 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello" style="padding-top:10px;"><div class="day">다니는 센터 등록</div><div class="line" style="font-size:20px;">어느 센터에<br>다니고 있나요?</div></div>
+            <div class="searchbar">🔍 <span>해맑음</span><span class="cursor" style="display:inline-block;width:2px;height:16px;background:var(--blue);"></span></div>
+            <div class="result">
+              <div class="tile blue" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음아동발달센터<span class="linkbadge">바로 연결</span></div><div class="rd">서울 마포구 · 언어 · 감각통합 · 놀이</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="result">
+              <div class="tile gray" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음심리상담센터</div><div class="rd">서울 서대문구 · 아동상담 · 놀이</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="result">
+              <div class="tile gray" style="width:40px;height:40px;border-radius:12px;">🏡</div>
+              <div><div class="rt">해맑음키즈발달연구소</div><div class="rd">경기 고양시 · 언어 · 인지</div></div>
+              <div class="go">›</div>
+            </div>
+            <div class="quiet">찾는 센터가 없나요? <b style="color:var(--blue-600);">직접 입력하기</b></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">센터 검색 — 세 갈래의 입구 <span class="tag t2">②R3 확정</span></div>
+          <div class="d">"바로 연결" 배지 = 연동 센터(a) → 03 연결 절차로. 배지 없음(b) = 등록만 하고 상황 ② 모드. 검색 결과 없음(c) = 직접 입력 후 ② 모드.</div>
+          <div class="rule"><b>규칙:</b> 연동 센터를 "좋은 센터"처럼 표현하지 않음 — 배지는 기능 사실("바로 연결")만. 미연동 센터 폄하 문구 금지.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 03. 연동 연결 절차 ============ -->
+  <div class="section">
+    <h2><span class="num">03</span>연결 절차 — 초대 진입 · 인증 · 아이 확인 · 완료 (케이스 ③ R2)</h2>
+    <div class="frames">
+
+      <!-- 초대 링크 진입 -->
+      <div class="unit">
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:17</span><span>􀙇 􀛨</span></div>
+          <div class="ob" style="justify-content:center;gap:14px;">
+            <div style="text-align:center;">
+              <div class="tile blue" style="width:76px;height:76px;border-radius:24px;margin:0 auto;font-size:34px;box-shadow:0 10px 24px rgba(68,134,255,.18);">🏡</div>
+              <div style="margin-top:16px;font-size:12.5px;font-weight:700;color:var(--blue-600);">해맑음아동발달센터</div>
+              <div style="margin-top:6px;font-size:23px;font-weight:800;color:var(--ink);line-height:1.35;letter-spacing:-0.6px;">지우 보호자님,<br>센터가 초대했어요</div>
+              <div style="margin-top:8px;font-size:13.5px;color:var(--ink2);line-height:1.6;">연결하면 예약·검사·결과지가<br>앱으로 자동으로 들어와요</div>
+            </div>
+            <div class="cta">
+              <div class="btn pri">쓰던 계정으로 연결하기</div>
+              <div class="btn asst" style="margin-top:8px;">처음이에요</div>
+              <div class="quiet" style="margin-top:10px;">새 계정을 만들 필요 없어요 — 지금까지의 기록에 센터가 더해져요</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">초대 링크 진입 <span class="tag t3">경로 1 · 문자 편승</span></div>
+          <div class="d">센터가 보내는 예약 안내 문자의 링크로 진입. 기존 유저는 "쓰던 계정으로" — 새 계정이 아니라 쓰던 계정에 센터가 부착(기존 계정 합류).</div>
+          <div class="rule"><b>규칙:</b> 데스크 QR·가족 초대 경로도 같은 랜딩으로 수렴. "지금까지의 기록에 센터가 더해져요" — 원장의 주인이 안 바뀜을 첫 화면부터.</div>
+        </div>
+      </div>
+
+      <!-- 본인인증 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:18</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">해맑음아동발달센터 연결 1/2</div><div class="line" style="font-size:20px;">본인 확인이<br>필요해요</div></div>
+            <div class="fieldset">
+              <div class="flabel">휴대폰 번호</div>
+              <div class="field"><span>010-4728-55</span><span class="cursor"></span></div>
+            </div>
+            <div class="codes"><div class="code">7</div><div class="code">3</div><div class="code on">2</div><div class="code empty">·</div><div class="code empty">·</div><div class="code empty">·</div></div>
+            <div class="quiet" style="text-align:left;padding:2px 6px;">
+              센터에 등록된 보호자 번호와 맞는지 확인해요.<br>
+              이 확인은 보호자(법정대리인) 확인을 함께 해요.
+            </div>
+            <div style="margin-top:auto;padding-bottom:14px;"><div class="btn pri" style="display:block;padding:15px 0;font-size:15.5px;border-radius:14px;">확인</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">전화번호 본인인증 <span class="tag t3">③R2 · 동의 R3</span></div>
+          <div class="d">인증은 연결 때만(가입 때는 없음). 07-09 확정 — 이 절차가 법정대리인 확인을 겸한다는 것을 화면에 한 줄로 명시.</div>
+          <div class="rule"><b>규칙:</b> 전화번호가 맞아도 자동 연결 아님 — 센터 초대(또는 승인)가 선행돼 있어야 함. 오연결 = 개인정보 사고.</div>
+        </div>
+      </div>
+
+      <!-- 아이 확인 -->
+      <div class="unit">
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:18</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">해맑음아동발달센터 연결 2/2</div>
+            <div class="q">센터의 <em>김지우</em> 님,<br>누구와 연결할까요?</div>
+            <div class="opt sel">
+              <div class="av a1">지</div>
+              <div><div class="ot">지우</div><div class="od">내 기록 34개 · 2021년생</div></div>
+              <div class="chk">✓</div>
+            </div>
+            <div class="opt">
+              <div class="av a2">서</div>
+              <div><div class="ot">서준</div><div class="od">내 기록 4개 · 2023년생</div></div>
+            </div>
+            <div class="opt">
+              <div class="av plus">＋</div>
+              <div><div class="ot">새 프로필 만들기</div><div class="od">앱에 아직 없는 아이라면</div></div>
+            </div>
+            <div class="cta">
+              <div class="quiet">잘못 연결해도 마이에서 언제든 풀 수 있어요</div>
+              <div class="btn pri" style="margin-top:8px;">지우와 연결하기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">아이 프로필 확인 <span class="tag t3">③R2 · 기존 계정 합류</span></div>
+          <div class="d">센터 명부의 이름과 앱 프로필을 사람이 확인하고 잇는 단계 — 형제가 있는 집의 오연결 방지가 목적.</div>
+          <div class="rule"><b>규칙:</b> 센터 쪽 실명("김지우")과 앱 쪽 애칭("지우")이 달라도 성립. 자동 매칭 없음 — 항상 사용자가 지목.</div>
+        </div>
+      </div>
+
+      <!-- 연결 완료 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>2:19</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="done-hero">
+              <div class="orb">🎉</div>
+              <div class="dt">해맑음센터와<br><em>연결됐어요</em></div>
+              <div class="dd">이제 이런 것들이 자동으로 들어와요</div>
+            </div>
+            <div class="c" style="padding:8px 16px;">
+              <div class="flowlist">
+                <div class="f"><div class="fi">🗓️</div><b>예약 알림</b> · 변경과 휴강도<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">📋</div><b>검사와 설문</b> · 종이 대신 앱에서<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">📄</div><b>결과지</b> · 나오면 바로<div class="auto">자동</div></div>
+                <div class="f"><div class="fi">🎟️</div><b>바우처 잔여 횟수</b> · 센터의 진짜 숫자<div class="auto">자동</div></div>
+              </div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">🔒</div>
+                <div><div class="k blue">그리고 변하지 않는 것</div><div class="t" style="font-size:14.5px;">기록 34개는 그대로 내 것</div><div class="d">센터는 내가 공유를 켠 기록만 볼 수 있어요</div></div>
+              </div>
+            </div>
+            <div style="padding-bottom:14px;"><div class="btn pri" style="display:block;padding:15px 0;font-size:15.5px;border-radius:14px;">홈으로</div></div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">연결 완료 <span class="tag t3">상황 ③ 시작</span></div>
+          <div class="d">받는 것(자동 4종)과 변하지 않는 것(기록 소유·공유 기본 OFF)을 같은 화면에서. ③ 정체성 "손으로 하던 것이 자동으로, 내 것은 계속 내 것" 그대로.</div>
+          <div class="rule"><b>규칙:</b> 공유는 기본 꺼짐 — 연결이 열람 허용이 아님을 완료 화면에서 못박음(투명성 가드레일).</div>
+        </div>
+      </div>
+
+      <!-- 역방향 연결 요청 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">해맑음아동발달센터</div><div class="line" style="font-size:20px;">이 센터, 연결할 수<br>있어요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🏡</div>
+                <div><div class="k blue">바로 연결 센터</div><div class="t" style="font-size:14.5px;">다니고 있다면 연결을 요청하세요</div><div class="d">센터에서 등록 정보를 확인하고 연결해 드려요</div></div>
+              </div>
+              <div class="btns"><div class="btn pri">연결 요청하기</div></div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">⏳</div>
+                <div><div class="k blue">요청 보냄 · 7월 9일</div><div class="t" style="font-size:14.5px;">센터 확인을 기다리고 있어요</div><div class="d">보통 다음 방문 전에 연결돼요 · 데스크에 말씀하시면 더 빨라요</div></div>
+              </div>
+            </div>
+            <div class="quiet">기다리는 동안에도 기록은 평소처럼</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">역방향 연결 요청 <span class="tag t3">경로 4 · ③R2 신규</span></div>
+          <div class="d">초대를 못 받은 기존 유저가 먼저 요청 → 센터 web에 "연결 요청 N건" → 직원이 명부 확인 후 승인. 위(요청 전)와 아래(대기 중) 두 상태를 한 화면에 병기.</div>
+          <div class="rule"><b>규칙:</b> 대기 중에도 앱은 ② 모드로 온전히 동작 — 요청이 막힘이 되지 않게. 데스크 언급 = 활성화의 영업 부수효과.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 04. 가족 초대 ============ -->
+  <div class="section">
+    <h2><span class="num">04</span>가족 초대 — 2등급 (케이스 ③ R4)</h2>
+    <div class="frames">
+
+      <!-- 가족 관리 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="navback">‹</div>
+            <div class="hello" style="padding-top:2px;"><div class="day">마이 · 가족</div><div class="line" style="font-size:20px;">함께 보고,<br>함께 기록해요</div></div>
+            <div class="c" style="padding:8px 16px;">
+              <div class="member">
+                <div class="av a1" style="width:38px;height:38px;font-size:14px;">나</div>
+                <div><div class="mn">나</div><div class="md">기록 · 공유 설정 · 가족 관리</div></div>
+                <div class="rolechip admin">관리자</div>
+              </div>
+              <div class="member">
+                <div class="av a2" style="width:38px;height:38px;font-size:14px;">아</div>
+                <div><div class="mn">지우 아빠</div><div class="md">기록 보기 · 쓰기 · 다녀왔어요 · 말씀 담기</div></div>
+                <div class="rolechip fam">가족</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">💌</div>
+                <div><div class="k mint">가족 초대</div><div class="t" style="font-size:14.5px;">할머니도, 아빠도 함께</div><div class="d">초대받은 가족도 기록을 쓸 수 있어요</div></div>
+              </div>
+              <div class="btns"><div class="btn mint">초대 링크 보내기</div></div>
+            </div>
+            <div class="quiet">공유 설정과 가족 내보내기는 관리자만 할 수 있어요</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">가족 관리 — 2등급 <span class="tag t3">③R4 · 경로 3</span></div>
+          <div class="d">관리자(주 보호자) / 가족(보기+쓰기 전부) 딱 두 등급. 문지기 권한(초대·내보내기·공유 설정)만 관리자에게.</div>
+          <div class="rule"><b>규칙:</b> 등급을 더 쪼개지 않음(열람 전용 없음). 초대받은 가족도 가입 시 동일한 동의 스택을 밟음(동의 설계 R3) — 아이에 대한 보호자 확인은 관리자 것 하나로 성립.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="rulebox" style="margin-top:56px;">
+    <span>다음 시안: 바우처 화면 승계(진짜 숫자 반영)</span><span>기록 타임라인(아이별) · 첫 방문 정리본</span><span>마이 > 내 기록과 동의 허브</span><span>센터 찾기 형식(리스트 vs 지도 — 데이터 밀도 확인 후)</span>
+  </div>
+
+</div>
+</body>
+</html>

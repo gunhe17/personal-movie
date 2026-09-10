@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내담자 앱 · B2C 홈 상태별 시안</title>
+<style>
+  :root{
+    --bg:#f4f6fa;--ink:#1b2330;--sub:#6b7686;--line:#e8ecf2;
+    --brand:#3b82f6;--brand-soft:#eaf2ff;--mint:#10b6a3;--mint-soft:#e2f7f3;
+    --amber:#f59e0b;--amber-soft:#fff4e0;--card:#ffffff;--shadow:0 4px 20px rgba(27,35,48,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    background:#dfe4ec;color:var(--ink);display:flex;gap:48px;flex-wrap:wrap;justify-content:center;align-items:flex-start;padding:36px 16px;min-height:100vh;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .caption{max-width:390px;text-align:center;}
+  .caption h2{font-size:17px;margin:0 0 4px;}
+  .caption p{font-size:12px;color:#46505f;line-height:1.6;margin:0;}
+  .state-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;margin-bottom:6px;}
+  .pill-empty{background:#fde8e8;color:#c0392b;}
+  .pill-multi{background:#e3f0ff;color:#1d5fc4;}
+
+  /* phone */
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 30px 70px rgba(20,28,40,.28);position:relative;overflow:hidden;border:10px solid #0d1117;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:30px;background:#0d1117;border-radius:0 0 18px 18px;z-index:30;}
+  .statusbar{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:13px;font-weight:600;}
+  .screen{height:calc(844px - 50px - 72px);overflow-y:auto;padding:0 18px 24px;}
+  .screen::-webkit-scrollbar{display:none;}
+
+  .ctx{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px;}
+  .ctx-left{display:flex;align-items:center;gap:10px;}
+  .avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7aa8ff,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+  .ctx-name{font-size:13px;color:var(--sub);line-height:1.2;}
+  .ctx-name b{display:block;color:var(--ink);font-size:16px;margin-top:1px;}
+  .ctx-name .chev{font-size:11px;color:var(--brand);}
+  .bell{width:38px;height:38px;border-radius:12px;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;position:relative;font-size:18px;}
+  .bell .badge{position:absolute;top:7px;right:8px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #fff;}
+
+  /* empty-state connect card */
+  .connect{background:linear-gradient(135deg,#eef3fb,#fff);border:1.5px dashed #c4d3ea;border-radius:22px;padding:22px 18px;text-align:center;}
+  .connect .ci{width:54px;height:54px;border-radius:16px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
+  .connect .ct{font-size:16px;font-weight:700;}
+  .connect .cs{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.5;}
+  .connect .cbtn{margin-top:14px;background:var(--brand);color:#fff;font-size:14px;font-weight:700;border-radius:14px;padding:12px;box-shadow:0 8px 18px rgba(59,130,246,.32);}
+
+  /* center switch strip (multi) */
+  .switch{display:flex;gap:8px;overflow-x:auto;margin:0 -18px 14px;padding:0 18px 2px;}
+  .switch::-webkit-scrollbar{display:none;}
+  .schip{flex:none;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--sub);box-shadow:var(--shadow);}
+  .schip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .schip .em{font-size:13px;}
+
+  /* hero */
+  .hero{background:linear-gradient(135deg,#3b82f6,#5b9bff);border-radius:22px;padding:18px;color:#fff;box-shadow:0 10px 24px rgba(59,130,246,.32);}
+  .hero .label{font-size:12px;opacity:.85;display:flex;justify-content:space-between;}
+  .hero .next{display:flex;align-items:center;gap:12px;margin-top:8px;}
+  .hero .next .ico{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+  .hero .next .t{font-size:15px;font-weight:700;}
+  .hero .next .s{font-size:12px;opacity:.9;margin-top:2px;}
+  .hero .divider{height:1px;background:rgba(255,255,255,.2);margin:12px 0;}
+  .hero .center-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);padding:3px 9px;border-radius:20px;font-size:10px;}
+
+  .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+  .qcard{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);position:relative;}
+  .qcard .qi{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:10px;}
+  .qcard .qt{font-size:13px;font-weight:700;}
+  .qcard .qs{font-size:11px;color:var(--sub);margin-top:2px;}
+  .qcard .qbadge{position:absolute;top:12px;right:12px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;}
+  .qcard .mini-center{font-size:10px;color:var(--brand);background:var(--brand-soft);border-radius:6px;padding:1px 6px;display:inline-block;margin-top:6px;}
+
+  .sec{margin-top:24px;}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .sec-head h3{font-size:16px;margin:0;}
+  .sec-head a{font-size:12px;color:var(--sub);text-decoration:none;}
+
+  .selfcheck{background:linear-gradient(135deg,#10b6a3,#39cdbb);border-radius:20px;padding:16px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 22px rgba(16,182,163,.28);}
+  .selfcheck .sc-t{font-size:15px;font-weight:700;}
+  .selfcheck .sc-s{font-size:12px;opacity:.92;margin-top:3px;max-width:190px;line-height:1.4;}
+  .selfcheck .sc-btn{background:#fff;color:#0c9384;font-size:12px;font-weight:700;border-radius:20px;padding:8px 14px;white-space:nowrap;}
+
+  .hscroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin:0 -18px;padding-left:18px;padding-right:18px;}
+  .hscroll::-webkit-scrollbar{display:none;}
+  .mag{flex:none;width:160px;background:var(--card);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
+  .mag .thumb{height:96px;background-size:cover;display:flex;align-items:flex-end;padding:8px;}
+  .mag .cat{background:rgba(0,0,0,.45);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;}
+  .mag .mt{font-size:13px;font-weight:600;line-height:1.35;padding:10px 12px 4px;}
+  .mag .ms{font-size:11px;color:var(--sub);padding:0 12px 12px;}
+
+  .center{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;margin-bottom:10px;}
+  .center .cimg{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#cfe0ff,#a9c8ff);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;}
+  .center .cinfo{flex:1;min-width:0;}
+  .center .cname{font-size:14px;font-weight:700;}
+  .center .ctags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  .chip{font-size:10px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:2px 8px;}
+  .center .cmeta{font-size:11px;color:var(--sub);margin-top:6px;display:flex;gap:10px;}
+  .center .cgo{font-size:18px;color:#c2cad6;}
+
+  .voucher{background:linear-gradient(135deg,#fff4e0,#ffe9c2);border:1px solid #ffe2b0;border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:14px;}
+  .voucher .vi{width:46px;height:46px;border-radius:14px;background:#ffd585;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;}
+  .voucher .vt{font-size:14px;font-weight:700;color:#8a5a00;}
+  .voucher .vs{font-size:12px;color:#a4762a;margin-top:3px;line-height:1.4;}
+
+  .tabbar{position:absolute;bottom:0;left:0;right:0;height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:8px;z-index:20;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#aab2c0;position:relative;}
+  .tab.active{color:var(--brand);}
+  .tab .ti{font-size:21px;}
+  .tab .tdot{position:absolute;top:-1px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;}
+  .home-indicator{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#0d1117;border-radius:3px;opacity:.85;z-index:25;}
+</style>
+</head>
+<body>
+
+<!-- ===================== ① 비연동 ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-empty">① 비연동 · 획득 모드</span>
+    <h2>센터 연동 전 (계정만 있음)</h2>
+    <p>허브 데이터가 없으므로 <b>'센터 연동하기' CTA</b>가 그 자리를 차지하고,<br>셀프체크·주변센터·콘텐츠가 주인공이 된다.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">안녕하세요 👋<b>김민준 님</b></div>
+        </div>
+        <div class="bell">🔔</div>
+      </div>
+
+      <!-- 연동 CTA (허브 자리 대체) -->
+      <div class="connect">
+        <div class="ci">🔗</div>
+        <div class="ct">다니는 센터를 연동해 보세요</div>
+        <div class="cs">센터 코드와 전화번호만 있으면<br>검사 결과·일정·회기를 앱에서 바로 확인해요</div>
+        <div class="cbtn">센터 연동하기</div>
+      </div>
+
+      <!-- 셀프체크 -->
+      <div class="sec">
+        <div class="selfcheck">
+          <div>
+            <div class="sc-t">오늘 마음은 어떤가요?</div>
+            <div class="sc-s">1분 무료 셀프체크로 내 마음 상태를 확인해 보세요</div>
+          </div>
+          <div class="sc-btn">시작</div>
+        </div>
+      </div>
+
+      <!-- 주변 센터 (획득 핵심으로 상단 배치) -->
+      <div class="sec">
+        <div class="sec-head"><h3>주변 센터 찾기</h3><a href="#">지도 ›</a></div>
+        <div class="center">
+          <div class="cimg">🌳</div>
+          <div class="cinfo">
+            <div class="cname">마음숲 심리상담센터</div>
+            <div class="ctags"><span class="chip">아동·청소년</span><span class="chip">바우처</span></div>
+            <div class="cmeta"><span>⭐ 4.9</span><span>📍 1.2km</span></div>
+          </div>
+          <div class="cgo">›</div>
+        </div>
+        <div class="center">
+          <div class="cimg">🌿</div>
+          <div class="cinfo">
+            <div class="cname">온마음 심리센터</div>
+            <div class="ctags"><span class="chip">성인</span><span class="chip">부부·가족</span></div>
+            <div class="cmeta"><span>⭐ 4.8</span><span>📍 2.0km</span></div>
+          </div>
+          <div class="cgo">›</div>
+        </div>
+      </div>
+
+      <!-- 매거진 -->
+      <div class="sec">
+        <div class="sec-head"><h3>마음 매거진</h3><a href="#">전체 ›</a></div>
+        <div class="hscroll">
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#a5b4fc,#818cf8)"><span class="cat">불안</span></div><div class="mt">잠 못 드는 밤, 불안을 다루는 법</div><div class="ms">읽기 3분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#6ee7b7,#34d399)"><span class="cat">아동</span></div><div class="mt">우리 아이 검사 결과지 읽는 법</div><div class="ms">읽기 5분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#fca5a5,#f87171)"><span class="cat">관계</span></div><div class="mt">부부 상담, 언제 받아야 할까?</div><div class="ms">읽기 4분</div></div>
+        </div>
+      </div>
+
+      <!-- 바우처 발견 -->
+      <div class="sec">
+        <div class="voucher">
+          <div class="vi">💳</div>
+          <div>
+            <div class="vt">받을 수 있는 지원 바우처가 있어요</div>
+            <div class="vs">청년 마음건강 바우처 · 자격 확인하고 사용처 찾기</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">📖</span>콘텐츠</div>
+      <div class="tab"><span class="ti">🏥</span>내 센터</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+
+<!-- ===================== ② 2개 이상 센터 ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-multi">② 멀티센터 · 통합/전환</span>
+    <h2>2개 이상 센터 연동</h2>
+    <p>상단 <b>센터 전환 칩</b>(전체·마음숲·온마음)으로 컨텍스트 선택.<br>'전체'에서는 <b>통합 일정</b>이 센터 태그와 함께 모인다.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">안녕하세요 👋<b>김민준 님 <span class="chev">▾</span></b></div>
+        </div>
+        <div class="bell">🔔<span class="badge"></span></div>
+      </div>
+
+      <!-- 센터 전환 칩 -->
+      <div class="switch">
+        <div class="schip on"><span class="em">🗂️</span> 전체</div>
+        <div class="schip"><span class="em">🌳</span> 마음숲</div>
+        <div class="schip"><span class="em">🌿</span> 온마음</div>
+        <div class="schip" style="color:var(--brand)">＋ 연동</div>
+      </div>
+
+      <!-- 통합 일정 (멀티센터 합산) -->
+      <div class="hero">
+        <div class="label"><span>다가올 일정 · 전체</span><span>2건</span></div>
+        <div class="next">
+          <div class="ico">🗓️</div>
+          <div>
+            <div class="t">개인상담 · 이수진 선생님</div>
+            <div class="s">6/19 (목) 오후 3:00</div>
+          </div>
+        </div>
+        <span class="center-tag" style="margin-top:8px">🌳 마음숲 심리상담센터</span>
+        <div class="divider"></div>
+        <div class="next">
+          <div class="ico">🧩</div>
+          <div>
+            <div class="t">종합심리검사 (Full-battery)</div>
+            <div class="s">6/24 (화) 오전 10:00</div>
+          </div>
+        </div>
+        <span class="center-tag" style="margin-top:8px">🌿 온마음 심리센터</span>
+      </div>
+
+      <!-- 빠른 액션 (센터 태그 포함) -->
+      <div class="quick">
+        <div class="qcard">
+          <div class="qbadge">2</div>
+          <div class="qi" style="background:var(--brand-soft);color:var(--brand)">📝</div>
+          <div class="qt">응답할 검사</div>
+          <div class="qs">BDI · K-WAIS 요청됨</div>
+          <span class="mini-center">2개 센터</span>
+        </div>
+        <div class="qcard">
+          <div class="qi" style="background:var(--mint-soft);color:var(--mint)">🎟️</div>
+          <div class="qt">남은 회기</div>
+          <div class="qs">합계 14회</div>
+          <span class="mini-center">마음숲 8 · 온마음 6</span>
+        </div>
+      </div>
+
+      <!-- 셀프체크 -->
+      <div class="sec">
+        <div class="selfcheck">
+          <div>
+            <div class="sc-t">오늘 마음은 어떤가요?</div>
+            <div class="sc-s">1분 무료 셀프체크로 마음 상태를 확인해 보세요</div>
+          </div>
+          <div class="sc-btn">시작</div>
+        </div>
+      </div>
+
+      <!-- 매거진 -->
+      <div class="sec">
+        <div class="sec-head"><h3>마음 매거진</h3><a href="#">전체 ›</a></div>
+        <div class="hscroll">
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#a5b4fc,#818cf8)"><span class="cat">불안</span></div><div class="mt">잠 못 드는 밤, 불안을 다루는 법</div><div class="ms">읽기 3분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#6ee7b7,#34d399)"><span class="cat">아동</span></div><div class="mt">우리 아이 검사 결과지 읽는 법</div><div class="ms">읽기 5분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#fcd34d,#fbbf24)"><span class="cat">자기돌봄</span></div><div class="mt">번아웃 자가진단 체크리스트</div><div class="ms">읽기 4분</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">📖</span>콘텐츠</div>
+      <div class="tab"><span class="ti">🏥</span><span class="tdot"></span>내 센터</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

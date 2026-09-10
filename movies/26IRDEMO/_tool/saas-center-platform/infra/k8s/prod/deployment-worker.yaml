@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-worker
+  namespace: mindscope-prod
+  labels:
+    app: mindscope-worker
+    environment: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-worker
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: mindscope-worker
+        environment: prod
+    spec:
+      # 진행 중 잡(최장 ~3분) drain 시간 확보 — SIGTERM 수신 후 consumer 가
+      # 현재 메시지 처리를 끝내고 XACK 할 때까지 강제 kill 을 미룬다.
+      # 기본값 30s 는 긴 잡을 mid-flight kill → PEL 잔류/재전달/재과금 유발.
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: worker
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-prod/api:v1.6.11
+          imagePullPolicy: IfNotPresent
+          command: ["uv", "run", "python", "-m", "app.worker"]
+          envFrom:
+            - configMapRef:
+                name: mindscope-api-config
+            - secretRef:
+                name: mindscope-api-secret
+          env:
+            - name: AI_WORKER_MODE
+              value: "distributed"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"

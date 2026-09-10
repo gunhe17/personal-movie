@@ -1,0 +1,40 @@
+# Seed Data Job Template (one-time manual execution)
+# Placeholders (replace before kubectl apply):
+#   NAMESPACE  - mindscope-dev or mindscope-prod
+#   IMAGE_TAG  - Docker image tag (e.g., v1.6.1)
+#   TIMESTAMP  - Unix timestamp for unique job name
+#
+# Usage:
+#   sed -e "s|IMAGE_TAG|v1.6.1|g" \
+#       -e "s|NAMESPACE|mindscope-prod|g" \
+#       -e "s|TIMESTAMP|$(date +%s)|g" \
+#       infra/k8s/seed-job.yaml | kubectl apply -f -
+#
+#   kubectl logs -f job/db-seed-<TIMESTAMP> -n <NAMESPACE>
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-seed-TIMESTAMP
+  namespace: NAMESPACE
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+        - name: seed
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-prod/api:IMAGE_TAG
+          command:
+            - sh
+            - -c
+            - |
+              python -m scripts.seed.common.form && \
+              python -m scripts.seed.common.admin_account && \
+              python -m scripts.seed.common.qna && \
+              python -m scripts.seed_voucher_woori_aiui
+          envFrom:
+            - configMapRef:
+                name: mindscope-api-config
+            - secretRef:
+                name: mindscope-api-secret
+      restartPolicy: Never

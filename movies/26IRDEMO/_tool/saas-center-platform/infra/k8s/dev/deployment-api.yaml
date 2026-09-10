@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-api
+  namespace: mindscope-dev
+  labels:
+    app: mindscope-api
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: mindscope-api
+        environment: dev
+    spec:
+      containers:
+        - name: api
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-prod/api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: mindscope-api-config
+            - secretRef:
+                name: mindscope-api-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

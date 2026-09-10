@@ -1,0 +1,138 @@
+{
+ "recorded_from": "내일 오후 3시에 김민준 상담 일정 잡아줘",
+ "role": "MANAGER",
+ "permissions": [
+  "delete:assessment_case",
+  "delete:billing",
+  "delete:client",
+  "delete:counseling",
+  "delete:document",
+  "delete:form_instance",
+  "delete:member",
+  "delete:schedule",
+  "delete:voucher",
+  "read:assessment_case",
+  "read:billing",
+  "read:center",
+  "read:center_assessment",
+  "read:client",
+  "read:counseling",
+  "read:counseling_note",
+  "read:document",
+  "read:form_instance",
+  "read:form_template",
+  "read:member",
+  "read:member_invitation",
+  "read:notice",
+  "read:program",
+  "read:role",
+  "read:room",
+  "read:schedule",
+  "read:send_link",
+  "read:voucher",
+  "write:assessment_case",
+  "write:billing",
+  "write:center",
+  "write:center_assessment",
+  "write:client",
+  "write:counseling",
+  "write:counseling_note",
+  "write:document",
+  "write:form_instance",
+  "write:form_template",
+  "write:member",
+  "write:member_invitation",
+  "write:notice",
+  "write:program",
+  "write:room",
+  "write:schedule",
+  "write:send_link",
+  "write:voucher"
+ ],
+ "tools": {
+  "query_member_handler": {
+   "content": {
+    "rows": [],
+    "aggregate": {
+     "count": 0,
+     "exact": true
+    }
+   },
+   "events": [
+    {
+     "type": "step_tool_result",
+     "tool": "query_member_handler",
+     "args": {
+      "name": "김민준"
+     },
+     "display": "table",
+     "output": [],
+     "is_error": false,
+     "truncated": false,
+     "limit": null
+    }
+   ]
+  },
+  "query_client_handler": {
+   "content": {
+    "rows": [
+     {
+      "client.id": "4796a7f3-9167-45fb-87eb-36942dfb39ca",
+      "client.name": "김민준",
+      "client.code": "6VL3YP",
+      "client.birth_date": "2019-03-10",
+      "client.gender": "male",
+      "client.phone": null,
+      "client.memo": "ADHD 의심, 집중력 문제로 내원",
+      "client.status": "active",
+      "client.guardian_names": [
+       "김영희",
+       "김철수"
+      ],
+      "client.created_at": "2026-07-22T23:22:26.156312",
+      "client.role": "client",
+      "client.email": null,
+      "client.address": null
+     }
+    ],
+    "aggregate": {
+     "count": 1,
+     "exact": true
+    }
+   },
+   "events": [
+    {
+     "type": "step_tool_result",
+     "tool": "query_client_handler",
+     "args": {
+      "name": "김민준"
+     },
+     "display": "card",
+     "output": [
+      {
+       "client.id": "4796a7f3-9167-45fb-87eb-36942dfb39ca",
+       "client.name": "김민준",
+       "client.code": "6VL3YP",
+       "client.birth_date": "2019-03-10",
+       "client.gender": "male",
+       "client.phone": null,
+       "client.memo": "ADHD 의심, 집중력 문제로 내원",
+       "client.status": "active",
+       "client.guardian_names": [
+        "김영희",
+        "김철수"
+       ],
+       "client.created_at": "2026-07-22T23:22:26.156312",
+       "client.role": "client",
+       "client.email": null,
+       "client.address": null
+      }
+     ],
+     "is_error": false,
+     "truncated": false,
+     "limit": null
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,213 @@
+{
+  "id": "ai-case-analysis",
+  "screen": "/counseling/status/[id]",
+  "title": "AI 경과 분석",
+  "reviewedAt": "2026-09-07",
+  "baseline": "231c9512b93c26d4eeb1dc4af260cb630a0b108b + 조사 시점의 미커밋 작업",
+  "goal": "상담사가 분석의 요지를 이해하고, 근거 회기를 확인한 뒤 다음 상담을 준비할 수 있게 한다.",
+  "notice": "이 대화에서 현재 코드를 조사해 준비한 후보입니다. 목표를 수정해도 후보가 자동 재생성되지는 않습니다. 구현 존재는 코드로 확인했으며 실제 상담 데이터의 동작 검증이나 디자인 컨펌을 뜻하지 않습니다.",
+  "existing": [
+    {
+      "title": "전체 / 최근 10 / 최근 5회기 선택",
+      "detail": "완료 회기 수보다 작은 범위만 노출하고 실행 전 예상 사용량을 표시합니다.",
+      "source": "apps/web/src/lib/components/modal/CaseAnalysisRunModal.svelte"
+    },
+    {
+      "title": "미실행 · 분석 중 · 완료 · 실패와 재실행",
+      "detail": "상태에 따라 화면을 분기하고, 쓰기 권한·플랜·크레딧 조건으로 실행을 제한합니다.",
+      "source": "apps/web/src/lib/components/counseling/analysis/CaseAnalysisPanel.svelte"
+    },
+    {
+      "title": "분석의 근거 회기로 이동",
+      "detail": "근거 회기 번호를 실제 회기 ID로 찾아 선택하는 핸들러가 연결되어 있습니다. 모달에서 원본을 확인하는 경험은 별도 검토가 필요합니다.",
+      "source": "apps/web/src/routes/(protected)/counseling/status/[id]/+page.svelte"
+    }
+  ],
+  "features": [
+    {
+      "id": "gates",
+      "group": "01 분석 시작하기",
+      "title": "분석을 시작할 수 없다면 어떻게 안내할까요?",
+      "kind": "기존 기능 개선",
+      "why": "현재 플랜 미지원과 크레딧 부족을 같은 조건으로 묶어 크레딧 부족 문구를 표시합니다.",
+      "question": "플랜 미지원·잔량 부족·쓰기 권한 없음마다 어떤 안내와 다음 행동을 제공할까요?",
+      "recommendation": "제한 이유를 구분하고 사용자의 권한으로 가능한 다음 행동만 제시합니다.",
+      "acceptance": "플랜 미지원이 잔량 부족으로 표시되지 않으며 권한 없는 사용자가 실행할 수 없다.",
+      "source": "apps/web/src/lib/components/counseling/analysis/CaseAnalysisPanel.svelte",
+      "dependencies": [],
+      "current": [
+        "분석 실행",
+        "플랜 또는 사용량 확인",
+        "같은 크레딧 부족 안내"
+      ],
+      "options": [
+        {
+          "id": "reason",
+          "title": "이유와 해결 방법을 함께 안내",
+          "description": "요금제 미지원, 사용량 부족, 권한 제한을 나누고 가능한 다음 행동을 보여줍니다.",
+          "layout": "stack",
+          "panels": ["시작할 수 없는 이유", "내 권한으로 가능한 해결 방법"]
+        },
+        {
+          "id": "contact",
+          "title": "이유를 알리고 관리자에게 문의",
+          "description": "상담사는 제한 이유를 확인하고, 설정 변경은 담당 관리자에게 요청합니다.",
+          "layout": "stack",
+          "panels": ["시작할 수 없는 이유", "관리자 문의 안내"]
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "group": "02 결과 읽기",
+      "title": "이전 분석도 다시 열어볼 수 있어야 할까요?",
+      "kind": "신규 제안 · 조사 필요",
+      "why": "실행 모달에는 이력 보존 안내가 있지만 현재 확인한 프론트 액션은 최신 조회 중심입니다.",
+      "question": "과거 결과를 열람할 필요가 있나요? 보존 기간과 조회 권한은 어떻게 할까요?",
+      "recommendation": "필요성이 확인되면 먼저 결과 하나씩 조회하는 범위로 시작합니다. 이력 API와 보존 정책은 추가 확인합니다.",
+      "acceptance": "선택한 분석의 생성 시각·대상 범위·결과를 구분해 열람한다.",
+      "source": "apps/web/src/lib/components/modal/CaseAnalysisRunModal.svelte",
+      "dependencies": [],
+      "current": ["재분석 실행", "이력 보존 안내", "가장 최근 결과 표시"],
+      "options": [
+        {
+          "id": "list",
+          "title": "분석 날짜를 골라 하나씩 보기",
+          "description": "분석 날짜와 대상 회기를 확인하고 과거 결과 하나를 엽니다.",
+          "layout": "stack",
+          "panels": ["분석 날짜 · 대상 회기 선택", "선택한 결과"]
+        },
+        {
+          "id": "latest",
+          "title": "최근 결과만 보기",
+          "description": "과거 결과를 여는 화면은 만들지 않고 현재 결과에 집중합니다.",
+          "layout": "stack",
+          "panels": ["최근 분석 날짜", "가장 최근 결과"]
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "group": "02 결과 읽기",
+      "title": "두 분석의 차이를 어떻게 볼까요?",
+      "kind": "신규 제안",
+      "why": "시간이 지나며 분석에서 무엇이 달라졌는지 확인하는 별도 과업입니다.",
+      "question": "단순 나란히 보기면 충분한가요, 변화 요약 생성까지 필요한가요?",
+      "recommendation": "이전 결과 조회의 필요성을 확인한 뒤 결정합니다. 서로 다른 분석 범위는 비교 화면에서 명시합니다.",
+      "acceptance": "비교하는 두 결과의 분석 시점과 대상 범위를 항상 식별할 수 있다.",
+      "source": "apps/web/src/lib/hooks/actions/case-analysis.action.ts",
+      "dependencies": ["history"],
+      "current": ["가장 최근 분석 조회", "요약과 회기별 기록"],
+      "options": [
+        {
+          "id": "side",
+          "title": "두 결과를 나란히 읽기",
+          "description": "변화는 직접 판단합니다. 각 결과의 분석 날짜와 대상 회기를 함께 표시합니다.",
+          "layout": "split",
+          "panels": ["이전 분석 · 대상 범위", "최근 분석 · 대상 범위"]
+        },
+        {
+          "id": "summary",
+          "title": "변화 요약을 먼저 읽기",
+          "description": "AI가 차이를 정리하고 원래 결과로 연결합니다. 추가 분석 비용과 요약 정확도 검토가 필요합니다.",
+          "layout": "stack",
+          "panels": ["변화 요약", "두 원본 결과로 이동"]
+        }
+      ],
+      "requirements": [
+        {
+          "featureId": "history",
+          "optionId": "list",
+          "message": "이전 분석을 날짜별로 열어볼 수 있어야 비교 대상을 고를 수 있습니다."
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "group": "03 근거 확인하기",
+      "title": "분석을 읽다가 원본 회기를 어떻게 확인할까요?",
+      "kind": "기존 기능 개선",
+      "why": "근거 이동은 있지만 분석과 원본을 어떤 방식으로 함께 읽을지 결정해야 합니다.",
+      "question": "분석을 유지한 채 원본을 볼까요, 원본으로 이동한 뒤 분석으로 돌아올까요?",
+      "recommendation": "상담사가 근거를 확인하고 분석의 같은 위치로 돌아올 수 있는 흐름부터 합의합니다.",
+      "acceptance": "근거를 열고 분석으로 돌아와도 읽던 위치와 선택한 회기를 잃지 않는다.",
+      "source": "apps/web/src/routes/(protected)/counseling/status/[id]/+page.svelte",
+      "dependencies": [],
+      "current": ["AI 분석 결과", "근거 회기 선택", "해당 회기 선택 처리"],
+      "options": [
+        {
+          "id": "alongside",
+          "title": "분석 옆에서 원본 확인",
+          "description": "분석을 유지한 채 원본을 함께 읽습니다. 좁은 화면에서의 배치는 별도 검토합니다.",
+          "layout": "split",
+          "panels": ["읽던 분석", "선택한 회기 원본"]
+        },
+        {
+          "id": "return",
+          "title": "원본으로 이동하고 다시 돌아오기",
+          "description": "원본을 넓게 읽은 뒤 분석의 읽던 위치로 돌아옵니다.",
+          "layout": "stack",
+          "panels": ["분석 → 회기 원본", "분석의 읽던 위치로 돌아가기"]
+        }
+      ]
+    },
+    {
+      "id": "freshness",
+      "group": "04 다시 분석하기",
+      "title": "기록이 바뀌면 언제 다시 분석하라고 알려줄까요?",
+      "kind": "신규 제안 · 조사 필요",
+      "why": "현재 기록과 분석 시점의 기록을 혼동하지 않도록 합니다.",
+      "question": "새 회기 추가뿐 아니라 기존 일지 수정도 갱신 필요 조건에 넣을까요?",
+      "recommendation": "추가·수정을 구분할 수 있는 서버 기준부터 확인하고, 자동 실행 없이 재분석을 안내합니다.",
+      "acceptance": "분석 시점 이후 변경 여부를 서버 근거로 표시하고 재분석 비용을 실행 전에 확인한다.",
+      "source": "apps/web/src/lib/hooks/actions/case-analysis.action.ts",
+      "dependencies": [],
+      "current": ["분석 시점과 대상 기록", "최근 분석 결과 표시"],
+      "options": [
+        {
+          "id": "all_changes",
+          "title": "회기 추가와 일지 수정 모두 안내",
+          "description": "분석 이후의 추가·수정을 확인해 결과 갱신이 필요함을 알립니다. 감지 기준은 서버 확인이 필요합니다.",
+          "layout": "stack",
+          "panels": ["분석 이후 기록이 바뀌었어요", "사용량 확인 후 다시 분석"]
+        },
+        {
+          "id": "new_sessions",
+          "title": "새 회기가 추가될 때만 안내",
+          "description": "새 완료 회기를 기준으로 알립니다. 기존 일지 수정은 이 안내 범위에 포함하지 않습니다.",
+          "layout": "stack",
+          "panels": ["새로운 완료 회기가 있어요", "다시 분석 선택"]
+        }
+      ]
+    },
+    {
+      "id": "failure",
+      "group": "04 다시 분석하기",
+      "title": "다시 분석하는 동안 무엇을 보여줄까요?",
+      "kind": "정책 결정",
+      "why": "현재 패널은 최신 상태가 processing 또는 failed이면 결과 대신 해당 상태 화면을 보여줍니다.",
+      "question": "재분석 중이거나 실패해도 마지막 성공 결과를 계속 볼 수 있어야 할까요?",
+      "recommendation": "이전 성공 결과를 유지하는 안을 검토합니다. 채택 시 최신 작업과 최신 성공 결과를 분리해 조회해야 합니다.",
+      "acceptance": "이전 결과와 현재 작업 상태를 혼동하지 않으며 실패 후 재시도가 가능하다.",
+      "source": "apps/web/src/lib/components/counseling/analysis/CaseAnalysisPanel.svelte",
+      "dependencies": [],
+      "current": ["다시 분석 실행", "진행 화면으로 전환", "실패하면 실패 안내"],
+      "options": [
+        {
+          "id": "keep",
+          "title": "이전 결과를 유지하고 진행 상태 표시",
+          "description": "다시 분석 중에도 이전 성공 결과를 읽습니다. 실패하면 이전 결과와 재시도 안내를 함께 보여줍니다.",
+          "layout": "stack",
+          "panels": ["재분석 진행 · 실패 시 재시도", "이전 성공 결과 유지"]
+        },
+        {
+          "id": "replace",
+          "title": "진행 화면으로 전환",
+          "description": "진행 중에는 결과를 숨기고 기다리도록 안내합니다. 실패하면 재시도 화면을 보여줍니다.",
+          "layout": "stack",
+          "panels": ["분석 중 안내", "완료 결과 또는 실패 안내"]
+        }
+      ]
+    }
+  ]
+}

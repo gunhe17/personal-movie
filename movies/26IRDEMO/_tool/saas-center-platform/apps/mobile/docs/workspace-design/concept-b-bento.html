@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept B — 벤토 그리드</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+    position: relative;
+    border: 8px solid #1a1a1a;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background: #f8f9fb;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 8px;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 600;
+    background: #f8f9fb;
+  }
+
+  /* Header */
+  .header {
+    padding: 4px 20px 16px;
+    background: #f8f9fb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-left {}
+  .header-date {
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  .header-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 2px;
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+
+  /* Mood Check */
+  .mood-bar {
+    margin: 0 20px 14px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .mood-q {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+  }
+  .mood-emojis {
+    display: flex;
+    gap: 8px;
+  }
+  .mood-emoji {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f8f9fb;
+  }
+  .mood-emoji:hover { transform: scale(1.2); }
+  .mood-emoji.selected {
+    background: #fef3c7;
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(245,158,11,0.2);
+  }
+
+  /* Bento Grid */
+  .bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px;
+    margin-bottom: 14px;
+  }
+
+  .bento-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .bento-card.wide {
+    grid-column: span 2;
+  }
+
+  /* Today Sessions Card */
+  .card-sessions {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+  }
+  .card-sessions .card-icon { font-size: 28px; margin-bottom: 12px; }
+  .card-sessions .card-number {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .card-sessions .card-label {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+  .card-sessions .mini-chart {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .mini-bar {
+    width: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.3);
+    animation: barGrow 0.8s ease-out forwards;
+  }
+  @keyframes barGrow {
+    from { height: 0; }
+  }
+
+  /* Next Up Card */
+  .card-next {
+    background: #fff;
+    border-left: 4px solid #10b981;
+  }
+  .card-next .next-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #10b981;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .card-next .next-time {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  .card-next .next-title {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+  .card-next .countdown {
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 600;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .countdown-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f59e0b;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Centers Orbit */
+  .card-centers { padding: 16px; }
+  .card-centers .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 12px;
+  }
+  .center-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .center-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8f9fb;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .center-chip:hover { background: #f0f4ff; }
+  .chip-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .chip-dot.indigo { background: #6366f1; }
+  .chip-dot.rose { background: #f43f5e; }
+  .chip-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    flex: 1;
+  }
+  .chip-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+  .chip-arrow {
+    font-size: 14px;
+    color: #cbd5e1;
+  }
+
+  /* Streak Card */
+  .card-streak {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: #fff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 130px;
+  }
+  .streak-flame { font-size: 32px; margin-bottom: 6px; }
+  .streak-num {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .streak-label {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+  .streak-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .streak-d {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+  }
+  .streak-d.filled { background: #fff; }
+
+  /* Weekly Heatmap */
+  .card-heatmap { padding: 16px; }
+  .card-heatmap .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .heat-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .heat-cell:hover { transform: scale(1.1); }
+  .heat-cell .day-label { font-size: 9px; color: #94a3b8; margin-bottom: 2px; }
+  .heat-cell .day-num { font-size: 14px; font-weight: 700; }
+  .heat-0 { background: #f1f5f9; color: #94a3b8; }
+  .heat-1 { background: #e0e7ff; color: #6366f1; }
+  .heat-2 { background: #c7d2fe; color: #4f46e5; }
+  .heat-3 { background: #a5b4fc; color: #4338ca; }
+  .heat-4 { background: #818cf8; color: #fff; }
+  .heat-today {
+    border: 2px solid #6366f1;
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+  }
+
+  /* Schedule Timeline Wide */
+  .card-timeline { padding: 16px; }
+  .card-timeline .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 12px;
+  }
+
+  .tl-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tl-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #f8f9fb;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .tl-row:hover { background: #f0f4ff; }
+  .tl-row.active {
+    background: linear-gradient(135deg, #eef2ff, #faf5ff);
+    border: 1px solid #c7d2fe;
+  }
+  .tl-time-col {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    min-width: 48px;
+  }
+  .tl-divider {
+    width: 3px;
+    height: 36px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .tl-divider.indigo { background: #6366f1; }
+  .tl-divider.rose { background: #f43f5e; }
+  .tl-divider.gray { background: #cbd5e1; }
+  .tl-divider.green {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16,185,129,0.4);
+  }
+  .tl-info { flex: 1; }
+  .tl-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .tl-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+  .tl-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .tl-status.done { background: #dcfce7; color: #16a34a; }
+  .tl-status.now { background: #dbeafe; color: #2563eb; }
+  .tl-status.upcoming { background: #f1f5f9; color: #64748b; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    background: #fff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-item svg { width: 24px; height: 24px; }
+  .nav-label { font-size: 10px; font-weight: 600; }
+  .nav-item.active .nav-label { color: #6366f1; }
+  .nav-item:not(.active) .nav-label { color: #94a3b8; }
+  .nav-item:not(.active) svg { fill: #94a3b8; }
+  .nav-item.active svg { fill: #6366f1; }
+
+  /* Description */
+  .desc-panel {
+    width: 393px;
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .desc-panel h2 { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  .desc-panel h3 { font-size: 14px; font-weight: 600; color: #333; margin: 16px 0 6px; }
+  .desc-panel p, .desc-panel li { font-size: 13px; color: #666; line-height: 1.7; }
+  .desc-panel ul { padding-left: 18px; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #eef2ff;
+    color: #6366f1;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 2px;
+  }
+</style>
+</head>
+<body>
+<div>
+<div class="phone-frame">
+  <div class="screen">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>●●●● ▶</span>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="header-date">2026년 5월 18일 일요일</div>
+        <div class="header-name">김상담 님 👋</div>
+      </div>
+      <div class="avatar">김</div>
+    </div>
+
+    <!-- Mood Check -->
+    <div class="mood-bar">
+      <span class="mood-q">오늘 컨디션은?</span>
+      <div class="mood-emojis">
+        <div class="mood-emoji">😫</div>
+        <div class="mood-emoji">😐</div>
+        <div class="mood-emoji selected">😊</div>
+        <div class="mood-emoji">😄</div>
+        <div class="mood-emoji">🔥</div>
+      </div>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="bento">
+      <!-- Sessions Count -->
+      <div class="bento-card card-sessions">
+        <div class="card-icon">📋</div>
+        <div class="card-number">8</div>
+        <div class="card-label">오늘 전체 세션</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height: 12px;"></div>
+          <div class="mini-bar" style="height: 20px;"></div>
+          <div class="mini-bar" style="height: 16px;"></div>
+          <div class="mini-bar" style="height: 28px;"></div>
+          <div class="mini-bar" style="height: 24px;"></div>
+          <div class="mini-bar" style="height: 32px;"></div>
+          <div class="mini-bar" style="height: 18px; background: rgba(255,255,255,0.7);"></div>
+        </div>
+      </div>
+
+      <!-- Next Up -->
+      <div class="bento-card card-next">
+        <div class="next-label">▶ Next Up</div>
+        <div class="next-time">10:00</div>
+        <div class="next-title">이수진 상담 (3회기)</div>
+        <div class="countdown">
+          <div class="countdown-dot"></div>
+          19분 후
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="bento-card card-streak">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-num">12</div>
+        <div class="streak-label">일 연속 기록 완료</div>
+        <div class="streak-dots">
+          <div class="streak-d filled"></div>
+          <div class="streak-d filled"></div>
+          <div class="streak-d filled"></div>
+          <div class="streak-d filled"></div>
+          <div class="streak-d filled"></div>
+          <div class="streak-d filled"></div>
+          <div class="streak-d"></div>
+        </div>
+      </div>
+
+      <!-- Weekly Heatmap -->
+      <div class="bento-card card-heatmap">
+        <div class="card-title">이번 주 일정</div>
+        <div class="heatmap-grid">
+          <div class="heat-cell heat-3"><span class="day-label">월</span><span class="day-num">12</span></div>
+          <div class="heat-cell heat-4"><span class="day-label">화</span><span class="day-num">13</span></div>
+          <div class="heat-cell heat-2"><span class="day-label">수</span><span class="day-num">14</span></div>
+          <div class="heat-cell heat-3"><span class="day-label">목</span><span class="day-num">15</span></div>
+          <div class="heat-cell heat-1"><span class="day-label">금</span><span class="day-num">16</span></div>
+          <div class="heat-cell heat-0"><span class="day-label">토</span><span class="day-num">17</span></div>
+          <div class="heat-cell heat-2 heat-today"><span class="day-label">일</span><span class="day-num">18</span></div>
+        </div>
+      </div>
+
+      <!-- Centers -->
+      <div class="bento-card wide card-centers">
+        <div class="card-title">소속 센터</div>
+        <div class="center-chips">
+          <div class="center-chip">
+            <div class="chip-dot indigo"></div>
+            <div class="chip-name">마음숲 상담센터</div>
+            <div class="chip-count">5건</div>
+            <div class="chip-arrow">›</div>
+          </div>
+          <div class="center-chip">
+            <div class="chip-dot rose"></div>
+            <div class="chip-name">해맑음 심리연구소</div>
+            <div class="chip-count">3건</div>
+            <div class="chip-arrow">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="bento-card wide card-timeline">
+        <div class="card-title">오늘 일정</div>
+        <div class="tl-items">
+          <div class="tl-row">
+            <div class="tl-time-col">09:00</div>
+            <div class="tl-divider indigo"></div>
+            <div class="tl-info">
+              <div class="tl-name">김민수 상담 (5회기)</div>
+              <div class="tl-desc">마음숲 · PTSD 외상 처리</div>
+            </div>
+            <div class="tl-status done">완료</div>
+          </div>
+          <div class="tl-row active">
+            <div class="tl-time-col">10:00</div>
+            <div class="tl-divider green"></div>
+            <div class="tl-info">
+              <div class="tl-name">이수진 상담 (3회기)</div>
+              <div class="tl-desc">마음숲 · 불안장애 CBT</div>
+            </div>
+            <div class="tl-status now">진행중</div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time-col">13:00</div>
+            <div class="tl-divider rose"></div>
+            <div class="tl-info">
+              <div class="tl-name">박지훈 심리검사</div>
+              <div class="tl-desc">해맑음 · MMPI-2 실시</div>
+            </div>
+            <div class="tl-status upcoming">예정</div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time-col">15:00</div>
+            <div class="tl-divider gray"></div>
+            <div class="tl-info">
+              <div class="tl-name">슈퍼비전 스터디</div>
+              <div class="tl-desc">개인 일정</div>
+            </div>
+            <div class="tl-status upcoming">예정</div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time-col">17:00</div>
+            <div class="tl-divider rose"></div>
+            <div class="tl-info">
+              <div class="tl-name">최영희 상담 (8회기)</div>
+              <div class="tl-desc">해맑음 · 행동활성화</div>
+            </div>
+            <div class="tl-status upcoming">예정</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span class="nav-label">홈</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+      <span class="nav-label">캘린더</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+      <span class="nav-label">메모</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      <span class="nav-label">프로필</span>
+    </div>
+  </div>
+</div>
+
+<!-- Description -->
+<div class="desc-panel">
+  <h2>Concept B — 벤토 그리드</h2>
+  <p>라이트 테마 + 벤토 박스 레이아웃으로 정보를 모듈형으로 배치</p>
+
+  <h3>핵심 컨셉</h3>
+  <ul>
+    <li><strong>벤토 그리드</strong> — 각 정보가 독립된 카드로 구성, 위젯처럼 한눈에 스캔 가능</li>
+    <li><strong>오늘 컨디션 체크</strong> — 매일 감정 이모지 선택으로 상담사 자기 돌봄 + 데이터 축적</li>
+    <li><strong>연속 기록 스트릭</strong> — 게이미피케이션 요소, 노트 작성 연속일 추적</li>
+    <li><strong>히트맵</strong> — 이번 주 일정 밀도를 색상 강도로 시각화</li>
+    <li><strong>Next Up</strong> — 다음 일정까지 카운트다운으로 시간 인지</li>
+  </ul>
+
+  <h3>재미 요소</h3>
+  <ul>
+    <li>🔥 스트릭 시스템 — 연속 기록 완료 시 불꽃 이펙트</li>
+    <li>😊 일일 무드 체크 — 탭하면 커지는 이모지 인터랙션</li>
+    <li>히트맵 셀 호버 시 스케일 업 애니메이션</li>
+    <li>Next Up 카운트다운 블링킹 도트</li>
+    <li>미니 차트 바 그로우 애니메이션</li>
+  </ul>
+
+  <h3>키워드</h3>
+  <span class="tag">라이트 테마</span>
+  <span class="tag">벤토 그리드</span>
+  <span class="tag">게이미피케이션</span>
+  <span class="tag">무드 트래커</span>
+  <span class="tag">히트맵</span>
+  <span class="tag">스트릭</span>
+</div>
+</div>
+</body>
+</html>

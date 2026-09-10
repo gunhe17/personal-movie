@@ -1,0 +1,15 @@
+controller:
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:ap-northeast-2:786180311928:certificate/c4d5aa39-1b96-41ae-9454-f7a52624b414"
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    targetPorts:
+      https: http
+  metrics:
+    enabled: true
+    port: 10254
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+      additionalLabels:
+        release: prometheus

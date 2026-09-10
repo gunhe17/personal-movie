@@ -1,0 +1,64 @@
+# 기존 Grafana Helm release 업그레이드용 values
+# 기존 설정을 유지하면서 iframe 임베드 + Anonymous Viewer 추가
+#
+# 업그레이드:
+#   helm upgrade grafana grafana/grafana \
+#     --namespace monitoring \
+#     -f grafana-values.yaml
+
+# ── 관리자 계정 ──
+adminPassword: ""  # --set adminPassword=<SECRET> 으로 주입 (기존 비밀번호 유지)
+
+# ── 데이터소스 (기존 유지) ──
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki.monitoring.svc:3100
+        isDefault: true
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
+        isDefault: false
+
+# ── 스토리지 (기존 유지) ──
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: gp3
+
+# ── Ingress (기존 호스트 유지) ──
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - monitoring.mindscope.kr
+
+# ── iframe 임베드 설정 (신규 추가) ──
+grafana.ini:
+  server:
+    root_url: "https://monitoring.mindscope.kr"
+
+  security:
+    allow_embedding: true
+    cookie_secure: true
+    cookie_samesite: none
+    csrf_trusted_origins: "https://console.mindscope.kr https://dev-console.mindscope.kr"
+
+  auth.anonymous:
+    enabled: true
+    org_role: Viewer
+
+  users:
+    viewers_can_edit: false
+
+  analytics:
+    reporting_enabled: false
+    check_for_updates: false

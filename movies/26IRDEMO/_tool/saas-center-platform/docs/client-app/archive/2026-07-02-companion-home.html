@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내담자 앱 · Phase 1 컴패니언 홈 (상태 A~E)</title>
+<style>
+  :root{
+    --bg:#f4f6fa;--ink:#1b2330;--sub:#6b7686;--line:#e8ecf2;
+    --brand:#3b82f6;--brand-deep:#2563eb;--brand-soft:#eaf2ff;
+    --mint:#10b6a3;--mint-soft:#e2f7f3;
+    --amber:#f59e0b;--amber-soft:#fff4e0;
+    --violet:#8b5cf6;--violet-soft:#f1ebff;
+    --card:#ffffff;--shadow:0 4px 20px rgba(27,35,48,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    background:#dfe4ec;color:var(--ink);display:flex;gap:48px;flex-wrap:wrap;justify-content:center;align-items:flex-start;padding:36px 16px 72px;min-height:100vh;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .caption{max-width:390px;text-align:center;}
+  .caption h2{font-size:17px;margin:0 0 4px;}
+  .caption p{font-size:12px;color:#46505f;line-height:1.6;margin:0;}
+  .state-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;margin-bottom:6px;}
+  .pill-a{background:#e2f7f3;color:#0c9384;}
+  .pill-b{background:#f1ebff;color:#6d3fd8;}
+  .pill-c{background:#e3f0ff;color:#1d5fc4;}
+  .pill-d{background:#fff4e0;color:#b96a00;}
+  .pill-e{background:#f0f2f6;color:#5a6474;}
+
+  /* phone */
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 30px 70px rgba(20,28,40,.28);position:relative;overflow:hidden;border:10px solid #0d1117;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:30px;background:#0d1117;border-radius:0 0 18px 18px;z-index:30;}
+  .statusbar{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:13px;font-weight:600;}
+  .screen{height:calc(844px - 50px - 72px);overflow-y:auto;padding:0 18px 24px;}
+  .screen::-webkit-scrollbar{display:none;}
+
+  /* header */
+  .ctx{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px;}
+  .ctx-left{display:flex;align-items:center;gap:10px;}
+  .avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7aa8ff,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+  .avatar.kid{background:linear-gradient(135deg,#c4a8ff,#8b5cf6);}
+  .ctx-name{font-size:13px;color:var(--sub);line-height:1.2;}
+  .ctx-name b{display:block;color:var(--ink);font-size:16px;margin-top:1px;}
+  .bell{width:38px;height:38px;border-radius:12px;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;position:relative;font-size:18px;}
+  .bell .badge{position:absolute;top:7px;right:8px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #fff;}
+
+  /* profile switcher (state B only) */
+  .pswitch{display:flex;gap:8px;overflow-x:auto;margin:0 -18px 14px;padding:0 18px 2px;}
+  .pswitch::-webkit-scrollbar{display:none;}
+  .pchip{flex:none;display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 13px 6px 6px;font-size:12px;font-weight:600;color:var(--sub);box-shadow:var(--shadow);}
+  .pchip .pav{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7aa8ff,#3b82f6);}
+  .pchip .pav.kid1{background:linear-gradient(135deg,#c4a8ff,#8b5cf6);}
+  .pchip .pav.kid2{background:linear-gradient(135deg,#7fd8c9,#10b6a3);}
+  .pchip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  /* center filter chips (state C, optional) */
+  .cfilter{display:flex;gap:8px;overflow-x:auto;margin:0 -18px 14px;padding:0 18px 2px;}
+  .cfilter::-webkit-scrollbar{display:none;}
+  .fchip{flex:none;background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--sub);box-shadow:var(--shadow);}
+  .fchip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  /* hero: next appointment D-day */
+  .hero{background:linear-gradient(135deg,#3b82f6,#5b9bff);border-radius:22px;padding:20px 18px;color:#fff;box-shadow:0 10px 24px rgba(59,130,246,.32);}
+  .hero .toprow{display:flex;align-items:center;justify-content:space-between;}
+  .hero .dday{background:rgba(255,255,255,.22);border-radius:12px;padding:5px 12px;font-size:15px;font-weight:800;letter-spacing:.5px;}
+  .hero .label{font-size:11px;opacity:.85;}
+  .hero .title{font-size:19px;font-weight:800;margin-top:12px;line-height:1.35;}
+  .hero .when{font-size:14px;font-weight:600;margin-top:5px;opacity:.95;}
+  .hero .center-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);padding:4px 11px;border-radius:20px;font-size:11px;margin-top:12px;}
+  .hero .actions{display:flex;gap:10px;margin-top:16px;}
+  .hero .hbtn{flex:1;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:13px;padding:11px;text-align:center;font-size:13px;font-weight:700;}
+  .hero .hbtn.primary{background:#fff;color:var(--brand-deep);border-color:#fff;}
+
+  /* hero variants (D/E) */
+  .hero.waiting{background:linear-gradient(135deg,#10b6a3,#3ecdba);box-shadow:0 10px 24px rgba(16,182,163,.28);}
+  .hero.idle{background:#fff;color:var(--ink);box-shadow:var(--shadow);}
+  .hero.idle .label{color:var(--sub);opacity:1;}
+  .hero.idle .center-tag{background:var(--brand-soft);color:var(--brand-deep);}
+  .hero.idle .hbtn{background:#f2f5f9;border-color:var(--line);color:var(--ink);}
+  .connected-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.22);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;}
+
+  /* 챙길 것 (todo stack) */
+  .sec{margin-top:24px;}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .sec-head h3{font-size:16px;margin:0;}
+  .sec-head a{font-size:12px;color:var(--sub);text-decoration:none;}
+  .todo{background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;}
+  .titem{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);}
+  .titem:last-child{border-bottom:none;}
+  .titem .ti{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;}
+  .titem .tt{font-size:13.5px;font-weight:700;}
+  .titem .ts{font-size:11.5px;color:var(--sub);margin-top:2px;}
+  .titem .tgo{margin-left:auto;font-size:17px;color:#c2cad6;}
+  .titem .tbadge{font-size:10px;font-weight:800;border-radius:10px;padding:2px 8px;margin-left:auto;}
+  .mini-center{font-size:10px;color:var(--brand);background:var(--brand-soft);border-radius:6px;padding:1px 6px;display:inline-block;margin-left:6px;vertical-align:1px;}
+
+  /* upcoming timeline */
+  .tl{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:4px 0;}
+  .trow{display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--line);}
+  .trow:last-child{border-bottom:none;}
+  .tdate{width:44px;text-align:center;flex:none;}
+  .tdate .d{font-size:16px;font-weight:800;line-height:1;}
+  .tdate .m{font-size:10px;color:var(--sub);margin-top:3px;}
+  .tinfo{flex:1;min-width:0;}
+  .tinfo .t{font-size:13.5px;font-weight:700;}
+  .tinfo .s{font-size:11.5px;color:var(--sub);margin-top:2px;}
+  .ctag{flex:none;font-size:10px;font-weight:600;border-radius:8px;padding:3px 8px;}
+  .ctag.forest{background:#e6f4ea;color:#237a46;}
+  .ctag.onma{background:#e2f7f3;color:#0c9384;}
+
+  /* results */
+  .result{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .result .ri{width:42px;height:42px;border-radius:13px;background:var(--violet-soft);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+  .result .rt{font-size:13.5px;font-weight:700;}
+  .result .rs{font-size:11.5px;color:var(--sub);margin-top:2px;}
+  .result .rbtn{margin-left:auto;flex:none;background:var(--brand-soft);color:var(--brand-deep);font-size:11.5px;font-weight:700;border-radius:11px;padding:8px 12px;}
+
+  /* recent session summary (state E) */
+  .recent{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:16px;}
+  .recent .rh{display:flex;align-items:center;gap:10px;}
+  .recent .rico{width:38px;height:38px;border-radius:12px;background:var(--mint-soft);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .recent .rt{font-size:14px;font-weight:700;}
+  .recent .rs{font-size:11.5px;color:var(--sub);margin-top:2px;}
+  .recent .note{margin-top:12px;background:#f6f8fb;border-radius:12px;padding:11px 13px;font-size:12px;color:#46505f;line-height:1.55;}
+
+  /* tabbar: Phase 1 = 3 tabs */
+  .tabbar{position:absolute;bottom:0;left:0;right:0;height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:8px;z-index:20;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#aab2c0;position:relative;width:80px;}
+  .tab.active{color:var(--brand);}
+  .tab .ti{font-size:21px;}
+  .home-indicator{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#0d1117;border-radius:3px;opacity:.85;z-index:25;}
+
+  .page-note{width:100%;max-width:900px;text-align:center;font-size:12px;color:#46505f;line-height:1.7;background:#fff;border-radius:16px;padding:16px 22px;box-shadow:var(--shadow);}
+  .page-note b{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="page-note">
+  <b>Phase 1 컴패니언 홈 — 상태 A~E</b> · 근거: <code>2026-07-02-내담자앱-홈-설계.md</code> (D1~D6)<br>
+  홈 척추 = 자동 생성 데이터(예약 D-day·검사요청·결제/바우처·준비물). 셀프체크·주변센터·매거진·바우처발견·케어보드는 미탑재(Phase 1.5~2).
+  하단 탭 3개(홈·일정·마이). Profile 스위처는 <b>2개 이상일 때만</b>(상태 B) 노출.
+</div>
+
+<!-- ===================== A. 단일 센터 · 단일 Profile ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-a">A · 단일 센터 · 단일 Profile</span>
+    <h2>가장 흔한 첫 설치자 (기준 화면)</h2>
+    <p>스위처 숨김 · 센터 태그 최소.<br>D-day 히어로 → 챙길 것 → 예정 일정 → 검사 결과.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">안녕하세요 👋<b>김민준 님</b></div>
+        </div>
+        <div class="bell">🔔<span class="badge"></span></div>
+      </div>
+
+      <!-- 1. 히어로: 다음 예약 D-day -->
+      <div class="hero">
+        <div class="toprow">
+          <span class="label">다음 예약</span>
+          <span class="dday">D-3</span>
+        </div>
+        <div class="title">개인상담 · 이수진 선생님</div>
+        <div class="when">6/19 (목) 오후 3:00</div>
+        <span class="center-tag">🌳 마음숲 심리상담센터</span>
+        <div class="actions">
+          <div class="hbtn primary">오시는 길</div>
+          <div class="hbtn">준비물 보기</div>
+        </div>
+      </div>
+
+      <!-- 2. 챙길 것 (조건부, 최대 3) -->
+      <div class="sec">
+        <div class="sec-head"><h3>챙길 것</h3></div>
+        <div class="todo">
+          <div class="titem">
+            <div class="ti" style="background:var(--brand-soft);color:var(--brand)">📝</div>
+            <div>
+              <div class="tt">검사 응답이 필요해요</div>
+              <div class="ts">BDI · 6/18까지 · 센터에서 요청함</div>
+            </div>
+            <div class="tbadge" style="background:#fde8e8;color:#c0392b">응답 필요</div>
+          </div>
+          <div class="titem">
+            <div class="ti" style="background:var(--mint-soft);color:var(--mint)">🎟️</div>
+            <div>
+              <div class="tt">남은 회기 8회</div>
+              <div class="ts">다음 결제 예정 · 7/10 안내</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+          <div class="titem">
+            <div class="ti" style="background:var(--amber-soft);color:var(--amber)">📎</div>
+            <div>
+              <div class="tt">준비물: 지난 검사지 지참</div>
+              <div class="ts">6/19 개인상담 · 센터 안내</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 예정된 일정 -->
+      <div class="sec">
+        <div class="sec-head"><h3>예정된 일정</h3><a href="#">전체 ›</a></div>
+        <div class="tl">
+          <div class="trow">
+            <div class="tdate"><div class="d">24</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">종합심리검사</div><div class="s">오전 10:00 · 박지영 선생님</div></div>
+          </div>
+          <div class="trow">
+            <div class="tdate"><div class="d">03</div><div class="m">7월</div></div>
+            <div class="tinfo"><div class="t">개인상담</div><div class="s">오후 3:00 · 이수진 선생님</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 검사 결과 -->
+      <div class="sec">
+        <div class="sec-head"><h3>검사 결과</h3><a href="#">아카이브 ›</a></div>
+        <div class="result">
+          <div class="ri">📄</div>
+          <div>
+            <div class="rt">종합심리검사 결과지</div>
+            <div class="rs">6/10 발행</div>
+          </div>
+          <div class="rbtn">PDF 보기</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+
+<!-- ===================== B. 다중 Profile (보호자) ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-b">B · 다중 Profile (보호자)</span>
+    <h2>아이 여럿 — Profile 스위처 노출</h2>
+    <p>헤더 아래 스위처(나·첫째·둘째). <b>선택된 Profile의</b><br>예약·검사·결제만 표시. 알림은 Profile 컨텍스트 포함.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar kid">서</div>
+          <div class="ctx-name">첫째 아이 보기 👧<b>박서연</b></div>
+        </div>
+        <div class="bell">🔔<span class="badge"></span></div>
+      </div>
+
+      <!-- Profile 스위처 (2개 이상일 때만) -->
+      <div class="pswitch">
+        <div class="pchip"><span class="pav">지</span>나 (박지현)</div>
+        <div class="pchip on"><span class="pav kid1">서</span>첫째 서연</div>
+        <div class="pchip"><span class="pav kid2">준</span>둘째 서준</div>
+        <div class="pchip" style="color:var(--brand)">＋ 추가</div>
+      </div>
+
+      <!-- 1. 히어로 (서연 Profile 기준) -->
+      <div class="hero">
+        <div class="toprow">
+          <span class="label">서연이 다음 예약</span>
+          <span class="dday">D-1</span>
+        </div>
+        <div class="title">놀이치료 · 김하늘 선생님</div>
+        <div class="when">6/17 (화) 오후 4:30</div>
+        <span class="center-tag">🌳 마음숲 심리상담센터</span>
+        <div class="actions">
+          <div class="hbtn primary">오시는 길</div>
+          <div class="hbtn">준비물 보기</div>
+        </div>
+      </div>
+
+      <!-- 2. 챙길 것 -->
+      <div class="sec">
+        <div class="sec-head"><h3>챙길 것</h3></div>
+        <div class="todo">
+          <div class="titem">
+            <div class="ti" style="background:var(--brand-soft);color:var(--brand)">📝</div>
+            <div>
+              <div class="tt">보호자 설문 응답이 필요해요</div>
+              <div class="ts">CBCL(아동행동평가) · 서연 · 6/20까지</div>
+            </div>
+            <div class="tbadge" style="background:#fde8e8;color:#c0392b">응답 필요</div>
+          </div>
+          <div class="titem">
+            <div class="ti" style="background:var(--mint-soft);color:var(--mint)">🎟️</div>
+            <div>
+              <div class="tt">남은 회기 5회</div>
+              <div class="ts">바우처 잔여 3회 포함</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 예정된 일정 (서연) -->
+      <div class="sec">
+        <div class="sec-head"><h3>예정된 일정</h3><a href="#">전체 ›</a></div>
+        <div class="tl">
+          <div class="trow">
+            <div class="tdate"><div class="d">17</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div>
+          </div>
+          <div class="trow">
+            <div class="tdate"><div class="d">24</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div>
+          </div>
+          <div class="trow">
+            <div class="tdate"><div class="d">28</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">부모 상담</div><div class="s">오전 11:00 · 김하늘 선생님</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 검사 결과 (서연) -->
+      <div class="sec">
+        <div class="sec-head"><h3>검사 결과</h3><a href="#">아카이브 ›</a></div>
+        <div class="result">
+          <div class="ri">📄</div>
+          <div>
+            <div class="rt">종합심리검사 결과지 (서연)</div>
+            <div class="rs">5/28 발행</div>
+          </div>
+          <div class="rbtn">PDF 보기</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+
+<!-- ===================== C. 다중 센터 (한 Profile) ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-c">C · 다중 센터 (한 Profile)</span>
+    <h2>한 사람이 N센터 — 통합 타임라인</h2>
+    <p>자동 데이터는 <b>통합 + 센터 태그</b>(안 놓치기 우선).<br>선택적 센터 필터 칩. Profile 1개라 스위처 없음.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">안녕하세요 👋<b>김민준 님</b></div>
+        </div>
+        <div class="bell">🔔<span class="badge"></span></div>
+      </div>
+
+      <!-- 센터 필터 칩 (선택적) -->
+      <div class="cfilter">
+        <div class="fchip on">🗂️ 전체</div>
+        <div class="fchip">🌳 마음숲</div>
+        <div class="fchip">🌿 온마음</div>
+      </div>
+
+      <!-- 1. 히어로: 가장 임박한 예약 (센터 무관) -->
+      <div class="hero">
+        <div class="toprow">
+          <span class="label">다음 예약</span>
+          <span class="dday">D-3</span>
+        </div>
+        <div class="title">개인상담 · 이수진 선생님</div>
+        <div class="when">6/19 (목) 오후 3:00</div>
+        <span class="center-tag">🌳 마음숲 심리상담센터</span>
+        <div class="actions">
+          <div class="hbtn primary">오시는 길</div>
+          <div class="hbtn">준비물 보기</div>
+        </div>
+      </div>
+
+      <!-- 2. 챙길 것 (센터 태그 포함) -->
+      <div class="sec">
+        <div class="sec-head"><h3>챙길 것</h3></div>
+        <div class="todo">
+          <div class="titem">
+            <div class="ti" style="background:var(--brand-soft);color:var(--brand)">📝</div>
+            <div>
+              <div class="tt">검사 응답이 필요해요<span class="mini-center">온마음</span></div>
+              <div class="ts">MMPI-2 사전 문진 · 6/23까지</div>
+            </div>
+            <div class="tbadge" style="background:#fde8e8;color:#c0392b">응답 필요</div>
+          </div>
+          <div class="titem">
+            <div class="ti" style="background:var(--mint-soft);color:var(--mint)">🎟️</div>
+            <div>
+              <div class="tt">남은 회기 합계 14회</div>
+              <div class="ts">마음숲 8회 · 온마음 6회</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 예정된 일정 (통합 타임라인 + 센터 태그) -->
+      <div class="sec">
+        <div class="sec-head"><h3>예정된 일정</h3><a href="#">전체 ›</a></div>
+        <div class="tl">
+          <div class="trow">
+            <div class="tdate"><div class="d">19</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">개인상담</div><div class="s">오후 3:00 · 이수진 선생님</div></div>
+            <span class="ctag forest">🌳 마음숲</span>
+          </div>
+          <div class="trow">
+            <div class="tdate"><div class="d">24</div><div class="m">6월</div></div>
+            <div class="tinfo"><div class="t">종합심리검사</div><div class="s">오전 10:00 · 박지영 선생님</div></div>
+            <span class="ctag onma">🌿 온마음</span>
+          </div>
+          <div class="trow">
+            <div class="tdate"><div class="d">03</div><div class="m">7월</div></div>
+            <div class="tinfo"><div class="t">개인상담</div><div class="s">오후 3:00 · 이수진 선생님</div></div>
+            <span class="ctag forest">🌳 마음숲</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 검사 결과 (통합, 센터 태그) -->
+      <div class="sec">
+        <div class="sec-head"><h3>검사 결과</h3><a href="#">아카이브 ›</a></div>
+        <div class="result">
+          <div class="ri">📄</div>
+          <div>
+            <div class="rt">종합심리검사 결과지<span class="mini-center">마음숲</span></div>
+            <div class="rs">6/10 발행</div>
+          </div>
+          <div class="rbtn">PDF 보기</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+
+<!-- ===================== D. 방금 연동 (데이터 얕음) ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-d">D · 방금 연동 (온보딩 직후)</span>
+    <h2>예약 없음 — "연결 성공" 자체가 상태</h2>
+    <p>히어로 = 대기 상태 + 센터 연결 확인.<br>빈 화면이 아니라 <b>"이제 여기로 옵니다"</b> 안내.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">반가워요 👋<b>김민준 님</b></div>
+        </div>
+        <div class="bell">🔔</div>
+      </div>
+
+      <!-- 히어로: 첫 예약 대기 -->
+      <div class="hero waiting">
+        <span class="connected-badge">✅ 🌳 마음숲 심리상담센터 연결됨</span>
+        <div class="title">첫 예약을 기다리고 있어요</div>
+        <div class="when">센터에서 일정을 잡으면 여기에 바로 떠요</div>
+        <div class="actions">
+          <div class="hbtn primary">알림 켜기</div>
+          <div class="hbtn">센터 정보</div>
+        </div>
+      </div>
+
+      <!-- 챙길 것: 초기 세팅성 항목 -->
+      <div class="sec">
+        <div class="sec-head"><h3>챙길 것</h3></div>
+        <div class="todo">
+          <div class="titem">
+            <div class="ti" style="background:var(--brand-soft);color:var(--brand)">🔔</div>
+            <div>
+              <div class="tt">알림을 켜 주세요</div>
+              <div class="ts">예약·검사 요청을 놓치지 않도록</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+          <div class="titem">
+            <div class="ti" style="background:var(--violet-soft);color:var(--violet)">👧</div>
+            <div>
+              <div class="tt">아이 프로필을 추가할 수 있어요</div>
+              <div class="ts">자녀 초대코드가 있다면 지금 연결</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 안내: 앞으로 여기 뜨는 것 -->
+      <div class="sec">
+        <div class="sec-head"><h3>이 앱에서 보게 될 것</h3></div>
+        <div class="tl">
+          <div class="trow">
+            <div class="tdate" style="font-size:20px">🗓️</div>
+            <div class="tinfo"><div class="t">다가올 예약과 D-day</div><div class="s">준비물·오시는 길까지 한 번에</div></div>
+          </div>
+          <div class="trow">
+            <div class="tdate" style="font-size:20px">📝</div>
+            <div class="tinfo"><div class="t">검사 요청 알림</div><div class="s">응답할 검사가 생기면 알려드려요</div></div>
+          </div>
+          <div class="trow">
+            <div class="tdate" style="font-size:20px">📄</div>
+            <div class="tinfo"><div class="t">발행된 검사 결과지</div><div class="s">센터가 발행하면 앱에서 열람</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+
+<!-- ===================== E. 예약 없음 (기존 유저) ===================== -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-e">E · 예약 없음 (기존 유저)</span>
+    <h2>활성이지만 다음 예약 미정</h2>
+    <p>히어로 자리 = <b>최근 회기 요약</b> + "다음 일정은<br>센터에서 잡혀요" 안내. 예약 강요 CTA 없음(읽기 원칙).</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+
+      <div class="ctx">
+        <div class="ctx-left">
+          <div class="avatar">민</div>
+          <div class="ctx-name">안녕하세요 👋<b>김민준 님</b></div>
+        </div>
+        <div class="bell">🔔</div>
+      </div>
+
+      <!-- 히어로 변형: 다음 예약 미정 -->
+      <div class="hero idle">
+        <div class="toprow">
+          <span class="label">다음 예약</span>
+        </div>
+        <div class="title" style="color:var(--ink)">아직 잡힌 일정이 없어요</div>
+        <div class="when" style="color:var(--sub)">다음 일정은 센터에서 잡아드려요 · 문의는 센터로</div>
+        <span class="center-tag">🌳 마음숲 심리상담센터</span>
+        <div class="actions">
+          <div class="hbtn">센터에 문의</div>
+        </div>
+      </div>
+
+      <!-- 최근 회기 요약 -->
+      <div class="sec">
+        <div class="sec-head"><h3>최근 다녀온 회기</h3></div>
+        <div class="recent">
+          <div class="rh">
+            <div class="rico">✅</div>
+            <div>
+              <div class="rt">개인상담 12회차</div>
+              <div class="rs">6/12 (목) · 이수진 선생님 · 마음숲</div>
+            </div>
+          </div>
+          <div class="note">지금까지 총 12회 진행 · 남은 회기 2회</div>
+        </div>
+      </div>
+
+      <!-- 챙길 것 -->
+      <div class="sec">
+        <div class="sec-head"><h3>챙길 것</h3></div>
+        <div class="todo">
+          <div class="titem">
+            <div class="ti" style="background:var(--mint-soft);color:var(--mint)">🎟️</div>
+            <div>
+              <div class="tt">남은 회기 2회</div>
+              <div class="ts">재결제 시기가 다가와요 · 센터 안내 예정</div>
+            </div>
+            <div class="tgo">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 검사 결과 -->
+      <div class="sec">
+        <div class="sec-head"><h3>검사 결과</h3><a href="#">아카이브 ›</a></div>
+        <div class="result">
+          <div class="ri">📄</div>
+          <div>
+            <div class="rt">종합심리검사 결과지</div>
+            <div class="rs">6/10 발행</div>
+          </div>
+          <div class="rbtn">PDF 보기</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><span class="ti">🏠</span>홈</div>
+      <div class="tab"><span class="ti">🗓️</span>일정</div>
+      <div class="tab"><span class="ti">👤</span>마이</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

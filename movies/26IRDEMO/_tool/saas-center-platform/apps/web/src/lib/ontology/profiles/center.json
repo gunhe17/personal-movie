@@ -1,0 +1,33 @@
+{
+  "name": "상담센터",
+  "loop": "상담용",
+  "vocab": {
+    "subject": "내담자",
+    "guardianRel": "보호자",
+    "staff": "상담사",
+    "org": "센터",
+    "extInst": "외부 기관",
+    "orgUnit": null,
+    "child": "아동",
+    "sibling": "형제"
+  },
+  "exists": {
+    "guardianRel": true,
+    "orgUnit": false
+  },
+  "variable": {
+    "subject": [
+      "바우처 자격",
+      "주호소"
+    ]
+  },
+  "hierarchy": null,
+  "identifier": {
+    "type": "내부 코드 6자 (자체 발번)",
+    "temporal": "stable"
+  },
+  "guardian_note": "주 보호자 1명, 엄마/아빠/사회복지사 등 관계 종류. 형제 함께 등록.",
+  "sections": {
+    "sibling": true
+  }
+}

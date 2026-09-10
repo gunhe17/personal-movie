@@ -1,0 +1,49 @@
+# kube-prometheus-stack - Prometheus만 설치 (Grafana는 기존 것 사용)
+#
+# 설치:
+#   helm install prometheus prometheus-community/kube-prometheus-stack \
+#     --namespace monitoring \
+#     -f prometheus-values.yaml
+
+# ── Grafana 비활성화 (기존 standalone Grafana 사용) ──
+grafana:
+  enabled: false
+
+# ── Prometheus ──
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 15d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    # 스토리지 (EBS)
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+    # 모든 네임스페이스의 ServiceMonitor 수집
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+
+# ── AlertManager (알림 룰 미설정 → 비활성화하여 리소스 절약) ──
+alertmanager:
+  enabled: false
+
+# ── Node Exporter (노드별 CPU/메모리/디스크 메트릭) ──
+nodeExporter:
+  enabled: true
+
+# ── Kube State Metrics (Pod/Deployment 상태 메트릭) ──
+kubeStateMetrics:
+  enabled: true

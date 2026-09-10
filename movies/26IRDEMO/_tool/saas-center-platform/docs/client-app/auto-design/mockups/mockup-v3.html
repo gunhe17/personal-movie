@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내담자 앱 · 시안 v3 (MVP 전체 세트 — 예약·바우처·알림·마이)</title>
+<style>
+  :root{
+    --bg:#f4f6fa;--ink:#1b2330;--sub:#6b7686;--line:#e8ecf2;
+    --brand:#3b82f6;--brand-soft:#eaf2ff;--mint:#10b6a3;--mint-soft:#e2f7f3;
+    --amber:#f59e0b;--amber-soft:#fff4e0;--card:#ffffff;--shadow:0 4px 20px rgba(27,35,48,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    background:#dfe4ec;color:var(--ink);padding:36px 16px 80px;min-height:100vh;}
+
+  /* page header / changelog */
+  .pagehead{max-width:1180px;margin:0 auto 30px;}
+  .pagehead h1{font-size:22px;margin:0 0 4px;}
+  .pagehead .meta{font-size:13px;color:#46505f;margin:0 0 18px;}
+  .changelog{background:#fff;border:1px solid var(--line);border-left:5px solid var(--brand);
+    border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
+  .changelog h2{font-size:14px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+  .changelog .tag{background:var(--brand);color:#fff;font-size:11px;font-weight:700;border-radius:8px;padding:2px 9px;}
+  .changelog ul{margin:0;padding-left:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;}
+  .changelog li{font-size:12.5px;line-height:1.55;color:#36404f;padding-left:20px;position:relative;}
+  .changelog li::before{position:absolute;left:0;top:0;}
+  .changelog li.add::before{content:"➕";font-size:11px;}
+  .changelog li.rm::before{content:"➖";font-size:11px;}
+  .changelog li.df::before{content:"🕒";font-size:11px;}
+  .changelog li.mod::before{content:"✳️";font-size:11px;}
+  .changelog li b{color:var(--ink);}
+  .guardrail{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .guardrail .gr{font-size:11.5px;line-height:1.5;color:#475063;background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:9px 11px;}
+  .guardrail .gr b{display:block;color:#0d1117;margin-bottom:3px;font-size:11.5px;}
+  .legend{font-size:11.5px;color:#5b6473;margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .ph-dot{display:inline-block;width:9px;height:9px;border-radius:3px;background:repeating-linear-gradient(45deg,#c4d3ea,#c4d3ea 3px,#fff 3px,#fff 6px);border:1px solid #c4d3ea;}
+  .wl-dot{display:inline-block;width:9px;height:9px;border-radius:3px;background:#0d1117;}
+
+  .rail{display:flex;gap:42px;flex-wrap:wrap;justify-content:center;align-items:flex-start;max-width:2400px;margin:0 auto;}
+  .group-label{width:100%;max-width:1180px;margin:34px auto 0;font-size:14px;font-weight:800;color:#2a3340;
+    display:flex;align-items:center;gap:10px;}
+  .group-label::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--brand);}
+  .group-label .nv{font-weight:500;color:var(--sub);font-size:12px;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .caption{max-width:390px;text-align:center;}
+  .caption h2{font-size:16px;margin:0 0 4px;}
+  .caption p{font-size:12px;color:#46505f;line-height:1.6;margin:0;}
+  .state-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;margin-bottom:6px;}
+  .pill-empty{background:#fde8e8;color:#c0392b;}
+  .pill-wait{background:#fff4e0;color:#b46f00;}
+  .pill-single{background:#e2f7f3;color:#0c8475;}
+  .pill-multi{background:#e3f0ff;color:#1d5fc4;}
+  .pill-flow{background:#ede9fe;color:#6d49c8;}
+  .pill-guardian{background:#fce7f3;color:#be3a7e;}
+  .pill-result{background:#e8f4ec;color:#2a7d4f;}
+  .pill-my{background:#eef1f6;color:#475063;}
+  .pill-notif{background:#fff0e6;color:#c05a1e;}
+  .pill-voucher{background:#eef7ec;color:#3a7d2a;}
+  .pill-dark{background:#1b2330;color:#cfe0ff;}
+
+  /* phone */
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 30px 70px rgba(20,28,40,.28);position:relative;overflow:hidden;border:10px solid #0d1117;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:30px;background:#0d1117;border-radius:0 0 18px 18px;z-index:30;}
+  .statusbar{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:13px;font-weight:600;}
+  .screen{height:calc(844px - 50px - 72px);overflow-y:auto;padding:0 18px 24px;}
+  .screen.noTab{height:calc(844px - 50px);}
+  .screen::-webkit-scrollbar{display:none;}
+
+  /* app bar (for sub screens) */
+  .appbar{display:flex;align-items:center;gap:10px;padding:6px 0 14px;}
+  .appbar .bk{font-size:24px;color:var(--ink);line-height:1;}
+  .appbar h3{font-size:18px;margin:0;}
+  .appbar .sp{flex:1;}
+  .appbar .act{font-size:13px;color:var(--brand);font-weight:600;}
+
+  /* placeholder annotation flag (Phase2 / 미확정) */
+  .ph{position:relative;}
+  .ph-flag{position:absolute;z-index:5;top:8px;right:8px;background:#0d1117;color:#fff;font-size:9px;font-weight:700;
+    border-radius:7px;padding:2px 7px;letter-spacing:.2px;opacity:.85;}
+  .ph-outline{outline:1.5px dashed #b9a6f0;outline-offset:2px;}
+  /* whitelist annotation (client-facing exposure boundary LOCK) */
+  .wl-flag{position:absolute;z-index:5;top:8px;right:8px;background:#0c8475;color:#fff;font-size:9px;font-weight:700;
+    border-radius:7px;padding:2px 7px;letter-spacing:.2px;}
+  .wl-outline{outline:1.5px solid #7fcabb;outline-offset:2px;}
+  /* MVP-new-backend flag (4 domain paths, R15) */
+  .nb-flag{position:absolute;z-index:5;top:8px;left:8px;background:#1d5fc4;color:#fff;font-size:9px;font-weight:700;
+    border-radius:7px;padding:2px 7px;letter-spacing:.2px;}
+  /* exclude flag (legal/B2B 영구 제외) */
+  .ex-flag{position:absolute;z-index:5;top:8px;right:8px;background:#c0392b;color:#fff;font-size:9px;font-weight:700;
+    border-radius:7px;padding:2px 7px;letter-spacing:.2px;}
+  .ex-outline{outline:1.5px solid #e8b4ad;outline-offset:2px;}
+
+  /* orb mention (top-fixed, local render) — R14: lightweight visual LOCK (CSS gradient + time-of-day + 3 states, NO Skia) */
+  .orb{display:flex;align-items:center;gap:13px;padding:8px 2px 16px;}
+  .orb .glow{width:46px;height:46px;border-radius:50%;flex:none;position:relative;
+    background:radial-gradient(circle at 35% 30%,#dbe8ff,#9cc0ff 55%,#6ea0ff);
+    box-shadow:0 6px 18px rgba(110,160,255,.45);}
+  .orb .glow.morning{background:radial-gradient(circle at 35% 30%,#fff0d6,#ffd591 55%,#ffb74d);box-shadow:0 6px 18px rgba(255,183,77,.4);}
+  .orb .glow.day{background:radial-gradient(circle at 35% 30%,#dbe8ff,#9cc0ff 55%,#6ea0ff);box-shadow:0 6px 18px rgba(110,160,255,.45);}
+  .orb .glow.evening{background:radial-gradient(circle at 35% 30%,#e7dcff,#b79cff 55%,#8a6ef0);box-shadow:0 6px 18px rgba(138,110,240,.4);}
+  .orb .glow.night{background:radial-gradient(circle at 35% 30%,#cfe0ff,#7d96d6 55%,#4a5e9c);box-shadow:0 6px 18px rgba(74,94,156,.5);}
+  .orb .glow .tod{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;background:#0d1117;color:#fff;border-radius:6px;padding:1px 5px;white-space:nowrap;}
+  .orb .glow.loading{animation:pulse 1.4s ease-in-out infinite;}
+  .orb .glow.err{filter:grayscale(.6) brightness(1.05);opacity:.7;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.92);opacity:.7;}}
+  .orb .mt{font-size:18px;font-weight:700;line-height:1.3;}
+  .orb .ms{font-size:12px;color:var(--sub);margin-top:3px;}
+
+  /* connect CTA */
+  .connect{background:linear-gradient(135deg,#eef3fb,#fff);border:1.5px solid #d7e4f6;border-radius:22px;padding:22px 18px;text-align:center;box-shadow:var(--shadow);}
+  .connect .ci{width:54px;height:54px;border-radius:16px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
+  .connect .ct{font-size:17px;font-weight:700;}
+  .connect .cs{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.5;}
+  .connect .cbtn{margin-top:15px;background:var(--brand);color:#fff;font-size:15px;font-weight:700;border-radius:14px;padding:13px;box-shadow:0 8px 18px rgba(59,130,246,.32);}
+
+  /* waiting notice */
+  .waiting{background:linear-gradient(135deg,#fff7ea,#fffdf8);border:1.5px solid #ffe2b0;border-radius:22px;padding:20px 18px;box-shadow:var(--shadow);}
+  .waiting .wrow{display:flex;align-items:center;gap:13px;}
+  .waiting .wi{width:48px;height:48px;border-radius:15px;background:#ffe6bd;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;}
+  .waiting .wt{font-size:15px;font-weight:700;color:#8a5a00;}
+  .waiting .ws{font-size:12px;color:#a4762a;margin-top:3px;line-height:1.45;}
+  .waiting .wbar{height:6px;border-radius:6px;background:#ffe6bd;margin-top:14px;overflow:hidden;}
+  .waiting .wbar i{display:block;height:100%;width:62%;background:linear-gradient(90deg,#f6a821,#f59e0b);border-radius:6px;}
+  .waiting .wstep{display:flex;justify-content:space-between;font-size:10.5px;color:#b07c1c;margin-top:7px;}
+
+  .peek{font-size:13px;font-weight:700;color:var(--sub);margin:22px 2px 10px;}
+
+  .selfcheck{background:linear-gradient(135deg,#10b6a3,#39cdbb);border-radius:20px;padding:16px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 22px rgba(16,182,163,.28);}
+  .selfcheck .sc-t{font-size:15px;font-weight:700;}
+  .selfcheck .sc-s{font-size:12px;opacity:.92;margin-top:3px;max-width:190px;line-height:1.4;}
+  .selfcheck .sc-btn{background:#fff;color:#0c9384;font-size:12px;font-weight:700;border-radius:20px;padding:8px 14px;white-space:nowrap;}
+
+  /* next appointment hero (linked) — info density LOCKED (R6) */
+  .hero{background:linear-gradient(135deg,#3b82f6,#5b9bff);border-radius:22px;padding:18px;color:#fff;box-shadow:0 10px 24px rgba(59,130,246,.32);position:relative;}
+  .hero .label{font-size:12px;opacity:.85;display:flex;justify-content:space-between;}
+  .hero .next{display:flex;align-items:center;gap:12px;margin-top:8px;}
+  .hero .next .ico{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+  .hero .next .t{font-size:15px;font-weight:700;}
+  .hero .next .s{font-size:12px;opacity:.9;margin-top:2px;}
+  .hero .center-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);padding:3px 9px;border-radius:20px;font-size:10px;margin-top:10px;}
+  .hero .sessline{font-size:11px;opacity:.92;margin-top:10px;}
+  .hero .wayfind{margin-top:14px;background:rgba(255,255,255,.16);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;}
+  .hero .wayfind .arrow{margin-left:auto;opacity:.8;}
+
+  /* timeline card */
+  .tl-head{font-size:13px;font-weight:700;color:var(--sub);margin:20px 2px 10px;display:flex;justify-content:space-between;}
+  .appt{background:var(--card);border-radius:18px;padding:14px 15px;box-shadow:var(--shadow);display:flex;gap:13px;align-items:center;margin-bottom:11px;}
+  .appt .ai{width:42px;height:42px;border-radius:13px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;}
+  .appt .ai.mint{background:var(--mint-soft);color:var(--mint);}
+  .appt .ainfo{flex:1;min-width:0;}
+  .appt .at{font-size:14px;font-weight:700;}
+  .appt .as{font-size:12px;color:var(--sub);margin-top:2px;}
+  .appt .clabel{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:2px 8px;margin-top:7px;}
+  .appt .clabel.mint{color:var(--mint);background:var(--mint-soft);}
+  .appt .dday{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:9px;padding:3px 8px;flex:none;}
+  .appt .dday.gray{color:#8a93a3;background:#eef1f6;}
+
+  /* partial-failure fallback banner (R6/R10 neutral copy) */
+  .fbanner{background:#fbf3f3;border:1px solid #f3d6d6;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:6px;}
+  .fbanner .fi{font-size:18px;}
+  .fbanner .ft{font-size:12px;color:#8a4a4a;line-height:1.45;}
+  .fbanner .fb{margin-left:auto;font-size:12px;font-weight:700;color:#c0392b;background:#f7e3e3;border-radius:10px;padding:6px 11px;white-space:nowrap;}
+
+  /* mission card (Phase2 placeholder) */
+  .mission{background:var(--card);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;}
+  .mission .mi{width:42px;height:42px;border-radius:13px;background:#fff4e0;color:#d68a00;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+  .mission .mt{font-size:14px;font-weight:700;}
+  .mission .ms{font-size:12px;color:var(--sub);margin-top:2px;}
+
+  /* guardian child section */
+  .child-head{display:flex;align-items:center;gap:10px;margin:22px 2px 12px;}
+  .child-head .cav{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#ffd1e6,#ff9ec7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .child-head .cn{font-size:15px;font-weight:700;}
+  .child-head .cn small{display:block;font-size:11px;color:var(--sub);font-weight:500;margin-top:1px;}
+  .cprog{background:var(--card);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow);margin-bottom:11px;}
+  .cprog .ct2{font-size:12px;color:var(--sub);display:flex;justify-content:space-between;margin-bottom:7px;}
+  .cprog .ct2 b{color:var(--ink);font-size:13px;}
+  .cprog .bar{height:8px;border-radius:8px;background:#eaf0f7;overflow:hidden;}
+  .cprog .bar i{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#5b9bff);border-radius:8px;}
+
+  .sec{margin-top:24px;}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .sec-head h3{font-size:16px;margin:0;}
+  .sec-head a{font-size:12px;color:var(--sub);text-decoration:none;}
+
+  .hscroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin:0 -18px;padding-left:18px;padding-right:18px;}
+  .hscroll::-webkit-scrollbar{display:none;}
+  .mag{flex:none;width:160px;background:var(--card);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
+  .mag .thumb{height:96px;background-size:cover;display:flex;align-items:flex-end;padding:8px;}
+  .mag .cat{background:rgba(0,0,0,.45);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;}
+  .mag .mt2{font-size:13px;font-weight:600;line-height:1.35;padding:10px 12px 4px;}
+  .mag .ms2{font-size:11px;color:var(--sub);padding:0 12px 12px;}
+
+  /* bottom sheet */
+  .sheetphone .screen{position:relative;}
+  .scrim{position:absolute;inset:0;background:rgba(13,17,23,.42);z-index:8;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;z-index:9;padding:8px 20px 26px;box-shadow:0 -10px 40px rgba(0,0,0,.18);}
+  .sheet .grip{width:42px;height:5px;border-radius:5px;background:#dde3ec;margin:8px auto 16px;}
+  .sheet h3{font-size:18px;margin:0 0 2px;}
+  .sheet .sub{font-size:12.5px;color:var(--sub);margin:0 0 16px;}
+  .sheet .row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-top:1px solid var(--line);}
+  .sheet .row .ri{width:36px;height:36px;border-radius:11px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;}
+  .sheet .row .rt{font-size:13px;font-weight:700;}
+  .sheet .row .rs{font-size:12px;color:var(--sub);margin-top:2px;line-height:1.45;}
+  .sheet .way{margin-top:16px;background:var(--brand);color:#fff;font-size:15px;font-weight:700;border-radius:14px;padding:14px;text-align:center;box-shadow:0 8px 18px rgba(59,130,246,.3);}
+
+  /* assessment result list */
+  .res{background:var(--card);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);margin-bottom:12px;}
+  .res .rtop{display:flex;align-items:center;gap:12px;}
+  .res .ri{width:44px;height:44px;border-radius:13px;background:var(--mint-soft);color:var(--mint);display:flex;align-items:center;justify-content:center;font-size:21px;flex:none;}
+  .res .rname{font-size:15px;font-weight:700;}
+  .res .rmeta{font-size:12px;color:var(--sub);margin-top:2px;}
+  .res .badge{font-size:10px;font-weight:700;border-radius:8px;padding:3px 9px;white-space:nowrap;}
+  .res .badge.shared{background:var(--mint-soft);color:#0c8475;}
+  .res .badge.expired{background:#eef1f6;color:#8a93a3;}
+  .res .clabel{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:2px 8px;margin-top:9px;}
+  .res .clabel.mint{color:var(--mint);background:var(--mint-soft);}
+  .res .pdfbtn{margin-top:13px;border:1.5px solid var(--brand);color:var(--brand);background:var(--brand-soft);
+    font-size:13px;font-weight:700;border-radius:12px;padding:11px;text-align:center;display:flex;align-items:center;justify-content:center;gap:7px;}
+  .res.dim{opacity:.72;}
+  .res .pdfbtn.off{border-color:var(--line);color:#9aa3b2;background:#f4f6fa;}
+  .empty-note{font-size:12px;color:var(--sub);text-align:center;line-height:1.6;padding:30px 20px;
+    border:1.5px dashed var(--line);border-radius:16px;background:#fafbfd;}
+
+  /* eligibility */
+  .elig-card{background:var(--card);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);margin-bottom:12px;}
+  .elig-card .et{font-size:15px;font-weight:700;}
+  .elig-card .es{font-size:12px;color:var(--sub);margin-top:3px;}
+  .elig-card .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:9px;padding:5px 10px;margin-top:11px;}
+  .elig-card .badge.ok{background:var(--mint-soft);color:#0c8475;}
+  .elig-card .badge.no{background:#f4f6fa;color:#8a93a3;border:1px solid var(--line);}
+  .elig-card .gobtn{margin-top:12px;background:var(--brand);color:#fff;font-size:14px;font-weight:700;border-radius:12px;padding:12px;text-align:center;}
+  .elig-card .visitbtn{margin-top:12px;border:1.5px solid var(--line);color:var(--sub);font-size:13px;font-weight:600;border-radius:12px;padding:11px;text-align:center;}
+  .gate-note{font-size:11px;color:#8a93a3;line-height:1.5;background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:4px;}
+
+  /* self-check questionnaire */
+  .q-prog{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .q-prog .pb{flex:1;height:7px;background:#eaf0f7;border-radius:7px;overflow:hidden;}
+  .q-prog .pb i{display:block;height:100%;width:40%;background:var(--mint);border-radius:7px;}
+  .q-prog .pn{font-size:12px;color:var(--sub);font-weight:600;}
+  .q-stem{font-size:18px;font-weight:700;line-height:1.4;margin:6px 0 4px;}
+  .q-ctx{font-size:12px;color:var(--sub);margin-bottom:20px;}
+  .q-opt{border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+  .q-opt .rd{width:20px;height:20px;border-radius:50%;border:2px solid #cdd6e2;flex:none;}
+  .q-opt.sel{border-color:var(--mint);background:var(--mint-soft);}
+  .q-opt.sel .rd{border-color:var(--mint);background:var(--mint);box-shadow:inset 0 0 0 3px #fff;}
+
+  /* self-check result (R08 tone, connect funnel terminus) */
+  .scresult{text-align:center;padding:18px 6px 0;}
+  .scresult .rgauge{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;flex-direction:column;
+    background:conic-gradient(var(--mint) 0 52%, #eaf0f7 52% 100%);}
+  .scresult .rgauge .inner{width:92px;height:92px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .scresult .rgauge .sc-n{font-size:30px;font-weight:800;color:var(--ink);}
+  .scresult .rgauge .sc-l{font-size:11px;color:var(--sub);}
+  .scresult .rh{font-size:18px;font-weight:700;}
+  .scresult .rd2{font-size:12.5px;color:var(--sub);line-height:1.6;margin-top:8px;}
+  .sc-connect{margin-top:20px;background:linear-gradient(135deg,#eef3fb,#fff);border:1.5px solid #d7e4f6;border-radius:18px;padding:16px;text-align:left;}
+  .sc-connect .t{font-size:14px;font-weight:700;}
+  .sc-connect .s{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.5;}
+  .sc-connect .b{margin-top:12px;background:var(--brand);color:#fff;font-size:14px;font-weight:700;border-radius:12px;padding:12px;text-align:center;}
+
+  /* my page */
+  .myhead{display:flex;align-items:center;gap:14px;padding:8px 2px 20px;}
+  .myhead .ava{width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,#a9c8ff,#6e9bf0);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;}
+  .myhead .mn{font-size:19px;font-weight:700;}
+  .myhead .mp{font-size:12.5px;color:var(--sub);margin-top:3px;}
+  .my-sec-t{font-size:12px;font-weight:700;color:var(--sub);margin:18px 2px 10px;}
+  .mycard{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+  .myrow{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid var(--line);}
+  .myrow:last-child{border-bottom:none;}
+  .myrow .mi{width:38px;height:38px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;}
+  .myrow .mi.mint{background:var(--mint-soft);color:var(--mint);}
+  .myrow .mi.amber{background:var(--amber-soft);color:#d68a00;}
+  .myrow .mt3{font-size:14px;font-weight:600;flex:1;}
+  .myrow .ms3{font-size:12px;color:var(--sub);}
+  .myrow .chev{color:#c2cad6;font-size:18px;}
+  /* toggle switch */
+  .tg{width:44px;height:26px;border-radius:14px;background:var(--brand);position:relative;flex:none;}
+  .tg::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .tg.off{background:#cdd6e2;}
+  .tg.off::after{right:auto;left:3px;}
+  .childcard{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid var(--line);}
+  .childcard:last-child{border-bottom:none;}
+  .childcard .cav{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#ffd1e6,#ff9ec7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+  .childcard .cav.b{background:linear-gradient(135deg,#a9c8ff,#6e9bf0);}
+  .childcard .cn2{font-size:14px;font-weight:700;}
+  .childcard .cs2{font-size:12px;color:var(--sub);margin-top:2px;}
+  .childcard .chev{margin-left:auto;color:#c2cad6;font-size:18px;}
+
+  /* ===== NEW v3: voucher card (R12 Phase2 잔여 + freshness gate) ===== */
+  .vcard{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+  .vcard .vtop{display:flex;align-items:center;justify-content:space-between;}
+  .vcard .vname{font-size:14px;font-weight:700;}
+  .vcard .vcenter{font-size:11px;color:var(--sub);margin-top:2px;}
+  .vcard .vbig{font-size:13px;color:var(--sub);margin-top:14px;}
+  .vcard .vbig b{font-size:26px;font-weight:800;color:var(--ink);}
+  .vcard .vbar{height:8px;border-radius:8px;background:#eaf0f7;overflow:hidden;margin-top:10px;}
+  .vcard .vbar i{display:block;height:100%;background:linear-gradient(90deg,#3a9d4a,#5cc26a);border-radius:8px;}
+  .vcard .vmeta{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:8px;}
+  .vcard .vsync{font-size:10.5px;color:#9aa3b2;margin-top:12px;background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:8px 10px;line-height:1.45;}
+  .vcard .vbadge{font-size:10px;font-weight:700;border-radius:8px;padding:3px 9px;}
+  .vcard .vbadge.ok{background:var(--mint-soft);color:#0c8475;}
+  .vcard .vbadge.exp{background:#eef1f6;color:#8a93a3;}
+  .vcard.dim{opacity:.7;}
+
+  /* ===== NEW v3: notification list (R13) ===== */
+  .notif{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px;}
+  .notrow{display:flex;gap:13px;padding:15px 16px;border-bottom:1px solid var(--line);align-items:flex-start;}
+  .notrow:last-child{border-bottom:none;}
+  .notrow.unread{background:#f6faff;}
+  .notrow .ni{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;}
+  .notrow .ni.appr{background:var(--mint-soft);color:var(--mint);}
+  .notrow .ni.remind{background:var(--brand-soft);color:var(--brand);}
+  .notrow .ni.change{background:var(--amber-soft);color:#d68a00;}
+  .notrow .ni.result{background:#e8f4ec;color:#2a7d4f;}
+  .notrow .nt{font-size:13.5px;font-weight:700;}
+  .notrow .ns{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.45;}
+  .notrow .ntime{font-size:10.5px;color:#aab2c0;margin-top:5px;}
+  .notrow .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);flex:none;margin-top:6px;}
+  .notif-day{font-size:12px;font-weight:700;color:var(--sub);margin:18px 2px 10px;}
+  /* push permission banner */
+  .pushperm{background:linear-gradient(135deg,#fff4e0,#fffdf8);border:1.5px solid #ffe2b0;border-radius:16px;padding:14px 15px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+  .pushperm .pi{font-size:22px;}
+  .pushperm .pt{font-size:12.5px;font-weight:700;color:#8a5a00;}
+  .pushperm .ps{font-size:11px;color:#a4762a;margin-top:2px;line-height:1.4;}
+  .pushperm .pb{margin-left:auto;font-size:12px;font-weight:700;color:#fff;background:var(--amber);border-radius:10px;padding:8px 12px;white-space:nowrap;}
+  /* OS push preview */
+  .ospush{background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:13px 15px;margin-bottom:11px;display:flex;gap:12px;align-items:flex-start;}
+  .ospush .oa{width:34px;height:34px;border-radius:10px;background:radial-gradient(circle at 35% 30%,#dbe8ff,#6ea0ff);flex:none;}
+  .ospush .ot{font-size:12px;font-weight:700;}
+  .ospush .om{font-size:12px;color:#3a4250;margin-top:2px;line-height:1.4;}
+  .ospush .otime{font-size:10px;color:#aab2c0;}
+  .lockwall{height:100%;background:linear-gradient(180deg,#2b3a52,#1b2330);padding:0;}
+  .lockwall .lktime{text-align:center;color:#fff;padding:54px 0 8px;}
+  .lockwall .lktime .h{font-size:62px;font-weight:300;letter-spacing:1px;}
+  .lockwall .lktime .d{font-size:14px;opacity:.85;margin-top:2px;}
+  .lockwall .lkpush{padding:18px 16px 0;}
+
+  /* reservation list (R11 read-only) */
+  .resv-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .resv-tabs .rt{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:9px;border-radius:11px;background:#eef1f6;color:var(--sub);}
+  .resv-tabs .rt.on{background:var(--brand);color:#fff;}
+  .resv-month{font-size:12px;font-weight:700;color:var(--sub);margin:14px 2px 10px;}
+
+  /* onboarding */
+  .ob{padding:14px 22px 0;display:flex;flex-direction:column;height:100%;}
+  .ob .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .ob .back{font-size:22px;color:var(--sub);}
+  .ob .skip{font-size:13px;color:var(--sub);}
+  .ob .steps{display:flex;gap:6px;margin:6px 0 26px;}
+  .ob .steps i{height:4px;border-radius:4px;background:var(--line);flex:1;}
+  .ob .steps i.on{background:var(--brand);}
+  .ob h3{font-size:23px;line-height:1.35;margin:0 0 8px;}
+  .ob .desc{font-size:14px;color:var(--sub);line-height:1.6;margin:0 0 26px;}
+  .ob .field{margin-bottom:18px;}
+  .ob .field label{font-size:12.5px;font-weight:600;color:#46505f;display:block;margin-bottom:7px;}
+  .ob .inp{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font-size:16px;background:#fff;color:var(--ink);}
+  .ob .inp.filled{border-color:var(--brand);}
+  .ob .inprow{display:flex;gap:10px;}
+  .ob .inprow .inp{flex:1;}
+  .ob .sendbtn{border:1.5px solid var(--brand);color:var(--brand);font-weight:700;border-radius:14px;padding:0 16px;font-size:13px;white-space:nowrap;background:var(--brand-soft);display:flex;align-items:center;}
+  .ob .hint{font-size:11.5px;color:var(--sub);margin-top:8px;line-height:1.5;}
+  .ob .found{background:var(--mint-soft);border:1px solid #bdeae3;border-radius:14px;padding:13px 15px;margin-top:6px;display:flex;align-items:center;gap:11px;}
+  .ob .found .fi{width:38px;height:38px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .ob .found .ft{font-size:14px;font-weight:700;color:#0c8475;}
+  .ob .found .fs{font-size:11.5px;color:#0f9d8c;margin-top:1px;}
+  .ob .otp{display:flex;gap:9px;justify-content:space-between;}
+  .ob .otp .cell{flex:1;height:58px;border:1.5px solid var(--line);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;background:#fff;}
+  .ob .otp .cell.fill{border-color:var(--brand);color:var(--ink);}
+  .ob .otp .cell.cursor{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .ob .timer{font-size:12px;color:var(--brand);font-weight:700;text-align:center;margin-top:14px;}
+  .ob .resend{font-size:12px;color:var(--sub);text-align:center;margin-top:5px;}
+  .ob .spacer{flex:1;}
+  .ob .primary{background:var(--brand);color:#fff;font-size:16px;font-weight:700;border-radius:16px;padding:16px;text-align:center;box-shadow:0 8px 18px rgba(59,130,246,.3);margin-bottom:14px;}
+  .ob .social{display:flex;flex-direction:column;gap:11px;}
+  .ob .sbtn{border-radius:14px;padding:15px;font-size:15px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:9px;}
+  .ob .kakao{background:#fee500;color:#191600;}
+  .ob .naver{background:#03c75a;color:#fff;}
+  .ob .apple{background:#0d1117;color:#fff;}
+  .ob .or{text-align:center;font-size:11.5px;color:var(--sub);margin:14px 0;}
+  .ob .obhero{text-align:center;padding:30px 0 10px;}
+  .ob .obhero .glow{width:96px;height:96px;border-radius:50%;margin:0 auto 22px;position:relative;
+    background:radial-gradient(circle at 35% 30%,#dbe8ff,#9cc0ff 55%,#6ea0ff);box-shadow:0 14px 36px rgba(110,160,255,.5);}
+  .ob .obhero .glow .tod{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;background:#0d1117;color:#fff;border-radius:7px;padding:2px 7px;}
+  .ob .done{text-align:center;padding:40px 0 0;}
+  .ob .done .check{width:80px;height:80px;border-radius:50%;background:var(--mint-soft);color:var(--mint);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 22px;}
+
+  .tabbar{position:absolute;bottom:0;left:0;right:0;height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:0 50px 8px;z-index:20;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#aab2c0;}
+  .tab.active{color:var(--brand);}
+  .tab .ti{font-size:22px;}
+  .home-indicator{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#0d1117;border-radius:3px;opacity:.85;z-index:25;}
+
+  /* dark-mode phone (R principles: 다크모드 시너지) */
+  .dark .screen{background:#10141c;}
+  .dark{--bg:#10141c;--ink:#eef2f8;--sub:#8a93a3;--line:#222a36;--card:#19202b;--brand-soft:#1a2640;--mint-soft:#13332e;--shadow:0 4px 20px rgba(0,0,0,.4);}
+  .dark .statusbar{color:#eef2f8;}
+  .dark .orb .glow.night{box-shadow:0 0 28px rgba(110,160,255,.6);}
+  .dark .tabbar{background:rgba(16,20,28,.92);border-top-color:#222a36;}
+  .dark .hero{box-shadow:0 0 30px rgba(59,130,246,.4);}
+</style>
+</head>
+<body>
+
+<div class="pagehead">
+  <h1>내담자 앱 — 시안 v3 · MVP 전체 화면 세트 (예약 · 바우처 · 알림 · 마이)</h1>
+  <p class="meta">범위: v2 전체(홈 연속체·센터 컨텍스트·검사 결과·셀프응답·보호자·온보딩) + Round 11~15 — 예약 조회 · 바우처(발견 제외/잔여 Phase2) · 알림 · 마이페이지 · 오브 경량 비주얼 · 다크모드. R15 최종 MVP 범위 확정 반영.</p>
+
+  <div class="changelog">
+    <h2><span class="tag">CHANGELOG</span> 시안 v2(센터 컨텍스트 + 프로파일) 대비 변경</h2>
+    <ul>
+      <li class="add"><b>예약 조회 화면 신설 (R11)</b> — 셀프 JWT 조회 자산 재사용한 읽기 전용 타임라인 + 길찾기 딥링크. 변경/취소·셀프예약·슬롯 공개는 write-side라 Phase 2</li>
+      <li class="rm"><b>셀프예약/가용 슬롯/월간 캘린더 뷰 무자리 (R11)</b> — 5덩어리 최대부하 write·미정 백엔드. v3에 placeholder div조차 만들지 않음(타임라인 채택)</li>
+      <li class="add"><b>알림 센터 + OS 푸시 프리뷰 신설 (R13)</b> — 일정 리마인더(SMS→푸시 승격)·센터 승인·일정 변경·결과 공유 4종 트랜잭션 알림 + 터치 딥링크</li>
+      <li class="add"><b>마이페이지 전체 알림 on/off 토글 (R13)</b> — 글로벌 '*' channel_push 단일 게이트, 종류별 설정·방해금지는 과설계라 제외</li>
+      <li class="add"><b>기기 권한 거부 인앱 안내 배너 (R13)</b> — 무음 이탈 방지, 백엔드 무변경</li>
+      <li class="add"><b>잔여 바우처 조회 화면 (R12, Phase 2)</b> — remaining/total/valid_until/센터명만(정산 필드 영구 비노출) + 갱신시각 신선도 게이트. 정부 바우처 발견은 영구 제외</li>
+      <li class="rm"><b>정부 바우처 발견·자격 매칭 영구 제외 (R12/R01)</b> — 제도DB·자격판정 엔진 전무, 오안내 법적·신뢰 리스크. 붉은 ⛔ 플래그로 명시</li>
+      <li class="mod"><b>오브 경량 비주얼 LOCK 적용 (R14)</b> — 시간대 4색 전환(아침/낮/저녁/밤) + 멘트 종속 3상태(로딩 맥동/에러 흐릿). Skia·7종 모션·풀 캐릭터는 Phase 2</li>
+      <li class="add"><b>매거진 콘텐츠 상세 뷰어 신설 (R14)</b> — 정적 큐레이션 10개 캡, 본문도 정적 seed. CMS·태그 개인화·무한스크롤은 Phase 2</li>
+      <li class="add"><b>F05 셀프체크 결과 화면 + 연결 동선 (R08 톤)</b> — '진단 아님' 명시, 고위험 안내, 영업 아닌 중립 톤 연결 CTA</li>
+      <li class="add"><b>다크 모드 홈 (principles: 오브 빛 기반 시너지)</b> — MVP 포함, 어두운 배경에서 오브가 빛나는 감성 톤</li>
+      <li class="df"><b>인앱 셀프 응답 엔진 / 영역별 바·3단 공개 / 1시간 전 알림 / 묶음 카피 / 센터 필터칩 / 오브 Skia</b> — Phase 2. AI 성장가이드는 Phase 3 (R15)</li>
+    </ul>
+    <div class="guardrail">
+      <div class="gr"><b>가드 ① domain-count</b>MVP 신규 백엔드는 4개 도메인 경로(link 셀프신청·셀프 일정조회·검사결과 목록·내담자 푸시 디스패치). 화면 수가 아니라 경로 수. 🔵NEW-BE 플래그로 표시</div>
+      <div class="gr"><b>가드 ② 화이트리스트 LOCK</b>초록 🔒WL = client-facing 노출 경계. 일정/회차/진행/센터·상담사명/주소만, 바우처는 잔여회기/유효기간만. 정산금액·미발행노트·내부메모는 비노출</div>
+      <div class="gr"><b>가드 ③ 무자리 + 중립 톤</b>미정 라운드(셀프예약 write)는 placeholder div도 금지. 폴백/바우처 신선도/대기/고위험 카피는 감정·영업 톤 없이 사실 중심(R08 톤)</div>
+    </div>
+    <div class="legend">
+      <span class="ph-dot"></span> 점선 보라 + 검은 플래그 = Phase 2(렌더만, 제품 기능 아님)
+      <span>·</span><span class="wl-dot"></span> 초록 🔒WL = 노출 화이트리스트 경계
+      <span>·</span><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#1d5fc4"></span> 파랑 🔵NEW-BE = MVP 신규 백엔드 4경로
+      <span>·</span><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#c0392b"></span> 붉은 ⛔ = 영구 제외(법적·B2B)
+    </div>
+  </div>
+</div>
+
+<!-- ===================== GROUP A: 홈 상태 연속체 (v2 계승 + 오브 경량 비주얼 R14) ===================== -->
+<div class="group-label">A. 홈 상태 연속체 <span class="nv">— 단일 조건부 트리(3상태×2역할). v2 계승 + R14 오브 경량 비주얼(시간대 4색·멘트 종속 3상태) 적용</span></div>
+<div class="rail">
+
+<!-- ① 비연동 홈 (오브 아침) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-empty">① 비연동 · activation 깔때기</span>
+    <h2>센터 연동 전 · 오브 아침 톤</h2>
+    <p>오브 멘트 → <b>연결 CTA 1순위</b> → 셀프체크 → 매거진.<br>오브 비주얼이 v2 placeholder → 시간대 색 적용(R14).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>8:12</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb">
+        <div class="glow morning"><span class="tod">아침</span></div>
+        <div><div class="mt">좋은 아침이에요, 민준 님</div><div class="ms">오늘 마음의 첫 단추를 끼워볼까요?</div></div>
+      </div>
+      <div class="connect">
+        <div class="ci">🔗</div>
+        <div class="ct">다니는 센터를 연결해 보세요</div>
+        <div class="cs">센터 코드와 전화번호만 있으면<br>검사 결과·일정·회기를 앱에서 바로 봐요</div>
+        <div class="cbtn">센터 연결하기</div>
+      </div>
+      <div class="peek">잠깐, 지금 마음은 어떤가요</div>
+      <div class="selfcheck">
+        <div><div class="sc-t">1분 무료 셀프체크</div><div class="sc-s">간단한 질문으로 요즘 마음 상태를 확인해요</div></div>
+        <div class="sc-btn">시작</div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3>마음 매거진</h3><a href="#">전체 ›</a></div>
+        <div class="hscroll">
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#93b4f5,#6e9bf0)"><span class="cat">불안</span></div><div class="mt2">잠 못 드는 밤, 불안을 다루는 법</div><div class="ms2">읽기 3분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#6ee7b7,#34d399)"><span class="cat">아동</span></div><div class="mt2">아이 검사 결과지, 이렇게 읽으세요</div><div class="ms2">읽기 5분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#9ce0d6,#5ec9ba)"><span class="cat">자기돌봄</span></div><div class="mt2">번아웃 자가진단 체크리스트</div><div class="ms2">읽기 4분</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ② 단일센터 홈 (오브 낮) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-single">② 단일센터 · 성인 본인 · 오브 낮</span>
+    <h2>1개 센터 연동 · 정보밀도 LOCK</h2>
+    <p>다음 일정 카드: 날짜·D-day + 대상·센터 + 회차 한 줄 + 길찾기.<br>성인 진행바 미노출(R06 유지).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>13:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb">
+        <div class="glow day"><span class="tod">낮</span></div>
+        <div><div class="mt">민준 님, 이번 주 상담이 있어요</div><div class="ms">목요일까지 잘 지내봐요 🌿</div></div>
+      </div>
+      <div class="ph wl-outline">
+        <span class="wl-flag">🔒 WL · 노출 경계</span>
+        <div class="hero">
+          <div class="label"><span>다음 일정</span><span>D-2</span></div>
+          <div class="next">
+            <div class="ico">🗓️</div>
+            <div><div class="t">개인상담 · 이수진 선생님</div><div class="s">6/20 (목) 오후 3:00 · 2층 상담실</div></div>
+          </div>
+          <span class="center-tag">🌳 마음숲 심리상담센터</span>
+          <div class="sessline">전체 12회기 중 7회기 진행 중</div>
+          <div class="wayfind">📍 센터 길찾기 · 준비물 보기<span class="arrow">›</span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3>그때까지 해볼 것</h3></div>
+        <div class="ph ph-outline">
+          <span class="ph-flag">미션 Phase 2</span>
+          <div class="mission">
+            <div class="mi">🎯</div>
+            <div><div class="mt">이번 주 마음 기록 2회</div><div class="ms">상담 전 떠오른 생각을 남겨보세요 · 1/2</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3>응답할 검사</h3><a href="#">1건 ›</a></div>
+        <div class="appt">
+          <div class="ai">📝</div>
+          <div class="ainfo"><div class="at">우울 척도 (BDI-II)</div><div class="as">이수진 선생님이 요청 · 6/19까지</div><span class="clabel">🌳 마음숲</span></div>
+          <div class="dday">응답</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3>마음 매거진</h3><a href="#">전체 ›</a></div>
+        <div class="hscroll">
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#93b4f5,#6e9bf0)"><span class="cat">불안</span></div><div class="mt2">상담 효과를 높이는 일상 습관</div><div class="ms2">읽기 3분</div></div>
+          <div class="mag"><div class="thumb" style="background:linear-gradient(135deg,#9ce0d6,#5ec9ba)"><span class="cat">자기돌봄</span></div><div class="mt2">감정 일기, 어떻게 쓰면 좋을까</div><div class="ms2">읽기 4분</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ③ 멀티센터 홈 + 부분 실패 폴백 (오브 저녁) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-multi">③ 멀티센터 · 통합 + 부분실패 · 오브 저녁</span>
+    <h2>2개 이상 센터 · N-call 머지</h2>
+    <p>통합 시간순 카드 스택. 한 센터 실패 시<br>성공 센터만 + 중립 폴백 배너(R06). 필터칩 무자리.</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>19:08</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb">
+        <div class="glow evening"><span class="tod">저녁</span></div>
+        <div><div class="mt">이번 주, 두 곳 일정이 있어요</div><div class="ms">가까운 순서로 정리했어요</div></div>
+      </div>
+      <div class="ph wl-outline">
+        <span class="wl-flag">🔒 WL</span>
+        <div class="hero">
+          <div class="label"><span>다음 일정</span><span>D-2</span></div>
+          <div class="next">
+            <div class="ico">🗓️</div>
+            <div><div class="t">개인상담 · 이수진 선생님</div><div class="s">6/20 (목) 오후 3:00 · 2층 상담실</div></div>
+          </div>
+          <span class="center-tag">🌳 마음숲 심리상담센터</span>
+          <div class="sessline">전체 12회기 중 7회기 진행 중</div>
+          <div class="wayfind">📍 센터 길찾기 · 준비물 보기<span class="arrow">›</span></div>
+        </div>
+      </div>
+      <div class="tl-head"><span>이후 일정</span><span>시간순 · 통합</span></div>
+      <div class="appt">
+        <div class="ai mint">🧩</div>
+        <div class="ainfo"><div class="at">종합심리검사 (Full-battery)</div><div class="as">6/24 (화) 오전 10:00</div><span class="clabel mint">🌿 온마음 심리센터</span></div>
+        <div class="dday">D-6</div>
+      </div>
+      <div class="fbanner">
+        <span class="fi">⚠️</span>
+        <div class="ft">'늘봄 심리상담센터'의 일정을 불러오지 못했어요.<br>다른 센터 일정은 정상 표시되고 있어요.</div>
+        <span class="fb">다시 시도</span>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3>응답할 검사</h3><a href="#">2건 ›</a></div>
+        <div class="appt">
+          <div class="ai">📝</div>
+          <div class="ainfo"><div class="at">우울 척도 (BDI-II)</div><div class="as">6/19까지</div><span class="clabel">🌳 마음숲</span></div>
+          <div class="dday">응답</div>
+        </div>
+        <div class="appt">
+          <div class="ai mint">📝</div>
+          <div class="ainfo"><div class="at">성인 지능검사 사전 설문</div><div class="as">6/23까지</div><span class="clabel mint">🌿 온마음</span></div>
+          <div class="dday">응답</div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ④ 다크모드 홈 (오브 밤) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-dark">④ 다크 모드 · 오브 밤 (NEW)</span>
+    <h2>다크 모드 · 오브 빛 시너지</h2>
+    <p>principles: 다크 배경에서 오브가 빛나는 감성 톤.<br>MVP 포함, 시간대 밤 색 + 발광 강조.</p>
+  </div>
+  <div class="phone dark">
+    <div class="notch"></div>
+    <div class="statusbar"><span>22:47</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb">
+        <div class="glow night"><span class="tod">밤</span></div>
+        <div><div class="mt">민준 님, 오늘 하루 어땠나요</div><div class="ms">내일 상담 전, 푹 쉬어요 🌙</div></div>
+      </div>
+      <div class="ph wl-outline">
+        <span class="wl-flag">🔒 WL</span>
+        <div class="hero">
+          <div class="label"><span>다음 일정</span><span>D-1</span></div>
+          <div class="next">
+            <div class="ico">🗓️</div>
+            <div><div class="t">개인상담 · 이수진 선생님</div><div class="s">6/19 (수) 오후 3:00 · 2층 상담실</div></div>
+          </div>
+          <span class="center-tag">🌳 마음숲 심리상담센터</span>
+          <div class="sessline">전체 12회기 중 7회기 진행 중</div>
+          <div class="wayfind">📍 센터 길찾기 · 준비물 보기<span class="arrow">›</span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h3 style="color:#eef2f8">응답할 검사</h3><a href="#">1건 ›</a></div>
+        <div class="appt">
+          <div class="ai">📝</div>
+          <div class="ainfo"><div class="at">우울 척도 (BDI-II)</div><div class="as">6/19까지</div><span class="clabel">🌳 마음숲</span></div>
+          <div class="dday">응답</div>
+        </div>
+      </div>
+      <p class="gate-note" style="margin-top:18px">다크 모드는 MVP 포함(principles). 오브가 빛 기반이라 어두운 배경에서 발광 시너지 — 단 색 전환·3상태만, Skia 모션은 Phase 2(R14).</p>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑤ 보호자 홈 (v2 계승) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-guardian">⑤ 보호자 · 회차 진행 1급</span>
+    <h2>보호자 (자녀 2명)</h2>
+    <p>자녀 섹션 1차 그룹핑 + 회차 진행 인디케이터(1급).<br>relation 1-hop 인가 통과 가정·화이트리스트 더미(R09).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb">
+        <div class="glow morning"><span class="tod">아침</span></div>
+        <div><div class="mt">아이들의 이번 주를 모았어요</div><div class="ms">서연이와 도윤이 일정이에요</div></div>
+      </div>
+      <div class="child-head">
+        <div class="cav">서연</div>
+        <div class="cn">김서연<small>마음숲 심리상담센터 · 아동</small></div>
+      </div>
+      <div class="ph wl-outline">
+        <span class="wl-flag">🔒 WL · relation R9</span>
+        <div class="hero">
+          <div class="label"><span>다음 일정</span><span>D-2</span></div>
+          <div class="next">
+            <div class="ico">🧸</div>
+            <div><div class="t">놀이치료 · 박지영 선생님</div><div class="s">6/20 (목) 오후 4:00 · 3층 놀이치료실</div></div>
+          </div>
+          <span class="center-tag">🌳 마음숲 심리상담센터</span>
+          <div class="wayfind">📍 센터 길찾기 · 준비물 보기<span class="arrow">›</span></div>
+        </div>
+      </div>
+      <div class="cprog">
+        <div class="ct2"><span>치료 진행 현황</span><b>8 / 16회기</b></div>
+        <div class="bar"><i style="width:50%"></i></div>
+      </div>
+      <div class="appt">
+        <div class="ai">📝</div>
+        <div class="ainfo"><div class="at">부모 양육태도 설문</div><div class="as">박지영 선생님이 요청 · 6/19까지</div><span class="clabel">🌳 마음숲</span></div>
+        <div class="dday">응답</div>
+      </div>
+      <div class="child-head">
+        <div class="cav" style="background:linear-gradient(135deg,#a9c8ff,#6e9bf0)">도윤</div>
+        <div class="cn">김도윤<small>온마음 심리센터 · 아동</small></div>
+      </div>
+      <div class="cprog">
+        <div class="ct2"><span>치료 진행 현황</span><b>3 / 10회기</b></div>
+        <div class="bar"><i style="width:30%"></i></div>
+      </div>
+      <div class="appt">
+        <div class="ai mint">🧩</div>
+        <div class="ainfo"><div class="at">종합심리검사 (Full-battery)</div><div class="as">6/24 (화) 오전 10:00</div><span class="clabel mint">🌿 온마음 심리센터</span></div>
+        <div class="dday">D-6</div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP B: 예약 조회 + 일정 드릴다운 (R11) ===================== -->
+<div class="group-label">B. 예약 조회 · 일정 드릴다운 <span class="nv">— R11: 조회만 MVP(셀프 JWT 조회 재사용) · 길찾기 딥링크 / 변경·취소·셀프예약·슬롯은 Phase 2(무자리)</span></div>
+<div class="rail">
+
+<!-- ⑥ 예약 조회 (read-only 타임라인) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-single">⑥ 예약 조회 (NEW) · 읽기 전용</span>
+    <h2>전체 예약 — 시간순 통합</h2>
+    <p>다가오는/지난 예약 읽기 전용. R6 셀프 조회 자산 재사용.<br>변경·취소 버튼 없음(write Phase 2), 월간 캘린더 미채택.</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="ph" style="position:relative">
+        <span class="nb-flag">🔵 NEW-BE · 셀프 일정조회</span>
+        <div class="appbar" style="padding-top:18px"><span class="bk">‹</span><h3>내 예약</h3></div>
+      </div>
+      <div class="resv-tabs"><div class="rt on">다가오는</div><div class="rt">지난 예약</div></div>
+      <div class="resv-month">이번 주</div>
+      <div class="ph wl-outline" style="margin-bottom:6px"><span class="wl-flag" style="top:-2px">🔒 WL</span><div style="height:2px"></div></div>
+      <div class="appt">
+        <div class="ai">🗓️</div>
+        <div class="ainfo"><div class="at">개인상담 · 7회기</div><div class="as">6/20 (목) 오후 3:00 · 이수진 선생님</div><span class="clabel">🌳 마음숲 · 2층 상담실</span></div>
+        <div class="dday">D-2</div>
+      </div>
+      <div class="resv-month">다음 주</div>
+      <div class="appt">
+        <div class="ai mint">🧩</div>
+        <div class="ainfo"><div class="at">종합심리검사</div><div class="as">6/24 (화) 오전 10:00 · 정민호 선생님</div><span class="clabel mint">🌿 온마음 · 검사실 A</span></div>
+        <div class="dday">D-6</div>
+      </div>
+      <div class="appt">
+        <div class="ai">🗓️</div>
+        <div class="ainfo"><div class="at">개인상담 · 8회기</div><div class="as">6/27 (금) 오후 3:00 · 이수진 선생님</div><span class="clabel">🌳 마음숲 · 2층 상담실</span></div>
+        <div class="dday">D-9</div>
+      </div>
+      <p class="gate-note">예약 변경·취소는 지금은 센터에 문의해 주세요. 앱에서 직접 예약·변경하는 기능은 준비 중이에요. <span style="color:#b9a6f0">(셀프예약·변경/취소 write는 Phase 2 — v3에 버튼 자리도 만들지 않음, R11)</span></p>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑦ 일정 드릴다운 바텀시트 (v2 계승 + 길찾기 딥링크 R11) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-single">⑦ 일정 드릴다운 · 바텀시트</span>
+    <h2>다음 일정 → 회차 상세</h2>
+    <p>준비물·담당·장소는 바텀시트로만(R06).<br><b>길찾기 = 지도앱 딥링크</b>(좌표 없으면 폴백, R11).</p>
+  </div>
+  <div class="phone sheetphone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="orb"><div class="glow day"><span class="tod">낮</span></div><div><div class="mt">민준 님, 이번 주 상담이 있어요</div><div class="ms">목요일까지 잘 지내봐요 🌿</div></div></div>
+      <div class="hero">
+        <div class="label"><span>다음 일정</span><span>D-2</span></div>
+        <div class="next"><div class="ico">🗓️</div><div><div class="t">개인상담 · 이수진 선생님</div><div class="s">6/20 (목) 오후 3:00 · 2층 상담실</div></div></div>
+        <span class="center-tag">🌳 마음숲 심리상담센터</span>
+        <div class="sessline">전체 12회기 중 7회기 진행 중</div>
+        <div class="wayfind">📍 센터 길찾기 · 준비물 보기<span class="arrow">›</span></div>
+      </div>
+      <div style="height:280px"></div>
+      <div class="scrim"></div>
+      <div class="ph wl-outline sheet">
+        <span class="wl-flag" style="top:12px">🔒 WL</span>
+        <div class="grip"></div>
+        <h3>개인상담 · 7회기</h3>
+        <p class="sub">6/20 (목) 오후 3:00 · 마음숲 심리상담센터</p>
+        <div class="row"><div class="ri">👤</div><div><div class="rt">담당 상담사</div><div class="rs">이수진 선생님</div></div></div>
+        <div class="row"><div class="ri">📍</div><div><div class="rt">장소</div><div class="rs">서울 마포구 월드컵로 12, 2층 상담실</div></div></div>
+        <div class="row"><div class="ri">🎒</div><div><div class="rt">준비물</div><div class="rs">지난 회기 마음 기록 노트를 가져와 주세요</div></div></div>
+        <div class="way">📍 지도앱으로 길찾기</div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑧ 검사 결과 히스토리 (v2 계승) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-result">⑧ 검사 결과 · 공유됨만</span>
+    <h2>내 검사 결과 (성인 본인)</h2>
+    <p>send_result '공유됨'만 목록(미공유 회색 금지).<br>만료/회수는 비활성. JWT 신원 PDF 인앱 열람(R07).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="ph" style="position:relative">
+        <span class="nb-flag">🔵 NEW-BE · 검사결과 목록</span>
+        <div class="appbar" style="padding-top:18px"><span class="bk">‹</span><h3>내 검사 결과</h3></div>
+      </div>
+      <div class="ph wl-outline" style="margin-bottom:6px">
+        <span class="wl-flag">🔒 WL · send_result 게이트</span>
+        <div style="height:6px"></div>
+      </div>
+      <div class="res">
+        <div class="rtop">
+          <div class="ri">🧩</div>
+          <div style="flex:1"><div class="rname">종합심리검사 (Full-battery)</div><div class="rmeta">2026.05.28 발행 · 이수진 선생님</div></div>
+          <span class="badge shared">공유됨</span>
+        </div>
+        <span class="clabel">🌳 마음숲 심리상담센터</span>
+        <div class="pdfbtn">📄 결과 보고서 열기</div>
+      </div>
+      <div class="res">
+        <div class="rtop">
+          <div class="ri">📝</div>
+          <div style="flex:1"><div class="rname">우울 척도 (BDI-II)</div><div class="rmeta">2026.04.15 발행 · 이수진 선생님</div></div>
+          <span class="badge shared">공유됨</span>
+        </div>
+        <span class="clabel">🌳 마음숲 심리상담센터</span>
+        <div class="pdfbtn">📄 결과 보고서 열기</div>
+      </div>
+      <div class="res dim">
+        <div class="rtop">
+          <div class="ri" style="background:#eef1f6;color:#9aa3b2">📝</div>
+          <div style="flex:1"><div class="rname">성인 ADHD 자가보고</div><div class="rmeta">2026.01.10 발행 · 링크 만료됨</div></div>
+          <span class="badge expired">만료됨</span>
+        </div>
+        <span class="clabel mint">🌿 온마음 심리센터</span>
+        <div class="pdfbtn off">🔒 열람 기간이 지났어요</div>
+      </div>
+      <p class="gate-note">상담사가 공유한 결과만 보여요. 만료·회수된 결과는 회색으로 표시되며, 다시 보려면 센터에 문의해 주세요. (영역별 바·3단 공개수준 인라인 시각화는 Phase 2)</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑨ PDF 인앱 뷰어 (v2 계승) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-result">⑨ PDF 인앱 열람</span>
+    <h2>JWT 신원 PDF 뷰어</h2>
+    <p>4자리 코드 없이 신원으로 presigned URL(R07).<br><b>상담사 발행본 그대로</b>, 앱 재가공·AI 요약 없음.</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar" style="background:#0d1117;color:#fff"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab pdfview" style="padding:0;background:#5a6475">
+      <div class="pdfbar" style="background:#0d1117;color:#fff;padding:0 16px;height:52px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:22px">✕</span>
+        <span style="font-size:13px;font-weight:600;flex:1">종합심리검사 결과 보고서</span>
+        <span style="font-size:18px;opacity:.85">⬇</span><span style="font-size:18px;opacity:.85">⤴</span>
+      </div>
+      <div style="background:#fff;margin:18px;border-radius:8px;padding:24px 22px;box-shadow:0 8px 30px rgba(0,0,0,.3);min-height:560px">
+        <div style="font-size:17px;font-weight:800;border-bottom:2px solid var(--ink);padding-bottom:10px">종합심리검사 결과 보고서</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:6px">김민준 · 만 32세 · 검사일 2026.05.20 · 마음숲 심리상담센터</div>
+        <div style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#2a3340">Ⅰ. 검사 개요</div>
+        <div style="height:9px;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div><div style="height:9px;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div><div style="height:9px;width:60%;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div>
+        <div style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#2a3340">Ⅱ. 영역별 결과</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:11px"><span style="width:52px;color:var(--sub)">우울</span><div style="flex:1;height:11px;background:#eef1f6;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:62%;background:var(--brand)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:11px"><span style="width:52px;color:var(--sub)">불안</span><div style="flex:1;height:11px;background:#eef1f6;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:48%;background:var(--brand)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:11px"><span style="width:52px;color:var(--sub)">대인</span><div style="flex:1;height:11px;background:#eef1f6;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:71%;background:var(--brand)"></i></div></div>
+        <div style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#2a3340">Ⅲ. 종합 소견</div>
+        <div style="height:9px;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div><div style="height:9px;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div><div style="height:9px;width:60%;background:#eef1f6;border-radius:4px;margin-bottom:7px"></div>
+      </div>
+      <div style="position:absolute;bottom:14px;left:14px;right:14px;background:rgba(13,17,23,.82);color:#fff;font-size:10.5px;line-height:1.5;border-radius:12px;padding:10px 13px;z-index:10">📌 이 화면은 상담사가 발행한 PDF를 그대로 표시합니다. 영역별 바·소견은 <b>PDF 내부 콘텐츠</b>이며, 앱이 그리는 인라인 시각화는 Phase 2입니다 (R07).</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP C: 알림 (R13) ===================== -->
+<div class="group-label">C. 알림 · 푸시 <span class="nv">— R13: 트랜잭션 알림 4종(리마인더·승인·변경·결과공유) + OS 푸시 딥링크 / 콘텐츠 넛지 제외 · 1시간 전·묶음은 Phase 2</span></div>
+<div class="rail">
+
+<!-- ⑩ OS 락스크린 푸시 프리뷰 -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-notif">⑩ OS 푸시 · 잠금화면</span>
+    <h2>일정 리마인더 푸시 (D-1)</h2>
+    <p>SMS→푸시 승격(09시 KST 잡 재사용). 토큰 없으면 SMS 폴백.<br>터치 → 홈/상세 딥링크(data.type 라우팅, R13).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen noTab lockwall" style="padding:0">
+      <div class="lktime">
+        <div class="h">9:41</div>
+        <div class="d">6월 19일 목요일</div>
+      </div>
+      <div class="lkpush">
+        <div class="ph" style="position:relative">
+          <span class="nb-flag">🔵 NEW-BE · 내담자 푸시 디스패치</span>
+          <div style="height:14px"></div>
+        </div>
+        <div class="ospush">
+          <div class="oa"></div>
+          <div style="flex:1"><div class="ot">마인드앤서</div><div class="om">내일 오후 3시, 이수진 선생님과 개인상담이 있어요. 마음숲 센터에서 만나요 🌿</div></div>
+          <div class="otime">지금</div>
+        </div>
+        <div class="ospush">
+          <div class="oa" style="background:radial-gradient(circle at 35% 30%,#dcf5ef,#39cdbb)"></div>
+          <div style="flex:1"><div class="ot">마인드앤서</div><div class="om">검사 결과가 도착했어요. 종합심리검사 보고서를 확인해 보세요.</div></div>
+          <div class="otime">2시간 전</div>
+        </div>
+        <p class="gate-note" style="margin-top:16px;color:#cfd8e6;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)">트랜잭션 알림만 발송해요(일정·승인·변경·결과). 콘텐츠/마케팅 넛지는 보내지 않아요 — 알림 피로로 전체 off 되면 일정 리마인더까지 잃기 때문(R13).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑪ 인앱 알림 센터 -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-notif">⑪ 인앱 알림 센터</span>
+    <h2>알림 목록 — 4종 트랜잭션</h2>
+    <p>승인·리마인더·변경/취소·결과 공유. 각 알림 터치 시<br>해당 화면 딥링크. event_ref 멱등 키로 중복 방지.</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="appbar"><span class="bk">‹</span><h3>알림</h3><span class="sp"></span><span class="act">모두 읽음</span></div>
+      <div class="notif-day">오늘</div>
+      <div class="notif">
+        <div class="notrow unread">
+          <div class="ni appr">✓</div>
+          <div style="flex:1"><div class="nt">마음숲 심리상담센터에 연결됐어요</div><div class="ns">이제 일정·검사 결과·회기를 앱에서 바로 볼 수 있어요. 홈을 확인해 보세요.</div><div class="ntime">오전 9:02</div></div>
+          <div class="dot"></div>
+        </div>
+        <div class="notrow unread">
+          <div class="ni result">📄</div>
+          <div style="flex:1"><div class="nt">검사 결과가 도착했어요</div><div class="ns">종합심리검사 보고서를 확인해 보세요. (터치 → 인앱 PDF 열람)</div><div class="ntime">오전 8:30</div></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="notif-day">어제</div>
+      <div class="notif">
+        <div class="notrow">
+          <div class="ni change">🔄</div>
+          <div style="flex:1"><div class="nt">상담 일정이 변경됐어요</div><div class="ns">6/20 (목) 오후 2시 → 오후 3시로 변경됐어요. 이수진 선생님 · 마음숲</div><div class="ntime">오후 4:15</div></div>
+        </div>
+        <div class="notrow">
+          <div class="ni remind">🗓️</div>
+          <div style="flex:1"><div class="nt">내일 상담이 있어요</div><div class="ns">6/18 (수) 오후 3시 · 이수진 선생님 · 마음숲 2층 상담실</div><div class="ntime">오전 9:00</div></div>
+        </div>
+      </div>
+      <p class="gate-note">알림은 일정·승인·변경·결과 공유 등 꼭 필요한 안내만 보내요. 전체 켜기/끄기는 마이 › 알림에서 설정할 수 있어요. (종류별 설정·방해금지는 제외, 1시간 전·N건 묶음은 Phase 2)</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑫ 알림 권한 거부 안내 + 설정 -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-notif">⑫ 권한 거부 안내 + 알림 설정</span>
+    <h2>권한 거부 인앱 안내 / 전체 토글</h2>
+    <p>기기 권한 거부 시 무음 이탈 방지 배너(백엔드 0).<br>전체 on/off = 글로벌 '*' 단일 게이트(R13).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="appbar"><span class="bk">‹</span><h3>알림 설정</h3></div>
+      <div class="pushperm">
+        <span class="pi">🔕</span>
+        <div style="flex:1"><div class="pt">기기 알림이 꺼져 있어요</div><div class="ps">상담 일정·결과 알림을 받으려면 기기 설정에서 알림을 켜주세요.</div></div>
+        <span class="pb">설정 열기</span>
+      </div>
+      <div class="my-sec-t">알림 받기</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🔔</div><div style="flex:1"><div class="mt3">전체 알림</div><div class="ms3">일정·승인·변경·결과 공유</div></div><span class="tg"></span></div>
+      </div>
+      <div class="ph ph-outline" style="margin-top:14px">
+        <span class="ph-flag">종류별 설정 제외</span>
+        <div class="mycard" style="opacity:.5">
+          <div class="myrow"><div class="mi mint">🗓️</div><div class="mt3">일정 리마인더만</div><span class="tg off"></span></div>
+          <div class="myrow"><div class="mi amber">🌙</div><div class="mt3">방해 금지 시간</div><span class="chev">›</span></div>
+        </div>
+      </div>
+      <p class="gate-note">MVP는 전체 켜기/끄기 한 가지만 제공해요. 종류별 알림 설정·방해 금지 시간은 과한 복잡도라 제외했어요(글로벌 '*' channel_push 단일 게이트, R13).</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP D: 바우처 (R12) ===================== -->
+<div class="group-label">D. 바우처 — 발견(영구 제외) vs 잔여(Phase 2) <span class="nv">— R12: 정부 바우처 발견·자격매칭 영구 제외(법적·B2B) / 잔여 조회는 신선도 게이트 동반 Phase 2</span></div>
+<div class="rail">
+
+<!-- ⑬ 잔여 바우처 조회 (Phase 2, 화이트리스트 + 신선도) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-voucher">⑬ 잔여 바우처 조회 · Phase 2</span>
+    <h2>남은 바우처 (소속홈/마이)</h2>
+    <p>잔여회기·유효기간·센터명만(정산금액 영구 비노출).<br><b>갱신시각 신선도 게이트</b> 동반 — Phase 2(R12).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="appbar"><span class="bk">‹</span><h3>내 바우처</h3></div>
+      <div class="ph ph-outline">
+        <span class="ph-flag">Phase 2 · 신선도 게이트</span>
+        <div class="ph wl-outline" style="margin:6px 4px 0">
+          <span class="wl-flag" style="top:-4px">🔒 WL · 잔여만</span>
+          <div style="height:4px"></div>
+        </div>
+        <div class="vcard" style="margin:10px 6px 12px">
+          <div class="vtop"><div><div class="vname">아동·청소년 심리지원 바우처</div><div class="vcenter">🌳 마음숲 심리상담센터</div></div><span class="vbadge ok">사용 가능</span></div>
+          <div class="vbig">남은 회기 <b>5</b> / 12회</div>
+          <div class="vbar"><i style="width:42%"></i></div>
+          <div class="vmeta"><span>유효기간 ~2026.12.31</span><span>잔여 5회</span></div>
+          <div class="vsync">🕒 2026.06.16 14:20 센터 기준 정보예요. 실제 잔여는 전자바우처 시스템과 다를 수 있으니, 방문 전 센터에 확인해 주세요.</div>
+        </div>
+        <div class="vcard dim" style="margin:0 6px">
+          <div class="vtop"><div><div class="vname">성인 심리상담 바우처</div><div class="vcenter">🌿 온마음 심리센터</div></div><span class="vbadge exp">유효기간 만료</span></div>
+          <div class="vbig">남은 회기 <b style="color:#9aa3b2">0</b> / 8회</div>
+          <div class="vbar"><i style="width:0%"></i></div>
+          <div class="vmeta"><span>유효기간 ~2026.03.31 (만료)</span><span>소진/만료</span></div>
+        </div>
+      </div>
+      <p class="gate-note">정산 금액·단가·지원금은 표시하지 않아요(잔여 회기·유효기간만 노출, 화이트리스트). 잔액은 센터 최종 수정 기준이라, 외부 전자바우처와 차이 날 수 있어요 — Phase 2에서 신선도 표기와 함께 제공돼요(R12).</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑭ 정부 바우처 발견 — 영구 제외 명시 -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-empty">⑭ 정부 바우처 발견 · 영구 제외</span>
+    <h2>발견·자격 매칭은 제공 안 함</h2>
+    <p>제도DB·자격판정 엔진 전무, 오안내 법적·신뢰 리스크.<br>배포 센터에 경쟁사 노출 = B2B 이해충돌(R12/R01).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="appbar"><span class="bk">‹</span><h3>바우처</h3></div>
+      <div class="ph ex-outline" style="margin-bottom:14px">
+        <span class="ex-flag">⛔ 영구 제외</span>
+        <div class="vcard" style="margin:0;opacity:.5;pointer-events:none">
+          <div class="vtop"><div><div class="vname">받을 수 있는 정부 바우처 찾기</div><div class="vcenter">자격 매칭 · 신청 안내</div></div></div>
+          <div class="vbig" style="margin-top:10px">소득·지역 기반 자격 자동 판정</div>
+          <div class="vbar"><i style="width:0%"></i></div>
+        </div>
+      </div>
+      <div class="empty-note" style="border-color:#e8b4ad;background:#fdf4f3;color:#a55248">
+        <div style="font-size:30px;margin-bottom:10px">⛔</div>
+        <b style="color:#8a3a30;font-size:14px">정부 바우처 발견·자격 매칭은 제공하지 않아요</b><br><br>
+        외부 제도 데이터와 자격 판정은 잘못 안내될 경우 신뢰·법적 리스크가 크고, 마인드앤서의 '연동된 상담의 동반자' 정체성과 멀어요. 이미 받은 바우처의 <b>잔여 조회만</b> 다룹니다.
+      </div>
+      <p class="gate-note">이 화면은 <b>제외 결정의 명시용</b>이에요 — 실제 앱에는 만들지 않아요. 정부 바우처 발견/디렉터리/주변 센터 찾기는 R01·R12에서 영구 제외됐어요(법적 리스크 + 배포 센터 B2B 이해충돌).</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP E: 셀프응답 + F05 결과 (R08) ===================== -->
+<div class="group-label">E. 검사 셀프응답 적격성 · F05 셀프체크 결과 <span class="nv">— R08: self_report AND supports_online 게이트 / F05 결과 화면 + 중립 톤 연결 동선(신규)</span></div>
+<div class="rail">
+
+<!-- ⑮ 셀프응답 적격성 게이트 (v2 계승) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-single">⑮ 셀프응답 적격성 게이트</span>
+    <h2>응답할 검사 — 적격성 분기</h2>
+    <p>self_report AND supports_online = 앱에서 응답.<br>그 외는 센터 방문 안내(R08). 응답 엔진은 Phase 2.</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="appbar"><span class="bk">‹</span><h3>응답할 검사</h3></div>
+      <div class="elig-card">
+        <div class="et">우울 척도 (BDI-II)</div>
+        <div class="es">이수진 선생님이 요청 · 6/19까지 · 🌳 마음숲</div>
+        <div class="badge ok">✓ 앱에서 바로 응답 가능</div>
+        <div class="gobtn">지금 응답하기</div>
+      </div>
+      <div class="elig-card">
+        <div class="et">웩슬러 성인 지능검사 (K-WAIS)</div>
+        <div class="es">정민호 선생님이 요청 · 🌿 온마음</div>
+        <div class="badge no">🏥 센터 방문이 필요한 검사</div>
+        <div class="visitbtn">센터 방문 안내 보기</div>
+      </div>
+      <div class="elig-card">
+        <div class="et">로르샤흐 검사</div>
+        <div class="es">정민호 선생님이 요청 · 🌿 온마음</div>
+        <div class="badge no">🏥 센터에서 진행하는 검사</div>
+        <div class="visitbtn">센터 방문 안내 보기</div>
+      </div>
+      <p class="gate-note">검사 종류에 따라 앱 응답/센터 진행이 나뉘어요. (적격성: self_report + 온라인 응답 허용 검사만 — 신규 플래그 없이 기존 게이트 재사용. 인앱 응답 엔진은 Phase 2, R08)</p>
+    </div>
+    <div class="tabbar"><div class="tab active"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑯ F05 무료 셀프체크 문항 (v2 계승) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-empty">⑯ F05 무료 셀프체크 (미인증)</span>
+    <h2>무료 셀프체크 문항</h2>
+    <p>PHQ-9/GAD-7 등 라이선스 명확 척도, 결과 비저장.<br>채점은 서버 책임(앱은 응답 수집만, R01/R08).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="appbar"><span class="bk">‹</span><h3>1분 마음 셀프체크</h3></div>
+      <div class="q-prog"><div class="pb"><i></i></div><div class="pn">4 / 9</div></div>
+      <div class="q-ctx">지난 2주 동안, 다음을 얼마나 자주 느끼셨나요?</div>
+      <div class="q-stem">기분이 가라앉거나, 우울하거나, 희망이 없다고 느꼈다</div>
+      <div style="height:8px"></div>
+      <div class="q-opt"><span class="rd"></span>전혀 없음</div>
+      <div class="q-opt sel"><span class="rd"></span>며칠 동안</div>
+      <div class="q-opt"><span class="rd"></span>일주일 이상</div>
+      <div class="q-opt"><span class="rd"></span>거의 매일</div>
+      <p class="gate-note" style="margin-top:18px">이 셀프체크는 <b>진단이 아니며</b>, 응답은 저장되지 않아요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ⑰ F05 결과 화면 + 연결 동선 (NEW, R08 톤) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-empty">⑰ F05 결과 + 연결 동선 (NEW)</span>
+    <h2>셀프체크 결과 (깔때기 종착점)</h2>
+    <p>'진단 아님' 명시 + 고위험 안내.<br><b>영업 아닌 중립 톤</b> 센터 연결 CTA(R08).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="appbar"><span class="bk">‹</span><h3>셀프체크 결과</h3></div>
+      <div class="scresult">
+        <div class="rgauge"><div class="inner"><div class="sc-n">13</div><div class="sc-l">/ 27점</div></div></div>
+        <div class="rh">요즘 조금 힘드셨겠어요</div>
+        <div class="rd2">지난 2주간 가벼운~중간 정도의 우울감이 느껴지는 결과예요.<br>이건 <b>진단이 아니라</b>, 지금 마음 상태를 살펴보는 참고 자료예요.</div>
+        <div class="sc-connect">
+          <div class="t">전문가와 이야기 나눠보는 건 어떨까요?</div>
+          <div class="s">다니는 센터가 있다면 연결해서 검사·상담 일정을 앱에서 챙길 수 있어요. 결정은 천천히 하셔도 괜찮아요.</div>
+          <div class="b">센터 연결하기</div>
+        </div>
+        <p class="gate-note" style="margin-top:16px;text-align:left">🆘 마음이 많이 힘들거나 위급하다면, 정신건강 상담전화 <b>1577-0199</b> 또는 자살예방 상담전화 <b>109</b>로 24시간 도움받을 수 있어요. (고위험 안내 카피 — R08 톤, 결과 비저장)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP F: 마이페이지 / 보호자 프로파일 (R09 + R13 알림 진입) ===================== -->
+<div class="group-label">F. 마이페이지 — 멀티프로파일 · 자녀 카드(F08) · 바우처/알림 진입 <span class="nv">— R09 전역 스위처 없음 / R12 바우처 진입 / R13 알림 토글</span></div>
+<div class="rail">
+
+<!-- ⑱ 마이 (성인 본인) — 바우처/알림 추가 -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-my">⑱ 마이페이지 · 성인 본인</span>
+    <h2>마이 (단일 프로파일)</h2>
+    <p>v2 + <b>바우처·예약 진입</b>(R11/R12) + 알림 토글(R13).<br>전역 스위처/이름 옆 ▾ 없음(4회 제외).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="myhead">
+        <div class="ava">민준</div>
+        <div><div class="mn">김민준</div><div class="mp">010-1234-5678 · 카카오 연결</div></div>
+      </div>
+      <div class="my-sec-t">연결된 센터</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🌳</div><div style="flex:1"><div class="mt3">마음숲 심리상담센터</div><div class="ms3">개인상담 · 7회기 진행 중</div></div><span class="chev">›</span></div>
+      </div>
+      <div class="my-sec-t">내 기록</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🗓️</div><div class="mt3">내 예약</div><div class="ms3">다가오는 3건</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi mint">📄</div><div class="mt3">검사 결과</div><div class="ms3">2건</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi amber">📝</div><div class="mt3">응답할 검사</div><div class="ms3">1건</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi" style="background:#eef7ec;color:#3a7d2a">🎫</div><div class="mt3">내 바우처</div><div class="ms3">5회 남음 <span style="color:#b9a6f0">· P2</span></div><span class="chev">›</span></div>
+      </div>
+      <div class="my-sec-t">설정</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🔔</div><div style="flex:1"><div class="mt3">전체 알림</div><div class="ms3">일정·승인·변경·결과</div></div><span class="tg"></span></div>
+        <div class="myrow"><div class="mi">🌙</div><div class="mt3">다크 모드</div><div class="ms3">시스템</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi">➕</div><div class="mt3">센터 추가 연결</div><span class="chev">›</span></div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- ⑲ 마이 (보호자) + 자녀 카드 F08 (v2 계승 + 바우처) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-guardian">⑲ 마이페이지 · 보호자 (F08)</span>
+    <h2>마이 + 자녀 정보 카드</h2>
+    <p>멀티프로파일 진입을 마이탭이 담당.<br>자녀 카드 = 이름·생년 기본정보만(화이트리스트, R09).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen">
+      <div class="myhead">
+        <div class="ava" style="background:linear-gradient(135deg,#ffd1e6,#ff9ec7)">은정</div>
+        <div><div class="mn">박은정</div><div class="mp">010-9876-5432 · 보호자</div></div>
+      </div>
+      <div class="my-sec-t">내 아이 (relation 기반)</div>
+      <div class="ph wl-outline">
+        <span class="wl-flag" style="top:6px">🔒 WL · 기본정보만</span>
+        <div class="mycard" style="margin-top:10px">
+          <div class="childcard"><div class="cav b">서연</div><div><div class="cn2">김서연</div><div class="cs2">2017년생 (만 8세) · 마음숲</div></div><span class="chev">›</span></div>
+          <div class="childcard"><div class="cav">도윤</div><div><div class="cn2">김도윤</div><div class="cs2">2019년생 (만 6세) · 온마음</div></div><span class="chev">›</span></div>
+        </div>
+      </div>
+      <div class="my-sec-t">내 기록 · 아이 기록</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🗓️</div><div class="mt3">예약 (본인·자녀)</div><div class="ms3">4건</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi mint">📄</div><div class="mt3">검사 결과</div><div class="ms3">3건</div><span class="chev">›</span></div>
+        <div class="myrow"><div class="mi" style="background:#eef7ec;color:#3a7d2a">🎫</div><div class="mt3">바우처</div><div class="ms3">서연 5회 남음 <span style="color:#b9a6f0">· P2</span></div><span class="chev">›</span></div>
+      </div>
+      <div class="my-sec-t">설정</div>
+      <div class="mycard">
+        <div class="myrow"><div class="mi">🔔</div><div style="flex:1"><div class="mt3">전체 알림</div><div class="ms3">아이 일정·결과 포함</div></div><span class="tg"></span></div>
+        <div class="myrow"><div class="mi">➕</div><div class="mt3">센터 추가 연결</div><span class="chev">›</span></div>
+      </div>
+      <p class="gate-note">아이 카드에는 이름·생년 기본정보만 표시돼요. 임상 데이터(검사 결과·회기·바우처)는 상담사 공유와 보호자 연결 확인을 거쳐야 보여요(R09).</p>
+    </div>
+    <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab active"><span class="ti">👤</span>마이</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== GROUP G: 온보딩 + 매거진 뷰어 (v2 계승 + R14) ===================== -->
+<div class="group-label">G. 온보딩 연동 + 매거진 콘텐츠 뷰어 <span class="nv">— v2 온보딩 계승(R04) + R14 정적 매거진 상세 뷰어(10개 캡, CMS·태그·무한스크롤 Phase 2)</span></div>
+<div class="rail">
+
+<div class="col">
+  <div class="caption"><span class="state-pill pill-flow">온보딩 ①</span><h2>소셜 로그인</h2><p>카카오·네이버·애플. '먼저 둘러보기' 직행(R4).</p></div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="ob">
+        <div class="obhero">
+          <div class="glow"><span class="tod">오브 경량 R14</span></div>
+          <h3 style="font-size:24px">마음의 동반자<br>마인드앤서</h3>
+          <p class="desc" style="margin-top:10px">다니는 상담 센터와 연결해<br>일정·검사·회기를 한 곳에서 챙겨요</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="social">
+          <div class="sbtn kakao">💬 카카오로 시작하기</div>
+          <div class="sbtn naver">N 네이버로 시작하기</div>
+          <div class="sbtn apple"> Apple로 계속하기</div>
+        </div>
+        <div class="or">로그인하면 이용약관·개인정보처리방침에 동의합니다</div>
+        <div style="text-align:center;font-size:13px;color:var(--sub);padding-bottom:18px">먼저 둘러보기</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption"><span class="state-pill pill-flow">온보딩 ②</span><h2>센터 코드 → 센터명 확인</h2><p>코드 입력 시 센터명 즉시 조회(R4).</p></div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="ob">
+        <div class="top"><span class="back">‹</span><span class="skip">나중에 할게요</span></div>
+        <div class="steps"><i class="on"></i><i></i><i></i></div>
+        <h3>다니는 센터의<br>연결 코드를 입력해 주세요</h3>
+        <p class="desc">센터에서 받은 6자리 코드예요.<br>코드를 모르면 센터에 문의해 주세요.</p>
+        <div class="field"><label>센터 연결 코드</label><input class="inp filled" value="MS-4821" /></div>
+        <div class="found"><div class="fi">🌳</div><div><div class="ft">마음숲 심리상담센터</div><div class="fs">서울 마포구 · 아동·청소년 / 성인</div></div></div>
+        <p class="hint">맞는 센터가 확인되면 다음 단계에서 본인 확인을 진행해요.</p>
+        <div class="spacer"></div>
+        <div class="primary">이 센터가 맞아요</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption"><span class="state-pill pill-flow">온보딩 ③</span><h2>전화번호 인증 (OTP)</h2><p>최초 1회만 인증, 센터 추가 시 재사용(R4).</p></div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="ob">
+        <div class="top"><span class="back">‹</span><span class="skip">나중에 할게요</span></div>
+        <div class="steps"><i class="on"></i><i class="on"></i><i></i></div>
+        <h3>본인 확인을 위해<br>전화번호를 인증해 주세요</h3>
+        <p class="desc">센터에 등록된 번호와 같아야 연결돼요.<br>인증은 처음 한 번만 하면 됩니다.</p>
+        <div class="field"><label>전화번호</label><div class="inprow"><input class="inp filled" value="010-1234-5678" /><div class="sendbtn">재전송</div></div></div>
+        <div class="field"><label>인증번호 6자리</label>
+          <div class="otp"><div class="cell fill">4</div><div class="cell fill">7</div><div class="cell fill">2</div><div class="cell cursor">1</div><div class="cell"></div><div class="cell"></div></div>
+        </div>
+        <div class="timer">02:43 남음</div>
+        <div class="resend">문자가 안 왔나요? 재전송</div>
+        <div class="spacer"></div>
+        <div class="primary">인증하고 연결 신청</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption"><span class="state-pill pill-flow">온보딩 ④</span><h2>연결 신청 완료 → 대기 홈</h2><p>역할·대상은 센터 승인 시 지정(R4).</p></div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div class="ob">
+        <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+        <div class="done">
+          <div class="check">✓</div>
+          <h3>연결 신청을 보냈어요</h3>
+          <p class="desc">마음숲 심리상담센터에서 확인하면<br>알림으로 알려드릴게요.<br>보통 1~2일 이내에 처리돼요.</p>
+          <div class="found" style="justify-content:center;margin:24px auto 0;max-width:300px">
+            <div class="fi">🌳</div><div><div class="ft">마음숲 심리상담센터</div><div class="fs">상태 · 센터 확인 대기 중</div></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="primary">홈으로 가기</div>
+        <div style="text-align:center;font-size:13px;color:var(--sub);padding-bottom:18px">다른 센터도 연결하기</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 매거진 콘텐츠 뷰어 (NEW, R14) -->
+<div class="col">
+  <div class="caption">
+    <span class="state-pill pill-single">매거진 상세 뷰어 (NEW)</span>
+    <h2>콘텐츠 상세 (정적 seed)</h2>
+    <p>정적 큐레이션 10개 캡, 본문도 정적.<br>CMS·태그 개인화·무한스크롤은 Phase 2(R14).</p>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="screen noTab">
+      <div style="margin:0 -18px;height:180px;background:linear-gradient(135deg,#93b4f5,#6e9bf0);display:flex;align-items:flex-end;padding:18px;position:relative">
+        <span style="position:absolute;top:16px;left:18px;font-size:24px;color:#fff">‹</span>
+        <div><span style="background:rgba(0,0,0,.4);color:#fff;font-size:11px;padding:3px 10px;border-radius:12px">불안</span>
+        <div style="color:#fff;font-size:20px;font-weight:800;margin-top:8px;line-height:1.3">잠 못 드는 밤,<br>불안을 다루는 법</div></div>
+      </div>
+      <div style="padding:18px 4px">
+        <div style="font-size:12px;color:var(--sub);margin-bottom:16px">마인드앤서 마음 매거진 · 읽기 3분</div>
+        <p style="font-size:14px;line-height:1.75;color:#36404f;margin:0 0 14px">밤이 되면 유독 생각이 많아지는 분들이 있어요. 낮 동안 미뤄둔 걱정들이 조용한 시간에 한꺼번에 떠오르기 때문이에요.</p>
+        <div style="font-size:15px;font-weight:700;margin:18px 0 8px">1. 침대는 잠자는 곳으로만</div>
+        <p style="font-size:14px;line-height:1.75;color:#36404f;margin:0 0 14px">잠이 오지 않을 때 억지로 누워 있으면, 뇌가 침대를 '걱정하는 공간'으로 학습해요. 20분 안에 잠들지 못하면 잠시 일어나 보세요.</p>
+        <div style="font-size:15px;font-weight:700;margin:18px 0 8px">2. 호흡으로 신경을 가라앉히기</div>
+        <p style="font-size:14px;line-height:1.75;color:#36404f;margin:0 0 14px">4초간 들이쉬고 6초간 내쉬는 호흡을 반복하면 긴장된 몸이 풀어져요.</p>
+        <p class="gate-note">이 글은 정적 큐레이션 콘텐츠(10개 캡)예요. 태그 기반 맞춤 추천·전체 라이브러리·무한 스크롤은 Phase 2에서 제공돼요(R14).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

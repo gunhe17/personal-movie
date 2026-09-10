@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 사용 여정 시각화 V3 — 누가, 어떤 순서로, 무엇을 바꾸는가</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb; --card:#fff;
+    --accent:#4486FF;
+    /* 액터 컬러 */
+    --a-staff:#2456c4;  --a-staff-bg:#eef4ff;  --a-staff-line:#c8daff;
+    --a-user:#6d3fc0;   --a-user-bg:#f1ecfb;   --a-user-line:#d8c9f2;
+    --a-admin:#9f1239;  --a-admin-bg:#fdecf1;  --a-admin-line:#f3c2d1;
+    --a-sys:#0f766e;    --a-sys-bg:#e7f5f4;    --a-sys-line:#b6dedb;
+    --warn:#b45309; --warn-soft:#fef3e2;
+    --ok:#15803d; --ok-soft:#e7f6ec;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:40px 22px 100px; line-height:1.6; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:26px; margin-bottom:6px; }
+  .subtitle { color:var(--sub); font-size:14.5px; margin-bottom:20px; max-width:860px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+
+  /* 액터 범례 */
+  .actors { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px; }
+  .actor-chip { display:flex; align-items:center; gap:7px; font-size:12.5px; border-radius:20px; padding:5px 14px; border:1.5px solid; background:#fff; }
+  .dot { width:9px; height:9px; border-radius:50%; }
+  .actor-chip.staff { border-color:var(--a-staff-line); } .actor-chip.staff .dot { background:var(--a-staff); }
+  .actor-chip.user { border-color:var(--a-user-line); } .actor-chip.user .dot { background:var(--a-user); }
+  .actor-chip.admin { border-color:var(--a-admin-line); } .actor-chip.admin .dot { background:var(--a-admin); }
+  .actor-chip.sys { border-color:var(--a-sys-line); } .actor-chip.sys .dot { background:var(--a-sys); }
+
+  section { margin-bottom:76px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+  h2 { font-size:20px; }
+  .sec-desc { color:var(--sub); font-size:14px; margin-bottom:24px; max-width:860px; }
+  .sec-desc b { color:var(--ink); }
+
+  /* ── 스윔레인 여정 ─────────────────────────── */
+  .journey { background:#fff; border:1px solid var(--line); border-radius:18px; padding:0; overflow:hidden; }
+  .lane-heads { display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1.5px solid var(--line); }
+  .lane-heads.cols4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+  .lane-head { padding:10px 12px; text-align:center; font-size:13px; font-weight:700; }
+  .lane-head small { display:block; font-weight:400; font-size:11px; color:var(--sub); }
+  .lane-head.staff { background:var(--a-staff-bg); color:var(--a-staff); }
+  .lane-head.user { background:var(--a-user-bg); color:var(--a-user); }
+  .lane-head.admin { background:var(--a-admin-bg); color:var(--a-admin); }
+  .lane-head.sys { background:var(--a-sys-bg); color:var(--a-sys); }
+
+  .lane-body { position:relative; padding:18px 14px 22px; }
+  /* 레인 세로 점선 */
+  .lane-body.cols3::before, .lane-body.cols3::after {
+    content:""; position:absolute; top:0; bottom:0; border-left:1.5px dashed #e3e8f0;
+  }
+  .lane-body.cols3::before { left:33.33%; }
+  .lane-body.cols3::after { left:66.66%; }
+  .lane-body.cols4 .vline { position:absolute; top:0; bottom:0; border-left:1.5px dashed #e3e8f0; }
+
+  .jrow { display:grid; grid-template-columns:1fr 1fr 1fr; align-items:start; position:relative; margin-bottom:4px; }
+  .jrow.cols4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+  .jcell { padding:0 8px; }
+
+  .jcard { border:1.5px solid; border-radius:12px; padding:9px 12px; background:#fff; position:relative; font-size:12px; }
+  .jcard.staff { border-color:var(--a-staff-line); background:linear-gradient(#fff,#fff) padding-box; }
+  .jcard.user { border-color:var(--a-user-line); }
+  .jcard.admin { border-color:var(--a-admin-line); }
+  .jcard.sys { border-color:var(--a-sys-line); background:var(--a-sys-bg); }
+  .jcard .who { position:absolute; top:-9px; left:10px; font-size:9.5px; font-weight:700; border-radius:8px; padding:0 7px; color:#fff; }
+  .jcard.staff .who { background:var(--a-staff); } .jcard.user .who { background:var(--a-user); }
+  .jcard.admin .who { background:var(--a-admin); } .jcard.sys .who { background:var(--a-sys); }
+  .jcard .ep { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:10.5px; display:block; margin-bottom:3px; word-break:break-all; }
+  .jcard .ep .pp { color:#9333ea; }
+  .jcard .desc { color:var(--sub); font-size:11px; display:block; }
+  .m { display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:9.5px; font-weight:700;
+       border-radius:5px; padding:0 5px; margin-right:3px; color:#fff; }
+  .m.get{background:#2f855a} .m.post{background:#2b6cb0} .m.patch{background:#b7791f} .m.del{background:#c53030} .m.ws{background:#6b46c1}
+
+  /* 데이터 배지 */
+  .fx { margin-top:5px; display:flex; flex-wrap:wrap; gap:3px; }
+  .fx span { font-size:9.5px; font-family:"SF Mono",Menlo,monospace; border-radius:7px; padding:1px 6px; }
+  .fx .add { background:var(--ok-soft); color:var(--ok); }
+  .fx .mod { background:#eef1f6; color:#475569; }
+  .fx .sub2 { background:var(--warn-soft); color:var(--warn); }
+  .fx .ev { background:#f1ecfb; color:#6d3fc0; }
+
+  /* 행 사이 화살표 */
+  .jarrow { display:flex; justify-content:center; align-items:center; height:22px; position:relative; z-index:2; }
+  .jarrow .ar { font-size:13px; color:#94a3b8; }
+  .jarrow .lbl { font-size:10px; color:var(--sub); background:var(--bg); border-radius:8px; padding:0 8px; margin-left:6px; }
+  /* 가로 전달 화살표 (카드 안 표시) */
+  .handoff { font-size:10px; color:#94a3b8; text-align:center; padding-top:12px; }
+
+  /* 상태 머신 */
+  .sm { margin-top:16px; background:var(--bg); border-radius:12px; padding:12px 16px; }
+  .sm h4 { font-size:12.5px; margin-bottom:8px; color:var(--sub); }
+  .sm-chain { display:flex; flex-wrap:wrap; align-items:center; gap:5px; font-size:11.5px; }
+  .st { border:1.5px solid #b9c4d6; background:#fff; border-radius:16px; padding:2px 11px; font-weight:600; }
+  .st.terminal { border-style:dashed; color:var(--sub); }
+  .st.hl { border-color:var(--ok); color:var(--ok); background:var(--ok-soft); }
+  .st.bad { border-color:#f3c2d1; color:#9f1239; }
+  .sm-ar { color:#94a3b8; font-size:11px; }
+  .sm-note { font-size:10.5px; color:var(--sub); width:100%; margin-top:2px; }
+
+  /* 조감도 */
+  .overview { display:grid; grid-template-columns:200px 1fr 200px; gap:14px; align-items:stretch; }
+  @media (max-width:900px){ .overview { grid-template-columns:1fr; } }
+  .ov-side { display:flex; flex-direction:column; gap:10px; }
+  .ov-actor { border-radius:14px; border:1.5px solid; padding:12px 14px; background:#fff; }
+  .ov-actor h4 { font-size:13px; margin-bottom:3px; }
+  .ov-actor p { font-size:10.5px; color:var(--sub); line-height:1.5; }
+  .ov-actor.staff { border-color:var(--a-staff-line); } .ov-actor.staff h4 { color:var(--a-staff); }
+  .ov-actor.user { border-color:var(--a-user-line); } .ov-actor.user h4 { color:var(--a-user); }
+  .ov-actor.admin { border-color:var(--a-admin-line); } .ov-actor.admin h4 { color:var(--a-admin); }
+  .ov-actor.sys { border-color:var(--a-sys-line); } .ov-actor.sys h4 { color:var(--a-sys); }
+  .ov-core { border:1.5px solid var(--line); border-radius:16px; background:#fff; padding:14px; }
+  .ov-core h4 { text-align:center; font-size:13px; margin-bottom:10px; color:var(--sub); }
+  .ov-doms { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .ov-dom { border-radius:10px; padding:8px 10px; font-size:11.5px; font-weight:600; text-align:center; border:1px solid var(--line); background:var(--bg); }
+  .ov-flow { font-size:10.5px; color:var(--sub); text-align:center; margin-top:10px; }
+
+  /* 크로스도메인 배선 */
+  .wiring { display:flex; flex-direction:column; gap:8px; }
+  .wire { display:grid; grid-template-columns:200px 40px 200px 1fr; gap:8px; align-items:center; background:#fff;
+          border:1px solid var(--line); border-radius:12px; padding:9px 14px; font-size:12px; }
+  @media (max-width:800px){ .wire { grid-template-columns:1fr; } }
+  .wire .from, .wire .to { font-weight:700; font-size:12.5px; }
+  .wire .wa { text-align:center; color:#94a3b8; }
+  .wire .why { color:var(--sub); font-size:11.5px; }
+  .toc { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:44px; }
+  .toc a { text-decoration:none; color:var(--ink); background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:5px 14px; font-size:12.5px; }
+  .toc a:hover { border-color:var(--accent); }
+  .back { position:fixed; right:18px; bottom:18px; background:var(--ink); color:#fff; border-radius:24px; padding:8px 16px; font-size:12px; text-decoration:none; opacity:.85; }
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+<h1>API 사용 여정 시각화 <span style="font-size:15px;color:var(--sub)">V3</span></h1>
+<p class="subtitle">
+  엔드포인트 나열(V2)이 아니라 <b>실제 업무가 흘러가는 순서</b>를 그렸다.
+  세로 레인 = 액터(누가 호출하나), 카드 = 실제 엔드포인트 호출, 카드 아래 배지 = 그 호출이 만들거나 바꾸는 데이터.
+  <span style="font-size:12px"><span class="fx" style="display:inline-flex"><span class="add">+생성</span> <span class="mod">~변경</span> <span class="sub2">−차감</span> <span class="ev">⚡이벤트</span></span></span>
+</p>
+<div class="actors">
+  <span class="actor-chip staff"><span class="dot"></span>직원 (상담사·관리자 — 웹·모바일)</span>
+  <span class="actor-chip user"><span class="dot"></span>내담자·보호자 (앱 aud=client_app / 무인증 링크)</span>
+  <span class="actor-chip admin"><span class="dot"></span>플랫폼 운영자 (/admin)</span>
+  <span class="actor-chip sys"><span class="dot"></span>시스템 (같은 tx 자동배선 · 워커 · 웹훅 · cron)</span>
+</div>
+
+<div class="toc">
+  <a href="#ov">0 조감도</a>
+  <a href="#j1">1 센터의 탄생</a>
+  <a href="#j2">2 내담자 온보딩 → 앱 연결</a>
+  <a href="#j3">3 상담 운영 사이클</a>
+  <a href="#j4">4 검사 사이클</a>
+  <a href="#j5">5 돈의 두 흐름</a>
+  <a href="#j6">6 백그라운드 배선</a>
+</div>
+
+<!-- ═══════════ 0. 조감도 ═══════════ -->
+<section id="ov">
+  <div class="sec-head"><span class="sec-num">0</span><h2>조감도 — 누가 어느 표면으로 들어오나</h2></div>
+  <p class="sec-desc">모든 여정은 이 구도 위에서 움직인다. 세 액터가 서로 다른 인증 표면으로 같은 코어를 만진다.</p>
+  <div class="overview">
+    <div class="ov-side">
+      <div class="ov-actor staff"><h4>직원</h4><p>/api/v1/centers/{id}/… <br>멤버십+권한 검증, 모든 운영 행위의 주체 (408개)</p></div>
+      <div class="ov-actor admin"><h4>플랫폼 운영자</h4><p>/api/v1/admin/… <br>센터 승인·제도 카탈로그·구독 관리 (137개)</p></div>
+    </div>
+    <div class="ov-core">
+      <h4>코어 도메인 (center_id 테넌시)</h4>
+      <div class="ov-doms">
+        <div class="ov-dom">신원·멤버십</div>
+        <div class="ov-dom">내담자·가족</div>
+        <div class="ov-dom">상담·일정</div>
+        <div class="ov-dom">검사</div>
+        <div class="ov-dom">바우처·청구</div>
+        <div class="ov-dom">기록·문서</div>
+      </div>
+      <div class="ov-flow">모든 쓰기는 UnitOfWork 한 tx → 이벤트 아웃박스 ⚡ → 워커가 알림·메시징 반응</div>
+    </div>
+    <div class="ov-side">
+      <div class="ov-actor user"><h4>내담자·보호자</h4><p>/api/v1/app/… (JWT aud=client_app, 47개)<br>+ 무인증 링크: 검사 응답·결과지 코드 검증</p></div>
+      <div class="ov-actor sys"><h4>외부·자동</h4><p>Toss 웹훅 · 내부 cron(구독 만료) · STT/LLM 파이프라인 · 이벤트 워커</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 1. 센터의 탄생 ═══════════ -->
+<section id="j1">
+  <div class="sec-head"><span class="sec-num">1</span><h2>센터의 탄생 — 신청 · 승인 · 팀 구성</h2></div>
+  <p class="sec-desc">무소속 계정이 센터를 신청하면 운영자가 승인하고, 승인 한 번이 <b>7개 모듈을 한 트랜잭션으로 초기화</b>한다. 이후 관리자는 팀을 초대한다.</p>
+  <div class="journey">
+    <div class="lane-heads">
+      <div class="lane-head staff">신청자 → 관리자<small>직원 표면</small></div>
+      <div class="lane-head admin">플랫폼 운영자<small>/admin</small></div>
+      <div class="lane-head sys">시스템<small>같은 tx 자동배선</small></div>
+    </div>
+    <div class="lane-body cols3">
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">신청자</span>
+          <span class="ep"><span class="m post">POST</span>/auth/signup → /centers/applications/</span>
+          <span class="desc">가입 후 센터 개설 신청 — 아직 무소속</span>
+          <div class="fx"><span class="add">+accounts</span><span class="add">+persons</span><span class="add">+center_applications(PENDING)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">운영자 검토 큐로</span></div>
+
+      <div class="jrow"><div class="jcell"></div><div class="jcell">
+        <div class="jcard admin"><span class="who">운영자</span>
+          <span class="ep"><span class="m post">POST</span>/admin/center-applications/<span class="pp">{id}</span>/approve</span>
+          <span class="desc">승인 (reject 시 사유 기록 후 종료)</span>
+          <div class="fx"><span class="mod">~application(APPROVED)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">자동 · 같은 tx</span>
+          <span class="ep">7개 모듈 초기화</span>
+          <span class="desc">Center + 역할/권한 4종 + 검사 활성화 + 운영시간 + trial 구독(Pro) + AI 크레딧 + 신청자=ADMIN 멤버</span>
+          <div class="fx"><span class="add">+centers</span><span class="add">+roles×4</span><span class="add">+subscription(trial)</span><span class="add">+members(ADMIN)</span><span class="ev">⚡approved→승인 메일</span></div>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">이제 관리자로 로그인 — centers[]에 센터 등장</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m post">POST</span>/centers/<span class="pp">{id}</span>/members/invitations/batch</span>
+          <span class="desc">팀원 이메일 일괄 초대 · 상담실(rooms)·프로그램(programs)도 이 단계에서 설정</span>
+          <div class="fx"><span class="add">+member_invitations(pending)</span><span class="ev">⚡초대 메일</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">피초대자가 메일 링크로</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">피초대자</span>
+          <span class="ep"><span class="m post">POST</span>…/invitations/<span class="pp">{invitation_id}</span>/accept</span>
+          <span class="desc">미가입이면 Account+Person 생성, 기가입이면 재사용 → Member 탄생</span>
+          <div class="fx"><span class="add">+members(person_id·role_id)</span><span class="mod">~invitation(accepted)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+    </div>
+  </div>
+  <div class="sm">
+    <h4>MemberInvitation 상태 (컬럼이 아니라 accepted_at·expires_at에서 파생)</h4>
+    <div class="sm-chain"><span class="st">pending</span><span class="sm-ar">→</span><span class="st hl">accepted</span><span class="sm-ar">|</span><span class="st terminal">expired (7일)</span></div>
+  </div>
+</section>
+
+<!-- ═══════════ 2. 내담자 온보딩 ═══════════ -->
+<section id="j2">
+  <div class="sec-head"><span class="sec-num">2</span><h2>내담자 온보딩 — 등록 · 바우처 · 앱 연결</h2></div>
+  <p class="sec-desc">내담자는 <b>계정 없이 직원의 등록으로 먼저 존재</b>한다(person_id=NULL 허용). 앱 연결은 나중에, 초대 코드로 전역 세계(Family)와 테넌트 세계(Client)를 잇는다.</p>
+  <div class="journey">
+    <div class="lane-heads">
+      <div class="lane-head staff">직원<small>데스크에서</small></div>
+      <div class="lane-head user">보호자<small>내담자 앱</small></div>
+      <div class="lane-head sys">시스템</div>
+    </div>
+    <div class="lane-body cols3">
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">직원</span>
+          <span class="ep"><span class="m post">POST</span>/centers/<span class="pp">{id}</span>/clients/batch</span>
+          <span class="desc">보호자+자녀 일괄 등록 (name+birth 중복 차단, code 6자 발급)</span>
+          <div class="fx"><span class="add">+clients×N (person_id=NULL 가능)</span><span class="add">+guardian_relations</span><span class="add">+sibling_relations</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">직원</span>
+          <span class="ep"><span class="m post">POST</span>/centers/<span class="pp">{id}</span>/client-vouchers</span>
+          <span class="desc">바우처 발급 — 잔여 회기·금액 초기화 (여정 5와 연결)</span>
+          <div class="fx"><span class="add">+client_vouchers(remaining=total)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">앱을 권할 순간이 오면 (내원·결과지 등 이득 순간)</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">직원</span>
+          <span class="ep"><span class="m post">POST</span>…/clients/<span class="pp">{client_id}</span>/app-link/invitations<br><span class="m post">POST</span>…/app-link/invitations/send-sms</span>
+          <span class="desc">보호자 Client 대상 초대 코드 발급 → SMS 전달</span>
+          <div class="fx"><span class="add">+center_link_invitations(code 6자)</span><span class="ev">⚡SMS</span></div>
+        </div>
+      </div><div class="jcell"><div class="handoff">──── 코드 전달 ────▶</div></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell"></div><div class="jcell">
+        <div class="jcard user"><span class="who">보호자</span>
+          <span class="ep"><span class="m post">POST</span>/app/auth/signup → /app/link-invitations/verify</span>
+          <span class="desc">앱 가입(aud=client_app) 후 코드 검증 — 비소모, 센터·자녀 프리뷰</span>
+          <div class="fx"><span class="add">+accounts</span><span class="add">+persons</span></div>
+        </div>
+      </div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell"></div><div class="jcell">
+        <div class="jcard user"><span class="who">보호자</span>
+          <span class="ep"><span class="m post">POST</span>/app/links/claim</span>
+          <span class="desc">연결 확정 — Family 확보(owner 검증) → Profile 매핑</span>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">자동 · 같은 tx</span>
+          <span class="ep">전역 ↔ 테넌트 다리 완성</span>
+          <span class="desc">CenterLink가 Family·Profile·Person을 센터의 Client와 잇는다 + append-only 감사</span>
+          <div class="fx"><span class="add">+families/profiles(필요 시)</span><span class="add">+center_links(active)</span><span class="add">+center_link_audits</span><span class="mod">~invitation(claimed)</span></div>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">이후 앱은 읽기 투영 + 제한적 쓰기</span></div>
+
+      <div class="jrow"><div class="jcell"></div><div class="jcell">
+        <div class="jcard user"><span class="who">보호자</span>
+          <span class="ep"><span class="m get">GET</span>/app/me · /app/client-vouchers · /app/billables<br><span class="m post">POST</span>/app/schedules/<span class="pp">{id}</span>/change-requests</span>
+          <span class="desc">잔여 회기(금액 비노출)·청구 열람, 일정 변경 요청 → 직원 처리로 회귀</span>
+        </div>
+      </div><div class="jcell"></div></div>
+    </div>
+  </div>
+  <div class="sm">
+    <h4>나중에 보호자가 웹 계정으로 기존 Client에 연동하는 별선 (phone 매칭)</h4>
+    <div class="sm-chain">
+      <span class="st">link-request pending</span><span class="sm-ar">→ 직원 approve →</span><span class="st hl">Client.person_id 채움</span><span class="sm-ar">|</span><span class="st bad">reject</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 3. 상담 운영 사이클 ═══════════ -->
+<section id="j3">
+  <div class="sec-head"><span class="sec-num">3</span><h2>상담 운영 사이클 — 인테이크에서 기록·차감까지</h2></div>
+  <p class="sec-desc">주간 반복 루프. 인테이크 한 번이 케이스·회기·일정을 함께 만들고, <b>출석 처리 한 번이 바우처 차감으로 이어진다</b>. 녹음은 STT 파이프라인을 거쳐 상담일지가 된다.</p>
+  <div class="journey">
+    <div class="lane-heads">
+      <div class="lane-head staff">상담사·관리자</div>
+      <div class="lane-head sys">시스템 (같은 tx · 파이프라인)</div>
+      <div class="lane-head sys" style="background:var(--warn-soft);color:var(--warn)">돈과 만나는 지점<small>여정 5로</small></div>
+    </div>
+    <div class="lane-body cols3">
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/schedules/validate-recurring → <span class="m post">POST</span>…/counseling/intake</span>
+          <span class="desc">반복 일정 충돌 검증 후 인테이크 — 한 tx로 4종 생성</span>
+          <div class="fx"><span class="add">+counseling_cases</span><span class="add">+sessions×N</span><span class="add">+participants(다형)</span><span class="add">+schedules×N</span><span class="ev">⚡case_created</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">회기 당일</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/field-notes → <span class="m ws">WS</span>…/field-notes/stream → <span class="m post">POST</span>…/<span class="pp">{id}</span>/finish</span>
+          <span class="desc">회기 중 녹음 (+태그·메모 entries)</span>
+          <div class="fx"><span class="add">+field_notes(recording)</span><span class="add">+audios(청크)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">파이프라인</span>
+          <span class="ep"><span class="m post">POST</span>…/<span class="pp">{id}</span>/run-pipeline</span>
+          <span class="desc">transcribe → refine → diarize → summarize → 상담일지 생성 (LLM 크레딧 소비)</span>
+          <div class="fx"><span class="mod">~field_note(단계 진행)</span><span class="add">+counseling_notes</span><span class="sub2">−AI credit</span></div>
+        </div>
+      </div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">주말·월말 일괄 정리</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m post">POST</span>…/sessions/batch-update/validate → <span class="m patch">PATCH</span>…/sessions/batch-update</span>
+          <span class="desc">출석 일괄 확정 (attended/absent/late/excused/no_show)</span>
+          <div class="fx"><span class="mod">~sessions(status)</span><span class="mod">~participants(attendance)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell">
+        <div class="jcard sys" style="border-color:#ecd9a8;background:var(--warn-soft)"><span class="who" style="background:var(--warn)">자동 · 같은 tx</span>
+          <span class="ep">바우처 소진</span>
+          <span class="desc">attended·excused만 is_consumed=true → 잔여 회기 차감. absent·late 무차감</span>
+          <div class="fx"><span class="sub2">−client_vouchers.remaining_sessions</span></div>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m get">GET</span>…/billables/today-missing · prefill → 여정 5의 청구·수납으로</span>
+          <span class="desc">미청구 회기 확인 → 청구 생성 (단가는 수기 — 의도된 정책)</span>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+    </div>
+  </div>
+  <div class="sm">
+    <h4>회기 상태 × 소진 규칙</h4>
+    <div class="sm-chain">
+      <span class="st">scheduled</span><span class="sm-ar">→</span>
+      <span class="st hl">completed·attended → 차감 O</span><span class="sm-ar">|</span>
+      <span class="st hl">completed·excused → 차감 O</span><span class="sm-ar">|</span>
+      <span class="st">completed·absent/late → 차감 X</span><span class="sm-ar">|</span>
+      <span class="st bad">no_show</span><span class="sm-ar">|</span>
+      <span class="st terminal">cancelled</span>
+      <span class="sm-note">진행 회기 수 = 참석+불참+노쇼 (예정 아닌 회기) — 바우처·청구의 근거</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 4. 검사 사이클 ═══════════ -->
+<section id="j4">
+  <div class="sec-head"><span class="sec-num">4</span><h2>검사 사이클 — 배정 · 무인증 응답 · 채점 · 결과지</h2></div>
+  <p class="sec-desc">수검자는 <b>로그인 없이</b> 문자 링크+4자리 코드로 응답한다. 제출 즉시 엔진 플러그인이 채점하고, 확정 후 결과지도 같은 무인증 코드 패턴으로 열람된다.</p>
+  <div class="journey">
+    <div class="lane-heads">
+      <div class="lane-head staff">상담사</div>
+      <div class="lane-head user">수검자·보호자<small>무인증 링크</small></div>
+      <div class="lane-head sys">시스템<small>엔진·PDF·메시징</small></div>
+    </div>
+    <div class="lane-body cols3">
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/assessment-cases/batch</span>
+          <span class="desc">케이스(개인/단체) + 검사별 태스크 N + 참여자 배정</span>
+          <div class="fx"><span class="add">+assessment_cases</span><span class="add">+tasks×N(pending)</span><span class="add">+participants</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/assessment-cases/<span class="pp">{case_id}</span>/send-link</span>
+          <span class="desc">응답 링크 발송 (재발송·전달이력 추적 가능)</span>
+          <div class="fx"><span class="add">+send_links(코드 4자리)</span><span class="ev">⚡알림톡</span></div>
+        </div>
+      </div><div class="jcell"><div class="handoff">──── 문자 수신 ────▶</div></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell"></div><div class="jcell">
+        <div class="jcard user"><span class="who">수검자 · 무인증</span>
+          <span class="ep"><span class="m post">POST</span>/assessment-send-links/<span class="pp">{id}</span>/verify → <span class="m post">POST</span>…/tasks/<span class="pp">{task_id}</span>/submit</span>
+          <span class="desc">코드 검증(실패 카운팅) → 전용 토큰(aud=assessment_link) → 응답 제출</span>
+          <div class="fx"><span class="mod">~task(in_progress→submitted)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">자동 · 같은 tx</span>
+          <span class="ep">engine registry 채점</span>
+          <span class="desc">검사 코드로 플러그인 조회 → 점수·하위척도·위험도 해석</span>
+          <div class="fx"><span class="mod">~task.report_payload(scores·risk)</span><span class="ev">⚡task_scored</span></div>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">외부 심사기관 검사는 PDF 업로드로 대체 (workflow_type=external_service)</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/tasks/<span class="pp">{assessment_id}</span>/complete</span>
+          <span class="desc">검토 후 확정 — 전 태스크 종결 시 케이스 자동 완료</span>
+          <div class="fx"><span class="mod">~task(completed)</span><span class="mod">~case(자동 completed)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow"><div class="jcell">
+        <div class="jcard staff"><span class="who">상담사</span>
+          <span class="ep"><span class="m post">POST</span>…/assessment-cases/<span class="pp">{case_id}</span>/send-result</span>
+          <span class="desc">결과지 발송 — 기본 비공개, [결과 전송]이 곧 릴리즈</span>
+          <div class="fx"><span class="add">+send_results</span><span class="ev">⚡알림톡</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard user"><span class="who">보호자 · 무인증</span>
+          <span class="ep"><span class="m post">POST</span>/assessment-results/<span class="pp">{id}</span>/verify</span>
+          <span class="desc">코드 검증 후 결과지 열람 (만료 30일·회수 가능)</span>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">자동</span>
+          <span class="ep">PDF 생성</span>
+          <span class="desc">report_payload → HTML 템플릿 → PDF → 문서 저장</span>
+          <div class="fx"><span class="mod">~task.report_document_id</span></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <div class="sm">
+    <h4>AssessmentTask 상태</h4>
+    <div class="sm-chain">
+      <span class="st">pending</span><span class="sm-ar">→</span><span class="st">in_progress</span><span class="sm-ar">→</span>
+      <span class="st">submitted (채점 완료)</span><span class="sm-ar">→</span><span class="st hl">completed</span>
+      <span class="sm-ar">|</span><span class="st bad">refused</span><span class="sm-ar">|</span><span class="st terminal">cancelled ⇄ revert</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 5. 돈의 두 흐름 ═══════════ -->
+<section id="j5">
+  <div class="sec-head"><span class="sec-num">5</span><h2>돈의 두 흐름 — 센터 매출 vs SaaS 구독</h2></div>
+  <p class="sec-desc">완전히 분리된 두 회로. <b>왼쪽</b>: 운영자가 만든 제도 카탈로그가 센터를 거쳐 내담자 바우처가 되고, 청구·수납으로 닫힌다. <b>오른쪽</b>: 플랫폼이 센터에 과금한다(Toss).</p>
+  <div class="journey">
+    <div class="lane-heads cols4">
+      <div class="lane-head admin">운영자<small>제도 파이프라인</small></div>
+      <div class="lane-head staff">직원<small>센터 매출 회로</small></div>
+      <div class="lane-head staff">관리자<small>SaaS 구독 회로</small></div>
+      <div class="lane-head sys">외부·자동<small>Toss · cron</small></div>
+    </div>
+    <div class="lane-body cols4">
+      <span class="vline" style="left:25%"></span><span class="vline" style="left:50%"></span><span class="vline" style="left:75%"></span>
+      <div class="jrow cols4"><div class="jcell">
+        <div class="jcard admin"><span class="who">운영자</span>
+          <span class="ep"><span class="m post">POST</span>/admin/voucher-extractions → <span class="pp">{id}</span>/confirm</span>
+          <span class="desc">제도 문서 업로드 → AI 추출 → 사람 확인 → 카탈로그 확정</span>
+          <div class="fx"><span class="add">+vouchers(제도)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m get">GET</span>…/voucher-catalog → <span class="m post">POST</span>…/center-vouchers</span>
+          <span class="desc">카탈로그에서 채택 — 단가·기본 회기 설정</span>
+          <div class="fx"><span class="add">+center_vouchers</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m post">POST</span>…/subscription/upgrade/initiate</span>
+          <span class="desc">플랜 업그레이드 시작 (toss_order_id 발급)</span>
+          <div class="fx"><span class="add">+subscription_payments(pending)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">Toss</span>
+          <span class="ep"><span class="m post">POST</span>/webhooks/toss/payment</span>
+          <span class="desc">결제 웹훅 (무인증 표면) → confirm과 합류</span>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow cols4"><div class="jcell"></div><div class="jcell">
+        <div class="jcard staff"><span class="who">직원</span>
+          <span class="ep"><span class="m post">POST</span>…/client-vouchers → (여정 3) 출석 → 차감</span>
+          <span class="desc">내담자 발급 → 회기 소진이 자동으로 잔액을 깎는다</span>
+          <div class="fx"><span class="add">+client_vouchers</span><span class="sub2">−remaining (출석 시)</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m post">POST</span>…/subscription/upgrade/confirm</span>
+          <span class="desc">확정 — 플랜 즉시 전환 + AI 크레딧 한도 재설정</span>
+          <div class="fx"><span class="mod">~subscription(plan·기간)</span><span class="mod">~credit_limit</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard sys"><span class="who">cron</span>
+          <span class="ep"><span class="m post">POST</span>/internal/subscriptions/process-expirations</span>
+          <span class="desc">기간 말 — 예약된 다운그레이드 일괄 적용</span>
+          <div class="fx"><span class="mod">~subscription(reserved_plan 적용)</span></div>
+        </div>
+      </div></div>
+      <div class="jarrow"><span class="ar">▼</span><span class="lbl">회기·검사가 쌓이면 청구로</span></div>
+
+      <div class="jrow cols4"><div class="jcell"></div><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m get">GET</span>…/billables/prefill → <span class="m post">POST</span>…/billables/</span>
+          <span class="desc">청구 생성 — 본인부담 = 정가 − 지원금 − 할인. item의 바우처 연결분 같은 tx 차감(초과는 경고만)</span>
+          <div class="fx"><span class="add">+billables(issued)</span><span class="add">+items</span><span class="sub2">−voucher remaining</span></div>
+        </div>
+      </div><div class="jcell">
+        <div class="jcard staff"><span class="who">관리자</span>
+          <span class="ep"><span class="m post">POST</span>…/subscription/downgrade/reserve</span>
+          <span class="desc">다운그레이드는 즉시가 아니라 기간 말 예약</span>
+          <div class="fx"><span class="mod">~subscription(reserved_plan)</span></div>
+        </div>
+      </div><div class="jcell"></div></div>
+      <div class="jarrow"><span class="ar">▼</span></div>
+
+      <div class="jrow cols4"><div class="jcell"></div><div class="jcell">
+        <div class="jcard staff"><span class="who">직원</span>
+          <span class="ep"><span class="m post">POST</span>…/billables/<span class="pp">{id}</span>/payments/</span>
+          <span class="desc">수납 기록 (card/transfer/cash) — unpaid=0이면 자동 paid</span>
+          <div class="fx"><span class="add">+payments</span><span class="mod">~billable(paid_amount↑ → paid)</span></div>
+        </div>
+      </div><div class="jcell"></div><div class="jcell"></div></div>
+    </div>
+  </div>
+  <div class="sm">
+    <h4>Subscription 상태</h4>
+    <div class="sm-chain">
+      <span class="st">trial (개설 시 자동)</span><span class="sm-ar">→</span><span class="st hl">active</span><span class="sm-ar">⇄</span>
+      <span class="st">pending_payment</span><span class="sm-ar">→</span><span class="st bad">payment_failed</span><span class="sm-ar">|</span>
+      <span class="st terminal">expired</span><span class="sm-ar">|</span><span class="st terminal">cancelled</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 6. 백그라운드 배선 ═══════════ -->
+<section id="j6">
+  <div class="sec-head"><span class="sec-num">6</span><h2>백그라운드 배선 — 도메인이 서로를 부르는 지점</h2></div>
+  <p class="sec-desc">여정 안에 숨어 있던 크로스도메인 연결만 모아 본 것. 앞줄이 뒷줄을 <b>같은 트랜잭션</b> 또는 <b>이벤트 워커</b>로 부른다.</p>
+  <div class="wiring">
+    <div class="wire"><span class="from" style="color:var(--a-staff)">상담 출석 확정</span><span class="wa">─tx→</span><span class="to" style="color:var(--warn)">바우처 차감</span><span class="why">attended·excused만 is_consumed → remaining_sessions−− (여정 3)</span></div>
+    <div class="wire"><span class="from" style="color:var(--warn)">청구 생성</span><span class="wa">─tx→</span><span class="to" style="color:var(--warn)">바우처 차감</span><span class="why">BillableItem.client_voucher_id 연결분 소진 — 행/집계가 같은 필터를 보는 단일 tx (여정 5)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-admin)">센터 승인</span><span class="wa">─tx→</span><span class="to" style="color:var(--a-sys)">7개 모듈 초기화</span><span class="why">역할·검사·운영시간·구독·크레딧·멤버가 한 트랜잭션 (여정 1)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-user)">앱 link claim</span><span class="wa">─tx→</span><span class="to" style="color:var(--a-sys)">CenterLink + 감사</span><span class="why">전역(Family·Profile) ↔ 테넌트(Client) 다리 + append-only 감사 (여정 2)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-user)">검사 응답 제출</span><span class="wa">─tx→</span><span class="to" style="color:var(--a-sys)">엔진 채점</span><span class="why">플러그인 registry 조회 → 점수·위험도 → report_payload (여정 4)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-staff)">필드노트 파이프라인</span><span class="wa">─비동기→</span><span class="to" style="color:var(--a-sys)">STT·LLM → 상담일지</span><span class="why">transcribe→refine→diarize→summarize→note. AI 크레딧 소비 = 구독 플랜 한도와 연결 (여정 3)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-sys)">모든 도메인 쓰기</span><span class="wa">⚡→</span><span class="to" style="color:var(--a-sys)">이벤트 아웃박스 → 워커</span><span class="why">emit(events+atomics) → pg_notify → 워커가 독립 tx로 반응 실행 (알림·메일·알림톡)</span></div>
+    <div class="wire"><span class="from" style="color:var(--a-sys)">워커 반응</span><span class="wa">→</span><span class="to" style="color:#be5a19">notification · messaging</span><span class="why">초대 메일, 검사 알림톡, 예약 확정 푸시 — 발송은 요청 tx 밖 (멱등 처리)</span></div>
+  </div>
+</section>
+
+<a class="back" href="#top">↑ 맨 위</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리빙랩 대비 관리자 웹 점검 보고서</title>
+<style>
+  :root{
+    --ink:#1a1d24; --sub:#5b6472; --line:#e6e9ee; --bg:#f7f8fa; --card:#fff;
+    --red:#d94141; --red-bg:#fdf0f0; --amber:#b57a10; --amber-bg:#fdf6e8;
+    --green:#1d8a4e; --green-bg:#eef8f1; --blue:#2f6fed; --blue-bg:#eef3fe;
+    --violet:#7c5cd6; --violet-bg:#f3effc;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.65;}
+  .layout{display:flex; max-width:1280px; margin:0 auto;}
+  nav{width:230px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; padding:36px 16px 36px 24px; border-right:1px solid var(--line);}
+  nav .nav-title{font-size:13px; font-weight:700; color:var(--sub); text-transform:uppercase; margin-bottom:12px; letter-spacing:0.4px;}
+  nav a{display:block; font-size:13.5px; color:var(--sub); text-decoration:none; padding:5px 10px; border-radius:6px; margin-bottom:1px;}
+  nav a:hover{background:var(--blue-bg); color:var(--blue);}
+  nav a.depth2{padding-left:22px; font-size:12.5px;}
+  main{flex:1; padding:40px 44px 100px; min-width:0;}
+  h1{font-size:26px; font-weight:800; letter-spacing:-0.6px; margin-bottom:6px;}
+  .meta{font-size:13.5px; color:var(--sub); margin-bottom:28px;}
+  h2{font-size:19px; font-weight:800; margin:52px 0 16px; padding-top:20px; border-top:2px solid var(--ink); scroll-margin-top:20px;}
+  h2 .h2-num{color:var(--blue); margin-right:6px;}
+  h3{font-size:15.5px; font-weight:700; margin:28px 0 10px; scroll-margin-top:20px;}
+  p{font-size:14.5px; margin-bottom:10px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:14px;}
+  .tldr{background:var(--card); border:1px solid var(--line); border-left:4px solid var(--blue); border-radius:12px; padding:20px 24px; margin-bottom:10px;}
+  .tldr strong{color:var(--blue);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--card); border-radius:10px; overflow:hidden; margin:12px 0 18px;}
+  th{background:#f0f2f5; text-align:left; padding:9px 12px; font-weight:700; font-size:12.5px; color:var(--sub); border-bottom:1px solid var(--line); white-space:nowrap;}
+  td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.c, th.c{text-align:center;}
+  .badge{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 9px; border-radius:20px; white-space:nowrap; vertical-align:1px;}
+  .b-red{background:var(--red-bg); color:var(--red);}
+  .b-amber{background:var(--amber-bg); color:var(--amber);}
+  .b-green{background:var(--green-bg); color:var(--green);}
+  .b-blue{background:var(--blue-bg); color:var(--blue);}
+  .b-violet{background:var(--violet-bg); color:var(--violet);}
+  .b-gray{background:#eef0f3; color:var(--sub);}
+  code{font-family:"SF Mono",Menlo,monospace; font-size:12px; background:#eef0f4; padding:1px 6px; border-radius:5px; color:#3a4150;}
+  .scenario{background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:16px; overflow:hidden;}
+  .scenario-head{padding:16px 22px 12px; border-bottom:1px solid var(--line); background:#fbfcfd;}
+  .scenario-head h3{margin:0 0 4px; font-size:16px;}
+  .scenario-head .goal{font-size:13px; color:var(--sub);}
+  .scenario-body{padding:16px 22px 18px;}
+  .qa{margin-bottom:12px;}
+  .qa .q{font-size:13.5px; font-weight:700; margin-bottom:3px;}
+  .qa .q .qnum{color:var(--blue); font-weight:800; margin-right:4px;}
+  .qa .a{font-size:13.5px; color:#333a45;}
+  .gap{background:var(--red-bg); border-radius:9px; padding:12px 16px; margin-top:14px; font-size:13.5px;}
+  .gap-title{font-weight:800; color:var(--red); font-size:12.5px; margin-bottom:5px;}
+  .gap ul{padding-left:18px;}
+  .gap li{margin-bottom:4px;}
+  .flow{background:#f0f2f5; border-radius:9px; padding:12px 16px; font-family:"SF Mono",Menlo,monospace; font-size:12px; line-height:1.9; color:#3a4150; margin:10px 0; overflow-x:auto; white-space:nowrap;}
+  .ok-list{padding-left:4px; list-style:none;}
+  .ok-list li{padding-left:26px; position:relative; margin-bottom:8px; font-size:14px;}
+  .ok-list li::before{content:"✓"; position:absolute; left:2px; color:var(--green); font-weight:800;}
+  .p0-num{display:inline-flex; width:22px; height:22px; align-items:center; justify-content:center; background:var(--red); color:#fff; border-radius:50%; font-size:12px; font-weight:800;}
+  ul.plain{padding-left:20px; margin-bottom:12px;}
+  ul.plain li{font-size:14px; margin-bottom:7px;}
+  .hint{font-size:12.5px; color:var(--sub);}
+  .divider-note{font-size:13px; color:var(--sub); background:#f0f2f5; border-radius:8px; padding:10px 14px; margin:8px 0 16px;}
+  @media (max-width:900px){ nav{display:none;} main{padding:24px 20px 80px;} }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <div class="nav-title">목차</div>
+  <a href="#tldr">핵심 요약</a>
+  <a href="#structure">0. 전체 구조</a>
+  <a href="#admin">A. 관리자 시나리오</a>
+  <a href="#a1" class="depth2">A1 센터 개설·세팅</a>
+  <a href="#a2" class="depth2">A2 접수→배정→일정</a>
+  <a href="#a3" class="depth2">A3 하루 시작</a>
+  <a href="#a4" class="depth2">A4 수납·청구</a>
+  <a href="#a5" class="depth2">A5 검사 운영</a>
+  <a href="#a6" class="depth2">A6 멤버·구독</a>
+  <a href="#counselor">B. 상담사 시나리오</a>
+  <a href="#b1" class="depth2">B1 하루 시작</a>
+  <a href="#b2" class="depth2">B2 세션 수행·기록</a>
+  <a href="#b3" class="depth2">B3 내담자 등록</a>
+  <a href="#b4" class="depth2">B4 검사 의뢰→결과</a>
+  <a href="#b5" class="depth2">B5 일정 변경·취소</a>
+  <a href="#cross">C. 메뉴·정보구조</a>
+  <a href="#issues">D. 이슈 우선순위</a>
+  <a href="#p0" class="depth2">P0 — 리빙랩 전 필수</a>
+  <a href="#p1" class="depth2">P1 — 사용성 정리</a>
+  <a href="#p2" class="depth2">P2 — 이후 개선</a>
+  <a href="#good" class="depth2">잘 되어 있는 것</a>
+</nav>
+
+<main>
+<h1>리빙랩 대비 관리자 웹 점검 보고서</h1>
+<div class="meta">2026-07-09 · apps/web 전 라우트 + 대응 API 코드 전수 추적 · 원본: <code>apps/web/docs/living-lab-audit/</code> 00·01 문서</div>
+
+<div class="tldr" id="tldr">
+  <p style="font-size:15px; margin-bottom:8px;"><strong>결론 한 줄:</strong> 뼈대(접수→회기→일지→종결, 청구, 검사 end-to-end)는 탄탄하다. 문제는 <b>가장자리</b> — 깨진 화면 7곳(P0), 그리고 "어디서 뭘 해야 하는지"가 흩어진 정보구조다.</p>
+  <p style="font-size:13.5px; color:var(--sub); margin:0;">
+    <span class="badge b-red">P0 · 7건</span> 깨짐·오작동·신뢰 훼손 — 리빙랩 전 필수 &nbsp;
+    <span class="badge b-amber">P1 · 10건</span> 사용성 모호 — 사전 정리 권장 &nbsp;
+    <span class="badge b-gray">P2</span> 구조 개선 — 리빙랩 이후
+  </p>
+</div>
+
+<h2 id="structure"><span class="h2-num">0.</span>전제 — 전체 구조 한 장 요약</h2>
+<div class="card">
+  <ul class="plain">
+    <li><b>로그인 후 첫 화면은 대시보드가 아니라 캘린더</b> (<code>/schedule/calendar</code>). 대시보드 메뉴는 따로 있다.</li>
+    <li>메뉴 노출은 <b>역할 하드코딩 + 권한 2계층</b> — 상담사는 설정·구성원·청구가 코드로 완전 숨김, 관리자는 권한으로만 판단.</li>
+    <li>상담사의 데이터 격리(내 담당만)는 <b>백엔드가 조용히 처리</b> — 화면에는 아무 표시가 없다.</li>
+    <li>환경별 숨김: AI 에이전트(프로덕션 숨김) · 필드노트(전 환경 숨김) · 문서양식(프로덕션 숨김) → <b>리빙랩에서 AI 동선은 없음.</b></li>
+  </ul>
+</div>
+
+<h3>역할별 메뉴 (사이드바 순서 그대로)</h3>
+<table>
+  <tr><th>메뉴</th><th class="c">상담사</th><th class="c">관리자+</th><th>비고</th></tr>
+  <tr><td>대시보드</td><td class="c">O</td><td class="c">O</td><td>역할 구분 없이 완전히 같은 화면</td></tr>
+  <tr><td>스케줄</td><td class="c">O</td><td class="c">O</td><td>서브 '필드노트'는 숨김 → 단일 링크</td></tr>
+  <tr><td>내담자</td><td class="c">O</td><td class="c">O</td><td></td></tr>
+  <tr><td>바우처</td><td class="c">O</td><td class="c">O</td><td>실체는 "바우처 보유 <b>내담자</b> 목록"</td></tr>
+  <tr><td>상담</td><td class="c">O</td><td class="c">O</td><td>접수는 이 화면 안의 버튼</td></tr>
+  <tr><td>검사</td><td class="c">O</td><td class="c">O</td><td>접수·전송이력도 화면 안에서 진입</td></tr>
+  <tr><td>구성원 · 청구 · 설정</td><td class="c"><span class="badge b-red">숨김</span></td><td class="c">O</td><td>상담사는 하드코딩 제외</td></tr>
+  <tr><td>내 정보 · 공지 · 고객센터</td><td class="c">O</td><td class="c">O</td><td>내 정보는 권한 검사 자체가 없음</td></tr>
+</table>
+
+<h2 id="admin"><span class="h2-num">A.</span>관리자 시나리오 — 실제 동작</h2>
+
+<div class="scenario" id="a1">
+  <div class="scenario-head"><h3>A1. 센터 개설과 초기 세팅</h3><div class="goal">가입 → 센터 생성 → 멤버 초대 → 첫 사용 준비까지</div></div>
+  <div class="scenario-body">
+    <div class="flow">가입(/signup) → 센터 목록(/welcome) → 센터 생성(/welcome/register: 이름·전화·주소·대표자) → 캘린더 진입</div>
+    <div class="qa"><div class="q"><span class="qnum">Q1</span>센터 생성 때 뭘 입력하나?</div><div class="a">기본 정보만. 운영시간·상담실·프로그램·단가는 생성 후 설정 메뉴에서 각자 찾아야 하고, 어떤 안내도 없다.</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q2</span>멤버 초대는 어떻게 되나?</div><div class="a">이메일 초대 → 대기 탭에서 만료일(D-3)·재전송 관리 → 수락하면 센터 자동 선택까지. <b>흐름 자체는 완결.</b> 엑셀 일괄 초대 버튼은 비활성.</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q3</span>세팅이 끝났는지 알 수 있나?</div><div class="a">온보딩 가이드·체크리스트 <b>없음.</b> 생성 직후 빈 캘린더에 떨어진다.</div></div>
+    <div class="gap"><div class="gap-title">⚠ 갭</div>리빙랩 첫 세션에서 "가입은 했는데 다음에 뭘 해야 하나"가 나올 확률이 매우 높다. 최소한 빈 캘린더에 세팅 순서(상담실 → 프로그램 → 단가 → 멤버) 가이드가 필요. <span class="badge b-amber">P1-1</span></div>
+  </div>
+</div>
+
+<div class="scenario" id="a2">
+  <div class="scenario-head"><h3>A2. 신규 문의 접수 → 상담사 배정 → 첫 일정</h3><div class="goal">전화로 온 신규 문의를 접수하고 첫 상담을 잡는다</div></div>
+  <div class="scenario-body">
+    <div class="flow">상담 현황 [상담 접수하기] → 접수 폼(유형→내담자→상담사→프로그램→일정→메모) → 케이스+회기 일괄 생성 → SMS 알림</div>
+    <div class="qa"><div class="q"><span class="qnum">Q4</span>접수 진입점이 몇 개인가?</div><div class="a">3개가 따로 논다 — 상담 접수 / 검사 접수 / 운영 일정 등록. 사이드바에 "접수" 메뉴는 없고 각 화면 버튼으로 진입. <b>캘린더에서 상담 예약을 바로 잡는 동선은 없다</b> (캘린더의 등록 버튼은 운영 일정용).</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q5</span>내담자가 등록 전이면?</div><div class="a">접수 폼 안에서 인라인 등록 가능. 문제 없음.</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q6</span>배정 시 충돌을 막아주나?</div><div class="a"><b>장소 충돌만 검사한다.</b> 같은 상담사를 같은 시각 두 방에 배정해도 경고가 전혀 없다. 충돌이 있어도 경고만 하고 제출은 막지 않는 정책(이 정책 자체는 합리적).</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q7</span>접수 상태값은?</div><div class="a">케이스: 진행중→종결(되돌리기 가능)/취소. 회기: 예정→완료/노쇼/취소(사유+보충회기 옵션). 회기 상태 바꾸면 참석자 출석도 일괄 동기화. 5분 내 동일 조건 중복 접수는 409로 차단(상담만).</div></div>
+    <div class="gap"><div class="gap-title">⚠ 갭</div><ul>
+      <li><b>상담사 이중 배정 무검사</b> — 실운영에서 가장 먼저 터질 지점. <span class="badge b-red">P0-2</span></li>
+      <li>검사 접수는 충돌을 검사해놓고 <b>응답에 경고를 안 담아서</b> 사용자가 모른다(상담 접수는 담음). <span class="badge b-red">P0-6</span></li>
+      <li>"아직 상담인지 검사인지 모르는" 신규 문의를 받는 통합 인입점이 없다. <span class="badge b-amber">P1-4</span></li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="scenario" id="a3">
+  <div class="scenario-head"><h3>A3. 하루 시작 — 센터 전체 현황 파악</h3><div class="goal">아침 로그인 후 3분 안에 오늘 상황 파악</div></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q8</span>첫 화면에서 필요한 게 보이나?</div><div class="a">첫 화면은 캘린더 — 오늘 일정은 보이지만 <b>"밀린 일" 신호는 없다.</b> 미청구 세션은 청구 화면 배너에, 소진·만료 임박 바우처는 대시보드에, 미처리 회기·연장/종결 확인은 상담 현황에 — <b>4개 화면에 분산.</b></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q9</span>대시보드는 실데이터인가?</div><div class="a">대시보드 본체(다음 일정 히어로·바우처 신호·공지)는 실데이터. 단 <b>역할 구분이 없어 관리자용 운영 신호가 없다.</b> 하위 analytics 페이지는 <b>전부 더미</b>("-" 표시 + "차트 준비 중").</div></div>
+    <div class="gap"><div class="gap-title">⚠ 갭</div>관리자의 아침 질문("오늘 누가 오고, 뭐가 밀렸나")에 답하는 화면이 없다. 대시보드에 관리자 분기(미청구·미처리·임박 신호 모음)를 넣는 것이 최소 수정. <span class="badge b-amber">P1-2</span> / analytics 더미 노출 <span class="badge b-red">P0-4</span></div>
+  </div>
+</div>
+
+<div class="scenario" id="a4">
+  <div class="scenario-head"><h3>A4. 수납·청구 처리</h3><div class="goal">상담 완료 후 수납, 바우처 내담자는 회기 차감</div></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q10</span>청구 화면이 커버하는 범위는?</div><div class="a">청구 생성(상담/검사/패키지 연계, 지원금)·납부 기록·미수금 추적·상태 탭(대기→부분결제→완료)·미청구 세션 배너까지. <b>완성도가 가장 높은 도메인.</b></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q11</span>바우처 차감은 자동인가?</div><div class="a">청구 항목에 바우처를 연결하는 구조. 단 <b>만료일 검증이 차감 시점에 없어 만료 바우처도 차감될 수 있다.</b> 바우처 수정 UI도 없음(API만 존재).</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q12</span>단가표는 어디에 쓰이나?</div><div class="a">상담/검사/패키지 단가 정의 + 검사·프로그램 자동 동기화. 청구 생성 시 참조.</div></div>
+    <div class="gap"><div class="gap-title">⚠ 갭</div><ul>
+      <li>만료 바우처 차감 검증 없음 — 바우처 센터 리빙랩이면 <b>정산 사고로 직결.</b> <span class="badge b-red">P0-7</span></li>
+      <li>"billing"이 3가지 의미(내담자 청구 / 서비스 단가 / SaaS 구독 결제)로 혼용. <span class="badge b-gray">P2</span></li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="scenario" id="a5">
+  <div class="scenario-head"><h3>A5. 검사지 구매·검사 운영</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q13</span>검사 구매 모델은?</div><div class="a"><code>/assessment/purchase</code>는 <b>라우트만 있고 페이지가 없다.</b> 크레딧/결제 모델이 코드에 존재하지 않음. <span class="badge b-red">P0-5</span></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q14</span>관리자와 상담사 흐름 차이는?</div><div class="a">접수 폼에서 관리자는 담당자 전체 지정+대표 지정, 상담사는 본인만. 담당자 필터도 관리자 전용. 나머지(접수→링크→수행→결과)는 동일하고 <b>흐름은 실제로 닫혀 있다.</b></div></div>
+  </div>
+</div>
+
+<div class="scenario" id="a6">
+  <div class="scenario-head"><h3>A6. 멤버·구독 관리</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q15</span>상담사 퇴사 처리는?</div><div class="a">비활성화 토글과 삭제는 있다. <b>퇴사자의 담당 케이스·예정 일정을 어떻게 할지는 미정의</b> — 이관 흐름 없음. <span class="badge b-amber">P1-9</span></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q16</span>구독 메뉴가 왜 두 개인가?</div><div class="a"><code>/subscription</code>과 <code>/settings/subscription</code>이 <b>같은 쿼리·같은 화면의 완전 중복.</b> AI 사용량도 중복. 게다가 <b>둘 다 권한 체크가 없어</b> 상담사도 URL로 접근 가능. "AI/구독 프로덕션 미배포" 방침과 리빙랩 빌드의 정합도 확정 필요. <span class="badge b-red">P0-3</span></div></div>
+  </div>
+</div>
+
+<h2 id="counselor"><span class="h2-num">B.</span>상담사 시나리오 — 실제 동작</h2>
+
+<div class="scenario" id="b1">
+  <div class="scenario-head"><h3>B1. 하루 시작 — 내 일정 확인</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q17</span>첫 화면에서 오늘 상담이 보이나?</div><div class="a">첫 화면이 캘린더라 상담사에게는 오히려 맞는 진입. 대시보드의 "다음 일정, N분 후" 히어로도 상담사 친화적 — 두 화면 역할이 겹친다.</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q18</span>자기 일정만 보나, 전체를 보나?</div><div class="a">백엔드가 "내 담당만"으로 자동 필터. <b>화면에는 그 사실이 표시되지 않아</b> 전체를 보고 있다고 오해할 수 있다. <span class="badge b-amber">P1-3</span></div></div>
+  </div>
+</div>
+
+<div class="scenario" id="b2">
+  <div class="scenario-head"><h3>B2. 세션 수행 — 사전 확인 → 상담 → 기록</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q19</span>일정→세션→내담자 이동이 자연스러운가?</div><div class="a">상담 현황 행 클릭 → 상담 상세(<code>/counseling/status/[id]</code>): 세션 목록+상세 패널+청구 연동까지 실데이터로 동작. <b>주의: <code>/session/[sessionId]</code>는 어디서도 링크 안 되는 고아 라우트로, mock 데이터를 쓴다</b> — 실제 동선 아님, 삭제 대상. <span class="badge b-red">P0-5</span></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q20</span>수기 일지와 AI 필드노트의 관계는?</div><div class="a">일지(목표/진행/다음계획/개인메모/소견)는 상담 상세에서 작성. 필드노트 메뉴는 전 환경 숨김, AI 에이전트는 프로덕션 숨김 → <b>리빙랩에서는 수기 일지가 유일한 기록 동선.</b></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q21</span>세션 완료 시 뭐가 연쇄되나?</div><div class="a">명시적 [완료] 버튼 + 미확정 참석자 일괄 처리 모달. 완료가 청구·차감으로 자동 연쇄되지는 않고 미청구는 관리자가 청구 화면 배너로 사후에 잡는다. 분업은 성립하지만 <b>그 인계가 화면에 드러나지 않는다.</b></div></div>
+  </div>
+</div>
+
+<div class="scenario" id="b3">
+  <div class="scenario-head"><h3>B3. 내담자 등록·관리</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q22</span>상담사가 직접 등록 가능한가?</div><div class="a">가능(권한 기준, 역할 제외 없음).</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q23</span>보호자 연결이 실제 케이스를 커버하나?</div><div class="a">보호자 다중 행+관계 선택, 배치 API로 동시 생성·관계 연결 — 아동+보호자는 커버. 단 <b>"내담자이자 보호자"(role=both)는 백엔드만 지원, UI 선택 불가.</b> <b>중복 체크 API가 있는데 프론트가 안 불러서</b> 동명이인·재등록 방지 없음. <span class="badge b-amber">P1-6</span></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q24</span>담당 개념이 있나?</div><div class="a">백엔드에 존재(owner_scope). 화면 표시는 없음 — B1과 같은 이슈.</div></div>
+  </div>
+</div>
+
+<div class="scenario" id="b4">
+  <div class="scenario-head"><h3>B4. 검사 의뢰 → 수행 → 결과 확인</h3></div>
+  <div class="scenario-body">
+    <div class="flow">접수 → [링크 전송: SMS/카톡/이메일/QR] → 내담자 검사(검사 전용 계정 로그인) → 제출 알림 → 상담사 결과 확인 → [결과 링크] → 내담자 인증번호 4자리 → 다운로드(1시간 유효)</div>
+    <div class="qa"><div class="q"><span class="qnum">Q25</span>내담자가 링크만으로 검사할 수 있나?</div><div class="a"><b>아니다 — 검사 전용 계정 로그인이 필요하다.</b> 계정 생성 UX와 검사 중 토큰 만료 복구는 미정의. <b>리빙랩 전 실전 리허설 필수.</b> <span class="badge b-amber">P1-10</span></div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q26</span>결과 도착을 상담사가 어떻게 아나?</div><div class="a">"검사 제출" 인앱 알림(30초 폴링). 결과는 검사 상세에서 태스크별 확인.</div></div>
+    <div class="qa"><div class="q"><span class="qnum">Q27</span>용어가 구분되나?</div><div class="a">수행 링크(SendLink)와 결과 링크(SendResult)가 UI에서 둘 다 "링크 전송"처럼 보임 → "검사 링크"/"결과 링크"로 라벨 분리 필요. <span class="badge b-amber">P1-5</span></div></div>
+  </div>
+</div>
+
+<div class="scenario" id="b5">
+  <div class="scenario-head"><h3>B5. 일정 변경·취소</h3></div>
+  <div class="scenario-body">
+    <div class="qa"><div class="q"><span class="qnum">Q28</span>노쇼·변경 처리가 되나?</div><div class="a">취소(사유 입력+보충 회기 추가 옵션)·노쇼 별도 상태·단건 수정 모두 가능. 반복 규칙도 케이스에 저장. <b>흐름 성립, 문제 없음.</b></div></div>
+  </div>
+</div>
+
+<h2 id="cross"><span class="h2-num">C.</span>메뉴·정보구조 횡단 점검</h2>
+<div class="card">
+  <div class="qa"><div class="q"><span class="qnum">Q29</span>메뉴 순서가 사용 빈도와 맞나?</div><div class="a">상담사 동선(스케줄·상담·내담자 상단)은 무난. 단 <b>"바우처"의 1뎁스 승격이 실체(내담자 목록) 대비 과함</b> + 설정>바우처 관리와 같은 단어가 두 메뉴에 존재. <span class="badge b-amber">P1-8</span></div></div>
+  <div class="qa"><div class="q"><span class="qnum">Q30</span>"접수"가 몇 곳인가?</div><div class="a">메뉴엔 없고 3개 화면 버튼으로 분산. "접수하기"(상담·검사) vs "등록하기"(운영) 용어 혼용. <span class="badge b-amber">P1-4</span></div></div>
+  <div class="qa"><div class="q"><span class="qnum">Q31</span>고아·빈 화면은?</div><div class="a"><code>/session/[sessionId]</code>(mock·링크없음) · <code>/assessment-case</code>(중복) · <code>/assessment/purchase</code>(미구현) · <code>/settings/profile</code>("준비 중") · <code>/dashboard/analytics</code>(전부 더미) · <code>/assessment/statistics</code>(가짜 숫자+TODO) · <code>/assessment/quick-links</code>(<b>centerId 하드코딩!</b>) <span class="badge b-red">P0-1·4·5</span></div></div>
+  <div class="qa"><div class="q"><span class="qnum">Q32</span>상담사가 관리자 URL 직접 접근하면?</div><div class="a">페이지는 뜨고 API 403에 의존하는 구조(버튼만 권한으로 숨김). <code>/subscription</code>은 그 API 게이팅조차 미확인. <span class="badge b-red">P0-3</span></div></div>
+  <div class="qa"><div class="q"><span class="qnum">Q33</span>설정이 몇 곳인가?</div><div class="a">3곳 — 센터 운영(<code>/center/*</code>) / 개인·계정(<code>/settings/*</code>) / 센터별 내 프로필(<code>/myInfo</code>). 구독은 심지어 3곳(myInfo 탭·/subscription·/settings/subscription)에서 접근된다. <span class="badge b-amber">P1-7</span></div></div>
+  <div class="qa"><div class="q"><span class="qnum">Q34</span>알림은 실제로 오나?</div><div class="a">이벤트 종류는 풍부(케이스/회기 생명주기 전체+시스템). 실시간은 아니고 <b>30초 폴링.</b> 기본값: 인앱 ON, 알림톡·푸시 OFF. 치명도 낮음.</div></div>
+</div>
+
+<h2 id="issues"><span class="h2-num">D.</span>이슈 우선순위</h2>
+
+<h3 id="p0"><span class="badge b-red" style="font-size:13px;">P0</span>&nbsp; 리빙랩 전 반드시 — 깨짐·오작동·신뢰 훼손 (7건)</h3>
+<table>
+  <tr><th style="width:36px;" class="c">#</th><th>이슈</th><th>왜 P0인가</th><th>조치</th></tr>
+  <tr><td class="c"><span class="p0-num">1</span></td><td><b>바로링크 centerId 하드코딩</b><br><code>quick-links/+page.svelte:21</code></td><td>다른 센터에서 남의 센터 데이터 조회 시도/빈 화면</td><td>$centerId 바인딩 — 한 줄 수정</td></tr>
+  <tr><td class="c"><span class="p0-num">2</span></td><td><b>상담사 이중 배정 무검사</b><br>충돌 검사가 장소 기준만</td><td>같은 시각 두 상담 배정 — 실운영 첫날 터질 지점</td><td>상담사 기준 충돌 검사 추가(경고만이라도)</td></tr>
+  <tr><td class="c"><span class="p0-num">3</span></td><td><b>구독 화면 권한 가드 없음</b><br>/subscription 계열 전체</td><td>상담사가 URL로 플랜 변경 접근 가능 + 프로덕션 미배포 방침과 충돌</td><td><b>정책 결정</b>: 리빙랩 빌드 노출 여부 확정 + 가드</td></tr>
+  <tr><td class="c"><span class="p0-num">4</span></td><td><b>더미 화면 노출</b><br>analytics("-") · 검사 통계(가짜 숫자)</td><td>가짜 숫자는 센터 신뢰를 깎음</td><td><b>정책 결정</b>: 진입 차단 or "준비 중" 명시</td></tr>
+  <tr><td class="c"><span class="p0-num">5</span></td><td><b>고아·미구현 라우트</b><br>/session(mock) · /assessment-case · /purchase · /settings/profile</td><td>URL 진입 시 mock 데이터·빈 화면</td><td>삭제 또는 리다이렉트</td></tr>
+  <tr><td class="c"><span class="p0-num">6</span></td><td><b>검사 접수 충돌 경고 누락</b><br>상담 접수는 warnings 반환, 검사는 없음</td><td>검사 일정이 조용히 겹침</td><td>응답에 warnings 필드 추가(백엔드)</td></tr>
+  <tr><td class="c"><span class="p0-num">7</span></td><td><b>만료 바우처 차감 검증 없음</b></td><td>바우처 센터 리빙랩이면 정산 사고 직결</td><td>차감/청구 연결 시점에 valid_until 검증</td></tr>
+</table>
+<div class="divider-note">1·5·6·7 = 바로 코드 수정 가능 · 2 = 백엔드 보강 · <b>3·4 = 비즈니스 정책 결정 선행 필요</b></div>
+
+<h3 id="p1"><span class="badge b-amber" style="font-size:13px;">P1</span>&nbsp; 사용성 모호 — 리빙랩 피드백 왜곡 방지용 사전 정리 (10건)</h3>
+<table>
+  <tr><th style="width:36px;" class="c">#</th><th>이슈</th><th>내용</th></tr>
+  <tr><td class="c">1</td><td>온보딩 부재</td><td>센터 생성 직후 빈 캘린더 — 세팅 순서 가이드 필요</td></tr>
+  <tr><td class="c">2</td><td>관리자 아침 화면 부재</td><td>할 일 신호가 4개 화면에 분산 — 대시보드 관리자 분기가 최소 수정</td></tr>
+  <tr><td class="c">3</td><td>데이터 범위 미표시</td><td>"내 담당만" / "센터 전체" 를 목록 헤더에 명시</td></tr>
+  <tr><td class="c">4</td><td>접수 진입점·용어 분산</td><td>3곳 분산 + 접수/등록 혼용 + 캘린더에서 상담 예약 불가</td></tr>
+  <tr><td class="c">5</td><td>검사 링크 용어</td><td>수행 링크 vs 결과 링크 라벨 분리</td></tr>
+  <tr><td class="c">6</td><td>중복 체크 미사용</td><td>API는 있음 — 연결만 하면 동명이인·재등록 방지</td></tr>
+  <tr><td class="c">7</td><td>구독·설정 3중 진입</td><td>/subscription 중복 제거, myInfo 구독 탭 정리</td></tr>
+  <tr><td class="c">8</td><td>바우처 메뉴 이원화</td><td>1뎁스 바우처(현황) vs 설정>바우처 관리(마스터) + 수정 UI 부재</td></tr>
+  <tr><td class="c">9</td><td>퇴사 처리 흐름</td><td>비활성화 시 담당 케이스·일정 처리 미정의</td></tr>
+  <tr><td class="c">10</td><td>내담자 검사 로그인 리허설</td><td>검사 전용 계정 생성·토큰 만료 복구 — 실전 테스트 필수</td></tr>
+</table>
+
+<h3 id="p2"><span class="badge b-gray" style="font-size:13px;">P2</span>&nbsp; 리빙랩 이후 구조 개선</h3>
+<div class="card"><p style="margin:0; font-size:13.5px;">billing 3의미 재편(단가표→센터 설정 이동) · role="both" UI 지원 · 다중 상담사 표시 · 시간대 변환 ISO 통일 · 탭 전환 시 불필요 쿼리 재실행 · SSE 실시간 알림 · 세션 완료→청구 연쇄 자동화</p></div>
+
+<h3 id="good">잘 되어 있는 것 — 리빙랩에서 그대로 검증할 강점</h3>
+<div class="card">
+  <ul class="ok-list">
+    <li>접수→케이스→회기→일지→종결 상태 머신이 명확하고, 회기 상태 변경 시 참석자 일괄 동기화까지 구현</li>
+    <li>청구 도메인 완성도 — 미청구 배너·부분결제·패키지·바우처 연결</li>
+    <li>검사 end-to-end가 실제로 닫혀 있음 (접수→링크→수행→인증번호 결과 확인)</li>
+    <li>보호자-자녀 배치 등록 / 충돌 "경고하되 차단 안 함" 정책 / 권한 확정 후 메뉴 렌더(깜빡임 방지)</li>
+  </ul>
+</div>
+
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시안 1: 임상 전문가형 (클린 & 트러스트 뷰)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50:'#f0f7ff', 100:'#e0effe', 200:'#bae0fd', 300:'#7ccbfc', 400:'#36b3f8', 500:'#0c96e9', 600:'#0078c7', 700:'#0060a1', 800:'#045185', 900:'#03446e' },
+        navy: { 50:'#f0f4f8', 100:'#d9e2ec', 200:'#bcccdc', 300:'#9fb3c8', 400:'#829ab1', 500:'#627d98', 600:'#486581', 700:'#334e68', 800:'#243b53', 900:'#102a43' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="flex h-screen w-[260px] flex-col bg-gray-900 text-gray-300 shrink-0">
+    <div class="flex h-[72px] items-center px-6">
+      <div class="flex items-center gap-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/></svg>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight text-white">마인드봄</span>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-4 pt-4">
+      <div class="space-y-1">
+        <a href="#" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium bg-white/10 text-white">
+          <span class="flex w-6 items-center justify-center text-teal-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span>대시보드</span>
+        </a>
+        <a href="#" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5 hover:text-gray-200">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+          </span>
+          <span>검사 현황</span>
+        </a>
+        <a href="#" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5 hover:text-gray-200">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span>내담자</span>
+        </a>
+      </div>
+    </nav>
+    <div class="border-t border-white/10 px-5 py-5">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500/20 text-teal-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="truncate text-sm font-semibold text-white">임상심리사님</p>
+          <p class="truncate text-xs text-gray-500">임상심리사</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 overflow-y-auto">
+    <div class="p-10">
+
+      <!-- Header -->
+      <div class="mb-10 flex items-start justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-navy-900">좋은 오후예요, 임상심리사님</h1>
+          <p class="mt-2 text-base text-navy-400">오늘의 업무 현황을 확인하세요.</p>
+        </div>
+        <button class="flex items-center gap-2.5 rounded-xl bg-navy-800 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-navy-900 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          새 검사 등록
+        </button>
+      </div>
+
+      <!-- Status Cards (4 uniform) -->
+      <div class="mb-10 grid grid-cols-4 gap-6">
+        <!-- 진행중 -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium text-navy-400">진행중</p>
+              <p class="mt-3 text-4xl font-extrabold text-navy-800">2</p>
+              <p class="mt-2 text-xs text-gray-400">대기 1 · 진행 1</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI 분석중 -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium text-navy-400">AI 분석중</p>
+              <p class="mt-3 text-4xl font-extrabold text-navy-800">1</p>
+              <p class="mt-2 text-xs text-gray-400">자동 분석 진행</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 전문가 검토 필요 -->
+        <div class="rounded-2xl border border-amber-200 bg-amber-50/40 p-7 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold text-amber-700">전문가 검토 필요</p>
+              <p class="mt-3 text-4xl font-extrabold text-amber-600">3</p>
+              <p class="mt-2 text-xs text-amber-500">AI 초안 완료 → 검토 대기</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 완료 -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium text-navy-400">완료</p>
+              <p class="mt-3 text-4xl font-extrabold text-navy-800">12</p>
+              <p class="mt-2 text-xs text-gray-400">이번 달 누적</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Examinations -->
+      <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-gray-100 px-8 py-6">
+          <h2 class="text-xl font-bold text-navy-900">최근 검사</h2>
+          <a href="#" class="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors">전체보기 →</a>
+        </div>
+
+        <!-- Table -->
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-100 bg-gray-50/60">
+              <th class="px-8 py-4 text-left text-xs font-semibold uppercase tracking-wider text-navy-400">내담자</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-navy-400">검사 유형</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-navy-400">검사자</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-navy-400">상태</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-navy-400">등록일</th>
+              <th class="px-8 py-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr class="border-b border-gray-50 transition-colors hover:bg-gray-50/50">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full bg-navy-100 text-navy-600 text-sm font-bold">김</div>
+                  <div>
+                    <p class="text-[15px] font-semibold text-navy-900">김민서</p>
+                    <p class="text-xs text-gray-400">여 · 28세</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-navy-700">🦋 로샤</span>
+              </td>
+              <td class="px-6 py-5 text-sm text-navy-500">임상심리사</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3.5 py-1.5 text-xs font-bold text-amber-700">
+                  <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                  검토 필요
+                </span>
+              </td>
+              <td class="px-6 py-5 text-sm text-gray-400">2026.04.24</td>
+              <td class="px-8 py-5 text-right">
+                <button class="rounded-lg bg-navy-800 px-4 py-2 text-xs font-semibold text-white hover:bg-navy-900 transition-colors">검토하기</button>
+              </td>
+            </tr>
+            <!-- Row 2 -->
+            <tr class="border-b border-gray-50 transition-colors hover:bg-gray-50/50">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-bold">이</div>
+                  <div>
+                    <p class="text-[15px] font-semibold text-navy-900">이영희</p>
+                    <p class="text-xs text-gray-400">여 · 34세</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-navy-700">🏠 HTP</span>
+              </td>
+              <td class="px-6 py-5 text-sm text-navy-500">임상심리사</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-2 text-xs font-bold text-purple-600">
+                  <span class="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+                  AI 분석중
+                </span>
+              </td>
+              <td class="px-6 py-5 text-sm text-gray-400">2026.04.24</td>
+              <td class="px-8 py-5"></td>
+            </tr>
+            <!-- Row 3 -->
+            <tr class="border-b border-gray-50 transition-colors hover:bg-gray-50/50">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-bold">박</div>
+                  <div>
+                    <p class="text-[15px] font-semibold text-navy-900">박준영</p>
+                    <p class="text-xs text-gray-400">남 · 42세</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-navy-700">✏️ SCT</span>
+              </td>
+              <td class="px-6 py-5 text-sm text-navy-500">임상심리사</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-2 text-xs font-bold text-orange-600">
+                  <span class="h-2 w-2 rounded-full bg-orange-400"></span>
+                  검사 대기
+                </span>
+              </td>
+              <td class="px-6 py-5 text-sm text-gray-400">2026.04.23</td>
+              <td class="px-8 py-5"></td>
+            </tr>
+            <!-- Row 4 -->
+            <tr class="border-b border-gray-50 transition-colors hover:bg-gray-50/50">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full bg-rose-100 text-rose-600 text-sm font-bold">정</div>
+                  <div>
+                    <p class="text-[15px] font-semibold text-navy-900">정수진</p>
+                    <p class="text-xs text-gray-400">여 · 19세</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-navy-700">🦋 로샤</span>
+              </td>
+              <td class="px-6 py-5 text-sm text-navy-500">임상심리사</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-2 text-xs font-bold text-green-600">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  완료
+                </span>
+              </td>
+              <td class="px-6 py-5 text-sm text-gray-400">2026.04.22</td>
+              <td class="px-8 py-5 text-right">
+                <button class="rounded-lg border border-gray-200 px-4 py-2 text-xs font-semibold text-navy-600 hover:bg-gray-50 transition-colors">보고서</button>
+              </td>
+            </tr>
+            <!-- Row 5 -->
+            <tr class="transition-colors hover:bg-gray-50/50">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-sm font-bold">최</div>
+                  <div>
+                    <p class="text-[15px] font-semibold text-navy-900">최하윤</p>
+                    <p class="text-xs text-gray-400">여 · 8세</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-navy-700">🏠 HTP</span>
+              </td>
+              <td class="px-6 py-5 text-sm text-navy-500">임상심리사</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3.5 py-1.5 text-xs font-bold text-amber-700">
+                  <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                  검토 필요
+                </span>
+              </td>
+              <td class="px-6 py-5 text-sm text-gray-400">2026.04.22</td>
+              <td class="px-8 py-5 text-right">
+                <button class="rounded-lg bg-navy-800 px-4 py-2 text-xs font-semibold text-white hover:bg-navy-900 transition-colors">검토하기</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

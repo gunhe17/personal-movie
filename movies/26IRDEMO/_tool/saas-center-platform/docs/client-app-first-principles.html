@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마인드엔서 — 내담자 앱 기획서</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-alt: #f5f3ff;
+    --text: #1a1a2e;
+    --text-sub: #64648c;
+    --accent: #7c5cfc;
+    --accent-light: #ede9fe;
+    --accent-dark: #5b3fd4;
+    --warm: #f59e0b;
+    --warm-light: #fef3c7;
+    --green: #10b981;
+    --green-light: #d1fae5;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --blue: #3b82f6;
+    --blue-light: #dbeafe;
+    --border: #e5e5f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    overflow-x: hidden;
+  }
+
+  /* ===== SPA View System ===== */
+  .view {
+    min-height: 100vh;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  }
+  .view.hidden {
+    display: none;
+  }
+  .view.slide-out-left {
+    transform: translateX(-100%);
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+  .view.slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .view.slide-in-left {
+    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ===== Header ===== */
+  .hero {
+    background: linear-gradient(135deg, #7c5cfc 0%, #a78bfa 50%, #c4b5fd 100%);
+    color: white;
+    padding: 80px 0 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255,255,255,0.08) 0%, transparent 40%);
+  }
+  .hero h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; position: relative; }
+  .hero p { font-size: 1rem; opacity: 0.85; margin-top: 12px; position: relative; }
+  .hero .meta { font-size: 0.82rem; opacity: 0.6; margin-top: 20px; position: relative; }
+
+  /* Orb */
+  .orb {
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(255,255,255,0.3) 60%, transparent 80%);
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    position: relative;
+    animation: pulse 3s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba(255,255,255,0.4), 0 0 80px rgba(255,255,255,0.15);
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* Layout */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== Detail Header ===== */
+  .detail-hero {
+    background: linear-gradient(135deg, #7c5cfc 0%, #a78bfa 100%);
+    color: white;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .detail-hero-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .back-btn svg { width: 20px; height: 20px; }
+  .detail-hero h1 { font-size: 1.3rem; font-weight: 700; }
+  .detail-hero .detail-num {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+
+  /* Detail nav footer */
+  .detail-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .detail-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .detail-nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow);
+  }
+  .detail-nav-btn.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .detail-nav-btn svg { width: 16px; height: 16px; }
+  .detail-nav-btn .nav-label { font-size: 0.75rem; color: var(--text-sub); }
+
+  /* ===== TOC ===== */
+  .toc {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin: -30px auto 40px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    z-index: 1;
+  }
+  .toc h2 { font-size: 1.1rem; margin-bottom: 16px; color: var(--accent); }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toc-item {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .toc-item:hover {
+    background: var(--surface-alt);
+    border-color: var(--accent-light);
+    transform: translateX(4px);
+  }
+  .toc-item .num {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.82rem;
+    min-width: 24px;
+  }
+  .toc-item .arrow {
+    margin-left: auto;
+    color: var(--text-sub);
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.8rem;
+  }
+  .toc-item:hover .arrow { opacity: 1; }
+
+  /* ===== Section Cards (main view) ===== */
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.25s;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .section-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-light);
+    transform: translateY(-2px);
+  }
+  .section-card .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .section-card .card-body { flex: 1; min-width: 0; }
+  .section-card .card-num {
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .section-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .section-card .card-desc {
+    font-size: 0.82rem;
+    color: var(--text-sub);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .section-card .card-arrow {
+    color: var(--text-sub);
+    opacity: 0.3;
+    transition: opacity 0.2s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .section-card:hover .card-arrow {
+    opacity: 0.8;
+    transform: translateX(4px);
+  }
+  .section-card .card-badge {
+    font-size: 0.68rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+
+  /* ===== Detail Section (full content) ===== */
+  .section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 40px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .section h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section h2 .badge {
+    font-size: 0.7rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+  .section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 28px 0 12px;
+    color: var(--text);
+  }
+  .section h3:first-of-type { margin-top: 0; }
+  .section p { margin-bottom: 12px; }
+  .section ul { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .section strong { color: var(--text); }
+
+  /* ===== Tables ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.88rem;
+  }
+  th {
+    background: var(--surface-alt);
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(124,92,252,0.02); }
+
+  /* ===== Callouts ===== */
+  .callout {
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout-purple { background: var(--accent-light); border-left: 4px solid var(--accent); }
+  .callout-warm { background: var(--warm-light); border-left: 4px solid var(--warm); }
+  .callout-green { background: var(--green-light); border-left: 4px solid var(--green); }
+  .callout-red { background: var(--red-light); border-left: 4px solid var(--red); }
+  .callout-blue { background: var(--blue-light); border-left: 4px solid var(--blue); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* ===== Phone Mockup ===== */
+  .phone {
+    width: 300px;
+    margin: 24px auto;
+    background: #1a1a2e;
+    border-radius: 32px;
+    padding: 16px;
+    box-shadow: var(--shadow-lg), 0 0 0 2px #333;
+  }
+  .phone-screen {
+    background: var(--surface);
+    border-radius: 20px;
+    overflow: hidden;
+    font-size: 0.8rem;
+  }
+  .phone-screen.dark { background: #16161e; color: #e5e5f0; }
+  .phone-header { padding: 20px 20px 0; text-align: center; }
+  .phone-orb {
+    width: 48px; height: 48px;
+    background: radial-gradient(circle at 40% 35%, #fbbf24, #f59e0b 60%, transparent 85%);
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    box-shadow: 0 0 20px rgba(245,158,11,0.4);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .phone-screen.dark .phone-orb {
+    background: radial-gradient(circle at 40% 35%, #c4b5fd, #7c5cfc 60%, transparent 85%);
+    box-shadow: 0 0 24px rgba(124,92,252,0.5);
+  }
+  .phone-ment { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 16px; }
+  .phone-screen.dark .phone-ment { color: #a0a0c0; }
+  .phone-card {
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    background: var(--surface-alt);
+    border-radius: 12px;
+    font-size: 0.78rem;
+  }
+  .phone-screen.dark .phone-card { background: #222236; }
+  .phone-card-title {
+    font-weight: 700;
+    font-size: 0.72rem;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .phone-card .date { font-weight: 700; font-size: 0.88rem; }
+  .phone-card .detail { color: var(--text-sub); margin-top: 2px; }
+  .phone-card .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .phone-screen.dark .phone-card .progress-bar { background: #333350; }
+  .phone-card .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+  .phone-card .actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.72rem;
+  }
+  .phone-card .actions a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .phone-tab {
+    display: flex;
+    border-top: 1px solid var(--border);
+    padding: 10px 0;
+    margin-top: 8px;
+  }
+  .phone-screen.dark .phone-tab { border-color: #333350; }
+  .phone-tab span {
+    flex: 1;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-sub);
+    font-weight: 500;
+  }
+  .phone-tab span.active { color: var(--accent); font-weight: 700; }
+
+  /* ===== Flow ===== */
+  .flow {
+    background: var(--surface-alt);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    margin: 16px 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.9;
+    white-space: pre-line;
+    color: var(--text-sub);
+  }
+  .flow strong { color: var(--text); }
+
+  /* ===== Timeline ===== */
+  .timeline {
+    margin: 16px 0;
+    padding: 0 0 0 24px;
+    border-left: 2px solid var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    padding: 8px 0 16px 20px;
+    font-size: 0.88rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -29px;
+    top: 12px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--surface);
+  }
+  .timeline-item.completed::before { background: var(--green); }
+  .timeline-item.current::before { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); }
+  .timeline-item.future::before { background: var(--border); }
+  .timeline-item.noshow::before { background: #d1d5db; }
+  .timeline-item .t-date { font-weight: 600; }
+  .timeline-item .t-detail { color: var(--text-sub); font-size: 0.82rem; }
+  .timeline-item .t-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .timeline-item .t-badge.done { background: var(--green-light); color: var(--green); }
+  .timeline-item .t-badge.miss { background: #f3f4f6; color: #9ca3af; }
+  .timeline-item .t-badge.dday { background: var(--accent-light); color: var(--accent); }
+
+  /* ===== Tags ===== */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .tag {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-weight: 500;
+  }
+
+  /* ===== Grid ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  @media (max-width: 700px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .section { padding: 24px; }
+    .phone { width: 260px; }
+    .section-card { padding: 20px; gap: 14px; }
+    .section-card .card-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+  }
+
+  .mini-card {
+    background: var(--surface-alt);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    font-size: 0.88rem;
+  }
+  .mini-card h4 { font-size: 0.82rem; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+
+  /* Orb states */
+  .orb-states { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+  .orb-state { text-align: center; }
+  .orb-mini { width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 8px; }
+  .orb-morning { background: radial-gradient(circle at 40% 35%, #fde68a, #f59e0b 70%, transparent 90%); box-shadow: 0 0 16px rgba(245,158,11,0.4); }
+  .orb-day { background: radial-gradient(circle at 40% 35%, #fed7aa, #f97316 70%, transparent 90%); box-shadow: 0 0 16px rgba(249,115,22,0.3); }
+  .orb-evening { background: radial-gradient(circle at 40% 35%, #ddd6fe, #8b5cf6 70%, transparent 90%); box-shadow: 0 0 16px rgba(139,92,246,0.4); }
+  .orb-night { background: radial-gradient(circle at 40% 35%, #e0e7ff, #6366f1 70%, transparent 90%); box-shadow: 0 0 16px rgba(99,102,241,0.3); }
+  .orb-state-label { font-size: 0.75rem; color: var(--text-sub); }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check { color: var(--green); font-weight: 700; }
+  .phase2 { color: var(--text-sub); font-size: 0.78rem; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+
+  /* API block */
+  .api-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .api-block .method { color: #89b4fa; font-weight: 700; }
+  .api-block .path { color: #a6e3a1; }
+  .api-block .comment { color: #6c7086; }
+  .api-block .divider { color: #45475a; display: block; margin: 8px 0; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text-sub);
+    font-size: 0.82rem;
+  }
+
+  /* ===== Breadcrumb ===== */
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+  }
+
+  /* ===== Detail Content Styles ===== */
+  .detail-content {
+    padding-top: 32px;
+    padding-bottom: 40px;
+  }
+
+  /* ===== Subsection divider ===== */
+  .subsection-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* ===== Key Insight Box ===== */
+  .insight-box {
+    background: linear-gradient(135deg, var(--accent-light), #f0ebff);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-box::before {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0.08;
+    border-radius: 50%;
+  }
+  .insight-box h4 {
+    color: var(--accent-dark);
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .insight-box p {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ===== Comparison blocks ===== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .compare-card {
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    font-size: 0.88rem;
+  }
+  .compare-bad {
+    background: var(--red-light);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+  .compare-good {
+    background: var(--green-light);
+    border: 1px solid rgba(16,185,129,0.2);
+  }
+  .compare-card h5 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .compare-bad h5 { color: var(--red); }
+  .compare-good h5 { color: var(--green); }
+
+  @media (max-width: 700px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Wireframe boxes ===== */
+  .wireframe {
+    background: var(--surface-alt);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-sub);
+  }
+  .wireframe h4 {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  /* ===== Spec table ===== */
+  .spec-table td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+    width: 140px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================================== -->
+<!--              MAIN VIEW                     -->
+<!-- ========================================== -->
+<div id="main-view" class="view">
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="orb"></div>
+    <h1>마인드엔서</h1>
+    <p>내담자 앱 — 제1원칙 기반 기획서</p>
+    <div class="meta">작성일 2026-05-18 &middot; 최종 수정 2026-05-19</div>
+  </div>
+</header>
+
+<!-- TOC -->
+<div class="container">
+<div class="toc">
+  <h2>목차</h2>
+  <div class="toc-grid">
+    <a class="toc-item" onclick="showDetail('s1')"><span class="num">01</span>제1원칙 적용<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s10')"><span class="num">10</span>콘텐츠 시스템<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s2')"><span class="num">02</span>핵심 결정 사항<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s11')"><span class="num">11</span>엣지케이스 처리<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s3')"><span class="num">03</span>다중 센터 + 자녀 통합<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s12')"><span class="num">12</span>조건부 표시 규칙<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s4')"><span class="num">04</span>화면 구조<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s13')"><span class="num">13</span>타임라인 상세 규칙<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s5')"><span class="num">05</span>캐릭터 시스템 (오브)<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s14')"><span class="num">14</span>기술 스택 및 인프라<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s6')"><span class="num">06</span>디자인 방향<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s15')"><span class="num">15</span>Phase 구분<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s7')"><span class="num">07</span>온보딩 플로우<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s16')"><span class="num">16</span>기존 기획서 관계<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s8')"><span class="num">08</span>알림 시스템<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s17')"><span class="num">17</span>다음 단계<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('s9')"><span class="num">09</span>검사 결과 시스템<span class="arrow">&rsaquo;</span></a>
+    <a class="toc-item" onclick="showDetail('issues')"><span class="num">--</span>미해결 이슈<span class="arrow">&rsaquo;</span></a>
+  </div>
+</div>
+
+<!-- Section Cards -->
+<div onclick="showDetail('s1')" class="section-card">
+  <div class="card-icon" style="background: var(--accent-light); color: var(--accent);">&#9672;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 01</div>
+    <h3>제1원칙 적용</h3>
+    <div class="card-desc">기존 가정 해체 + 근본 질문에서 출발한 앱 구조 설계</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s2')" class="section-card">
+  <div class="card-icon" style="background: var(--warm-light); color: var(--warm);">&#9733;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 02</div>
+    <h3>핵심 결정 사항</h3>
+    <div class="card-desc">사용자 경험 동일 + 정보 우선순위 + 2탭 구조 결정</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s3')" class="section-card">
+  <div class="card-icon" style="background: var(--blue-light); color: var(--blue);">&#8644;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 03</div>
+    <h3>다중 센터 + 다중 자녀 통합 표시 <span class="card-badge">MVP 필수</span></h3>
+    <div class="card-desc">센터별 전환 없이 통합 시간순 표시</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s4')" class="section-card">
+  <div class="card-icon" style="background: var(--green-light); color: var(--green);">&#9636;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 04</div>
+    <h3>화면 구조</h3>
+    <div class="card-desc">홈 3상태 + 타임라인 드릴다운 + 마이페이지 구조</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s5')" class="section-card">
+  <div class="card-icon" style="background: linear-gradient(135deg, #fef3c7, #ede9fe); color: var(--accent);">&#10023;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 05</div>
+    <h3>캐릭터 시스템 (오브)</h3>
+    <div class="card-desc">따뜻한 빛 덩어리, 차분한 안내자, 시간대별 변화</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s6')" class="section-card">
+  <div class="card-icon" style="background: var(--accent-light); color: var(--accent-dark);">&#9998;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 06</div>
+    <h3>디자인 방향</h3>
+    <div class="card-desc">풍부한 콘텐츠 + 시각적 화려함 + 재미 요소 + 높은 직관성</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s7')" class="section-card">
+  <div class="card-icon" style="background: var(--blue-light); color: var(--blue);">&#8674;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 07</div>
+    <h3>온보딩 플로우</h3>
+    <div class="card-desc">간편 로그인 &rarr; 온보딩 &rarr; 센터 코드 분기</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s8')" class="section-card">
+  <div class="card-icon" style="background: var(--warm-light); color: var(--warm);">&#128276;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 08</div>
+    <h3>알림 시스템</h3>
+    <div class="card-desc">FCM 기반 &middot; 시스템 고정 타이밍 &middot; 캐릭터 톤</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s9')" class="section-card">
+  <div class="card-icon" style="background: var(--green-light); color: var(--green);">&#128200;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 09</div>
+    <h3>검사 결과 시스템</h3>
+    <div class="card-desc">공개 범위 상담사 결정 + AI 종합 보고서</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s10')" class="section-card">
+  <div class="card-icon" style="background: var(--accent-light); color: var(--accent);">&#128196;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 10</div>
+    <h3>콘텐츠 시스템</h3>
+    <div class="card-desc">매거진 + 카드뉴스 200건, 태그 기반 맞춤 추천</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s11')" class="section-card">
+  <div class="card-icon" style="background: var(--red-light); color: var(--red);">&#9888;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 11</div>
+    <h3>엣지케이스 처리</h3>
+    <div class="card-desc">센터 종결, 보호자 변경, 다중 기기, 에러 상태</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s12')" class="section-card">
+  <div class="card-icon" style="background: var(--surface-alt); color: var(--text-sub);">&#9783;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 12</div>
+    <h3>조건부 표시 규칙</h3>
+    <div class="card-desc">데이터 없는 빈 카드로 자리를 차지하지 않는다</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s13')" class="section-card">
+  <div class="card-icon" style="background: var(--warm-light); color: var(--warm);">&#9670;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 13</div>
+    <h3>타임라인 상세 규칙</h3>
+    <div class="card-desc">회기 상태 매핑, 케이스별 분리, 종결 접기, 진행 표시</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s14')" class="section-card">
+  <div class="card-icon" style="background: var(--blue-light); color: var(--blue);">&#9881;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 14</div>
+    <h3>기술 스택 및 인프라</h3>
+    <div class="card-desc">React Native Expo &middot; 모노레포 &middot; 전용 API &middot; FCM</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s15')" class="section-card">
+  <div class="card-icon" style="background: var(--green-light); color: var(--green);">&#10003;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 15</div>
+    <h3>Phase 구분</h3>
+    <div class="card-desc">MVP 포함 항목 vs Phase 2 항목 명확 구분</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s16')" class="section-card">
+  <div class="card-icon" style="background: var(--surface-alt); color: var(--text-sub);">&#128279;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 16</div>
+    <h3>기존 기획서와의 관계</h3>
+    <div class="card-desc">이 문서가 대체/변경한 항목과 유지 항목 정리</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('s17')" class="section-card">
+  <div class="card-icon" style="background: var(--accent-light); color: var(--accent);">&#9654;</div>
+  <div class="card-body">
+    <div class="card-num">SECTION 17</div>
+    <h3>다음 단계</h3>
+    <div class="card-desc">디자인 / 기획 / 개발 액션 아이템</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+<div onclick="showDetail('issues')" class="section-card">
+  <div class="card-icon" style="background: var(--red-light); color: var(--red);">&#10067;</div>
+  <div class="card-body">
+    <div class="card-num">TRACKING</div>
+    <h3>미해결 이슈 <span class="card-badge" style="background: var(--red-light); color: var(--red);">11건</span></h3>
+    <div class="card-desc">기획 중 발생한 애매한 사항, 추가 논의 필요 항목</div>
+  </div>
+  <div class="card-arrow">&rsaquo;</div>
+</div>
+
+</div><!-- .container -->
+
+<footer>
+  <div class="container">마인드엔서 내담자 앱 기획서 &middot; 2026-05-19</div>
+</footer>
+
+</div><!-- #main-view -->
+
+
+<!-- ========================================== -->
+<!--           DETAIL VIEWS                     -->
+<!-- ========================================== -->
+
+<!-- Detail: s1 -->
+<div id="detail-s1" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 01</div><h1>제1원칙 적용</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">기존 기획의 무의식적 가정을 해체하고 근본 질문에서 출발</p>
+
+      <h3>기존 가정 해체</h3>
+      <table>
+        <tr><th>기존 가정</th><th>질문</th><th>결론</th></tr>
+        <tr><td>앱이니까 하단 4탭이 필요하다</td><td>탭은 왜 존재하는가?</td><td>핵심 정보는 하나의 흐름이므로 4탭 불필요</td></tr>
+        <tr><td>홈/일정/기록/마이 구조가 표준이다</td><td>사용자가 이 구분을 원하는가?</td><td>"언제 가지 &rarr; 뭘 하지 &rarr; 뭐 했대 &rarr; 어디쯤이지"는 하나의 흐름</td></tr>
+        <tr><td>미소속 유저에게도 풍부한 화면이 필요하다</td><td>왜?</td><td>핵심 가치는 센터 연결 후 발생. 미소속은 최소한으로</td></tr>
+        <tr><td>다른 헬스케어 앱처럼 대시보드가 필요하다</td><td>대시보드를 왜 보는가?</td><td>사용자가 원하는 건 "다음에 뭘 하면 되지?"에 대한 답</td></tr>
+      </table>
+
+      <div class="callout callout-purple">
+        <strong>"내담자가 이 앱을 여는 이유는 딱 하나, 뭔가?"</strong>
+        성인 내담자: <strong>"다음에 뭘 하면 되지?"</strong><br>
+        보호자: <strong>"우리 애 어디까지 했지?"</strong>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>왜 제1원칙인가</h3>
+      <div class="insight-box">
+        <h4>핵심 통찰</h4>
+        <p>상담 앱의 내담자는 주 1~2회 상담에 갈 뿐이다. 기능이 많으면 좋은 게 아니라, "다음 행동이 뭔지"를 0.5초 안에 알 수 있으면 된다. 이 관점에서 역산하면 4탭 구조, 대시보드, 캘린더 그리드 등은 모두 불필요한 복잡성이다.</p>
+      </div>
+
+      <h3>제1원칙 도출 과정</h3>
+      <div class="compare-grid">
+        <div class="compare-card compare-bad">
+          <h5>기존 접근 (Top-Down)</h5>
+          <p>"다른 앱은 어떻게 하지?" &rarr; 4탭 + 캘린더 + 기록 탭 + 마이페이지</p>
+          <p style="margin: 8px 0 0; font-size: 0.82rem;">기능 나열 중심, 빈 화면 많음</p>
+        </div>
+        <div class="compare-card compare-good">
+          <h5>제1원칙 (Bottom-Up)</h5>
+          <p>"사용자가 왜 앱을 열지?" &rarr; 하나의 질문에 답하는 단일 흐름</p>
+          <p style="margin: 8px 0 0; font-size: 0.82rem;">질문 기반 설계, 빈 화면 없음</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전</button>
+      <button class="detail-nav-btn" onclick="showDetail('s2')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">핵심 결정 사항</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s2 -->
+<div id="detail-s2" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 02</div><h1>핵심 결정 사항</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">사용자 경험, 정보 우선순위, 앱 구조의 근본적 결정</p>
+
+      <h3>사용자 경험은 동일하다</h3>
+      <ul>
+        <li>성인 내담자와 보호자의 앱 경험은 <strong>같다</strong></li>
+        <li>별도 역할 선택, 분기된 화면 구성 없음</li>
+        <li>다중 자녀/다중 센터 모두 통합 표시 (전환 없음)</li>
+      </ul>
+
+      <div class="insight-box">
+        <h4>왜 역할을 구분하지 않는가</h4>
+        <p>보호자와 내담자의 차이는 "누구의 일정을 보는가"뿐이다. 화면 구조, 기능, 접근 방식은 모두 동일하다. 역할 선택 화면을 추가하면 온보딩이 복잡해지고, 실제로 role="both"인 사용자(본인도 내담자이면서 자녀의 보호자)는 매번 전환해야 하는 문제가 생긴다.</p>
+      </div>
+
+      <h3>정보 우선순위</h3>
+      <table>
+        <tr><th>순위</th><th>정보</th><th>사용자 질문</th><th>이유</th></tr>
+        <tr><td><strong>1</strong></td><td>캐릭터 멘트</td><td>&mdash;</td><td>감성적 첫인상, 상황별 안내</td></tr>
+        <tr><td><strong>2</strong></td><td>다음 일정 (진행 바 포함)</td><td>"언제 가지? 어디쯤이지?"</td><td>0.5초 안에 답을 얻어야 하는 질문</td></tr>
+        <tr><td><strong>3</strong></td><td>미션/성장 가이드</td><td>"그때까지 뭘 하지?"</td><td>Phase 2 (AI 성장 가이드)</td></tr>
+        <tr><td><strong>4</strong></td><td>콘텐츠</td><td>&mdash;</td><td>매거진/카드뉴스, 태그 기반 맞춤 추천</td></tr>
+      </table>
+
+      <h3>앱 구조: 홈 + 마이 (2탭)</h3>
+      <div class="callout callout-warm">
+        <strong>4탭이 아닌 2탭인 이유</strong>
+        일정, 미션, 진행현황은 하나의 흐름. 분리할 이유가 없다.<br>
+        마이페이지(센터 정보, 설정)만 맥락이 다르므로 분리.
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>2탭 구조 상세</h3>
+      <div class="grid-2">
+        <div class="mini-card" style="border: 2px solid var(--accent-light);">
+          <h4>홈 탭</h4>
+          <ul style="font-size: 0.85rem; padding-left: 16px; margin: 0;">
+            <li>오브 캐릭터 + 상황 멘트</li>
+            <li>다음 일정 카드 (진행률 포함)</li>
+            <li>콘텐츠 섹션</li>
+            <li>Phase 2: 미션/성장 가이드</li>
+          </ul>
+        </div>
+        <div class="mini-card" style="border: 2px solid var(--border);">
+          <h4>마이 탭</h4>
+          <ul style="font-size: 0.85rem; padding-left: 16px; margin: 0;">
+            <li>센터 카드 목록 (이용중/종결)</li>
+            <li>각 센터 상세 (담당자, 검사결과 등)</li>
+            <li>알림 설정</li>
+            <li>계정 관리</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s1')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">제1원칙 적용</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s3')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">다중 센터 + 자녀</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s3 -->
+<div id="detail-s3" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 03 &middot; MVP 필수</div><h1>다중 센터 + 다중 자녀 통합</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">사용자는 센터 단위로 생각하지 않는다. "이번 주에 뭐가 있지?"로 생각한다.</p>
+
+      <h3>영역별 통합 규칙</h3>
+      <table>
+        <tr><th>영역</th><th>통합 방식</th><th>구분자</th><th>이유</th></tr>
+        <tr><td><strong>일정</strong></td><td>전체 시간순 합산</td><td>자녀 이름 + 센터명</td><td>"언제 어디 가지"가 궁금</td></tr>
+        <tr><td><strong>진행현황</strong></td><td>자녀별 분리</td><td>자녀 이름 섹션</td><td>치료 맥락이 달라 섞으면 의미 없음</td></tr>
+        <tr><td><strong>콘텐츠</strong></td><td>통합</td><td>태그 기반 매칭</td><td>소속 여부 무관 공통 레이어</td></tr>
+      </table>
+
+      <div class="insight-box">
+        <h4>왜 센터 전환이 아닌 통합인가</h4>
+        <p>자녀 2명이 각각 다른 센터를 다니는 보호자를 생각해보면, 매번 센터를 전환해서 일정을 확인하는 건 고역이다. "이번 주에 뭐가 있지?"라는 질문에 답하려면 모든 일정이 시간순으로 보여야 한다.</p>
+      </div>
+
+      <h3>역할별 홈 일정 표시</h3>
+      <div class="grid-3">
+        <div class="mini-card">
+          <h4>순수 내담자 (client)</h4>
+          내 일정만 표시
+        </div>
+        <div class="mini-card">
+          <h4>순수 보호자 (guardian)</h4>
+          자녀 일정만 표시
+        </div>
+        <div class="mini-card">
+          <h4>둘 다 (both)</h4>
+          내 일정 + 자녀 일정 섹션 분리
+        </div>
+      </div>
+      <p style="color: var(--text-sub); font-size: 0.85rem;">데이터가 없는 섹션은 미노출. 조건부 렌더링으로 세 케이스 하나의 로직으로 처리.</p>
+
+      <div class="subsection-divider"></div>
+
+      <h3>데이터 모델 매핑</h3>
+      <div class="callout callout-green">
+        <strong>기존 모델 완전 활용</strong>
+        ClientRelation 모델이 다중 보호자(is_primary, relation_detail: mother/father)를 이미 지원한다. 양쪽 부모가 각자 계정으로 로그인하면, 센터에서 둘 다 보호자로 연결하면 된다. 스키마 변경 불필요.
+      </div>
+
+      <h3>통합 표시 시나리오</h3>
+      <div class="wireframe">
+        <h4>보호자 홈 화면 (자녀 2명, 센터 2곳)</h4>
+        <div style="text-align: left; max-width: 320px; margin: 0 auto;">
+          <div style="padding: 8px 12px; background: white; border-radius: 8px; margin-bottom: 8px; font-size: 0.82rem;">
+            <strong>5/21 수 14:00</strong> &middot; 민준 &middot; 놀이치료센터<br>
+            <span style="color: var(--text-sub);">상담 6회차 &middot; D-2</span>
+          </div>
+          <div style="padding: 8px 12px; background: white; border-radius: 8px; margin-bottom: 8px; font-size: 0.82rem;">
+            <strong>5/23 금 10:00</strong> &middot; 서연 &middot; 언어치료센터<br>
+            <span style="color: var(--text-sub);">언어평가 1회차 &middot; D-4</span>
+          </div>
+          <div style="padding: 8px 12px; background: white; border-radius: 8px; font-size: 0.82rem;">
+            <strong>5/28 수 14:00</strong> &middot; 민준 &middot; 놀이치료센터<br>
+            <span style="color: var(--text-sub);">상담 7회차 &middot; D-9</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">핵심 결정 사항</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s4')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">화면 구조</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s4 -->
+<div id="detail-s4" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 04</div><h1>화면 구조</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">홈 3상태 + 타임라인 드릴다운 + 마이페이지</p>
+
+      <h3>홈 화면 (라이트 / 다크)</h3>
+      <div class="grid-2">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <div class="phone-orb"></div>
+              <div class="phone-ment">"내일 민준이 상담이 있어요"</div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-title">다음 일정</div>
+              <div class="date">5/21 수 14:00 &middot; D-2</div>
+              <div class="detail">민준 &middot; 상담 6회차 &middot; 놀이치료센터</div>
+              <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+              <div class="detail" style="margin-top:4px; font-size:0.72rem;">5/10회</div>
+              <div class="actions"><a>길찾기</a><a>전체 보기 &rarr;</a></div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-title">읽어볼 만한 글</div>
+              <div class="detail">놀이치료, 어떤 변화가 생기나요?</div>
+            </div>
+            <div class="phone-tab">
+              <span class="active">홈</span>
+              <span>마이</span>
+            </div>
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen dark">
+            <div class="phone-header">
+              <div class="phone-orb"></div>
+              <div class="phone-ment">"오늘은 여유로운 하루예요"</div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-title">다음 일정</div>
+              <div class="date">5/23 금 10:00 &middot; D-4</div>
+              <div class="detail">서연 &middot; 언어평가 &middot; 언어치료센터</div>
+              <div class="progress-bar"><div class="progress-fill" style="width:12.5%"></div></div>
+              <div class="detail" style="margin-top:4px; font-size:0.72rem;">1/8회</div>
+              <div class="actions"><a>길찾기</a><a>전체 보기 &rarr;</a></div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-title">읽어볼 만한 글</div>
+              <div class="detail">아이의 감정을 읽어주는 3가지 방법</div>
+            </div>
+            <div class="phone-tab">
+              <span class="active">홈</span>
+              <span>마이</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>홈 3상태</h3>
+      <div class="grid-3">
+        <div class="mini-card" style="border-top: 3px solid var(--accent);">
+          <h4>소속 홈</h4>
+          <p style="font-size: 0.82rem; margin: 0;">센터 연결 완료. 일정 카드 + 진행률 + 콘텐츠 표시</p>
+        </div>
+        <div class="mini-card" style="border-top: 3px solid var(--warm);">
+          <h4>승인 대기</h4>
+          <p style="font-size: 0.82rem; margin: 0;">센터 코드 입력 후 승인 대기. 오브: "센터에서 확인 중이에요"</p>
+        </div>
+        <div class="mini-card" style="border-top: 3px solid var(--border);">
+          <h4>미소속 홈</h4>
+          <p style="font-size: 0.82rem; margin: 0;">센터 미연결. 콘텐츠 + 자가진단(Phase 2) + 센터 연결 유도</p>
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>타임라인 드릴다운</h3>
+      <p>월간 캘린더가 아닌 <strong>타임라인 형태</strong>. 주 1~2회 상담에 캘린더 그리드는 빈 칸만 많다.</p>
+      <div style="background: var(--surface-alt); border-radius: var(--radius-sm); padding: 24px 28px; margin: 16px 0;">
+        <div style="font-weight: 700; margin-bottom: 4px;">민준 &middot; 놀이치료센터</div>
+        <div style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 16px;">6회차 진행 중 &middot; 3개월째</div>
+        <div class="timeline">
+          <div class="timeline-item completed"><span class="t-date">5/14</span> 상담 5회차 <span class="t-badge done">완료</span></div>
+          <div class="timeline-item noshow"><span class="t-date">5/7</span> 상담 4회차 <span class="t-badge miss">미방문</span></div>
+          <div class="timeline-item completed"><span class="t-date">4/30</span> 상담 3회차 <span class="t-badge done">완료</span></div>
+          <div class="timeline-item current"><span class="t-date">5/21</span> 상담 6회차 <span class="t-badge dday">D-2</span><div class="t-detail">14:00 &middot; 길찾기</div></div>
+          <div class="timeline-item future"><span class="t-date">5/28</span> 상담 7회차 <span class="t-badge" style="background:#f3f4f6; color:#9ca3af;">D-9</span></div>
+          <div class="timeline-item future"><span class="t-date">6/4</span> 상담 8회차</div>
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>마이페이지 (센터 중심 구조)</h3>
+      <p>기능 나열이 아닌 <strong>센터 카드 중심</strong>. 관리/확인 목적에 맞게 센터 단위로 묶음.</p>
+      <div class="grid-2">
+        <div class="mini-card" style="border: 2px solid var(--accent-light);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 style="margin: 0;">놀이치료센터</h4>
+            <span style="font-size: 0.7rem; background: var(--green-light); color: var(--green); padding: 2px 8px; border-radius: 10px;">이용중</span>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-sub);">
+            담당: 김상담 선생님<br>검사결과 2건 &middot; 진행현황 6/10회<br>내담자: 민준
+          </div>
+        </div>
+        <div class="mini-card" style="border: 2px solid #e5e5f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 style="margin: 0; color: #9ca3af;">상담센터</h4>
+            <span style="font-size: 0.7rem; background: #f3f4f6; color: #9ca3af; padding: 2px 8px; border-radius: 10px;">종결</span>
+          </div>
+          <div style="font-size: 0.82rem; color: #9ca3af;">2025.11 ~ 2026.04<br>상담 기록 보기 &rsaquo;</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s3')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">다중 센터 + 자녀</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s5')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">캐릭터 시스템</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s5 -->
+<div id="detail-s5" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 05</div><h1>캐릭터 시스템 (오브)</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">따뜻한 빛 덩어리. 차분한 안내자. 에러조차 브랜드 경험이 되는 설계.</p>
+
+      <div class="grid-2">
+        <div>
+          <h3>기본 정의</h3>
+          <ul>
+            <li><strong>형태:</strong> 빛/오브 (추상형)</li>
+            <li><strong>성격:</strong> 차분한 안내자, 따뜻한 톤</li>
+            <li><strong>역할:</strong> MVP 상황별 멘트 &rarr; Phase 2 AI 가이드</li>
+            <li><strong>말투:</strong> 느낌표 없이 마침표로 끝나는 차분한 톤</li>
+          </ul>
+        </div>
+        <div>
+          <h3>시간대별 변화</h3>
+          <div class="orb-states">
+            <div class="orb-state"><div class="orb-mini orb-morning"></div><div class="orb-state-label">아침</div></div>
+            <div class="orb-state"><div class="orb-mini orb-day"></div><div class="orb-state-label">낮</div></div>
+            <div class="orb-state"><div class="orb-mini orb-evening"></div><div class="orb-state-label">저녁</div></div>
+            <div class="orb-state"><div class="orb-mini orb-night"></div><div class="orb-state-label">밤</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>상황별 멘트</h3>
+      <table>
+        <tr><th>상황</th><th>멘트</th><th>오브 상태</th></tr>
+        <tr><td>아침 접속</td><td>"좋은 아침이에요"</td><td>따뜻한 노란빛</td></tr>
+        <tr><td>일정 D-1</td><td>"내일 민준이 상담이 있어요"</td><td>은은한 강조</td></tr>
+        <tr><td>일정 없음</td><td>"오늘은 여유로운 하루예요"</td><td>느리게 호흡</td></tr>
+        <tr><td>상담 완료 직후</td><td>"오늘도 수고했어요"</td><td>부드러운 빛남</td></tr>
+        <tr><td>진행 50% 돌파</td><td>"벌써 절반이나 왔어요"</td><td>잠깐 밝아짐</td></tr>
+        <tr><td>오랜만에 접속</td><td>"다시 만나서 반가워요"</td><td>천천히 커짐</td></tr>
+        <tr><td>네트워크 오류</td><td>"연결이 불안정해요"</td><td>깜빡임</td></tr>
+        <tr><td>서버 오류</td><td>"잠깐 문제가 생겼어요"</td><td>흐릿해짐</td></tr>
+        <tr><td>빈 데이터</td><td>"아직 예정된 일정이 없어요"</td><td>고요한 빛</td></tr>
+      </table>
+
+      <div class="insight-box">
+        <h4>에러도 브랜드 경험</h4>
+        <p>별도 에러 페이지를 만들지 않는다. 네트워크 오류, 서버 오류, 빈 데이터 상태 모두 오브가 표정(빛 상태)과 멘트로 안내한다. 사용자는 "에러가 났다"가 아니라 "오브가 곤란한 상태"로 인지하게 된다.</p>
+      </div>
+
+      <h3>구현 기술</h3>
+      <table class="spec-table">
+        <tr><td>애니메이션</td><td>react-native-reanimated (60fps 보장)</td></tr>
+        <tr><td>빛 렌더링</td><td>@shopify/react-native-skia (GPU 기반)</td></tr>
+        <tr><td>색상 전환</td><td>시간대별 그라디언트 보간</td></tr>
+        <tr><td>인터랙션</td><td>터치 시 반응, 스크롤 시 미세한 패럴랙스</td></tr>
+      </table>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">화면 구조</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s6')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">디자인 방향</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s6 -->
+<div id="detail-s6" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 06</div><h1>디자인 방향</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">풍부한 콘텐츠 + 시각적 화려함 + 재미 요소 + 높은 직관성</p>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h4>적용 요소</h4>
+          <table style="margin: 0;">
+            <tr><td><strong>캐릭터 (오브)</strong></td><td>전체 적용</td></tr>
+            <tr><td><strong>마이크로 인터랙션</strong></td><td>전체 기본 적용</td></tr>
+            <tr><td><strong>감성 비주얼</strong></td><td>포인트만 적용</td></tr>
+            <tr><td><strong>게이미피케이션</strong></td><td style="color: var(--red);">제외</td></tr>
+          </table>
+        </div>
+        <div class="mini-card">
+          <h4>접근성</h4>
+          <table style="margin: 0;">
+            <tr><td><strong>다크 모드</strong></td><td>MVP 포함</td></tr>
+            <tr><td><strong>폰트 크기</strong></td><td>시스템 따름 + 상한선</td></tr>
+            <tr><td><strong>한 손 조작</strong></td><td>주요 액션 하단 배치</td></tr>
+            <tr><td><strong>인지 부하</strong></td><td>최소화</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>마이크로 인터랙션 가이드</h3>
+      <div class="grid-3">
+        <div class="mini-card">
+          <h4>카드 터치</h4>
+          <p style="font-size: 0.82rem; margin: 0;">살짝 눌림 + 그림자 변화<br>spring animation 0.3s</p>
+        </div>
+        <div class="mini-card">
+          <h4>페이지 전환</h4>
+          <p style="font-size: 0.82rem; margin: 0;">수평 슬라이드<br>shared element transition</p>
+        </div>
+        <div class="mini-card">
+          <h4>리스트 로딩</h4>
+          <p style="font-size: 0.82rem; margin: 0;">skeleton shimmer<br>순차 fade-in 50ms 딜레이</p>
+        </div>
+      </div>
+
+      <h3>다크 모드 컬러 전략</h3>
+      <div class="callout callout-blue">
+        <strong>오브와의 시너지</strong>
+        다크 모드에서 오브의 빛이 더 선명하게 보인다. 배경이 어두울수록 오브 캐릭터의 존재감이 강해지므로, 다크 모드는 단순한 접근성이 아니라 오브를 위한 무대이기도 하다.
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s5')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">캐릭터 시스템</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s7')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">온보딩 플로우</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s7 -->
+<div id="detail-s7" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 07</div><h1>온보딩 플로우</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">간편 로그인 &rarr; 온보딩 슬라이드 (최초 1회) &rarr; 센터 코드 분기</p>
+
+      <div class="flow"><strong>앱 설치</strong>
+    &darr;
+<strong>온보딩 슬라이드</strong> (최초 1회만)
+    &darr;
+<strong>간편 로그인</strong> (카카오 / 네이버 / 애플)
+    &darr;
+슬라이드 3장째에서 분기
+    &darr; 센터 코드 입력 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &darr; "나중에 할게요"
+<strong>전화번호 + SMS 인증</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 미소속 홈
+    &darr;
+승인 대기 &rarr; 센터에서 승인 (역할/대상 매칭)
+    &darr; 푸시 알림
+<strong>소속 홈</strong></div>
+
+      <div class="callout callout-blue">
+        <strong>센터 주도 승인</strong>
+        내담자/보호자 구분은 앱에서 하지 않는다. 센터에서 승인 시 "이 사람은 민준의 보호자"처럼 역할/대상을 지정한다. 전화번호는 최초 센터 연결 시 1회만 SMS 인증.
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>온보딩 슬라이드 (2~3장)</h3>
+      <div class="grid-3">
+        <div class="wireframe">
+          <h4>슬라이드 1</h4>
+          오브 등장<br>"마인드엔서와 함께<br>상담 여정을 시작해요"
+        </div>
+        <div class="wireframe">
+          <h4>슬라이드 2</h4>
+          핵심 가치 소개<br>"일정, 진행 상황을<br>한눈에 확인하세요"
+        </div>
+        <div class="wireframe">
+          <h4>슬라이드 3</h4>
+          센터 코드 입력 유도<br>"센터 코드가 있나요?"<br>[입력] / [나중에]
+        </div>
+      </div>
+
+      <h3>전화번호 인증 규칙</h3>
+      <table>
+        <tr><th>시점</th><th>인증 여부</th><th>이유</th></tr>
+        <tr><td>최초 센터 연결</td><td>SMS 인증 필요</td><td>센터가 매칭할 전화번호 확보</td></tr>
+        <tr><td>2번째 이후 센터 연결</td><td>인증 불필요</td><td>이미 전화번호 확보됨</td></tr>
+        <tr><td>미소속 상태</td><td>전화번호 없이 가능</td><td>앱 기본 기능(콘텐츠) 이용 가능</td></tr>
+      </table>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s6')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">디자인 방향</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s8')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">알림 시스템</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s8 -->
+<div id="detail-s8" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 08</div><h1>알림 시스템</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">FCM 기반 &middot; 시스템 고정 타이밍 &middot; 캐릭터 톤 적용</p>
+
+      <table>
+        <tr><th>알림</th><th>타이밍</th><th>내용 예시</th></tr>
+        <tr><td>일정 전날</td><td>D-1 오전 10시</td><td>"내일 14:00 상담이 있어요"</td></tr>
+        <tr><td>일정 당일</td><td>1시간 전</td><td>"1시간 뒤 상담이에요, 준비됐나요?"</td></tr>
+        <tr><td>센터 승인</td><td>즉시</td><td>"OO센터에서 승인했어요!"</td></tr>
+        <tr><td>일정 변경/취소</td><td>즉시</td><td>"5/21 상담 일정이 변경됐어요"</td></tr>
+      </table>
+
+      <h3>보호자 알림</h3>
+      <div class="grid-3">
+        <div class="mini-card"><h4>자녀 1명</h4>"내일 민준이 상담이 있어요"</div>
+        <div class="mini-card"><h4>자녀 2명</h4>"내일 민준이 14:00, 서연이 16:00 상담이 있어요"</div>
+        <div class="mini-card"><h4>본인+자녀 (both)</h4>본인 알림 + 자녀 알림 각각</div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>알림 설정 (MVP)</h3>
+      <div class="callout callout-warm">
+        <strong>MVP에서는 최소한</strong>
+        전체 알림 ON/OFF 정도만 제공. 알림 종류별 세부 설정은 Phase 2에서 피드백 기반으로 추가.
+      </div>
+
+      <h3>FCM 디바이스 토큰 관리</h3>
+      <table>
+        <tr><th>상황</th><th>처리</th></tr>
+        <tr><td>로그인</td><td>디바이스 토큰 서버에 등록</td></tr>
+        <tr><td>다중 기기</td><td>한 계정에 여러 토큰 허용 (폰 + 태블릿)</td></tr>
+        <tr><td>로그아웃</td><td>해당 디바이스 토큰 해제</td></tr>
+        <tr><td>양쪽 부모</td><td>각자 계정 &rarr; 각자 토큰 &rarr; 각자 알림 수신</td></tr>
+      </table>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s7')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">온보딩 플로우</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s9')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">검사 결과 시스템</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s9 -->
+<div id="detail-s9" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 09</div><h1>검사 결과 시스템</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">공개 범위는 상담사가 결정. AI 종합 보고서 지원.</p>
+
+      <h3>공개 범위 (상담사 설정)</h3>
+      <table>
+        <tr><th>수준</th><th>내담자에게 보이는 것</th><th>사용 예시</th></tr>
+        <tr><td><strong>비공개</strong> (기본값)</td><td>검사 실시 이력만</td><td>민감한 검사, 설명 전</td></tr>
+        <tr><td><strong>요약 공개</strong></td><td>해석 요약 + 종합 소견</td><td>대부분의 경우</td></tr>
+        <tr><td><strong>전체 공개</strong></td><td>점수 + 해석 + 종합 소견</td><td>경과 비교용</td></tr>
+      </table>
+
+      <h3>AI 종합 보고서 흐름</h3>
+      <div class="flow"><strong>풀배터리 검사 실시</strong> (초기 1회)
+    &darr;
+AI 종합 보고서 초안 생성
+    &darr;
+<strong>상담사 검수/수정</strong>
+    &darr;
+공개 범위 설정 후 발행
+    &darr;
+<strong>내담자 앱에서 열람</strong></div>
+
+      <div class="insight-box">
+        <h4>풀배터리 검사 특성</h4>
+        <p>종합 보고서는 풀배터리 검사(여러 검사 한번에)에서 주로 사용된다. 매 회기마다 검사하는 게 아니므로, 보고서는 한 케이스에 1~2건 정도. 따라서 보고서 화면은 복잡한 필터링 없이 단순 목록으로 충분하다.</p>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s8')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">알림 시스템</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s10')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">콘텐츠 시스템</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s10 -->
+<div id="detail-s10" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 10</div><h1>콘텐츠 시스템</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">매거진 100건 + 카드뉴스 100건, 태그 기반 맞춤 추천</p>
+
+      <h3>태그 기반 매칭</h3>
+      <div class="tags">
+        <span class="tag">아동</span><span class="tag">청소년</span><span class="tag">성인</span>
+        <span class="tag">부모교육</span><span class="tag">우울</span><span class="tag">불안</span>
+        <span class="tag">관계</span><span class="tag">자존감</span><span class="tag">감정조절</span><span class="tag">스트레스</span>
+      </div>
+      <p>사용자의 상담 유형/내담자 특성에 맞는 태그 콘텐츠 우선 노출. 뒤쪽에 일반 콘텐츠가 이어지는 구조.</p>
+      <p style="color: var(--text-sub); font-size: 0.85rem;">기존 200건의 태그 분류는 AI 자동 분류 + 검수로 처리</p>
+
+      <div class="subsection-divider"></div>
+
+      <h3>콘텐츠 노출 위치</h3>
+      <table>
+        <tr><th>화면</th><th>노출 방식</th><th>비고</th></tr>
+        <tr><td>소속 홈</td><td>일정 카드 아래 1~2건</td><td>상담 관련 태그 매칭</td></tr>
+        <tr><td>미소속 홈</td><td>주요 콘텐츠 영역</td><td>일반 콘텐츠 (가입 유도)</td></tr>
+        <tr><td>콘텐츠 탭 (없음)</td><td>별도 탭 없이 홈에 통합</td><td>2탭 구조 유지</td></tr>
+      </table>
+
+      <h3>콘텐츠 형식</h3>
+      <div class="grid-2">
+        <div class="mini-card">
+          <h4>매거진 (100건)</h4>
+          <p style="font-size: 0.82rem; margin: 0;">긴 글 형태<br>전문가 칼럼, 치료 가이드<br>5~10분 읽기</p>
+        </div>
+        <div class="mini-card">
+          <h4>카드뉴스 (100건)</h4>
+          <p style="font-size: 0.82rem; margin: 0;">이미지 중심 슬라이드<br>팁, 체크리스트<br>1~2분 읽기</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s9')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">검사 결과 시스템</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s11')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">엣지케이스 처리</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s11 -->
+<div id="detail-s11" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 11</div><h1>엣지케이스 처리</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">센터 종결, 보호자 변경, 다중 기기, 에러 상태</p>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h4>센터 종결</h4>
+          MVP: 종결 = 읽기 전용 전환<br>삭제 정책: 법률 검토 후 별도 수립
+        </div>
+        <div class="mini-card">
+          <h4>보호자 변경</h4>
+          앱에서 자동 처리 안 함<br>센터에서 관계 해제 + 새로 추가
+        </div>
+        <div class="mini-card">
+          <h4>다중 기기 / 양쪽 부모</h4>
+          현재 데이터 모델이 지원<br>각자 로그인 &rarr; 양쪽 다 알림
+        </div>
+        <div class="mini-card">
+          <h4>에러 상태</h4>
+          별도 에러 화면 없음<br>오브가 상태를 표현
+        </div>
+      </div>
+
+      <div class="subsection-divider"></div>
+
+      <h3>엣지케이스 상세 시나리오</h3>
+      <table>
+        <tr><th>시나리오</th><th>발생 조건</th><th>처리 방식</th></tr>
+        <tr><td>센터 종결 후 재방문</td><td>같은 센터에서 새 케이스 시작</td><td>새 케이스 생성, 이전은 종결 상태 유지</td></tr>
+        <tr><td>보호자 이혼/변경</td><td>한쪽 보호자 관계 해제 필요</td><td>센터가 관계 해제 + 필요 시 새 보호자 추가</td></tr>
+        <tr><td>휴대폰 변경</td><td>새 기기에서 로그인</td><td>소셜 로그인으로 자동 복구, 기존 토큰 해제</td></tr>
+        <tr><td>계정 삭제 요청</td><td>내담자가 앱 탈퇴 원함</td><td>MVP: 센터 연결 해제 + 계정 비활성화. 데이터 삭제는 법률 검토 후</td></tr>
+      </table>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s10')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">콘텐츠 시스템</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s12')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">조건부 표시 규칙</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s12 -->
+<div id="detail-s12" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 12</div><h1>조건부 표시 규칙</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">데이터 없는 빈 카드로 자리를 차지하지 않는다</p>
+
+      <table>
+        <tr><th>영역</th><th>표시 조건</th><th>없을 때</th></tr>
+        <tr><td>캐릭터 멘트</td><td>항상</td><td>시간대별 기본 멘트</td></tr>
+        <tr><td>다음 일정</td><td>예정된 일정이 있을 때</td><td>오브: "아직 예정된 일정이 없어요"</td></tr>
+        <tr><td>미션/성장 가이드</td><td>Phase 2</td><td>영역 자체 미노출</td></tr>
+        <tr><td>콘텐츠</td><td>항상</td><td>일반 콘텐츠 표시</td></tr>
+      </table>
+
+      <div class="insight-box">
+        <h4>빈 상태 = 오브의 기회</h4>
+        <p>데이터가 없을 때 "데이터가 없습니다"라는 텍스트 대신 오브가 상태를 안내한다. 빈 상태일수록 오브의 역할이 중요해지며, 앱이 "비어있다"는 느낌 대신 "쉬고 있다"는 느낌을 준다.</p>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s11')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">엣지케이스 처리</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s13')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">타임라인 상세</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s13 -->
+<div id="detail-s13" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 13</div><h1>타임라인 상세 규칙</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">회기 상태 매핑, 케이스별 분리, 종결 케이스 접기, 진행 표시</p>
+
+      <h3>회기 상태별 표시</h3>
+      <table>
+        <tr><th>Session status</th><th>표시</th><th>스타일</th></tr>
+        <tr><td><code>completed</code></td><td>완료 &check;</td><td>정상 톤</td></tr>
+        <tr><td><code>no_show</code></td><td>미방문 &mdash;</td><td>흐린 톤 (부정적 느낌 배제)</td></tr>
+        <tr><td><code>scheduled</code> (다음)</td><td>예정 &#9679;</td><td>강조 + D-day</td></tr>
+        <tr><td><code>scheduled</code> (먼 미래)</td><td>예정 &#9675;</td><td>흐림</td></tr>
+        <tr><td><code>cancelled</code></td><td colspan="2" style="color: var(--red);"><strong>타임라인에서 미노출</strong></td></tr>
+      </table>
+
+      <h3>진행 표시 (total_sessions 유무)</h3>
+      <div class="callout callout-warm">
+        <strong>상담은 회기수를 정해놓지 않는 경우가 일반적</strong>
+        total_sessions 있음 (소수): <code>━━━━━━━━━━░░░░░ 6/12회</code> (진행 바)<br>
+        total_sessions 없음 (일반적): <code>6회차 진행 중 &middot; 3개월째</code> (텍스트)<br>
+        <span style="font-size: 0.82rem; color: var(--text-sub);">경과 기간은 첫 회기 날짜 기준 계산</span>
+      </div>
+
+      <h3>케이스별 분리 &amp; 종결 접기</h3>
+      <p>같은 센터의 여러 케이스(놀이치료 + 미술치료)는 치료 맥락이 다르므로 <strong>별도 타임라인</strong>. 종결 케이스는 접힌 상태(collapsed)로 표시.</p>
+
+      <div class="subsection-divider"></div>
+
+      <h3>타임라인 인터랙션</h3>
+      <div class="grid-2">
+        <div class="mini-card">
+          <h4>완료 회기 탭</h4>
+          <p style="font-size: 0.82rem; margin: 0;">상세 펼침: 시간, 상담사, 장소<br>Phase 2: 상담사 메모 공개 시 여기서 열람</p>
+        </div>
+        <div class="mini-card">
+          <h4>예정 회기 탭</h4>
+          <p style="font-size: 0.82rem; margin: 0;">길찾기 버튼 노출<br>D-day 카운트다운 강조</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s12')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">조건부 표시 규칙</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s14')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">기술 스택</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s14 -->
+<div id="detail-s14" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 14</div><h1>기술 스택 및 인프라</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">React Native Expo &middot; 모노레포 &middot; 전용 API &middot; FCM &middot; Firebase Analytics</p>
+
+      <h3>앱 기술</h3>
+      <table>
+        <tr><th>항목</th><th>결정</th></tr>
+        <tr><td>프레임워크</td><td>React Native Expo (전문가 앱과 동일)</td></tr>
+        <tr><td>레포 구조</td><td>모노레포 <code>apps/mobile-client/</code></td></tr>
+        <tr><td>애니메이션</td><td>react-native-reanimated + @shopify/react-native-skia</td></tr>
+        <tr><td>다크 모드</td><td>Expo 내장 지원</td></tr>
+        <tr><td>푸시 알림</td><td>FCM (전문가 앱과 동일 인프라)</td></tr>
+        <tr><td>분석</td><td>Firebase Analytics</td></tr>
+        <tr><td>오프라인</td><td>온라인 전용 (MVP)</td></tr>
+        <tr><td>업데이트</td><td>스토어만 (OTA 미사용) + 강제 업데이트</td></tr>
+      </table>
+
+      <h3>인증 흐름</h3>
+      <div class="flow"><strong>소셜 로그인</strong> (카카오/네이버/애플)
+    &darr;
+Account 생성 (provider: "kakao", provider_id: "xxx")
+    &darr;
+Person 생성 (이름, 이메일)
+    &darr;
+센터 코드 입력 시 <strong>전화번호 + SMS 인증</strong> (최초 1회)
+    &darr;
+센터 승인 &rarr; <strong>Client.person_id = Person.id</strong> 연결</div>
+
+      <h3>내담자 앱 전용 API</h3>
+      <div class="api-block"><span class="comment">-- 인증 --</span>
+<span class="method">POST</span>  <span class="path">/auth/social-login</span>        <span class="comment"># 소셜 로그인</span>
+<span class="method">POST</span>  <span class="path">/auth/refresh</span>              <span class="comment"># 토큰 갱신</span>
+<span class="method">POST</span>  <span class="path">/auth/phone-verify/send</span>    <span class="comment"># SMS 인증번호 발송</span>
+<span class="method">POST</span>  <span class="path">/auth/phone-verify/confirm</span> <span class="comment"># SMS 인증번호 확인</span>
+<span class="divider">---------------------------------------</span><span class="comment">-- 센터 연결 --</span>
+<span class="method">POST</span>  <span class="path">/centers/connect</span>           <span class="comment"># 센터 코드로 승인 요청</span>
+<span class="method">GET</span>   <span class="path">/centers</span>                   <span class="comment"># 내 소속 센터 목록</span>
+<span class="divider">---------------------------------------</span><span class="comment">-- 일정/타임라인 --</span>
+<span class="method">GET</span>   <span class="path">/schedules/upcoming</span>        <span class="comment"># 다가오는 일정</span>
+<span class="method">GET</span>   <span class="path">/cases/{id}/timeline</span>       <span class="comment"># 케이스별 타임라인</span>
+<span class="divider">---------------------------------------</span><span class="comment">-- 검사 / 콘텐츠 / 프로필 --</span>
+<span class="method">GET</span>   <span class="path">/assessments</span>               <span class="comment"># 검사 결과 목록</span>
+<span class="method">GET</span>   <span class="path">/assessments/{id}/report</span>   <span class="comment"># 종합 보고서</span>
+<span class="method">GET</span>   <span class="path">/contents</span>                  <span class="comment"># 맞춤 콘텐츠</span>
+<span class="method">GET</span>   <span class="path">/profile</span>                   <span class="comment"># 내 정보</span>
+<span class="method">GET</span>   <span class="path">/children</span>                  <span class="comment"># 자녀 정보</span></div>
+
+      <div class="callout callout-green">
+        <strong>홈 데이터는 영역별 분리 호출</strong>
+        캐릭터 멘트 (로컬, 즉시) &rarr; GET /schedules/upcoming + GET /contents 병렬 호출 &rarr; 각각 도착 순서대로 렌더
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s13')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">타임라인 상세</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s15')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">Phase 구분</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s15 -->
+<div id="detail-s15" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 15</div><h1>Phase 구분</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">MVP에 포함되는 것과 Phase 2로 미루는 것의 명확한 구분</p>
+
+      <div class="grid-2">
+        <div>
+          <h3>MVP</h3>
+          <ul class="checklist">
+            <li><span class="check">&check;</span> 2탭 구조 (홈 + 마이)</li>
+            <li><span class="check">&check;</span> 다중 센터 통합 표시</li>
+            <li><span class="check">&check;</span> 다중 자녀 통합 표시</li>
+            <li><span class="check">&check;</span> 일정 카드 + 진행 표시</li>
+            <li><span class="check">&check;</span> 타임라인 드릴다운 (케이스별)</li>
+            <li><span class="check">&check;</span> 오브 캐릭터</li>
+            <li><span class="check">&check;</span> 마이크로 인터랙션</li>
+            <li><span class="check">&check;</span> 다크 모드</li>
+            <li><span class="check">&check;</span> 콘텐츠 (태그 기반)</li>
+            <li><span class="check">&check;</span> 소셜 로그인 + SMS 인증</li>
+            <li><span class="check">&check;</span> 알림 (시스템 고정)</li>
+            <li><span class="check">&check;</span> 센터 주도 승인/연결</li>
+            <li><span class="check">&check;</span> 온보딩 슬라이드</li>
+            <li><span class="check">&check;</span> 검사 결과 (공개 범위)</li>
+            <li><span class="check">&check;</span> AI 종합 보고서</li>
+            <li><span class="check">&check;</span> 전용 API + FCM + Analytics</li>
+            <li><span class="check">&check;</span> 스토어 업데이트</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Phase 2</h3>
+          <ul class="checklist">
+            <li>미션/성장 가이드 <span class="phase2">연구 검증 필요</span></li>
+            <li>최근 노트 <span class="phase2">논의 필요</span></li>
+            <li>오브 &rarr; AI 가이드 확장 <span class="phase2">미션 연동</span></li>
+            <li>알림 종류별 설정 <span class="phase2">피드백 기반</span></li>
+            <li>데이터 삭제 정책 <span class="phase2">법률 검토</span></li>
+            <li>오프라인 캐시 <span class="phase2">피드백 기반</span></li>
+            <li>자가진단 상세 UX <span class="phase2">항목 선정 후</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s14')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">기술 스택</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s16')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">기존 기획서 관계</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s16 -->
+<div id="detail-s16" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 16</div><h1>기존 기획서와의 관계</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">이 문서는 기존 기획서를 대체하지 않는다. 구조와 우선순위를 재정립한 것이다.</p>
+
+      <table>
+        <tr><th>항목</th><th>기존 기획서</th><th>이 문서</th></tr>
+        <tr><td>기능 상세</td><td>유효</td><td>다루지 않음</td></tr>
+        <tr><td>화면 구조 (IA)</td><td style="color: var(--red);">4탭 &rarr; 2탭으로 변경</td><td><strong>이 문서 기준</strong></td></tr>
+        <tr><td>다중 센터/자녀</td><td style="color: var(--red);">향후 &rarr; MVP 포함</td><td><strong>이 문서 기준</strong></td></tr>
+        <tr><td>드릴다운 상세</td><td style="color: var(--red);">캘린더 뷰 &rarr; 타임라인</td><td><strong>이 문서 기준</strong></td></tr>
+        <tr><td>진행현황</td><td style="color: var(--red);">별도 카드 &rarr; 일정 카드 통합</td><td><strong>이 문서 기준</strong></td></tr>
+      </table>
+
+      <div class="callout callout-red">
+        <strong>충돌 시 이 문서가 우선</strong>
+        기존 기획서의 기능 상세(각 화면의 필드, 동작 스펙)는 그대로 유효하지만, IA(정보 구조)와 우선순위가 충돌하면 이 문서를 따른다.
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s15')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">Phase 구분</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('s17')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">다음 단계</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: s17 -->
+<div id="detail-s17" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">SECTION 17</div><h1>다음 단계</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">디자인 / 기획 / 개발로 분리된 액션 아이템</p>
+
+      <div class="grid-3">
+        <div class="mini-card">
+          <h4>디자인</h4>
+          <ul style="font-size: 0.82rem; padding-left: 16px;">
+            <li>오브 캐릭터 디자인 컨셉</li>
+            <li>홈 화면 프로토타입</li>
+            <li>타임라인 상세 설계</li>
+            <li>마이페이지 상세 설계</li>
+            <li>온보딩 슬라이드 디자인</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h4>기획</h4>
+          <ul style="font-size: 0.82rem; padding-left: 16px;">
+            <li>자가진단 검사 항목 선정</li>
+            <li>콘텐츠 태그 체계 정의</li>
+            <li>오브 캐릭터 이름/브랜딩</li>
+            <li>미해결 이슈 처리</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h4>개발</h4>
+          <ul style="font-size: 0.82rem; padding-left: 16px;">
+            <li>센터 주소 카카오맵 연동</li>
+            <li>센터 웹 승인 화면</li>
+            <li>Apple 로그인 추가</li>
+            <li>전용 API 모듈 구축</li>
+            <li>SMS 인증 인프라</li>
+            <li>앱 프로젝트 셋업</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s16')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">기존 기획서 관계</span></button>
+      <button class="detail-nav-btn" onclick="showDetail('issues')">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg><br><span class="nav-label">미해결 이슈</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail: issues -->
+<div id="detail-issues" class="view hidden">
+  <div class="detail-hero">
+    <div class="container detail-hero-inner">
+      <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div><div class="detail-num">TRACKING &middot; 11건</div><h1>미해결 이슈</h1></div>
+    </div>
+  </div>
+  <div class="container detail-content">
+    <section class="section">
+      <p class="section-desc">기획 논의 중 발생한 애매한 사항. 별도 파일(client-app-open-issues.md)에서 상세 관리.</p>
+
+      <table>
+        <tr><th>#</th><th>이슈</th><th>상태</th></tr>
+        <tr><td>001</td><td>최근 노트 기능 방향</td><td><span style="background: var(--warm-light); color: var(--warm); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">보류</span></td></tr>
+        <tr><td>002</td><td>데이터 삭제 정책</td><td><span style="background: var(--warm-light); color: var(--warm); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">보류</span></td></tr>
+        <tr><td>003</td><td>오브 캐릭터 이름</td><td><span style="background: #f3f4f6; color: #6b7280; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">미정</span></td></tr>
+        <tr><td>004</td><td>내담자 앱 용어 매핑 (no_show &rarr; 미방문 등)</td><td><span style="background: var(--blue-light); color: var(--blue); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">진행 중</span></td></tr>
+        <tr><td>005</td><td>종결된 케이스 타임라인 표시</td><td><span style="background: #f3f4f6; color: #6b7280; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">미정</span></td></tr>
+        <tr><td>006</td><td>애플 로그인 지원 추가</td><td><span style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">개발 필요</span></td></tr>
+        <tr><td>007</td><td>전화번호 입력 시점 (센터 코드 입력 시 + SMS)</td><td><span style="background: var(--green-light); color: var(--green); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">확정</span></td></tr>
+        <tr><td>008</td><td>디바이스 토큰 관리 (다중 기기)</td><td><span style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">개발 필요</span></td></tr>
+        <tr><td>009</td><td>앱 이름 확정 (임시: 마인드엔서)</td><td><span style="background: var(--warm-light); color: var(--warm); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">임시 확정</span></td></tr>
+        <tr><td>010</td><td>자가진단 상세 설계</td><td><span style="background: var(--warm-light); color: var(--warm); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">보류</span></td></tr>
+        <tr><td>011</td><td>센터 주소 좌표 저장 (카카오맵 연동)</td><td><span style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">개발 필요</span></td></tr>
+      </table>
+
+      <div class="subsection-divider"></div>
+
+      <h3>상태별 요약</h3>
+      <div class="grid-2">
+        <div class="mini-card">
+          <h4>즉시 처리 가능</h4>
+          <ul style="font-size: 0.82rem; padding-left: 16px; margin: 0;">
+            <li>#006 애플 로그인 (개발)</li>
+            <li>#008 디바이스 토큰 (개발)</li>
+            <li>#011 센터 좌표 (개발)</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h4>논의/검토 필요</h4>
+          <ul style="font-size: 0.82rem; padding-left: 16px; margin: 0;">
+            <li>#001 최근 노트 (기획)</li>
+            <li>#002 데이터 삭제 (법률)</li>
+            <li>#003 오브 이름 (브랜딩)</li>
+            <li>#010 자가진단 (기획)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" onclick="showDetail('s17')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg> 이전<br><span class="nav-label">다음 단계</span></button>
+      <button class="detail-nav-btn disabled">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!--              JAVASCRIPT                    -->
+<!-- ========================================== -->
+<script>
+const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','issues'];
+let currentDetail = null;
+
+function showDetail(id) {
+  // Hide main view
+  const mainView = document.getElementById('main-view');
+  // Hide any currently visible detail
+  if (currentDetail) {
+    document.getElementById('detail-' + currentDetail).classList.add('hidden');
+  }
+
+  mainView.classList.add('hidden');
+
+  const detail = document.getElementById('detail-' + id);
+  detail.classList.remove('hidden');
+  detail.classList.remove('slide-in-left');
+  detail.classList.add('slide-in-right');
+
+  currentDetail = id;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Update URL hash
+  history.pushState({ detail: id }, '', '#' + id);
+}
+
+function goBack() {
+  if (currentDetail) {
+    const detail = document.getElementById('detail-' + currentDetail);
+    detail.classList.add('hidden');
+    detail.classList.remove('slide-in-right');
+    currentDetail = null;
+  }
+
+  const mainView = document.getElementById('main-view');
+  mainView.classList.remove('hidden');
+  mainView.classList.add('slide-in-left');
+
+  history.pushState({}, '', window.location.pathname);
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate', function(e) {
+  if (e.state && e.state.detail) {
+    if (currentDetail) {
+      document.getElementById('detail-' + currentDetail).classList.add('hidden');
+    }
+    const mainView = document.getElementById('main-view');
+    mainView.classList.add('hidden');
+
+    const detail = document.getElementById('detail-' + e.state.detail);
+    detail.classList.remove('hidden');
+    currentDetail = e.state.detail;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  } else {
+    if (currentDetail) {
+      document.getElementById('detail-' + currentDetail).classList.add('hidden');
+      currentDetail = null;
+    }
+    const mainView = document.getElementById('main-view');
+    mainView.classList.remove('hidden');
+  }
+});
+
+// Handle initial hash
+window.addEventListener('DOMContentLoaded', function() {
+  const hash = window.location.hash.slice(1);
+  if (hash && sections.includes(hash)) {
+    showDetail(hash);
+  }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && currentDetail) {
+    goBack();
+  }
+  if (currentDetail) {
+    const idx = sections.indexOf(currentDetail);
+    if (e.key === 'ArrowLeft' && idx > 0) {
+      showDetail(sections[idx - 1]);
+    }
+    if (e.key === 'ArrowRight' && idx < sections.length - 1) {
+      showDetail(sections[idx + 1]);
+    }
+  }
+});
+</script>
+
+</body>
+</html>

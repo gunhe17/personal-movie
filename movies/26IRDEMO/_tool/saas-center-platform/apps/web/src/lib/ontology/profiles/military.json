@@ -1,0 +1,35 @@
+{
+  "name": "군대",
+  "loop": "검사용",
+  "vocab": {
+    "subject": "장병",
+    "guardianRel": null,
+    "staff": "상담관",
+    "org": "부대",
+    "extInst": "연계 기관",
+    "orgUnit": "중대",
+    "child": null,
+    "sibling": null
+  },
+  "exists": {
+    "guardianRel": false,
+    "orgUnit": true
+  },
+  "variable": {
+    "subject": [
+      "군번 (평생)",
+      "계급",
+      "소속",
+      "입대일"
+    ]
+  },
+  "hierarchy": "대대 > 중대 > 소대",
+  "identifier": {
+    "type": "군번 (평생 유일 · 반출 통제)",
+    "temporal": "stable"
+  },
+  "guardian_note": null,
+  "sections": {
+    "sibling": false
+  }
+}

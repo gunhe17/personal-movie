@@ -1,0 +1,391 @@
+/* =============================================
+   Mobile Typography System - Pretendard
+   Based on apps/web/src/app.css desktop spec
+   All letter-spacing: -0.41px
+   Naming: text-mobile-{category}-{number}-{type}-{weight}
+   - type: normal (100% line-height) | reading (150% line-height)
+   - weight: regular (400) | medium (500) | semibold (600) | bold (700)
+
+   ⚙️ 매핑 원칙
+   - 모바일이라고 본문 이하를 무리하게 줄이지 않음 (가독성/iOS Safari zoom 방지)
+   - 큰 제목(display, headline)만 위계 유지 선에서 축소
+   - body-01은 16px 유지 (iOS input 자동 zoom 방지: <16px 금지)
+   - caption-02(8px)는 모바일 가독성 한계 미만이라 의도적으로 제외
+
+   사용 예시 (적용 시):
+   <p class="text-headline-01-normal-bold max-[800px]:text-mobile-headline-01-normal-bold">
+     반응형 제목
+   </p>
+
+   ⚠️ 이 파일은 아직 import 되어 있지 않습니다.
+   적용하려면 app.css 또는 +layout.svelte에서 import 하세요.
+   ============================================= */
+
+@layer utilities {
+  /* Display_01 - 32px (desktop 44px, ↓27%) */
+  .text-mobile-display-01-normal-bold {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Display_02 - 28px (desktop 32px, ↓13%) */
+  .text-mobile-display-02-reading-bold {
+    font-size: 28px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-display-02-normal-semibold {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Headline_00 - 24px (desktop 28px, ↓14%) */
+  .text-mobile-headline-00-normal-medium {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-headline-00-normal-bold {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Headline_01 - 22px (desktop 24px, ↓8%) */
+  .text-mobile-headline-01-normal-regular {
+    font-size: 22px;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-headline-01-normal-medium {
+    font-size: 22px;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-headline-01-normal-semibold {
+    font-size: 22px;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-headline-01-normal-bold {
+    font-size: 22px;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-headline-01-reading-bold {
+    font-size: 22px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-headline-01-reading-semibold {
+    font-size: 22px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Headline_02 - 20px (desktop 20px, 동일 유지) */
+  .text-mobile-headline-02-normal-regular {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-headline-02-normal-medium {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-headline-02-normal-semibold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-headline-02-normal-bold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-headline-02-reading-semibold {
+    font-size: 20px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-headline-02-reading-bold {
+    font-size: 20px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Title_01 - 18px (desktop 18px, 동일 유지) */
+  .text-mobile-title-01-normal-regular {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-title-01-normal-medium {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-title-01-normal-semibold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-title-01-normal-bold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-title-01-reading-regular {
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-title-01-reading-semibold {
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_01 - 16px (desktop 16px, 동일 유지 ⚠️ iOS input zoom 방지)  */
+  .text-mobile-body-01-normal-regular {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-01-normal-medium {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-body-01-normal-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-body-01-normal-bold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-body-01-reading-regular {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-01-reading-medium {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-body-01-reading-semibold {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_02 - 15px (desktop 15px, 동일 유지) */
+  .text-mobile-body-02-normal-regular {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-02-normal-medium {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-body-02-normal-semibold {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-body-02-reading-regular {
+    font-size: 15px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-02-reading-semibold {
+    font-size: 15px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_03 - 14px (desktop 14px, 동일 유지) */
+  .text-mobile-body-03-normal-regular {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-03-normal-medium {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-body-03-normal-semibold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-mobile-body-03-normal-bold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-mobile-body-03-reading-regular {
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-body-03-reading-semibold {
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Label_01 - 13px (desktop 13px, 동일 유지) */
+  .text-mobile-label-01-normal-regular {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-label-01-normal-medium {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-label-01-normal-bold {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Label_02 - 12px (desktop 12px, 동일 유지) */
+  .text-mobile-label-02-normal-regular {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-label-02-normal-medium {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-label-02-normal-bold {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Caption_01 - 11px (desktop 10px, ↑1px 가독성 확보) */
+  .text-mobile-caption-01-normal-regular {
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-mobile-caption-01-normal-medium {
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-mobile-caption-01-normal-bold {
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /*
+    Caption_02 (desktop 8px)는 모바일 가독성 한계 미만이라 의도적으로 제외.
+    필요한 경우 caption-01(11px) 사용 권장.
+  */
+}

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온톨로지 Explorer — 모델·감사·API 콘솔</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb; --card:#fff;
+    --accent:#4486FF; --accent-soft:#EAF1FF;
+    --ok:#15803d; --ok-soft:#e7f6ec; --warn:#b45309; --warn-soft:#fef3e2;
+    --danger:#b91c1c; --danger-soft:#fdeaea;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         color:var(--ink); background:var(--bg); display:flex; flex-direction:column; overflow:hidden; }
+  .mono { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  button { font-family:inherit; cursor:pointer; }
+
+  /* 상단 */
+  #topbar { display:flex; align-items:center; gap:16px; padding:10px 18px; background:#fff; border-bottom:1px solid var(--line); flex-shrink:0; }
+  #topbar h1 { font-size:15px; }
+  #topbar h1 small { font-weight:400; color:var(--sub); font-size:11px; margin-left:6px; }
+  .view-tabs { display:flex; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; }
+  .view-tabs button { border:none; background:#fff; padding:6px 18px; font-size:12.5px; font-weight:700; color:var(--sub); }
+  .view-tabs button.on { background:var(--accent); color:#fff; }
+  #auth { margin-left:auto; display:flex; align-items:center; gap:8px; font-size:12px; }
+  #auth input { border:1.5px solid var(--line); border-radius:8px; padding:4px 9px; font-size:12px; width:150px; font-family:inherit; }
+  #auth input.pw { width:86px; }
+  #auth button { border:none; background:var(--ink); color:#fff; border-radius:8px; padding:5px 12px; font-size:12px; }
+  #auth select { border:1.5px solid var(--line); border-radius:8px; padding:4px 8px; font-size:12px; max-width:180px; font-family:inherit; }
+  #auth .badge { background:var(--ok-soft); color:var(--ok); border-radius:9px; padding:2px 9px; font-weight:700; }
+
+  #main { flex:1; display:flex; overflow:hidden; }
+  .view { flex:1; display:none; flex-direction:column; overflow:hidden; }
+  .view.on { display:flex; }
+
+  /* ══ 모델 뷰 ══ */
+  #profilebar { display:flex; gap:8px; padding:11px 16px; background:#fff; border-bottom:1px solid var(--line); align-items:center; flex-wrap:wrap; flex-shrink:0; }
+  #profilebar .lbl { font-size:12px; color:var(--sub); font-weight:700; }
+  #profilebar button.pf { border:1.5px solid var(--line); background:#fff; border-radius:20px; padding:5px 16px; font-size:12.5px; font-weight:600; }
+  #profilebar button.pf.on { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+  #profilebar button.pf.draft { border-style:dashed; }
+  #profilebar .loop-tag { font-size:10px; border-radius:8px; padding:0 7px; margin-left:5px; background:#eef1f6; color:var(--sub); }
+  #model-tabs { display:flex; gap:2px; padding:8px 16px 0; background:var(--bg); align-items:center; flex-shrink:0; }
+  #model-tabs button { border:1px solid var(--line); border-bottom:none; background:#eef1f6; border-radius:9px 9px 0 0; padding:6px 16px; font-size:12px; font-weight:600; color:var(--sub); }
+  #model-tabs button.on { background:#fff; color:var(--ink); }
+  #model-panes { flex:1; overflow:hidden; background:#fff; border-top:1px solid var(--line); position:relative; }
+  .mpane { position:absolute; inset:0; display:none; overflow:auto; }
+  .mpane.on { display:block; }
+  #mp-graph { overflow:hidden; cursor:grab; }
+  #gworld { position:absolute; left:0; top:0; width:2400px; height:1500px; transform-origin:0 0; }
+  #gsvg { position:absolute; inset:0; width:2400px; height:1500px; pointer-events:none; }
+  #gsvg path { stroke:#b6c0d0; stroke-width:1.6; fill:none; }
+  #gsvg path.dashed { stroke-dasharray:5 4; }
+  #gsvg text { font-size:10px; fill:var(--sub); }
+  .gnode { position:absolute; transform:translate(-50%,-50%); border:2px solid; border-radius:14px; background:#fff;
+    padding:8px 14px; font-size:12px; text-align:center; cursor:pointer; user-select:none; box-shadow:0 2px 8px rgba(20,30,60,.08); min-width:100px; max-width:210px; }
+  .gnode b { display:block; font-size:12.5px; }
+  .gnode small { display:block; color:var(--sub); font-size:10px; line-height:1.45; }
+  .gnode .bind { display:inline-block; font-size:9px; border-radius:6px; padding:0 6px; margin-top:4px; }
+  .bind.bound { background:var(--ok-soft); color:var(--ok); }
+  .bind.partial { background:var(--warn-soft); color:var(--warn); }
+  .bind.missing { background:var(--danger-soft); color:var(--danger); }
+  .dchips { margin-top:4px; }
+  .dchip { display:inline-block; font-size:8.5px; font-weight:700; border-radius:5px; padding:0 5px; margin:1px; background:#eef1f6; color:var(--sub); cursor:pointer; }
+  .dchip:hover { background:var(--accent-soft); color:var(--accent); }
+  .gnode.sel { outline:3px solid var(--accent-soft); }
+  #mp-preview, #mp-matrix, #mp-json { padding:22px; background:var(--bg); }
+  #mp-json pre { font-size:11.5px; line-height:1.55; background:#fff; border-radius:12px; padding:16px 20px; border:1px solid var(--line); }
+
+  /* ══ 감사 뷰 ══ */
+  #audit-body { flex:1; overflow:auto; padding:20px 24px; }
+  .a-cards { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:18px; max-width:900px; }
+  .a-card { background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:12px 16px; cursor:pointer; }
+  .a-card.on { border-color:var(--accent); }
+  .a-card b { font-size:20px; display:block; }
+  .a-card small { font-size:10.5px; color:var(--sub); }
+  table.a-tbl { width:100%; border-collapse:collapse; font-size:12px; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+  .a-tbl th { background:#f0f3f8; text-align:left; padding:7px 12px; font-size:11px; color:var(--sub); }
+  .a-tbl td { padding:6px 12px; border-top:1px solid #f0f3f8; vertical-align:top; }
+  .a-tbl td.mono { font-size:10.5px; }
+  .t-tag { font-size:9.5px; font-weight:700; border-radius:6px; padding:1px 7px; white-space:nowrap; }
+  .t-vocab_hardcode { background:var(--warn-soft); color:var(--warn); }
+  .t-role_branch { background:#f1ecfb; color:#6d3fc0; }
+  .t-noun_exposure { background:var(--danger-soft); color:var(--danger); }
+  .t-guardian_as_row { background:#fdeef6; color:#b0387a; }
+
+  /* ══ API 콘솔 ══ */
+  #console-body { flex:1; display:flex; overflow:hidden; }
+  #samples-col { width:265px; background:#fff; border-right:1px solid var(--line); overflow-y:auto; padding:6px 8px 14px; flex-shrink:0; }
+  .grp-label { font-size:10.5px; color:var(--sub); font-weight:700; margin:12px 8px 4px; }
+  .sample { padding:6px 9px; border-radius:8px; cursor:pointer; font-size:11.5px; display:flex; gap:6px; align-items:baseline; }
+  .sample:hover { background:var(--bg); }
+  .sample.on { background:var(--accent-soft); }
+  .sample .m { font-size:9px; font-weight:700; border-radius:4px; padding:0 4px; color:#fff; flex-shrink:0; background:#2f855a; }
+  .sample small { display:block; color:var(--sub); font-size:10px; }
+  #console-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  #reqbar { display:flex; gap:8px; padding:12px 16px; background:#fff; border-bottom:1px solid var(--line); flex-shrink:0; }
+  #reqbar select { border:1.5px solid var(--line); border-radius:9px; padding:7px 8px; font-size:12.5px; font-weight:700; font-family:inherit; }
+  #reqbar input { flex:1; border:1.5px solid var(--line); border-radius:9px; padding:7px 12px; font-size:12px; font-family:"SF Mono",Menlo,monospace; }
+  #reqbar button { border:none; background:var(--accent); color:#fff; border-radius:9px; padding:8px 20px; font-size:13px; font-weight:700; }
+  #c-tabs { display:flex; gap:2px; padding:8px 16px 0; background:var(--bg); align-items:center; flex-shrink:0; }
+  #c-tabs button { border:1px solid var(--line); border-bottom:none; background:#eef1f6; border-radius:9px 9px 0 0; padding:6px 18px; font-size:12px; font-weight:600; color:var(--sub); }
+  #c-tabs button.on { background:#fff; color:var(--ink); }
+  #c-status { margin-left:auto; font-size:11.5px; color:var(--sub); }
+  .code-ok { color:var(--ok); font-weight:700; } .code-bad { color:var(--danger); font-weight:700; }
+  #c-panes { flex:1; overflow:hidden; background:#fff; border-top:1px solid var(--line); position:relative; }
+  #cp-graph { position:absolute; inset:0; overflow:hidden; cursor:grab; display:none; }
+  #cp-graph.on { display:block; }
+  #cgworld { position:absolute; left:0; top:0; width:2400px; height:1500px; transform-origin:0 0; }
+  #cgsvg { position:absolute; inset:0; width:2400px; height:1500px; pointer-events:none; }
+  #cgsvg path { stroke:#b6c0d0; stroke-width:1.6; fill:none; }
+  #cgsvg text { font-size:10px; fill:var(--sub); }
+  #cp-json { position:absolute; inset:0; overflow:auto; padding:14px 18px; display:none; }
+  #cp-json.on { display:block; }
+  #cp-json pre { font-size:11.5px; line-height:1.55; font-family:"SF Mono",Menlo,monospace; }
+
+  /* 우측 상세 */
+  #detail { width:310px; background:#fff; border-left:1px solid var(--line); overflow-y:auto; flex-shrink:0; display:none; }
+  #detail.show { display:block; }
+  #detail .d-head { padding:14px 16px 10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; }
+  #detail .d-head h2 { font-size:14.5px; }
+  #detail .d-head small { color:var(--sub); font-size:11px; }
+  #detail .d-close { position:absolute; right:10px; top:12px; border:none; background:var(--bg); border-radius:8px; width:24px; height:24px; font-size:12px; color:var(--sub); }
+  #detail .d-body { padding:12px 16px 30px; font-size:12px; }
+  #detail h4 { font-size:11px; color:var(--sub); font-weight:700; margin:13px 0 5px; letter-spacing:.04em; }
+  .chip { display:inline-block; font-size:10.5px; border-radius:8px; padding:1px 8px; margin:1px 2px 1px 0; background:#eef1f6; }
+  .chip.gone { background:var(--danger-soft); color:var(--danger); text-decoration:line-through; }
+  .note { font-size:11px; color:var(--sub); background:var(--bg); border-radius:8px; padding:7px 10px; margin-top:6px; }
+  .gap-item { font-size:11px; background:var(--warn-soft); border-radius:8px; padding:6px 9px; margin:4px 0; }
+  .trace-item { font-size:10.5px; border-top:1px solid #f0f3f8; padding:5px 0; }
+  .trace-item .mono { font-size:9.5px; color:var(--sub); display:block; }
+  #detail input, #detail select, #detail textarea { width:100%; border:1.5px solid var(--line); border-radius:8px; padding:6px 9px; font-size:12px; font-family:inherit; margin-bottom:7px; }
+  #detail .ed-row { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
+  #detail .ed-row label { flex:1; font-size:11.5px; }
+  #detail .ed-row input[type=text] { flex:1.4; margin:0; }
+  #detail .ed-row input[type=checkbox] { width:auto; margin:0; }
+  .btn-primary { border:none; background:var(--accent); color:#fff; border-radius:9px; padding:8px 16px; font-size:12.5px; font-weight:700; width:100%; margin-top:6px; }
+  .btn-ghost { border:1.5px solid var(--line); background:#fff; border-radius:9px; padding:7px 16px; font-size:12px; width:100%; margin-top:6px; }
+
+  /* 결정 팝업 */
+  #dmodal { position:fixed; inset:0; background:rgba(20,30,60,.35); display:none; align-items:center; justify-content:center; z-index:50; }
+  #dmodal.show { display:flex; }
+  #dmodal .box { background:#fff; border-radius:16px; padding:22px 26px; max-width:480px; box-shadow:0 10px 40px rgba(20,30,60,.25); }
+  #dmodal .box h3 { font-size:15px; margin-bottom:6px; }
+  #dmodal .box .did { font-size:11px; font-weight:700; color:var(--accent); }
+  #dmodal .box p { font-size:13px; line-height:1.7; margin:8px 0 14px; }
+  #dmodal .box a { font-size:11.5px; color:var(--accent); }
+  #toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    border-radius:10px; padding:9px 18px; font-size:12.5px; display:none; z-index:99; max-width:640px; }
+  .m.POST { background:#2b6cb0 !important; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <h1>온톨로지 Explorer<small>data/ 가 정본 — 카탈로그·프로필·바인딩·감사를 렌더만 한다</small></h1>
+  <div class="view-tabs">
+    <button id="vt-model" class="on" onclick="setView('model')">모델</button>
+    <button id="vt-audit" onclick="setView('audit')">감사 <span id="audit-count" style="font-size:10px"></span></button>
+    <button id="vt-console" onclick="setView('console')">API 콘솔</button>
+  </div>
+  <div id="auth">
+    <span id="auth-form">
+      <input id="a-email" value="manager@test.com">
+      <input id="a-pw" class="pw" type="password" value="test1234">
+      <button onclick="login()">로그인</button>
+    </span>
+    <span id="auth-ok" style="display:none">
+      <span class="badge" id="auth-who"></span>
+      <select id="a-center" onchange="ST.centerId=this.value"></select>
+    </span>
+  </div>
+</div>
+
+<div id="main">
+  <!-- ══ 모델 뷰 ══ -->
+  <div id="view-model" class="view on">
+    <div id="profilebar">
+      <span class="lbl">프로필</span>
+      <span id="pf-buttons"></span>
+      <button class="pf draft" onclick="openDraftEditor()">＋ 새 프로필 드래프트</button>
+      <span style="margin-left:auto;font-size:11px;color:var(--sub)">노드의 D·A 칩 = 결정 근거 (클릭)</span>
+    </div>
+    <div id="model-tabs">
+      <button id="mt-graph" class="on" onclick="setModelTab('graph')">그래프</button>
+      <button id="mt-preview" onclick="setModelTab('preview')">화면 미리보기</button>
+      <button id="mt-matrix" onclick="setModelTab('matrix')">어휘 매트릭스</button>
+      <button id="mt-json" onclick="setModelTab('json')">프로필 JSON</button>
+    </div>
+    <div id="model-panes">
+      <div id="mp-graph" class="mpane on"><div id="gworld"><svg id="gsvg"></svg></div></div>
+      <div id="mp-preview" class="mpane"></div>
+      <div id="mp-matrix" class="mpane"></div>
+      <div id="mp-json" class="mpane"><pre id="pf-json"></pre></div>
+    </div>
+  </div>
+
+  <!-- ══ 감사 뷰 ══ -->
+  <div id="view-audit" class="view">
+    <div id="audit-body">
+      <div style="font-size:13px;color:var(--sub);margin-bottom:14px">
+        온톨로지 원칙 대비 <b>현재 화면 코드의 위반 실측</b> — UI/UX 통일성 개선의 작업 범위가 곧 이 목록이다.
+        재스캔: <span class="mono" style="font-size:11px">node scripts/audit-screens.mjs</span>
+      </div>
+      <div class="a-cards" id="a-cards"></div>
+      <table class="a-tbl"><thead><tr><th style="width:110px">유형</th><th style="width:80px">개념</th><th>파일:라인</th><th>코드</th><th>비고</th></tr></thead>
+      <tbody id="a-rows"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ══ API 콘솔 ══ -->
+  <div id="view-console" class="view">
+    <div id="console-body">
+      <div id="samples-col"></div>
+      <div id="console-main">
+        <div id="reqbar">
+          <select id="r-method"><option>GET</option><option>POST</option></select>
+          <input id="r-url" spellcheck="false" placeholder="/api/v1/...">
+          <button id="r-run" onclick="runQuery()">실행 ▶</button>
+        </div>
+        <div id="c-tabs">
+          <button id="ct-graph" class="on" onclick="setConsoleTab('graph')">그래프</button>
+          <button id="ct-json" onclick="setConsoleTab('json')">JSON</button>
+          <span id="c-status"></span>
+        </div>
+        <div id="c-panes">
+          <div id="cp-graph" class="on"><div id="cgworld"><svg id="cgsvg"></svg></div></div>
+          <div id="cp-json"><pre id="c-json">// 로그인 후 좌측 샘플을 실행하세요. '모델 검증' 그룹 = 결정의 실데이터 반례 조회.</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detail">
+    <div class="d-head"><h2 id="d-title"></h2><small id="d-sub"></small><button class="d-close" onclick="closeDetail()">✕</button></div>
+    <div class="d-body" id="d-body"></div>
+  </div>
+</div>
+
+<div id="dmodal" onclick="this.classList.remove('show')"><div class="box" onclick="event.stopPropagation()">
+  <span class="did" id="dm-id"></span><h3 id="dm-title"></h3><p id="dm-summary"></p>
+  <a href="../온톨로지-모델-결정장부.html" target="_blank">결정 장부 전문 열기 ↗</a>
+</div></div>
+<div id="toast"></div>
+
+<script>
+const DATA = { catalog:null, decisions:null, profiles:{}, bindings:null, audit:null };
+const ST = { view:"model", profile:"center", modelTab:"graph", consoleTab:"graph",
+             token:null, centerId:null, centerName:null, clientId:null, clientName:null, personId:null,
+             scale:.78, tx:-330, ty:-140, cscale:1, ctx:0, cty:0, draft:null };
+const API = "http://localhost:3502";
+const $ = id => document.getElementById(id);
+const toast = m => { const t=$("toast"); t.textContent=m; t.style.display="block"; setTimeout(()=>t.style.display="none",3200); };
+
+/* ═══ 데이터 로드 — data/가 정본 ═══ */
+async function loadData() {
+  const j = p => fetch(p).then(r=>r.json());
+  DATA.catalog = await j("data/catalog.json");
+  DATA.decisions = await j("data/decisions.json");
+  DATA.bindings = (await j("data/bindings.json")).bindings;
+  DATA.audit = await j("data/audit.json");
+  const idx = await j("data/profiles/index.json");
+  for (const k of idx.profiles) DATA.profiles[k] = await j(`data/profiles/${k}.json`);
+}
+
+/* ═══ 뷰 전환 ═══ */
+function setView(v) {
+  ST.view = v;
+  ["model","audit","console"].forEach(k=>{
+    $("vt-"+k).classList.toggle("on", k===v);
+    $("view-"+k).classList.toggle("on", k===v);
+  });
+  closeDetail();
+}
+function setModelTab(t) {
+  ST.modelTab = t;
+  ["graph","preview","matrix","json"].forEach(k=>{
+    $("mt-"+k).classList.toggle("on", k===t);
+    $("mp-"+k).classList.toggle("on", k===t);
+  });
+  if (t==="preview") renderPreview();
+  if (t==="matrix") renderMatrix();
+  if (t==="json") $("pf-json").textContent = JSON.stringify(activeProfile(), null, 2)
+    + "\n\n// 이 JSON이 곧 프로필 실물 — SaaS에선 런타임 로드, 납품에선 빌드타임 주입 (A5)";
+}
+function setConsoleTab(t) {
+  ST.consoleTab = t;
+  ["graph","json"].forEach(k=>{ $("ct-"+k).classList.toggle("on",k===t); $("cp-"+k).classList.toggle("on",k===t); });
+}
+function activeProfile() { return ST.profile==="__draft__" ? ST.draft : DATA.profiles[ST.profile]; }
+function setProfile(p) {
+  ST.profile = p;
+  document.querySelectorAll("#pf-buttons .pf").forEach(b=>b.classList.toggle("on", b.dataset.p===p));
+  renderSchema(); if (ST.modelTab==="preview") renderPreview();
+  if (ST.modelTab==="json") setModelTab("json");
+}
+
+/* ═══ 프로필 버튼 ═══ */
+function renderProfileButtons() {
+  let html = "";
+  for (const [k,p] of Object.entries(DATA.profiles))
+    html += `<button class="pf ${k===ST.profile?'on':''}" data-p="${k}" onclick="setProfile('${k}')">${p.name}<span class="loop-tag">${p.loop}</span></button>`;
+  if (ST.draft) html += `<button class="pf draft ${ST.profile==='__draft__'?'on':''}" data-p="__draft__" onclick="setProfile('__draft__')">${ST.draft.name||"드래프트"}<span class="loop-tag">draft</span></button>`;
+  $("pf-buttons").innerHTML = html;
+}
+
+/* ═══ 스키마 그래프 ═══ */
+function renderSchema() {
+  const prof = activeProfile();
+  const world = $("gworld"), svg = $("gsvg");
+  world.querySelectorAll(".gnode").forEach(n=>n.remove());
+  svg.innerHTML = "";
+  const gone = {};
+  for (const [key,c] of Object.entries(DATA.catalog.concepts)) {
+    if (prof.exists && prof.exists[key] === false) { gone[key]=true; continue; }
+    const b = DATA.bindings[key] || {};
+    const vocab = prof.vocab ? prof.vocab[key] : null;
+    const el = document.createElement("div");
+    el.className = "gnode"; el.dataset.id = key;
+    el.style.left = c.pos[0]+"px"; el.style.top = c.pos[1]+"px"; el.style.borderColor = c.color;
+    let sub = "";
+    if (key==="subject" && prof.variable?.subject) sub = prof.variable.subject.join(" · ");
+    if (key==="orgUnit" && prof.hierarchy) sub = prof.hierarchy;
+    const chips = (c.decisions||[]).map(d=>`<span class="dchip" onclick="event.stopPropagation();showDecision('${d}')">${d}</span>`).join("");
+    el.innerHTML = `<b style="color:${c.color}">${vocab||c.label}</b>` +
+      (vocab && vocab!==c.label ? `<small>${c.label}</small>` : "") +
+      (sub ? `<small>${sub}</small>` : "") +
+      `<span class="bind ${b.status||''}">${b.table || "테이블 없음"} · ${b.status||"?"}</span>` +
+      `<div class="dchips">${chips}</div>`;
+    el.onclick = e => { e.stopPropagation(); showConceptDetail(key); };
+    world.appendChild(el);
+  }
+  for (const e of DATA.catalog.relations) {
+    if (gone[e.a] || gone[e.b]) continue;
+    drawEdge(svg, DATA.catalog.concepts[e.a].pos, DATA.catalog.concepts[e.b].pos, e.label, e.dashed);
+  }
+}
+function drawEdge(svg, pa, pb, label, dashed) {
+  const [ax,ay]=Array.isArray(pa)?pa:[pa.x,pa.y], [bx,by]=Array.isArray(pb)?pb:[pb.x,pb.y];
+  const mx=(ax+bx)/2, my=(ay+by)/2, dx=bx-ax, dy=by-ay, n=Math.hypot(dx,dy)||1;
+  const cx=mx-dy/n*26, cy=my+dx/n*26;
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d",`M ${ax} ${ay} Q ${cx} ${cy} ${bx} ${by}`);
+  if (dashed) p.setAttribute("class","dashed");
+  svg.appendChild(p);
+  const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("x",cx); t.setAttribute("y",cy-3); t.setAttribute("text-anchor","middle");
+  t.textContent=label; svg.appendChild(t);
+}
+
+/* ═══ 개념 상세 (바인딩 + 화면 트레이스 + 결정) ═══ */
+function showConceptDetail(key) {
+  const c = DATA.catalog.concepts[key], b = DATA.bindings[key]||{}, prof = activeProfile();
+  $("d-title").textContent = (prof.vocab?.[key]||c.label) + (prof.vocab?.[key] && prof.vocab[key]!==c.label ? ` (${c.label})` : "");
+  $("d-sub").innerHTML = `바인딩: <span class="mono">${b.table||"없음"}</span> <span class="bind ${b.status}" style="font-size:9px;border-radius:6px;padding:0 6px">${b.status}</span>`;
+  let h = `<p>${c.desc}</p>`;
+  h += `<h4>근거 결정</h4>` + (c.decisions||[]).map(d=>`<span class="dchip" style="font-size:10px;padding:2px 8px" onclick="showDecision('${d}')">${d} ${DATA.decisions[d]?.title||""}</span>`).join(" ");
+  if (c.attrs?.core) h += `<h4>코어 (변환 안 됨)</h4>` + c.attrs.core.map(f=>`<span class="chip">${f}</span>`).join("");
+  if (c.attrs?.record) h += `<h4>역할 기록 (기관 소유)</h4>` + c.attrs.record.map(f=>`<span class="chip">${f}</span>`).join("");
+  if (key==="subject" && prof.variable?.subject) h += `<h4>가변 — ${prof.name} 프로필 선언</h4>` + prof.variable.subject.map(f=>`<span class="chip">${f}</span>`).join("")
+    + (prof.identifier ? `<div class="note">식별자: ${prof.identifier.type} (${prof.identifier.temporal})</div>` : "");
+  if (b.columns?.length) h += `<h4>실제 컬럼 (실측)</h4><div class="mono" style="font-size:10px;line-height:1.7">${b.columns.join(" · ")}</div>`;
+  if (b.constraints?.length) h += `<h4>제약</h4>` + b.constraints.map(x=>`<div class="note">${x}</div>`).join("");
+  if (b.gaps?.length) h += `<h4>갭 (의논거리)</h4>` + b.gaps.map(x=>`<div class="gap-item">⚠ ${x}</div>`).join("");
+  if (b.apis?.length) h += `<h4>대표 API</h4><div class="mono" style="font-size:10px;line-height:1.8">${b.apis.join("<br>")}</div>`;
+  // 화면 트레이스
+  const traces = DATA.audit.violations.filter(v=>v.concept===key);
+  if (traces.length) {
+    h += `<h4>화면 트레이스 — 위반 ${traces.length}건 (통일성 개선 대상)</h4>`;
+    traces.slice(0,10).forEach(v=>{ h += `<div class="trace-item"><span class="t-tag t-${v.type}">${v.type}</span> ${v.note}<span class="mono">${v.file}:${v.line}</span></div>`; });
+    if (traces.length>10) h += `<div class="note">외 ${traces.length-10}건 — 감사 탭에서 전체 보기</div>`;
+  }
+  h += `<h4>다른 프로필에서는</h4>`;
+  for (const [pk,pv] of Object.entries(DATA.profiles)) {
+    const v = pv.vocab?.[key];
+    h += `<span class="chip ${v===null?'gone':''}">${pv.name}: ${v===null?"없음(제거)":v||c.label}</span>`;
+  }
+  $("d-body").innerHTML = h;
+  $("detail").classList.add("show");
+  document.querySelectorAll("#gworld .gnode").forEach(n=>n.classList.toggle("sel", n.dataset.id===key));
+}
+function closeDetail(){ $("detail").classList.remove("show"); document.querySelectorAll(".gnode").forEach(n=>n.classList.remove("sel")); }
+function showDecision(id) {
+  const d = DATA.decisions[id]; if (!d) return;
+  $("dm-id").textContent = id; $("dm-title").textContent = d.title; $("dm-summary").textContent = d.summary;
+  $("dmodal").classList.add("show");
+}
+
+/* ═══ 화면 미리보기 ═══ */
+function renderPreview() {
+  const pf = activeProfile();
+  const S = pf.vocab?.subject||"대상자", G = pf.vocab?.guardianRel;
+  const varFields = pf.variable?.subject||[];
+  const gEx = pf.exists?.guardianRel !== false, uEx = pf.exists?.orgUnit === true;
+  const field = (l,h) => `<div style="margin-bottom:9px"><div style="font-size:10.5px;color:var(--sub);margin-bottom:2px">${l}${h?` <span style='color:#b9c4d6'>${h}</span>`:""}</div><div style="border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;font-size:12px;color:#b9c4d6;background:#fff">입력</div></div>`;
+  const sec = t => `<div style="font-size:12.5px;font-weight:700;margin:16px 0 9px;padding-top:12px;border-top:1px dashed var(--line)">${t}</div>`;
+  let reg = `<div style="font-size:14px;font-weight:700;margin-bottom:14px">${S} 등록</div>`;
+  reg += `<div style="font-size:10.5px;color:var(--sub);margin-bottom:8px">코어 — 프로필 무관 동일 <span class="dchip" onclick="showDecision('A2')">A2</span></div>`;
+  reg += field("이름")+field("생년월일")+field("성별")+field("전화");
+  if (varFields.length) { reg += sec(`기관 가변 <span class="dchip" onclick="showDecision('A3')">A3</span>`); varFields.forEach(v=>reg+=field(v)); }
+  if (gEx && G) { reg += sec(`${G} 정보 (선택)`); reg += field(G+" 이름")+field("관계"); }
+  if (pf.sections?.sibling) { reg += sec("형제 함께 등록"); reg += `<div style="font-size:11px;color:var(--sub)">+ 형제 추가</div>`; }
+  reg += `<div style="margin-top:14px"><span style="background:var(--accent);color:#fff;border-radius:9px;padding:7px 22px;font-size:12.5px;font-weight:700">등록</span></div>`;
+  const tabs = ["전체"].concat(gEx&&G?[G]:[]);
+  let list = `<div style="font-size:14px;font-weight:700;margin-bottom:12px">${S} 관리</div>`;
+  list += `<div style="display:flex;gap:6px;margin-bottom:12px">`+tabs.map((t,i)=>`<span style="border:1.5px solid ${i===0?'var(--accent)':'var(--line)'};color:${i===0?'var(--accent)':'var(--sub)'};border-radius:16px;padding:3px 14px;font-size:11.5px;font-weight:600">${t}</span>`).join("")+`</div>`;
+  if (!gEx) list += `<div style="font-size:10.5px;color:var(--danger);margin:-6px 0 10px">← 보호자 탭이 번역이 아니라 <b>소멸</b> <span class="dchip" onclick="showDecision('A3')">A3</span></div>`;
+  list += `<table style="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)"><tr>${["이름",varFields[0]||"—",gEx&&G?G:null,uEx?pf.vocab.orgUnit:null,"상태"].filter(Boolean).map(hh=>`<th style="text-align:left;font-size:10.5px;color:var(--sub);padding:7px 12px;background:#f0f3f8">${hh}</th>`).join("")}</tr>`;
+  [["김OO","활성"],["이OO","활성"],["박OO","종결"]].forEach(r=>{
+    list += `<tr>${["<b>"+r[0]+"</b>","…",gEx&&G?"최OO ☎":null,uEx?"…":null,r[1]].filter(x=>x!==null).map(c=>`<td style="font-size:11.5px;padding:7px 12px;border-top:1px solid #f0f3f8">${c}</td>`).join("")}</tr>`; });
+  list += `</table>`;
+  if (gEx&&G) list += `<div style="font-size:10.5px;color:var(--sub);margin-top:8px">${G}는 행의 부속 정보 — 사람 행은 ${S}만 <span class="dchip" onclick="showDecision('D4')">D4</span></div>`;
+  $("mp-preview").innerHTML = `<div style="max-width:920px;margin:0 auto;padding:22px">
+    <div style="background:var(--warn-soft);border-radius:10px;padding:9px 14px;font-size:11.5px;margin-bottom:18px">⚠ <b>시뮬레이션</b> — 실제 화면이 프로필을 소비하게 만드는 것이 UI/UX 통일성 개선. 완료 기준 = 이 미리보기와 실제 화면이 같아지는 것. (현재 위반 ${DATA.audit.summary.total}건 — 감사 탭)</div>
+    <div style="display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:start">
+      <div style="background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:18px 20px">${reg}</div><div>${list}</div>
+    </div></div>`;
+}
+
+/* ═══ 어휘 매트릭스 ═══ */
+function renderMatrix() {
+  const keys = Object.keys(DATA.catalog.concepts);
+  let h = `<div style="max-width:880px;margin:0 auto;padding:22px"><table style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);font-size:12.5px">`;
+  h += `<tr><th style="text-align:left;padding:8px 12px;background:#f0f3f8;font-size:11px;color:var(--sub)">중립 개념</th>`;
+  for (const p of Object.values(DATA.profiles)) h += `<th style="text-align:left;padding:8px 12px;background:#f0f3f8;font-size:11px;color:var(--sub)">${p.name} <span class="loop-tag">${p.loop}</span></th>`;
+  h += `</tr>`;
+  for (const k of keys) {
+    const c = DATA.catalog.concepts[k];
+    h += `<tr><td style="padding:7px 12px;border-top:1px solid #f0f3f8;font-weight:700;color:${c.color}">${c.label}</td>`;
+    for (const p of Object.values(DATA.profiles)) {
+      const v = p.vocab?.[k];
+      h += `<td style="padding:7px 12px;border-top:1px solid #f0f3f8">${v===null?'<span style="color:var(--danger)">— 없음(제거)</span>':(v||c.label)}</td>`;
+    }
+    h += `</tr>`;
+  }
+  h += `</table><div style="font-size:11px;color:var(--sub);margin-top:10px">가로줄이 전부 같은 개념 — 세로줄(프로필)만 갈아끼우면 제품이 그 기관의 말을 한다. 빈 칸(제거)은 존재 변환 A3.</div></div>`;
+  $("mp-matrix").innerHTML = h;
+}
+
+/* ═══ 프로필 드래프트 에디터 ═══ */
+function openDraftEditor() {
+  if (!ST.draft) ST.draft = { name:"", loop:"", vocab:{}, exists:{ guardianRel:true, orgUnit:false }, variable:{ subject:[] }, hierarchy:null, identifier:{ type:"", temporal:"stable" }, sections:{ sibling:false } };
+  const d = ST.draft, keys = Object.keys(DATA.catalog.concepts);
+  $("d-title").textContent = "새 프로필 드래프트";
+  $("d-sub").textContent = "신규 기관 검토 회의의 산출물 제조기 — 채우면서 갭을 판정한다";
+  let h = `<h4>기관 이름</h4><input id="ed-name" value="${d.name}" placeholder="예: 요양원">`;
+  h += `<h4>코어 루프 (A6 — 가장 중요한 판정)</h4>
+    <select id="ed-loop"><option value="">— 선택 —</option><option ${d.loop==="상담용"?"selected":""}>상담용</option><option ${d.loop==="검사용"?"selected":""}>검사용</option><option ${d.loop==="제3의 루프"?"selected":""}>제3의 루프</option></select>
+    <div class="note">"명단 올리고 → 뿌리고 → 집계"면 검사용, "한 명과 깊게"면 상담용. <b>둘 다 아니면 화면 신규 개발</b> — 프로필로 안 됨.</div>`;
+  h += `<h4>개념별 어휘 · 존재</h4>`;
+  for (const k of keys) {
+    const c = DATA.catalog.concepts[k];
+    h += `<div class="ed-row"><input type="checkbox" id="ed-ex-${k}" ${d.exists[k]!==false?"checked":""}><label style="color:${c.color};font-weight:600">${c.label}</label><input type="text" id="ed-v-${k}" value="${d.vocab[k]||""}" placeholder="이 기관의 말"></div>`;
+  }
+  h += `<h4>대상자 가변 속성 (콤마 구분)</h4><input id="ed-var" value="${(d.variable.subject||[]).join(", ")}" placeholder="예: 입소일, 요양 등급, 담당 요양보호사">`;
+  h += `<h4>조직 위계 (없으면 비움)</h4><input id="ed-hier" value="${d.hierarchy||""}" placeholder="예: 층 > 생활실">`;
+  h += `<h4>대상자 식별자</h4><input id="ed-id" value="${d.identifier.type||""}" placeholder="예: 입소번호 (평생)">`;
+  h += `<button class="btn-primary" onclick="applyDraft()">그래프·미리보기에 적용</button>`;
+  h += `<button class="btn-ghost" onclick="judgeDraft()">갭 판정</button>`;
+  h += `<button class="btn-ghost" onclick="exportDraft()">프로필 JSON 내보내기</button>`;
+  h += `<div id="ed-judge"></div>`;
+  $("d-body").innerHTML = h;
+  $("detail").classList.add("show");
+}
+function collectDraft() {
+  const d = ST.draft, keys = Object.keys(DATA.catalog.concepts);
+  d.name = $("ed-name").value.trim() || "드래프트";
+  d.loop = $("ed-loop").value;
+  for (const k of keys) {
+    const on = $("ed-ex-"+k).checked, v = $("ed-v-"+k).value.trim();
+    d.exists[k] = on;
+    d.vocab[k] = on ? (v || null) : null;
+    if (!on) d.vocab[k] = null;
+  }
+  d.variable.subject = $("ed-var").value.split(",").map(s=>s.trim()).filter(Boolean);
+  d.hierarchy = $("ed-hier").value.trim() || null;
+  d.identifier.type = $("ed-id").value.trim();
+  return d;
+}
+function applyDraft() { collectDraft(); renderProfileButtons(); setProfile("__draft__"); toast(`'${ST.draft.name}' 드래프트를 그래프에 적용 — 미리보기 탭에서 화면도 확인하세요`); }
+function judgeDraft() {
+  const d = collectDraft(); const issues = [];
+  if (!d.loop) issues.push({lv:"danger", msg:"코어 루프 미판정 — A6: 이게 안 정해지면 화면 개발 범위를 알 수 없음"});
+  if (d.loop==="제3의 루프") issues.push({lv:"danger", msg:"제3의 루프 = 프로필로 커버 불가. 신규 화면군 개발 필요 — 모델 확장 회의로"});
+  for (const [k,c] of Object.entries(DATA.catalog.concepts)) {
+    if (d.exists[k]!==false && !d.vocab[k] && k!=="orgUnit") issues.push({lv:"warn", msg:`'${c.label}' 어휘 미기입 — 이 기관에서 뭐라 부르나? (모르면 존재 여부부터 의심)`});
+  }
+  if (d.exists.orgUnit && !d.hierarchy) issues.push({lv:"warn", msg:"조직 단위가 존재하는데 위계 미기입 (D7)"});
+  if (!d.identifier.type) issues.push({lv:"warn", msg:"식별자 미기입 — 이 기관은 '그 사람이 그 사람'을 뭘로 확인하나? (D1)"});
+  if (d.exists.orgUnit) issues.push({lv:"info", msg:"orgUnit은 현재 바인딩 missing — 이 프로필을 실제로 켜려면 조직 단위 구현 선행 (bindings 참고)"});
+  const ok = issues.filter(i=>i.lv==="danger").length===0;
+  $("ed-judge").innerHTML = `<h4>판정 결과</h4>` +
+    (issues.length ? issues.map(i=>`<div class="${i.lv==='danger'?'gap-item':'note'}" style="${i.lv==='danger'?'background:var(--danger-soft)':''}">${i.lv==='danger'?'⛔':i.lv==='warn'?'⚠':'ℹ'} ${i.msg}</div>`).join("") : "") +
+    (ok ? `<div class="note" style="background:var(--ok-soft);color:var(--ok)">✓ 치명 갭 없음 — 이 기관은 프로필 추가만으로 적용 가능 범주. JSON 내보내기가 회의 산출물.</div>` : "");
+}
+function exportDraft() {
+  const d = collectDraft();
+  const blob = new Blob([JSON.stringify(d,null,2)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = (d.name||"draft") + ".profile.json"; a.click();
+  toast("내보냈습니다 — data/profiles/에 넣으면 다음 로드부터 정식 프로필로 등장 (코드 수정 없음)");
+}
+
+/* ═══ 감사 뷰 ═══ */
+let auditFilter = null;
+function renderAudit() {
+  const s = DATA.audit.summary;
+  const types = [["total","전체","#1a2333"],["vocab_hardcode","어휘 하드코딩 (A3)","#b45309"],["role_branch","role 직접 분기 (D3)","#6d3fc0"],["noun_exposure","내부 명사 노출 (A4)","#b91c1c"],["guardian_as_row","보호자 동급 행 (D4)","#b0387a"]];
+  $("a-cards").innerHTML = types.map(([k,label,color])=>
+    `<div class="a-card ${auditFilter===(k==='total'?null:k)?'on':''}" onclick="auditFilter=${k==='total'?'null':`'${k}'`};renderAudit()"><b style="color:${color}">${s[k]||0}</b><small>${label}</small></div>`).join("");
+  const rows = DATA.audit.violations.filter(v=>!auditFilter||v.type===auditFilter);
+  $("a-rows").innerHTML = rows.map(v=>{
+    const c = DATA.catalog.concepts[v.concept];
+    return `<tr><td><span class="t-tag t-${v.type}">${v.type}</span></td>
+      <td style="color:${c?.color||'inherit'};font-weight:600">${c?.label||v.concept}</td>
+      <td class="mono">${v.file}:${v.line}</td><td class="mono" style="color:var(--sub)">${(v.code||"").replace(/</g,"&lt;").slice(0,60)}</td><td style="font-size:11px;color:var(--sub)">${v.note||""}</td></tr>`;
+  }).join("");
+  $("audit-count").textContent = s.total;
+}
+
+/* ═══ API 콘솔 ═══ */
+const SAMPLES = [
+  { grp:"시작", m:"GET", url:"/api/v1/auth/me", label:"내 계정 확인",
+    graph:d=>[[gnode("me", d.person?.name||d.email||"나","person",d)],[]] },
+  { grp:"대상자 (subject → clients)", m:"GET", url:"/api/v1/centers/{center_id}/clients/with-relations?size=20", label:"관계 요약 목록",
+    graph:d=>{ const it=d.items||[]; const ns=[gnode("org",ST.centerName||"테넌트","org",{})]; const es=[];
+      it.forEach((c,i)=>{ const rel=[c.guardian_count?`보호자 ${c.guardian_count}`:null,c.child_count?`자녀 ${c.child_count}`:null,c.sibling_count?`형제 ${c.sibling_count}`:null].filter(Boolean).join(" · ");
+        ns.push(gnode("c"+i,c.name||"?",c.role==="guardian"?"guardian":"subject",c,(c.code||"")+(rel?" · "+rel:""))); es.push(gedge("c"+i,"org","소속")); });
+      return [ns,es]; } },
+  { grp:"대상자 (subject → clients)", m:"GET", url:"/api/v1/centers/{center_id}/clients/{client_id}/relations", label:"보호 관계 (이웃 그래프)",
+    graph: async d=>{ const rels=(Array.isArray(d)?d:(d.items||[])).slice(0,8);
+      const ns=[gnode("c0",ST.clientName||"대상자","subject",{id:ST.clientId})]; const es=[];
+      await Promise.all(rels.map(async (r,i)=>{ let nm=null;
+        try{ const rr=await fetch(API+`/api/v1/centers/${ST.centerId}/clients/${r.related_client_id}`,{headers:{Authorization:"Bearer "+ST.token}});
+             if(rr.ok){const cd=await rr.json(); nm=cd.name; r._resolved=cd;} }catch(e){}
+        ns.push(gnode("r"+i,nm||"(담당 아님 — 접근 제한)","guardian",r._resolved||r,(r.relation_detail||r.relation_type||"")+(r.is_primary?" · 주 보호자":"")));
+        es.push(gedge("c0","r"+i,r.relation_detail||r.relation_type||"관계")); }));
+      return [ns,es]; } },
+  { grp:"모델 검증 (반례 조회)", m:"GET", url:"/api/v1/centers/{center_id}/clients/?role=both&size=20", label:"role=both — D3 논쟁의 실데이터",
+    graph:d=>{ const it=d.items||[]; const ns=[]; const es=[];
+      it.forEach((c,i)=>ns.push(gnode("b"+i,c.name||"?","guardian",c,"both — 대상자이면서 보호자")));
+      if(!it.length) ns.push(gnode("none","both 0건","person",{}));
+      return [ns,es]; } },
+  { grp:"모델 검증 (반례 조회)", m:"GET", url:"/api/v1/centers/{center_id}/clients/?role=guardian&size=20", label:"보호자 행 — D4의 대상",
+    graph:d=>{ const it=d.items||[]; const ns=[]; const es=[];
+      it.forEach((c,i)=>ns.push(gnode("g"+i,c.name||"?","guardian",c,c.code||""))); return [ns,es]; } },
+  { grp:"직원 (staff → members)", m:"GET", url:"/api/v1/centers/{center_id}/members/", label:"직원 목록",
+    graph:d=>{ const it=d.items||d.rows||d||[]; const ns=[gnode("org",ST.centerName||"테넌트","org",{})]; const es=[];
+      (Array.isArray(it)?it:[]).forEach((m,i)=>{ ns.push(gnode("m"+i,m.name||m.person_name||"?","staff",m,m.role_name||m.role_code||"")); es.push(gedge("m"+i,"org","소속")); });
+      return [ns,es]; } },
+  { grp:"기관 (extInst → institutions)", m:"GET", url:"/api/v1/institutions/", label:"외부 기관 목록 (partial — 고립 노드)",
+    graph:d=>{ const it=d.items||d||[]; const ns=[]; (Array.isArray(it)?it:[]).forEach((x,i)=>ns.push(gnode("i"+i,x.name||"?","ext",x))); return [ns,[]]; } },
+  { grp:"기관 (org → centers)", m:"GET", url:"/api/v1/centers/{center_id}", label:"테넌트 조회",
+    graph:d=>[[gnode("o0",d.name||"?","org",d)],[]] },
+];
+const NCOLOR = { person:"#64748b", subject:"#2456c4", guardian:"#b0387a", staff:"#1f6f5c", org:"#0e7490", ext:"#a16207" };
+const gnode=(id,title,kind,data,sub)=>({id,title,kind,data,sub});
+const gedge=(a,b,label)=>({a,b,label});
+let currentSample=null;
+function renderSamples() {
+  let last=null, h="";
+  SAMPLES.forEach((s,i)=>{
+    if(s.grp!==last){h+=`<div class="grp-label">${s.grp}</div>`;last=s.grp;}
+    h+=`<div class="sample" onclick="pickSample(${i})"><span class="m ${s.m}">${s.m}</span><span>${s.label}<small class="mono">${s.url}</small></span></div>`;
+  });
+  $("samples-col").innerHTML=h;
+}
+function substitute(u){ return u.replace("{center_id}",ST.centerId||"{center_id}").replace("{client_id}",ST.clientId||"{client_id}").replace("{person_id}",ST.personId||"{person_id}"); }
+function pickSample(i){ currentSample=SAMPLES[i];
+  document.querySelectorAll(".sample").forEach((s,si)=>s.classList.toggle("on",si===i));
+  $("r-method").value=currentSample.m; $("r-url").value=substitute(currentSample.url); }
+async function login() {
+  try {
+    const res=await fetch(API+"/api/v1/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:$("a-email").value,password:$("a-pw").value})});
+    const d=await res.json();
+    if(!res.ok){toast("로그인 실패: "+(d.detail?.message||d.detail||res.status));return;}
+    ST.token=d.access_token||d.token;
+    const cs=d.centers||[];
+    $("a-center").innerHTML=cs.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+    ST.centerId=cs[0]?.id||null; ST.centerName=cs[0]?.name||null;
+    $("auth-form").style.display="none"; $("auth-ok").style.display="inline-flex";
+    $("auth-who").textContent=d.person?.name||$("a-email").value;
+    toast("로그인 완료 — API 콘솔에서 샘플 실행 가능");
+  } catch(e){ toast("API 연결 실패 — localhost:3502 실행 + 이 페이지를 :3503으로 열었는지 확인"); }
+}
+async function runQuery() {
+  if(!ST.token){toast("먼저 우측 상단에서 로그인하세요");return;}
+  const url=$("r-url").value;
+  if(url.includes("{")){toast("URL의 { } 미해결 — 목록 샘플 실행 후 노드를 클릭하면 id가 채워집니다");return;}
+  $("r-run").disabled=true; const t0=performance.now();
+  try {
+    const res=await fetch(API+url,{headers:{Authorization:"Bearer "+ST.token}});
+    const ms=Math.round(performance.now()-t0);
+    const data=await res.json().catch(()=>({}));
+    $("c-status").innerHTML=`<span class="${res.ok?'code-ok':'code-bad'}">${res.status}</span> · ${ms}ms`;
+    $("c-json").textContent=JSON.stringify(data,null,2);
+    if(res.ok&&currentSample?.graph) renderConsoleGraph(await currentSample.graph(data));
+    else if(!res.ok) setConsoleTab("json");
+  } catch(e){ toast("요청 실패: "+e.message); }
+  $("r-run").disabled=false;
+}
+function renderConsoleGraph([nodes,edges]) {
+  const world=$("cgworld"), svg=$("cgsvg");
+  world.querySelectorAll(".gnode").forEach(n=>n.remove()); svg.innerHTML="";
+  const pos={};
+  const hub=nodes.find(n=>n.id==="org"||n.id==="c0")||nodes[0];
+  const others=nodes.filter(n=>n!==hub);
+  if(hub) pos[hub.id]={x:1200,y:700};
+  const R=Math.max(200,70+others.length*24);
+  others.forEach((n,i)=>{const a=(i/Math.max(others.length,1))*Math.PI*2-Math.PI/2;
+    pos[n.id]={x:1200+Math.cos(a)*R,y:700+Math.sin(a)*R*.7};});
+  edges.forEach(e=>{if(pos[e.a]&&pos[e.b])drawEdge(svg,[pos[e.a].x,pos[e.a].y],[pos[e.b].x,pos[e.b].y],e.label,false);});
+  nodes.forEach(n=>{
+    const el=document.createElement("div");
+    el.className="gnode"; el.dataset.id=n.id;
+    el.style.left=pos[n.id].x+"px"; el.style.top=pos[n.id].y+"px";
+    el.style.borderColor=NCOLOR[n.kind]||"#dfe4ec";
+    el.innerHTML=`<b style="color:${NCOLOR[n.kind]||'inherit'}">${n.title}</b>`+(n.sub?`<small>${n.sub}</small>`:"");
+    el.onclick=ev=>{ev.stopPropagation();showInstanceDetail(n);};
+    world.appendChild(el);
+  });
+  setConsoleTab("graph");
+}
+function showInstanceDetail(n) {
+  $("d-title").textContent=n.title; $("d-sub").textContent="인스턴스 · "+(n.kind||"");
+  let rows=Object.entries(n.data||{}).filter(([k,v])=>typeof v!=="object"||v===null).slice(0,18)
+    .map(([k,v])=>`<tr><td style="color:var(--sub);width:96px;font-size:11px;padding:3px 4px;border-bottom:1px solid #f0f3f8">${k}</td><td class="mono" style="font-size:10.5px;padding:3px 4px;border-bottom:1px solid #f0f3f8">${v===null?"—":String(v).slice(0,60)}</td></tr>`).join("");
+  let h=`<table style="width:100%;border-collapse:collapse">${rows}</table>`;
+  if(n.data?.id&&(n.kind==="subject"||n.kind==="guardian")){ ST.clientId=n.data.id; ST.clientName=n.data.name||n.title;
+    h+=`<div class="note">✓ client_id 지정 — "보호 관계" 샘플에 자동 대입</div>`; }
+  if(n.data?.person_id){ ST.personId=n.data.person_id; h+=`<div class="note">✓ person_id 지정</div>`; }
+  $("d-body").innerHTML=h; $("detail").classList.add("show");
+}
+
+/* ═══ 팬·줌 (모델·콘솔 공용) ═══ */
+function bindPanZoom(paneId, worldId, get, set) {
+  const pane=$(paneId), world=$(worldId);
+  const apply=()=>{const s=get();world.style.transform=`translate(${s.tx}px,${s.ty}px) scale(${s.scale})`;};
+  apply();
+  let drag=null;
+  pane.addEventListener("mousedown",e=>{if(e.target.closest(".gnode"))return;
+    const s=get(); drag={sx:e.clientX,sy:e.clientY,otx:s.tx,oty:s.ty}; pane.style.cursor="grabbing";});
+  document.addEventListener("mousemove",e=>{if(!drag)return;
+    set({tx:drag.otx+e.clientX-drag.sx,ty:drag.oty+e.clientY-drag.sy}); apply();});
+  document.addEventListener("mouseup",()=>{drag=null;pane.style.cursor="grab";});
+  pane.addEventListener("wheel",e=>{e.preventDefault();
+    const s=get(); const f=e.deltaY<0?1.1:0.9, ns=Math.min(2.5,Math.max(.3,s.scale*f));
+    const r=pane.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    set({tx:mx-(mx-s.tx)*(ns/s.scale),ty:my-(my-s.ty)*(ns/s.scale),scale:ns}); apply();},{passive:false});
+}
+
+/* ═══ 초기화 ═══ */
+(async function init(){
+  await loadData();
+  renderProfileButtons();
+  renderSchema();
+  renderAudit();
+  renderSamples();
+  bindPanZoom("mp-graph","gworld",
+    ()=>({scale:ST.scale,tx:ST.tx,ty:ST.ty}),
+    v=>Object.assign(ST,{scale:v.scale??ST.scale,tx:v.tx??ST.tx,ty:v.ty??ST.ty}));
+  bindPanZoom("cp-graph","cgworld",
+    ()=>({scale:ST.cscale,tx:ST.ctx,ty:ST.cty}),
+    v=>Object.assign(ST,{cscale:v.scale??ST.cscale,ctx:v.tx??ST.ctx,cty:v.ty??ST.cty}));
+  ST.cscale=.85; ST.ctx=-500; ST.cty=-250;
+  $("cgworld").style.transform=`translate(${ST.ctx}px,${ST.cty}px) scale(${ST.cscale})`;
+})();
+</script>
+</body>
+</html>

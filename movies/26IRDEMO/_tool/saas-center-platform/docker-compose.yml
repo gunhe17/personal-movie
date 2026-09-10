@@ -1,0 +1,146 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: saas-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: imomtae
+      POSTGRES_PASSWORD: imomtae_dev
+      POSTGRES_DB: imomtae
+    ports:
+      - "3501:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imomtae"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: saas-redis
+    restart: unless-stopped
+    ports:
+      - "3505:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: saas-api
+    restart: unless-stopped
+    ports:
+      - "3502:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imomtae:imomtae_dev@postgres:5432/imomtae
+      REDIS_URL: redis://redis:6379/0
+      REDIS_ENABLED: "true"
+      AI_WORKER_MODE: embedded
+      DEBUG: "true"
+      APP_ENV: development
+    volumes:
+      - ./apps/api:/app
+      - ./docs:/docs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: saas-worker
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imomtae:imomtae_dev@postgres:5432/imomtae
+      REDIS_URL: redis://redis:6379/0
+      REDIS_ENABLED: "true"
+      AI_WORKER_MODE: distributed
+      DEBUG: "true"
+      APP_ENV: development
+    volumes:
+      - ./apps/api:/app
+      - ./docs:/docs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uv run python -m app.worker
+
+  batch-worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: saas-batch-worker
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imomtae:imomtae_dev@postgres:5432/imomtae
+      REDIS_URL: redis://redis:6379/0
+      REDIS_ENABLED: "true"
+      AI_WORKER_MODE: distributed
+      DEBUG: "true"
+      APP_ENV: development
+    volumes:
+      - ./apps/api:/app
+      - ./docs:/docs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # batch stream(ai:jobs:batch) 소비 — 여유 작업 범용 워커, realtime 워커와 격리
+    command: uv run python -m app.worker.batch
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: saas-web
+    restart: unless-stopped
+    ports:
+      - "3503:5173"
+    environment:
+      VITE_API_URL: http://localhost:3502
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    command: pnpm dev --host 0.0.0.0 --port 5173
+
+  admin:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile
+    container_name: saas-admin
+    restart: unless-stopped
+    ports:
+      - "3504:5173"
+    environment:
+      VITE_API_URL: http://localhost:3502
+    volumes:
+      - ./apps/admin:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    command: pnpm dev --host 0.0.0.0 --port 5173
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

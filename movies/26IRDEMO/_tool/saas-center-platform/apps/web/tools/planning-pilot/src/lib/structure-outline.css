@@ -1,0 +1,417 @@
+.editor-shell .outline-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+  background: var(--editor-canvas);
+}
+.editor-shell .outline-tools {
+  border-bottom: 1px solid var(--editor-subtle);
+}
+.structure-outline,
+.outline-search {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 32px 40px;
+  color: var(--editor-body);
+}
+.outline-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 32px;
+  font-size: 12px;
+  color: var(--editor-muted);
+  margin-bottom: 16px;
+}
+.outline-breadcrumb button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--editor-brand);
+  font-size: 12px;
+}
+.outline-intro {
+  margin-bottom: 24px;
+}
+.outline-kicker {
+  color: var(--editor-muted);
+  font-size: 12px;
+}
+.structure-outline h2 {
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.outline-intro p,
+.outline-focus-header p,
+.outline-search > p {
+  margin: 0;
+  color: var(--editor-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.outline-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.editor-shell .outline-feature {
+  padding: 20px;
+  text-align: left;
+  border: 1px solid var(--editor-subtle);
+  border-radius: 16px;
+  background: var(--editor-surface);
+}
+.editor-shell .outline-feature:hover {
+  border-color: var(--editor-brand);
+}
+.outline-number {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--editor-brand);
+  background: var(--editor-tint);
+  font-size: 12px;
+}
+.outline-feature h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+.outline-feature p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--editor-muted);
+  margin: 0 0 24px;
+  min-height: 48px;
+}
+.outline-feature > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--editor-muted);
+}
+.outline-text-button {
+  margin-top: 24px;
+  color: var(--editor-brand);
+}
+.outline-focus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.outline-focus-header > div {
+  min-width: 0;
+}
+.outline-focus-header > button {
+  flex-shrink: 0;
+  color: var(--editor-brand);
+}
+.outline-section-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+.outline-section-title span {
+  color: var(--editor-muted);
+  font-size: 13px;
+  margin-left: 8px;
+}
+.outline-paths {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.outline-paths button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  text-align: left;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-subtle);
+  border-radius: 16px;
+}
+.outline-paths button:hover {
+  border-color: var(--editor-brand);
+}
+.outline-paths button > div {
+  flex: 1;
+}
+.outline-paths strong {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.outline-paths small,
+.outline-row small {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--editor-muted);
+}
+.outline-paths button > span:last-child {
+  font-size: 12px;
+  color: var(--editor-muted);
+  flex-shrink: 0;
+}
+.outline-path-icon {
+  color: var(--editor-brand);
+  font-size: 20px;
+}
+.outline-fold {
+  margin-top: 16px;
+  border: 1px solid var(--editor-line);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--editor-surface);
+}
+.outline-fold > summary {
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.outline-fold > summary > span {
+  font-weight: 400;
+  color: var(--editor-muted);
+  margin-left: 8px;
+}
+.outline-fold > p {
+  font-size: 14px;
+  color: var(--editor-muted);
+  line-height: 1.7;
+}
+.outline-row,
+.outline-case {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  margin-top: 8px;
+  padding: 16px;
+  font-size: 14px !important;
+  line-height: 1.6;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-subtle);
+}
+.outline-row > span,
+.outline-case > span {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.outline-row strong {
+  font-weight: 500;
+}
+.outline-scenario-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.outline-scenario-heading h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.outline-kind {
+  font-size: 12px;
+  color: var(--editor-success);
+}
+.outline-scenario-heading > button {
+  flex-shrink: 0;
+  color: var(--editor-brand);
+}
+.outline-flow-card {
+  padding: 20px;
+  border: 1px solid var(--editor-line);
+  border-radius: 12px;
+  background: var(--editor-surface);
+}
+.outline-flow-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.outline-flow-label h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.outline-flow-label > span {
+  font-size: 12px;
+  color: var(--editor-muted);
+}
+.outline-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.outline-steps li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--editor-canvas);
+}
+.outline-steps li > span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--editor-tint);
+  color: var(--editor-brand);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.outline-steps strong {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.editor-shell button.inspecting {
+  background: var(--editor-tint);
+  border-color: var(--editor-brand);
+  box-shadow: none;
+}
+.outline-case > .outline-case-title {
+  flex-shrink: 1;
+  font-size: 14px;
+}
+.outline-case-title small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--editor-muted);
+}
+.inspecting .outline-case-title small {
+  color: var(--editor-brand);
+}
+.outline-hint {
+  margin: 8px 0 12px;
+}
+.outline-outcome {
+  border-top: 1px solid var(--editor-subtle);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.outline-outcome > span {
+  font-size: 12px;
+  color: var(--editor-muted);
+}
+.outline-outcome p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 8px 0 0;
+}
+.outline-exception-body {
+  padding: 16px;
+  border: 1px solid var(--editor-line);
+  border-top: 0;
+  background: var(--editor-surface);
+  border-radius: 0 0 8px 8px;
+}
+.outline-exception-body p,
+.outline-exception-body li {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+.outline-exception-body h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 24px 0 12px;
+}
+.outline-exception-body strong {
+  font-weight: 500;
+}
+.outline-footnote {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--editor-muted);
+  line-height: 1.7;
+}
+.outline-empty {
+  margin: 24px 0;
+  font-size: 14px;
+  color: var(--editor-muted);
+}
+.outline-unlinked summary {
+  color: var(--editor-muted);
+}
+.outline-search h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.outline-search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  text-align: left;
+}
+.outline-search-item > span:first-child {
+  font-size: 12px;
+  color: var(--editor-muted);
+  min-width: 64px;
+}
+.outline-search-item strong {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+@media (max-width: 1100px) {
+  .structure-outline,
+  .outline-search {
+    padding: 20px;
+  }
+  .outline-focus-header,
+  .outline-scenario-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+@media (max-width: 600px) {
+  .structure-outline,
+  .outline-search {
+    padding: 16px;
+  }
+  .outline-features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .outline-search-item {
+    flex-wrap: wrap;
+  }
+  .outline-search-item > strong {
+    flex-basis: 100%;
+  }
+  .outline-row,
+  .outline-case {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}

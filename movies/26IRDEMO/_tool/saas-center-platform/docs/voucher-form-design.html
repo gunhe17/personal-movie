@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Form 모듈 — 정부 서식 확장 구조 (제안)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'sans-serif'] } } },
+    safelist: [
+      'bg-blue-50','ring-blue-200','text-blue-600',
+      'bg-orange-50','ring-orange-200','text-orange-600',
+      'bg-emerald-50','ring-emerald-200','text-emerald-600',
+      'bg-violet-50','ring-violet-200','text-violet-600',
+      'bg-slate-100','ring-slate-200','text-slate-600','text-slate-500','text-slate-400',
+      'bg-amber-100','text-amber-700','bg-sky-100','text-sky-700','bg-violet-100','text-violet-700',
+      'bg-emerald-100','text-emerald-700','bg-blue-100','text-blue-700','bg-rose-100','text-rose-700',
+      'bg-orange-100','text-orange-700','bg-yellow-50','ring-yellow-200','text-yellow-600',
+    ],
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  .canvas { background-image: radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0); background-size: 22px 22px; }
+  .code { tab-size: 2; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+      <div class="flex items-center gap-2 font-semibold text-slate-900">
+        <span id="brand"></span> Form 모듈 <span class="font-normal text-slate-300">/ 정부 서식 확장 구조 (제안)</span>
+      </div>
+      <nav id="nav" class="hidden items-center gap-1 text-sm md:flex"></nav>
+    </div>
+  </header>
+
+  <main id="app" class="mx-auto max-w-5xl space-y-14 px-6 py-12"></main>
+
+<script>
+/* ===== icons ===== */
+const ICONS = {
+  'document-text':'<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+  'rectangle-stack':'<path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />',
+  'document-check':'<path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm0 0h.375a9 9 0 0 1 9 9v.375M10.5 2.25v1.5a6 6 0 0 0 6 6h1.5M8.25 15l1.5 1.5 3-3.75" />',
+  'queue-list':'<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />',
+  'pencil-square':'<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />',
+  'squares':'<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25Zm9.75-9.75A2.25 2.25 0 0 1 15.75 3.75H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />',
+  'link':'<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />',
+  'map-pin':'<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />',
+  'sparkles':'<path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />',
+  'check-circle':'<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />',
+  'ticket':'<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />',
+};
+function icon(name, cls='w-5 h-5'){ return `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">${ICONS[name]||''}</svg>`; }
+
+const BLUE={bg:'bg-blue-50',ring:'ring-blue-200',text:'text-blue-600'};
+const ORANGE={bg:'bg-orange-50',ring:'ring-orange-200',text:'text-orange-600'};
+const EMERALD={bg:'bg-emerald-50',ring:'ring-emerald-200',text:'text-emerald-600'};
+const VIOLET={bg:'bg-violet-50',ring:'ring-violet-200',text:'text-violet-600'};
+const SLATE={bg:'bg-slate-100',ring:'ring-slate-200',text:'text-slate-600'};
+
+/* ===== table rendering ===== */
+function col(name,type,o={}){ return {name,type,...o}; }
+function badge(t,c){ return `<span class="rounded ${c} px-1 py-px text-[9.5px] font-bold leading-none">${t}</span>`; }
+function tableBadge(l){
+  const m={'유지':'bg-slate-100 text-slate-500','변경':'bg-orange-100 text-orange-700','재정의':'bg-blue-100 text-blue-700','신규':'bg-emerald-100 text-emerald-700'};
+  return `<span class="rounded-md ${m[l]||'bg-slate-100 text-slate-500'} px-1.5 py-0.5 text-[10px] font-semibold">${l}</span>`;
+}
+function fieldRow(f){
+  if(f.ellipsis) return `<div class="px-4 py-1.5 text-[11px] text-slate-400">${f.name}</div>`;
+  let b='';
+  if(f.pk) b+=badge('PK','bg-amber-100 text-amber-700');
+  if(f.fk) b+=badge('FK→'+f.fk,'bg-sky-100 text-sky-700');
+  if(f.uq) b+=badge('UQ','bg-violet-100 text-violet-700');
+  if(f.idx) b+=badge('IDX','bg-emerald-100 text-emerald-700');
+  if(f.chg) b+=badge('변경','bg-orange-100 text-orange-700');
+  if(f.add) b+=badge('NEW','bg-emerald-100 text-emerald-700');
+  if(f.nullable) b+=badge('NULL','bg-slate-100 text-slate-400');
+  const muted=f.base?'text-slate-400':(f.hot?'text-orange-700 font-semibold':'text-slate-700');
+  return `<div class="flex items-center gap-1.5 px-4 py-1.5 ${f.hot?'bg-orange-50/40':''}">
+    <span class="font-mono text-[12.5px] ${muted}">${f.name}</span>${b}
+    ${f.note?`<span class="truncate text-[11px] text-slate-400">${f.note}</span>`:''}
+    <span class="ml-auto shrink-0 font-mono text-[11px] text-slate-400">${f.type}</span></div>`;
+}
+function tableCard(t){
+  const a=t.accent;
+  return `<div class="overflow-hidden rounded-xl border border-slate-200 bg-white ${t.deferred?'opacity-60':''}">
+    <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50/60 px-3 py-2">
+      <span class="flex h-7 w-7 items-center justify-center rounded-lg ${a.bg} ${a.text} ring-1 ${a.ring}">${icon(t.iconName,'w-4 h-4')}</span>
+      <span class="font-mono text-sm font-semibold text-slate-800">${t.name}</span>
+      ${t.badge?tableBadge(t.badge):''}
+      <span class="ml-auto text-[11px] text-slate-400">${t.owner||''}</span>
+    </div>
+    <div class="divide-y divide-slate-100">${t.fields.map(fieldRow).join('')}</div>
+    ${t.extra?`<div class="border-t border-slate-200 px-4 py-1.5 font-mono text-[10.5px] text-violet-600">${t.extra}</div>`:''}
+    ${t.note?`<div class="border-t border-slate-200 bg-slate-50/60 px-4 py-2 text-[11px] leading-relaxed text-slate-500">${t.note}</div>`:''}
+  </div>`;
+}
+function relCard(b){
+  return `<div class="flex gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${b.accent?b.accent.bg:'bg-slate-100'} ${b.accent?b.accent.text:'text-slate-600'} ring-1 ${b.accent?b.accent.ring:'ring-slate-200'}">${icon(b.icon,'w-4 h-4')}</span>
+    <div><div class="font-semibold text-slate-900 text-sm">${b.title}</div>
+    <p class="mt-1 text-[12.5px] leading-relaxed text-slate-600">${b.body}</p></div></div>`;
+}
+
+/* ===== 데이터: 4 테이블 (신규 0개) ===== */
+const TABLES = [
+  {
+    name:'form_templates', iconName:'rectangle-stack', accent:BLUE, owner:'form/template', badge:'재정의',
+    note:'status 컬럼 1개 추가 + schema JSONB 계약 재정의 → pages(배경 이미지) + fields(데이터 평면) + elements(표현 평면, 좌표·n:n). draft는 in-place UPDATE(잦은 수정 OK), published만 immutable version으로 동결 → 저작/발행 생명주기 분리.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('center_id','String(36)',{nullable:1,note:'NULL = 시스템 템플릿'}),
+      col('name','String(100)'),
+      col('version','Integer',{note:'default 1'}),
+      col('status','String(20)',{hot:1,add:1,note:'draft | published (생명주기 분리)'}),
+      col('schema','JSONB',{hot:1,chg:1,note:'pages + fields + elements (계약 재정의)'}),
+      col('is_active','Boolean'),
+      col('created_at·updated_at·deleted_at','',{ellipsis:1}),
+    ],
+    extra:'UNIQUE(center_id, name, version) · 부분 index(center_active / system)',
+  },
+  {
+    name:'forms', iconName:'document-check', accent:ORANGE, owner:'form/form', badge:'변경',
+    note:'구 form_instances → forms (작성된 폼 = 모듈 핵심 엔티티, vouchers·assessments와 동형). 귀속 컬럼 2개 추가(created_by·submitted_by). 특정 템플릿 버전 기반 작성 단위. draft ↔ submitted. submitted 후 values·signatures 쓰기 차단(불변 가드 = status 기반 service 로직). Soft Delete. center_id RLS.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('center_id','String(36)',{idx:1,note:'RLS'}),
+      col('template_id','String(36)',{fk:'form_templates',idx:1}),
+      col('status','String(20)',{note:'draft | submitted'}),
+      col('created_by','String(36)',{hot:1,add:1,note:'작성 시작자 (account/member)'}),
+      col('submitted_at','DateTime',{nullable:1,note:'제출 시각'}),
+      col('submitted_by','String(36)',{hot:1,add:1,nullable:1,note:'최종 제출자 (제출 시 set)'}),
+      col('created_at·updated_at·deleted_at','',{ellipsis:1}),
+    ],
+    extra:'IDX(center_id, status) · IDX(template_id)',
+  },
+  {
+    name:'form_values', iconName:'queue-list', accent:EMERALD, owner:'form/value', badge:'변경',
+    note:'구 form_answers. 핵심 변경 단 둘: question_id → field_key (element 아닌 semantic field 기준) + group_index 추가 (반복 섹션). 다중선택·복합값(기타입력·동의)은 value JSONB 안에서 흡수 → row 폭발 없이 0~n:n을 수용.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('center_id','String(36)',{idx:1,note:'RLS'}),
+      col('instance_id','String(36)',{fk:'forms',idx:1}),
+      col('field_key','String(100)',{hot:1,chg:1,note:'semantic field key (구 question_id)'}),
+      col('group_index','Integer',{hot:1,add:1,note:'반복 섹션 인덱스 (default 0)'}),
+      col('value','JSONB',{note:'{value, other_text?, …} 다중·복합값'}),
+      col('created_at·updated_at·deleted_at','',{ellipsis:1}),
+    ],
+    extra:'UNIQUE(instance_id, field_key, group_index)  ← 구: UNIQUE(instance_id, question_id)',
+  },
+  {
+    name:'form_signatures', iconName:'pencil-square', accent:VIOLET, owner:'form/signature', badge:'유지',
+    note:'유지. 법적 불변성·signer IP/시각 스냅샷·바이너리 페이로드 → 전용 테이블이 맞음. field_id 네임스페이스만 form_values.field_key 와 통일.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('center_id','String(36)',{idx:1}),
+      col('instance_id','String(36)',{fk:'forms',idx:1}),
+      col('field_id','String(100)',{note:'= field_key 통일'}),
+      col('storage_type · signature_data · storage_path','',{ellipsis:1}),
+      col('signer_name · signer_ip · signed_at','',{ellipsis:1}),
+    ],
+    extra:'IDX(instance_id, field_id)',
+  },
+];
+
+/* ===== 개념: 데이터 평면 vs 표현 평면 ===== */
+function planeChip(t,sub,cls){ return `<div class="rounded-lg border ${cls} px-2.5 py-1.5 text-center">
+  <div class="font-mono text-[12px] font-semibold">${t}</div>${sub?`<div class="text-[10px] text-slate-400">${sub}</div>`:''}</div>`; }
+
+function conceptDiagram(){
+  return `<div class="canvas rounded-2xl border border-slate-200 bg-white p-5">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- 데이터 평면 -->
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+        <div class="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-emerald-700">${icon('queue-list','w-4 h-4')} fields — 데이터 평면</div>
+        <p class="mb-3 text-[11px] text-slate-500">"무엇을 수집하는가". 사용자가 채우는 값은 이 단위로 1개만 저장.</p>
+        <div class="space-y-2">
+          ${planeChip('applicant_name','text','border-emerald-200 bg-white text-emerald-700')}
+          ${planeChip('rrn','주민등록번호','border-emerald-200 bg-white text-emerald-700')}
+          ${planeChip('disability_types','checkbox_group','border-emerald-200 bg-white text-emerald-700')}
+        </div>
+      </div>
+      <!-- 표현 평면 -->
+      <div class="rounded-xl border border-blue-200 bg-blue-50/40 p-4">
+        <div class="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-blue-700">${icon('map-pin','w-4 h-4')} elements — 표현 평면</div>
+        <p class="mb-3 text-[11px] text-slate-500">"어디에 어떻게 그리는가". 페이지 좌표(rect)·z를 가진 위젯. OCR 오버레이가 그대로 매핑.</p>
+        <div class="grid grid-cols-3 gap-1.5">
+          ${planeChip('text','e1','border-blue-200 bg-white text-blue-700')}
+          ${Array.from({length:5}).map((_,i)=>planeChip('box','rrn·'+i,'border-blue-200 bg-white text-blue-700')).join('')}
+          ${planeChip('☑ 지체','e10','border-blue-200 bg-white text-blue-700')}
+          ${planeChip('☑ 시각','e11','border-blue-200 bg-white text-blue-700')}
+          ${planeChip('heading','0 field','border-slate-200 bg-slate-50 text-slate-400')}
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 flex items-center justify-center gap-2 text-[12px] font-semibold text-violet-600">
+      ${icon('link','w-4 h-4')} element.field_refs[]  →  0 ~ n : n  (배열 하나가 모든 관계를 표현)
+    </div>
+  </div>`;
+}
+
+/* ===== n:n 매핑 사례 ===== */
+const MAPPINGS = [
+  { icon:'link', accent:BLUE, title:'1 field : n elements — 흩뿌리기',
+    body:'주민번호 1개(field "rrn")가 화면엔 13칸. 각 element는 field_refs:["rrn"] + slot:0..12. 값은 "900101-1234567" 한 줄로 저장, 렌더러가 칸마다 흩뿌림(scatter).' },
+  { icon:'link', accent:ORANGE, title:'n elements : 1 field — 기타입력',
+    body:'"기타( )" = 라디오 element + 텍스트 element 둘이 같은 field("disability_types")에 바인딩. option:"other" + allow_text. 값은 {value:["other"], other_text:"…"}.' },
+  { icon:'squares', accent:EMERALD, title:'다중선택 — row 폭발 없이',
+    body:'체크박스 그룹은 element를 option별로 N개 두되, 값은 form_values 한 행에 {value:["physical","visual"]}. 체크 1개당 row 만들지 않음.' },
+  { icon:'document-check', accent:VIOLET, title:'반복 섹션 — group_index',
+    body:'가족 구성원 1·2·3…은 같은 field_key("family_name")에 group_index 0·1·2…로 적재. UNIQUE(instance, field_key, group_index)가 충돌 없이 수용.' },
+];
+
+/* ===== 생명주기: draft ↔ published ===== */
+function lifecycleDiagram(){
+  const box=(title,sub,cls,inner)=>`<div class="flex-1 rounded-xl border ${cls} p-4">
+    <div class="mb-1 font-mono text-[13px] font-semibold">${title}</div>
+    <div class="mb-3 text-[11px] text-slate-400">${sub}</div>${inner}</div>`;
+  const chip=(t,c)=>`<span class="inline-block rounded ${c} px-1.5 py-0.5 text-[10.5px] font-semibold">${t}</span>`;
+  return `<div class="canvas rounded-2xl border border-slate-200 bg-white p-5">
+    <div class="flex flex-col items-stretch gap-3 md:flex-row md:items-center">
+      ${box('status: draft','저작 · OCR 오버레이 편집','border-orange-200 bg-orange-50/40 text-orange-700',
+        `<div class="space-y-1.5 text-[11.5px] text-slate-600">
+          <div>${chip('in-place UPDATE','bg-orange-100 text-orange-700')} 같은 행 덮어쓰기</div>
+          <div>${chip('debounce','bg-slate-100 text-slate-600')} 드래그마다 X, 저장 시점만 flush</div>
+          <div>${chip('optimistic lock','bg-slate-100 text-slate-600')} updated_at / version 검증</div>
+        </div>`)}
+      <div class="flex shrink-0 flex-col items-center px-1 text-violet-600">
+        ${icon('check-circle','w-6 h-6')}<span class="mt-1 text-[10.5px] font-bold">발행 freeze</span>
+      </div>
+      ${box('status: published','immutable · instance 바인딩','border-blue-200 bg-blue-50/40 text-blue-700',
+        `<div class="space-y-1.5 text-[11.5px] text-slate-600">
+          <div>${chip('새 version row','bg-blue-100 text-blue-700')} 그 시점 JSONB 동결</div>
+          <div>${chip('수정 불가','bg-slate-100 text-slate-600')} 재편집 → 새 draft → v+1</div>
+          <div>${chip('instance가 참조','bg-emerald-100 text-emerald-700')} 법적·감사 정합</div>
+        </div>`)}
+    </div>
+    <div class="mt-3 flex items-center justify-center gap-2 font-mono text-[11.5px] text-slate-500">
+      draft <span class="text-orange-500">UPDATE×N</span> → <span class="text-violet-600">[발행]</span> → published v1 (frozen) ← instances
+      <span class="text-slate-300">·</span> 재편집 → draft → published v2
+    </div>
+  </div>`;
+}
+
+const LIFECYCLE = [
+  { icon:'check-circle', accent:ORANGE, title:'잦은 수정 = draft 단계의 일',
+    body:'OCR 에디터에서 박스 50번 드래그해도 version row 50개가 아니라 한 draft 행을 UPDATE. JSONB 통째 재작성은 인간 편집 속도에선 비-이슈. 저장은 debounce로 묶어 MVCC bloat 회피.' },
+  { icon:'rectangle-stack', accent:BLUE, title:'immutable은 published에만',
+    body:'instance는 작성된 그 순간의 스키마를 영원히 가리켜야 함 → published version만 동결. draft는 아직 instance가 없으니 마음껏 수정. instances의 draft↔submitted와 동형 패턴.' },
+  { icon:'pencil-square', accent:EMERALD, title:'instance 제출 — 귀속 + 불변 가드',
+    body:'created_by(작성 시작자) · submitted_by(최종 제출자, submitted_at과 원자적 set). status=submitted면 values·signatures 쓰기를 service에서 차단 → 이게 진짜 제출 무결성(컬럼 아닌 status 가드). 다자 서명은 form_signatures가 행 단위로 이미 보유.' },
+  { icon:'link', accent:VIOLET, title:'element 행 분해 트리거 (단 하나)',
+    body:'실시간 협업(Figma식)으로 여러 명이 서로 다른 element를 동시 편집·보존해야 할 때만 row-per-element가 정당. 단일 편집자 저작이면 JSONB + optimistic lock으로 충분.' },
+];
+
+/* ===== JSONB 계약 코드 ===== */
+const CONTRACT = `{
+  <span class="text-violet-600">"pages"</span>: [
+    { "no": 1, "image": "s3://…/gov-form-p1.png", "w": 2480, "h": 3508 }
+  ],
+
+  <span class="text-emerald-600">// 데이터 평면 — 무엇을 수집하는가 (semantic keys)</span>
+  <span class="text-emerald-700">"fields"</span>: {
+    "applicant_name":   { "type": "text",     "label": "성명", "required": true },
+    "rrn":              { "type": "text",     "label": "주민등록번호" },
+    "disability_types": { "type": "checkbox_group", "label": "장애유형",
+      "options": [
+        { "value": "physical", "label": "지체" },
+        { "value": "visual",   "label": "시각" },
+        { "value": "other",    "label": "기타", "allow_text": true }
+      ] },
+    "consent_privacy":  { "type": "consent",   "label": "개인정보 수집 동의", "required": true },
+    "applicant_sign":   { "type": "signature", "label": "신청인 서명" }
+  },
+
+  <span class="text-blue-600">// 표현 평면 — 어디에 어떻게 그리는가 (positioned widgets)</span>
+  <span class="text-blue-700">"elements"</span>: [
+    { "id":"e1",  "page":1, "rect":[0.12,0.08,0.30,0.03], "z":1, "widget":"text",
+      <span class="text-violet-600">"field_refs"</span>:["applicant_name"] },
+
+    { "id":"e2",  "page":1, "rect":[0.50,0.08,0.02,0.03], "z":1, "widget":"char_box",
+      "field_refs":["rrn"], "slot":0 },        <span class="text-slate-400">// … rrn 13칸 (slot 0~12) = 1 field : n elements</span>
+
+    { "id":"e10", "page":1, "rect":[0.12,0.20,0.02,0.02], "z":1, "widget":"checkbox",
+      "field_refs":["disability_types"], "option":"physical" },
+    { "id":"e11", "page":1, "rect":[0.12,0.24,0.02,0.02], "z":1, "widget":"checkbox",
+      "field_refs":["disability_types"], "option":"visual" },
+
+    { "id":"e20", "page":1, "rect":[0.12,0.85,0.20,0.05], "z":2, "widget":"signature",
+      "field_refs":["applicant_sign"] },
+
+    { "id":"e99", "page":1, "rect":[0.10,0.04,0.80,0.02], "z":0, "widget":"heading",
+      <span class="text-slate-400">"field_refs":[] }              // 0 field = 장식</span>
+  ]
+}`;
+
+/* ===== form_values JSONB 예시 ===== */
+const VALUES = `<span class="text-slate-400">// 다중선택 + 기타입력</span>
+"disability_types" → { "value": ["physical","visual"], "other_text": "희귀질환" }
+
+<span class="text-slate-400">// 동의 여부</span>
+"consent_privacy"  → { "value": true, "agreed_at": "2026-06-11T09:00:00Z" }
+
+<span class="text-slate-400">// 반복 섹션: 가족 구성원 (group_index 0·1·2…)</span>
+"family_name"  (group_index=0) → { "value": "홍길동" }
+"family_name"  (group_index=1) → { "value": "홍길순" }
+
+<span class="text-slate-400">// 단일값</span>
+"applicant_name" → { "value": "김상담" }`;
+
+/* ===== 미래: OCR / 오버레이 ===== */
+const FUTURE = [
+  { icon:'sparkles', accent:VIOLET, title:'OCR + 멀티모달 → draft 템플릿',
+    body:'정부 문서 스캔 → 멀티모달 모델이 pages 이미지 + fields 추정 + elements 좌표(z기준 상단 배치)를 생성 → 사람이 confirm. voucher의 extract→confirm 패턴을 그대로 재사용.' },
+  { icon:'map-pin', accent:BLUE, title:'정규화 좌표 오버레이',
+    body:'rect는 0~1 정규화 + z. 해상도/DPI 독립이라 스크린샷 위 위젯 오버레이가 픽셀 정합. 그대로 온라인 작성 캔버스의 데이터 모델이 됨.' },
+  { icon:'document-text', accent:EMERALD, title:'출력 = 모으기(gather)',
+    body:'제출 시 form_values를 field_key로 모아 → 템플릿 elements 좌표를 따라 흩뿌려 렌더 → 원본 정부 서식과 픽셀 정합 PDF/이미지 출력.' },
+];
+
+/* ===== 의사결정: 왜 새 테이블을 안 만드나 ===== */
+const DECISIONS = [
+  { icon:'check-circle', accent:EMERALD, title:'fields/elements를 테이블로 분해하지 않음',
+    body:'템플릿은 immutable 버전 전략 → 수정=새 version 통째 재작성이라 부분 UPDATE가 없음. 렌더링도 항상 통째로 읽음. JOIN 3개 vs JSONB 1개 → JSONB 압승. n:n도 단일 JSON 문서 내부 그래프(field_refs[])로 충분.' },
+  { icon:'check-circle', accent:BLUE, title:'승격 시점 (그때 가서)',
+    body:'① 템플릿을 가로지르는 field 라이브러리/재사용이 필요할 때 → form_fields 승격  ② field별 SQL 통계/분석  ③ element 위치를 에디터에서 증분 저장(= immutable 포기 결정과 묶임).' },
+];
+
+/* ===== sections ===== */
+const SECTIONS = [
+  { id:'concept', label:'개념', render:()=>`
+    <section id="concept">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">개념.</span> 데이터 평면 ⟂ 표현 평면 (0~n:n)</h2>
+      <p class="mb-4 text-sm text-slate-500">정부 서식은 "필드=입력칸" 웹폼 가정(1:1)이 깨진다. <b>수집하는 데이터(field)</b>와 <b>화면에 그려지는 위젯(element)</b>을 분리하고, n:n은 <b>템플릿(표현 정의)</b> 안에만 둔다. 저장 값은 semantic field 단위로 단순하게.</p>
+      ${conceptDiagram()}
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">${MAPPINGS.map(relCard).join('')}</div>
+    </section>` },
+  { id:'schema', label:'스키마', render:()=>`
+    <section id="schema">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-blue-600">스키마.</span> 4 테이블 — 신규 0개</h2>
+      <p class="mb-4 text-sm text-slate-500">backbone(<code class="text-[12px]">form_templates → forms → form_values / form_signatures</code>)은 유지. "form"=작성된 폼, 정의는 항상 <code class="text-[12px]">form_templates</code>로 명시. <span class="rounded bg-blue-100 px-1 text-blue-700">재정의</span> schema 계약 ·
+        <span class="rounded bg-orange-100 px-1 text-orange-700">변경</span> forms 귀속 컬럼 · form_values 제약을 손본다.</p>
+      <div class="canvas rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
+          ${TABLES.map(t=>`<div>${tableCard(t)}</div>`).join('')}
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">${DECISIONS.map(relCard).join('')}</div>
+    </section>` },
+  { id:'lifecycle', label:'생명주기', render:()=>`
+    <section id="lifecycle">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-orange-600">생명주기.</span> draft (mutable) → published (immutable)</h2>
+      <p class="mb-4 text-sm text-slate-500">잦은 수정은 문제 아님 — <b>저작(draft)</b>과 <b>발행(published)</b> 생명주기를 분리하면 된다. <code class="text-[12px]">status</code> 컬럼 하나가 유일한 추가. immutable은 instance가 바인딩된 published에만 건다.</p>
+      ${lifecycleDiagram()}
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">${LIFECYCLE.map(relCard).join('')}</div>
+    </section>` },
+  { id:'contract', label:'템플릿 계약', render:()=>`
+    <section id="contract">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-blue-600">계약.</span> form_templates.schema (JSONB)</h2>
+      <p class="mb-4 text-sm text-slate-500">pages + fields + elements 3분할. <code class="text-[12px]">element.field_refs[]</code> 배열 하나가 0~n:n을 전부 표현. <code class="text-[12px]">rect</code>=정규화 좌표[x,y,w,h] + <code class="text-[12px]">z</code>.</p>
+      <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-900 p-5">
+        <pre class="code font-mono text-[12px] leading-relaxed text-slate-200"><code>${CONTRACT}</code></pre>
+      </div>
+    </section>` },
+  { id:'values', label:'값 저장', render:()=>`
+    <section id="values">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-emerald-600">값.</span> form_values — 다중·복합값 흡수</h2>
+      <p class="mb-4 text-sm text-slate-500">핵심 변경: <code class="text-[12px]">question_id → field_key</code> + <code class="text-[12px]">group_index</code>. 체크박스·동의·기타입력·반복 섹션을 row 폭발 없이 수용.</p>
+      <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-900 p-5">
+        <pre class="code font-mono text-[12px] leading-relaxed text-slate-200"><code>${VALUES}</code></pre>
+      </div>
+    </section>` },
+  { id:'future', label:'미래', render:()=>`
+    <section id="future">
+      <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">미래.</span> OCR · 멀티모달 오버레이</h2>
+      <p class="mb-4 text-sm text-slate-500">스캔 정부 문서 → draft 템플릿 자동 생성 → 사람 confirm → 온라인 작성. 위 구조가 그대로 들어맞는다.</p>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">${FUTURE.map(relCard).join('')}</div>
+    </section>` },
+];
+
+document.getElementById('brand').innerHTML = icon('rectangle-stack','w-5 h-5');
+document.getElementById('nav').innerHTML = SECTIONS.map(s=>`<a href="#${s.id}" class="rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">${s.label}</a>`).join('');
+document.getElementById('app').innerHTML = SECTIONS.map(s=>s.render()).join('');
+</script>
+</body>
+</html>

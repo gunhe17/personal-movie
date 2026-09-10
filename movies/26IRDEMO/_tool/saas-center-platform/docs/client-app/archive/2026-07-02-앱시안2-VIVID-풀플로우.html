@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>마인드스코프 · 시안 2 VIVID — 풀 플로우</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;background:#e7e4f2;color:#241f3d;padding:44px 28px 100px;}
+.flow-title{max-width:1400px;margin:0 auto 8px;font-size:22px;font-weight:800;letter-spacing:-.01em;}
+.flow-sub{max-width:1400px;margin:0 auto 36px;font-size:13px;color:#6f6890;}
+.stage{max-width:1400px;margin:0 auto 56px;}
+.stage-label{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;font-size:12.5px;font-weight:800;border-radius:100px;padding:8px 18px;margin-bottom:22px;box-shadow:0 3px 0 #5140b8,0 10px 22px rgba(124,92,255,.3);}
+.stage-label small{color:rgba(255,255,255,.75);font-weight:600;}
+.row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start;}
+.unit{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.shot-label{font-size:12px;font-weight:700;color:#6f6890;text-align:center;max-width:330px;line-height:1.5;}
+.shot-label b{color:#241f3d;}
+.arrow{align-self:center;font-size:22px;color:#b3accf;font-weight:300;padding:0 2px;margin-top:-40px;}
+
+/* phone */
+.phone{width:330px;height:715px;background:#f3f2fb;border-radius:42px;box-shadow:0 26px 60px rgba(30,22,60,.3);position:relative;overflow:hidden;border:9px solid #0b0f16;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:104px;height:27px;background:#0b0f16;border-radius:0 0 17px 17px;z-index:40;}
+.deco{position:absolute;top:-80px;left:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,#d9d4ff 0%,rgba(217,212,255,0) 68%);z-index:1;}
+.deco2{position:absolute;top:110px;right:-95px;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,#cdeee6 0%,rgba(205,238,230,0) 68%);z-index:1;}
+.sb{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 6px;font-size:11.5px;font-weight:700;position:relative;z-index:5;}
+.scr{height:calc(715px - 44px);overflow-y:auto;padding:0 16px 26px;position:relative;z-index:5;}
+.scr.tabbed{height:calc(715px - 44px - 62px);}
+.scr::-webkit-scrollbar{display:none;}
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:62px;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-top:1px solid #eceaf5;border-radius:24px 24px 0 0;box-shadow:0 -8px 26px rgba(36,31,61,.08);display:flex;justify-content:space-around;align-items:center;padding:0 22px 8px;z-index:30;}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9.5px;color:#b3accf;font-weight:700;width:64px;}
+.tab.on{color:#7c5cff;}
+.tab.on .ti{transform:translateY(-2px);}
+.tab .ti{font-size:19px;}
+.hind{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:110px;height:4px;background:#241f3d;border-radius:3px;opacity:.8;z-index:35;}
+
+/* shared atoms */
+.btn-p{background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;font-size:14px;font-weight:800;border-radius:17px;padding:15px;text-align:center;box-shadow:0 4px 0 #5140b8,0 14px 28px rgba(124,92,255,.35);}
+.btn-g{background:#fff;color:#241f3d;font-size:14px;font-weight:700;border-radius:17px;padding:15px;text-align:center;box-shadow:0 4px 0 #e4e0f2,0 10px 22px rgba(36,31,61,.07);}
+.btn-dark{background:#241f3d;color:#fff;font-size:14px;font-weight:800;border-radius:17px;padding:15px;text-align:center;box-shadow:0 4px 0 #100d1f;}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 12px;}
+.hd .hi{font-size:12px;color:#7a739c;}
+.hd .hi b{display:block;font-size:16.5px;color:#241f3d;font-weight:800;margin-top:1px;}
+.bell{width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 3px 0 #e4e0f2,0 10px 20px rgba(36,31,61,.09);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;}
+.bell i{position:absolute;top:7px;right:8px;width:6px;height:6px;background:#ff6b81;border-radius:50%;border:2px solid #fff;font-style:normal;}
+.back{width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 3px 0 #e4e0f2,0 10px 20px rgba(36,31,61,.09);display:flex;align-items:center;justify-content:center;font-size:16px;color:#584f80;}
+.ttl{font-size:15.5px;font-weight:800;}
+.sec{margin-top:22px;position:relative;}
+.sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;padding:0 2px;}
+.sh h4{font-size:14.5px;font-weight:800;}
+.sh a{font-size:11px;color:#9a92bb;text-decoration:none;font-weight:700;}
+.card{background:#fff;border-radius:22px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);overflow:hidden;}
+.li2{display:flex;gap:11px;align-items:center;padding:13px 15px;border-bottom:1.5px dashed #efecf8;}
+.li2:last-child{border-bottom:none;}
+.li2 .ic{width:34px;height:34px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.06);}
+.li2 .t{font-size:12.5px;font-weight:800;}
+.li2 .s{font-size:10.5px;color:#9a92bb;margin-top:1px;}
+.li2 .bg{margin-left:auto;font-size:9px;font-weight:800;border-radius:100px;padding:4px 9px;flex:none;}
+.li2 .ar{margin-left:auto;color:#cdc7e2;font-size:14px;}
+.pav{width:17px;height:17px;border-radius:50%;font-size:8.5px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 0 rgba(0,0,0,.15);}
+.ctg{flex:none;font-size:9px;font-weight:800;border-radius:100px;padding:3px 8px;}
+
+/* ── onboarding specifics ── */
+.ob{display:flex;flex-direction:column;height:100%;padding-top:24px;}
+.logo-orb{width:88px;height:88px;border-radius:30px;background:linear-gradient(135deg,#7c5cff 0%,#5f8dff 58%,#38cdb7 125%);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 5px 0 #5140b8,0 18px 40px rgba(124,92,255,.38);margin:0 auto;}
+.ob h1{font-size:23px;font-weight:800;letter-spacing:-.02em;text-align:center;line-height:1.42;margin-top:26px;}
+.ob .osub{font-size:13px;color:#7a739c;text-align:center;margin-top:10px;line-height:1.6;}
+.value-cards{display:flex;gap:8px;margin-top:26px;}
+.vc{flex:1;background:#fff;border-radius:18px;padding:14px 10px;text-align:center;box-shadow:0 4px 0 #e4e0f2,0 10px 22px rgba(36,31,61,.07);}
+.vc .ve{font-size:22px;}
+.vc .vt{font-size:11px;font-weight:800;margin-top:7px;}
+.vc .vs{font-size:9.5px;color:#9a92bb;margin-top:2px;line-height:1.45;}
+.ob .spacer{flex:1;}
+.sso{display:flex;flex-direction:column;gap:9px;padding-bottom:14px;}
+.sso .kakao{background:#fee500;color:#191600;font-size:13.5px;font-weight:800;border-radius:16px;padding:14px;text-align:center;box-shadow:0 4px 0 #d9c400,0 10px 22px rgba(217,196,0,.25);}
+.sso .apple{background:#111;color:#fff;font-size:13.5px;font-weight:800;border-radius:16px;padding:14px;text-align:center;box-shadow:0 4px 0 #000;}
+.sso .legal{font-size:10px;color:#aca4c9;text-align:center;margin-top:4px;}
+.branch-hero{background:#fff;border-radius:26px;padding:30px 22px;text-align:center;box-shadow:0 5px 0 #e4e0f2,0 16px 34px rgba(36,31,61,.09);margin-top:14px;position:relative;overflow:hidden;}
+.branch-hero .be{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#efeaff,#e3ddff);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;box-shadow:inset 0 -4px 0 rgba(124,92,255,.12);}
+.branch-hero h2{font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.4;}
+.branch-hero p{font-size:12.5px;color:#7a739c;margin-top:8px;line-height:1.6;}
+.code-boxes{display:flex;gap:7px;justify-content:center;margin:22px 0 12px;}
+.cb{width:40px;height:50px;border-radius:14px;background:#fff;border:1.5px solid #e7e3f4;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;box-shadow:0 3px 0 #e4e0f2;}
+.cb.on{border-color:#7c5cff;color:#7c5cff;box-shadow:0 3px 0 #cbbcff,0 0 0 3px rgba(124,92,255,.14);}
+.cb.empty{color:#ddd8ee;}
+.helper{font-size:11px;color:#9a92bb;text-align:center;line-height:1.6;}
+.helper b{color:#7c5cff;}
+.field{background:#fff;border-radius:17px;padding:14px 16px;box-shadow:0 3px 0 #e4e0f2,0 10px 22px rgba(36,31,61,.07);margin-bottom:10px;}
+.field .fl{font-size:10px;font-weight:800;color:#9a92bb;letter-spacing:.05em;}
+.field .fv{font-size:16px;font-weight:800;margin-top:3px;display:flex;align-items:center;justify-content:space-between;}
+.field .fv .send{font-size:11px;font-weight:800;color:#7c5cff;background:#efeaff;border-radius:100px;padding:6px 12px;box-shadow:0 2px 0 #ddd3fb;}
+.done-hero{text-align:center;padding-top:34px;}
+.done-hero .ring{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#d7f7ef,#aeeee0);display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto;box-shadow:0 5px 0 #9adfd0,0 16px 36px rgba(56,205,183,.28);}
+.done-hero h2{font-size:21px;font-weight:800;margin-top:22px;line-height:1.4;letter-spacing:-.01em;}
+.done-hero p{font-size:12.5px;color:#7a739c;margin-top:8px;}
+.provide{background:#fff;border-radius:22px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);margin-top:22px;overflow:hidden;}
+.provide .pt{font-size:11px;font-weight:800;color:#9a92bb;letter-spacing:.06em;padding:14px 16px 4px;}
+.profile-pick{display:flex;gap:10px;margin-top:20px;}
+.pp{flex:1;background:#fff;border-radius:22px;padding:20px 12px;text-align:center;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.07);border:1.5px solid transparent;}
+.pp.on{border-color:#7c5cff;box-shadow:0 4px 0 #cbbcff,0 14px 28px rgba(124,92,255,.2);}
+.pp .pe{width:50px;height:50px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:23px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.06);}
+.pp .pt2{font-size:13px;font-weight:800;}
+.pp .ps{font-size:10px;color:#9a92bb;margin-top:3px;line-height:1.45;}
+
+/* unlinked home */
+.preview-card{background:#fff;border-radius:24px;padding:18px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);position:relative;overflow:hidden;}
+.preview-card .pv-tag{display:inline-block;background:#f0eef8;color:#a49cc4;font-size:10px;font-weight:800;border-radius:100px;padding:4px 11px;margin-bottom:10px;}
+.preview-card .blurwrap{filter:blur(3px);opacity:.55;pointer-events:none;}
+.preview-card .pv-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,rgba(243,242,251,0),rgba(243,242,251,.9) 62%);padding-top:44px;}
+.preview-card .pv-overlay .t{font-size:13.5px;font-weight:800;color:#3d3663;text-align:center;line-height:1.5;}
+.preview-card .pv-overlay .b{background:#241f3d;color:#fff;font-size:12px;font-weight:800;border-radius:100px;padding:10px 18px;box-shadow:0 3px 0 #100d1f;}
+.record-cta{background:linear-gradient(135deg,#7c5cff 0%,#5f8dff 58%,#38cdb7 130%);border-radius:24px;padding:20px 18px;color:#fff;box-shadow:0 5px 0 #5140b8,0 18px 38px rgba(124,92,255,.38);position:relative;overflow:hidden;}
+.record-cta .shine{position:absolute;top:-40px;right:-26px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14);}
+.record-cta h3{font-size:16px;font-weight:800;line-height:1.45;position:relative;}
+.record-cta p{font-size:11.5px;opacity:.9;margin-top:5px;line-height:1.55;position:relative;}
+.record-cta .rb{display:inline-block;background:#fff;color:#5a3fd6;font-size:12px;font-weight:800;border-radius:100px;padding:9px 16px;margin-top:13px;box-shadow:0 3px 0 rgba(0,0,0,.12);position:relative;}
+
+/* home (linked) */
+.chips{display:flex;gap:6px;margin:0 -16px 14px;padding:0 16px 4px;overflow-x:auto;}
+.chips::-webkit-scrollbar{display:none;}
+.fc{flex:none;display:flex;align-items:center;gap:5px;background:#fff;border-radius:100px;padding:6px 12px 6px 6px;font-size:11px;font-weight:800;color:#7a739c;box-shadow:0 2px 0 #e4e0f2,0 7px 16px rgba(36,31,61,.07);}
+.fc .av{width:20px;height:20px;border-radius:50%;font-size:9px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;}
+.fc.on{background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;box-shadow:0 2px 0 #5a3fd6,0 8px 18px rgba(124,92,255,.35);}
+.fc.all{padding:6px 12px;}
+.hero{background:linear-gradient(135deg,#7c5cff 0%,#5f8dff 58%,#38cdb7 130%);border-radius:24px;padding:18px 17px;color:#fff;box-shadow:0 5px 0 #5140b8,0 18px 38px rgba(124,92,255,.38);position:relative;overflow:hidden;}
+.hero .shine{position:absolute;top:-40px;right:-26px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14);}
+.hero .shine2{position:absolute;bottom:-52px;left:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08);}
+.hero .top{display:flex;align-items:center;gap:7px;position:relative;}
+.hero .new{background:rgba(255,255,255,.24);color:#fff;font-size:10px;font-weight:800;border-radius:100px;padding:3px 10px;backdrop-filter:blur(4px);}
+.hero .who{font-size:10.5px;opacity:.85;font-weight:700;margin-left:auto;}
+.hero h3{font-size:16.5px;font-weight:800;letter-spacing:-.01em;margin:11px 0 7px;line-height:1.42;position:relative;}
+.hero .bd{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:15px;padding:12px 13px;font-size:12px;line-height:1.6;backdrop-filter:blur(6px);position:relative;}
+.hero .bd b{color:#fff;}
+.hero .ft{display:flex;align-items:center;margin-top:12px;gap:7px;position:relative;}
+.hero .src{font-size:10px;opacity:.85;}
+.hero .go{margin-left:auto;background:#fff;color:#5a3fd6;font-size:11.5px;font-weight:800;border-radius:100px;padding:9px 16px;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.link-cta{background:linear-gradient(120deg,#fff,#f2effe);border-radius:20px;padding:14px 15px;display:flex;align-items:center;gap:10px;margin-top:10px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.07);}
+.link-cta .em{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#c3b5ff,#8b6cf5);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+.link-cta .t{font-size:11.5px;font-weight:800;color:#241f3d;}
+.link-cta .s{font-size:10px;color:#9a92bb;margin-top:1px;}
+.link-cta .btn{margin-left:auto;background:#241f3d;color:#fff;font-size:10px;font-weight:800;border-radius:100px;padding:7px 12px;flex:none;box-shadow:0 3px 0 #100d1f;}
+.dt{width:38px;height:38px;border-radius:13px;background:#f3f2fb;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;box-shadow:inset 0 2px 0 #fff,0 2px 0 #e4e0f2;}
+.dt .d{font-size:13px;font-weight:800;line-height:1;}
+.dt .m{font-size:8.5px;color:#9a92bb;margin-top:2px;}
+.tin{flex:1;min-width:0;}
+.tin .t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:5px;}
+.tin .s{font-size:10.5px;color:#9a92bb;margin-top:1px;}
+.tr{display:flex;gap:11px;align-items:center;padding:12px 15px;border-bottom:1.5px dashed #efecf8;}
+.tr:last-child{border-bottom:none;}
+.tr.ghost .t,.tr.ghost .d{color:#b3accf;}
+
+/* briefing detail */
+.bf-hero{background:linear-gradient(135deg,#7c5cff 0%,#5f8dff 58%,#38cdb7 130%);border-radius:26px;padding:22px 20px;color:#fff;box-shadow:0 5px 0 #5140b8,0 18px 38px rgba(124,92,255,.38);position:relative;overflow:hidden;}
+.bf-hero .shine{position:absolute;top:-46px;right:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.14);}
+.bf-hero .date{font-size:11px;opacity:.85;font-weight:700;position:relative;}
+.bf-hero h2{font-size:19px;font-weight:800;margin-top:8px;line-height:1.45;letter-spacing:-.01em;position:relative;}
+.bf-hero .by{display:flex;align-items:center;gap:8px;margin-top:14px;position:relative;}
+.bf-hero .tav{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;}
+.bf-hero .bn{font-size:11.5px;font-weight:700;}
+.bf-hero .bs{font-size:10px;opacity:.82;}
+.bf-sec{background:#fff;border-radius:22px;padding:17px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);margin-top:12px;}
+.bf-sec .bt{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:#9a92bb;letter-spacing:.05em;}
+.bf-sec .bt .n{width:20px;height:20px;border-radius:8px;background:#e9efff;color:#4a7dff;font-size:10px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 0 rgba(0,0,0,.06);}
+.bf-sec p{font-size:13px;color:#453e6b;line-height:1.7;margin-top:9px;}
+.bf-sec p b{color:#241f3d;}
+.bf-sec.quest{border:1.5px solid #e6ddff;background:linear-gradient(180deg,#fff,#f8f5ff);box-shadow:0 4px 0 #ddd3fb,0 12px 26px rgba(124,92,255,.12);}
+.bf-sec.quest .bt .n{background:linear-gradient(135deg,#ffd66b,#ffab2e);color:#fff;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12);}
+.bf-sec .q-add{display:inline-flex;align-items:center;gap:6px;margin-top:11px;background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;font-size:11px;font-weight:800;border-radius:100px;padding:8px 14px;box-shadow:0 3px 0 #5140b8,0 8px 18px rgba(124,92,255,.3);}
+.trust{display:flex;align-items:center;gap:8px;margin-top:14px;background:#e9f7ee;border-radius:16px;padding:11px 14px;font-size:10.5px;color:#2f8a55;font-weight:700;line-height:1.5;box-shadow:0 3px 0 #d4ecdd;}
+
+/* hub */
+.hub-hd{display:flex;align-items:center;gap:12px;padding:8px 2px 14px;}
+.hub-hd .hav{width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,#c4a8ff,#8b6cf5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12),0 8px 18px rgba(139,108,245,.3);}
+.hub-hd .hn{font-size:16.5px;font-weight:800;}
+.hub-hd .hs{font-size:10.5px;color:#9a92bb;margin-top:1px;}
+.hub-hd .share{margin-left:auto;background:#fff;font-size:10.5px;font-weight:800;color:#584f80;border-radius:100px;padding:8px 13px;box-shadow:0 3px 0 #e4e0f2,0 8px 18px rgba(36,31,61,.08);}
+.tfilter{display:flex;gap:6px;margin:2px 0 14px;}
+.tf{font-size:10.5px;font-weight:800;border-radius:100px;padding:6px 12px;background:#fff;color:#7a739c;box-shadow:0 2px 0 #e4e0f2,0 6px 14px rgba(36,31,61,.06);}
+.tf.on{background:linear-gradient(120deg,#7c5cff,#5f8dff);color:#fff;box-shadow:0 2px 0 #5a3fd6,0 8px 18px rgba(124,92,255,.35);}
+.jline{position:relative;padding-left:22px;}
+.jline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:#e2ddf2;border-radius:2px;}
+.jitem{position:relative;background:#fff;border-radius:18px;padding:13px 15px;box-shadow:0 3px 0 #e4e0f2,0 10px 22px rgba(36,31,61,.06);margin-bottom:10px;}
+.jitem::before{content:"";position:absolute;left:-19px;top:18px;width:9px;height:9px;border-radius:50%;background:#7c5cff;border:2px solid #f3f2fb;box-shadow:0 2px 5px rgba(124,92,255,.4);}
+.jitem.rec::before{background:#ffab2e;box-shadow:0 2px 5px rgba(255,171,46,.4);}
+.jitem.test::before{background:#38cdb7;box-shadow:0 2px 5px rgba(56,205,183,.4);}
+.jitem .jt{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;}
+.jitem .js{font-size:10.5px;color:#9a92bb;margin-top:2px;}
+.jitem .jb{font-size:11.5px;color:#584f80;margin-top:6px;line-height:1.55;background:#f6f5fc;border-radius:12px;padding:9px 11px;}
+.jday{font-size:10px;font-weight:800;color:#aca4c9;margin:12px 0 8px;letter-spacing:.04em;}
+
+/* my */
+.acct{background:#fff;border-radius:22px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 #e4e0f2,0 12px 26px rgba(36,31,61,.08);}
+.acct .aav{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#8f9dff,#5f8dff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+.acct .an{font-size:14.5px;font-weight:800;}
+.acct .ae{font-size:10.5px;color:#9a92bb;margin-top:1px;}
+.prof-row{display:flex;gap:11px;align-items:center;padding:13px 15px;border-bottom:1.5px dashed #efecf8;}
+.prof-row:last-child{border-bottom:none;}
+.prof-row .pv{width:36px;height:36px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+.prof-row .t{font-size:12.5px;font-weight:800;}
+.prof-row .s{font-size:10.5px;color:#9a92bb;margin-top:1px;}
+.prof-row .lk{margin-left:auto;font-size:9px;font-weight:800;border-radius:100px;padding:3px 9px;flex:none;}
+.tgl{margin-left:auto;width:40px;height:24px;border-radius:100px;background:linear-gradient(120deg,#7c5cff,#5f8dff);position:relative;flex:none;box-shadow:inset 0 2px 3px rgba(0,0,0,.14);}
+.tgl::after{content:"";position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.tgl.off{background:#ddd8ee;}
+.tgl.off::after{right:auto;left:3px;}
+</style>
+</head>
+<body>
+
+<div class="flow-title">시안 2 · VIVID — 풀 플로우 (가입 → 연결 → 홈 → 브리핑 → 허브 → 마이)</div>
+<div class="flow-sub">그라디언트 · 소프트 3D — 감성이 주인공</div>
+
+<!-- ═══════ STAGE 1 · 온보딩 ═══════ -->
+<div class="stage">
+  <div class="stage-label">① 온보딩 <small>— 소셜로그인 → 초대코드 분기</small></div>
+  <div class="row">
+
+    <!-- 1. 스플래시 + 소셜로그인 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div class="logo-orb">🧭</div>
+          <h1>우리 가족의 마음 여정,<br>한 곳에</h1>
+          <p class="osub">예약도, 검사 결과도, 오늘 세션 이야기도<br>흩어지지 않게 — 마인드스코프</p>
+          <div class="value-cards">
+            <div class="vc"><div class="ve">🗓️</div><div class="vt">놓치지 않게</div><div class="vs">일정·변경<br>바로 알림</div></div>
+            <div class="vc"><div class="ve">📩</div><div class="vt">세션 브리핑</div><div class="vs">끝나면 바로<br>오늘 이야기</div></div>
+            <div class="vc"><div class="ve">📚</div><div class="vt">여정 기록</div><div class="vs">센터가 바뀌어도<br>기록은 계속</div></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="sso">
+            <div class="kakao">💬 카카오로 시작하기</div>
+            <div class="apple"> Apple로 시작하기</div>
+            <div class="legal">시작하면 이용약관·개인정보 처리방침에 동의하게 돼요</div>
+          </div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>1. 스플래시 · 소셜로그인</b><br>게스트 없음 — 기록(원장)은 계정 귀속이라 로그인이 관문</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 2. 초대코드 분기 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div class="branch-hero">
+            <div class="be">💌</div>
+            <h2>센터에서 받은<br>초대코드가 있나요?</h2>
+            <p>다니는 센터가 보낸 코드나 링크로 연결하면<br>일정·브리핑·검사 결과가 자동으로 와요</p>
+          </div>
+          <div class="spacer"></div>
+          <div class="sso">
+            <div class="btn-p">코드가 있어요</div>
+            <div class="btn-g">아직 없어요 — 코드 없이 시작</div>
+            <div class="legal">코드는 나중에 언제든 입력할 수 있어요</div>
+          </div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>2. 분기 — 두 개의 문</b><br>있음 → 연동 온보딩 / 없음 → 미연동 시작 (세그먼트 2 착지)</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 3. 코드 입력 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0 18px"><div class="back">‹</div><span class="ttl">초대코드 입력</span></div>
+          <h1 style="text-align:left;font-size:20px">초대코드 6자리를<br>입력해 주세요</h1>
+          <p class="osub" style="text-align:left;margin-top:8px">센터가 문자·카톡으로 보낸 코드예요</p>
+          <div class="code-boxes">
+            <div class="cb">M</div><div class="cb">S</div><div class="cb">7</div><div class="cb on">2</div><div class="cb empty">·</div><div class="cb empty">·</div>
+          </div>
+          <p class="helper">초대 <b>링크</b>로 오셨다면 코드가 자동으로 채워져요<br>코드가 없다면 센터에 문의해 주세요</p>
+          <div class="spacer"></div>
+          <div class="sso"><div class="btn-p" style="opacity:.45">다음</div></div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>3. 코드 입력</b><br>코드 = 센터 스코프 축소. 딥링크 진입 시 자동 채움</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 4. OTP -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0 18px"><div class="back">‹</div><span class="ttl">본인 확인</span></div>
+          <h1 style="text-align:left;font-size:20px">센터에 등록된<br>전화번호로 확인할게요</h1>
+          <p class="osub" style="text-align:left;margin-top:8px">본인 확인 후 센터의 내 기록과 연결돼요</p>
+          <div style="margin-top:22px">
+            <div class="field"><div class="fl">휴대폰 번호</div><div class="fv">010-1234-5678 <span class="send">재전송</span></div></div>
+            <div class="field"><div class="fl">인증번호</div><div class="fv" style="letter-spacing:6px">482 <span style="color:#ddd8ee;letter-spacing:6px">···</span> <span style="font-size:11px;color:#7c5cff;font-weight:800;letter-spacing:0">02:47</span></div></div>
+          </div>
+          <p class="helper" style="margin-top:10px">번호가 다르거나 확인이 안 되면<br><b>센터 승인</b>으로 전환돼요 (1일 이내 처리)</p>
+          <div class="spacer"></div>
+          <div class="sso"><div class="btn-p">확인</div></div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>4. 전화번호 OTP</b><br>자동 매칭 실패 시 센터 승인 큐로 fallback (사유 비노출)</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 5. 연결 완료 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div class="done-hero">
+            <div class="ring">🌳</div>
+            <h2>마음숲 심리상담센터와<br>연결됐어요</h2>
+            <p>서연이의 기록이 프로필로 만들어졌어요</p>
+          </div>
+          <div class="provide">
+            <div class="pt">이 센터에서 받아요</div>
+            <div class="li2"><div class="ic" style="background:#e9efff">🗓️</div><div><div class="t">일정 알림</div><div class="s">예약·변경·휴강을 바로</div></div></div>
+            <div class="li2"><div class="ic" style="background:#dff8f3">📩</div><div><div class="t">세션 브리핑</div><div class="s">세션이 끝나면 오늘 이야기</div></div></div>
+            <div class="li2"><div class="ic" style="background:#efeaff">📄</div><div><div class="t">검사 결과지</div><div class="s">발행되면 앱에서 열람</div></div></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="sso"><div class="btn-p">서연이 프로필로 시작하기</div><div class="btn-g" style="font-size:12.5px">아이를 더 연결할래요 (코드 추가)</div></div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>5. 연결 완료 — 기대 관리</b><br>"이 센터가 주는 것"만 긍정문으로 안내 (비공개 항목은 침묵)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ STAGE 2 · 미연동 경로 ═══════ -->
+<div class="stage">
+  <div class="stage-label">② 미연동 경로 <small>— "아직 없어요" 선택 시 · 세그먼트 2</small></div>
+  <div class="row">
+
+    <!-- 6. 프로필 만들기 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr"><div class="ob">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0 18px"><div class="back">‹</div><span class="ttl">프로필 만들기</span></div>
+          <h1 style="text-align:left;font-size:20px">누구의 여정을<br>기록할까요?</h1>
+          <p class="osub" style="text-align:left;margin-top:8px">나중에 얼마든지 추가할 수 있어요</p>
+          <div class="profile-pick">
+            <div class="pp on"><div class="pe" style="background:#efeaff">👧</div><div class="pt2">아이</div><div class="ps">보호자로서<br>아이의 여정을 기록</div></div>
+            <div class="pp"><div class="pe" style="background:#e9efff">🙂</div><div class="pt2">나 자신</div><div class="ps">내 상담 여정을<br>직접 기록</div></div>
+          </div>
+          <div class="field" style="margin-top:18px"><div class="fl">아이 이름 (별칭도 좋아요)</div><div class="fv">서연</div></div>
+          <div class="spacer"></div>
+          <div class="sso"><div class="btn-p">시작하기</div></div>
+        </div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>6. 프로필 만들기</b><br>CenterLink 없는 Profile = 미연동 유저의 자리 (3층 모델)</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 7. 미연동 홈 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr tabbed">
+          <div class="hd"><div class="hi">반가워요 👋<b>지현 님</b></div><div class="bell">🔔</div></div>
+          <div class="record-cta">
+            <span class="shine"></span>
+            <h3>오늘 서연이에게서<br>본 것을 남겨보세요</h3>
+            <p>다음 세션에서 선생님과 나눌 관찰 기록 —<br>쌓일수록 여정이 됩니다</p>
+            <span class="rb">✏️ 관찰기록 쓰기</span>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>센터가 연결되면</h4></div>
+            <div class="preview-card">
+              <span class="pv-tag">미리보기</span>
+              <div class="blurwrap">
+                <div style="font-size:14px;font-weight:800;margin-bottom:6px">오늘 서연이는 감정 카드로 마음을 말했어요</div>
+                <div style="background:#f6f5fc;border-radius:12px;padding:10px;font-size:11px;color:#584f80">역할놀이에서 "속상해"를 말로 표현하는 연습을…</div>
+                <div style="font-size:10px;color:#9a92bb;margin-top:8px">🌳 센터 · 담당 선생님</div>
+              </div>
+              <div class="pv-overlay">
+                <div class="t">세션이 끝나면 이런 브리핑이<br>자동으로 도착해요</div>
+                <div class="b">우리 센터에 알리기</div>
+              </div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>일정</h4></div>
+            <div class="card">
+              <div class="tr ghost">
+                <div class="dt"><div class="d">20</div><div class="m">6월</div></div>
+                <div class="tin"><div class="t">감각통합 · 직접 입력</div><div class="s">오전 11:00 · 매주 토</div></div>
+                <span class="ctg" style="background:#f0eef8;color:#a49cc4">미연동</span>
+              </div>
+              <div class="li2"><div class="ic" style="background:#f3f2fb">＋</div><div><div class="t" style="color:#7a739c">일정 직접 추가</div><div class="s">연결 전에도 D-day 알림을 받아요</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar"><div class="tab on"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">🗓️</span>일정</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>7. 미연동 홈</b><br>관찰기록이 주인공 + 브리핑 프리뷰(블러) + [우리 센터에 알리기]</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ STAGE 3 · 메인 ═══════ -->
+<div class="stage">
+  <div class="stage-label">③ 메인 <small>— 연동 후 일상 · 브리핑 도착의 순간</small></div>
+  <div class="row">
+
+    <!-- 8. 홈 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr tabbed">
+          <div class="hd"><div class="hi">좋은 오후예요 ☀️<b>지현 님</b></div><div class="bell">🔔<i></i></div></div>
+          <div class="chips">
+            <div class="fc all on">전체</div>
+            <div class="fc"><span class="av" style="background:#5f8dff">지</span>나</div>
+            <div class="fc"><span class="av" style="background:#8b6cf5">서</span>서연</div>
+            <div class="fc"><span class="av" style="background:#00c2a8">준</span>준</div>
+          </div>
+          <div class="hero">
+            <span class="shine"></span><span class="shine2"></span>
+            <div class="top"><span class="new">✨ 새 브리핑</span><span class="who">방금 · 놀이치료 40분</span></div>
+            <h3>오늘 서연이는<br>감정 카드로 마음을 말했어요</h3>
+            <div class="bd">역할놀이에서 <b>"속상해"를 말로 표현</b>하는 연습을 했어요. 이번 주엔 <b>'기분 묻기'를 하루 한 번</b> 해봐 주세요.</div>
+            <div class="ft"><span class="src">🌳 마음숲 · 김하늘 선생님</span><span class="go">브리핑 보기</span></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>챙길 것</h4></div>
+            <div class="card">
+              <div class="li2"><div class="ic" style="background:linear-gradient(135deg,#ffd66b,#ffab2e)">🎯</div><div><div class="t">'기분 묻기' 하루 한 번</div><div class="s">서연 · 이번 주 활동</div></div><div class="bg" style="background:#fff1d6;color:#c97b00">진행 중</div></div>
+              <div class="li2"><div class="ic" style="background:#e9efff">📝</div><div><div class="t">보호자 설문 응답</div><div class="s">CBCL · 준 · 6/20까지</div></div><div class="bg" style="background:#ffe9ec;color:#ff6b81">응답 필요</div></div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>우리 가족 일정</h4><a href="#">전체 ›</a></div>
+            <div class="card">
+              <div class="tr"><div class="dt"><div class="d">17</div><div class="m">내일</div></div><div class="tin"><div class="t"><span class="pav" style="background:#8b6cf5">서</span>놀이치료</div><div class="s">오후 4:30 · 김하늘 선생님</div></div><span class="ctg" style="background:#e2f6ea;color:#1d9a55">🌳 마음숲</span></div>
+              <div class="tr"><div class="dt"><div class="d">19</div><div class="m">6월</div></div><div class="tin"><div class="t"><span class="pav" style="background:#5f8dff">지</span>개인상담</div><div class="s">오후 7:00 · 이수진 선생님</div></div><span class="ctg" style="background:#e2f6ea;color:#1d9a55">🌳 마음숲</span></div>
+              <div class="tr ghost"><div class="dt"><div class="d">20</div><div class="m">6월</div></div><div class="tin"><div class="t"><span class="pav" style="background:#00c2a8">준</span>감각통합 · 직접 입력</div><div class="s">오전 11:00</div></div><span class="ctg" style="background:#f0eef8;color:#a49cc4">미연동</span></div>
+            </div>
+            <div class="link-cta"><span class="em">🔗</span><div><div class="t">준이의 해솔센터, 아직 연결 전이에요</div><div class="s">연결되면 일정·브리핑이 자동으로 와요</div></div><span class="btn">알리기</span></div>
+          </div>
+        </div>
+        <div class="tabbar"><div class="tab on"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">🗓️</span>일정</div><div class="tab"><span class="ti">👤</span>마이</div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>8. 홈 — 적응형 히어로(새 브리핑)</b><br>가족 통합 타임라인 · 아바타+센터 태그 · 미연동 회색 슬롯</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 9. 브리핑 상세 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0 14px"><div class="back">‹</div><span class="ttl">세션 브리핑</span><span style="margin-left:auto;font-size:16px;color:#9a92bb">↗</span></div>
+          <div class="bf-hero">
+            <span class="shine"></span>
+            <div class="date">6/16 (월) · 놀이치료 40분 · 🌳 마음숲</div>
+            <h2>오늘 서연이는<br>감정 카드로 마음을 말했어요</h2>
+            <div class="by"><div class="tav">하</div><div><div class="bn">김하늘 선생님</div><div class="bs">놀이치료 · 담당</div></div></div>
+          </div>
+          <div class="bf-sec">
+            <div class="bt"><span class="n">1</span>오늘 한 활동</div>
+            <p>감정 카드 놀이로 <b>여러 기분의 이름</b>을 함께 찾았고, 역할놀이에서 <b>"속상해"를 말로 표현</b>하는 연습을 했어요. 블록 놀이를 정리할 때 순서 지키기도 해봤어요.</p>
+          </div>
+          <div class="bf-sec quest">
+            <div class="bt"><span class="n">2</span>집에서 해볼 것</div>
+            <p>이번 주엔 하루 한 번, <b>"오늘 기분이 어땠어?"</b>라고 물어봐 주세요. 대답을 고치거나 평가하지 않고 <b>그대로 들어주는 것</b>이 포인트예요.</p>
+            <span class="q-add">🎯 이번 주 활동에 담기</span>
+          </div>
+          <div class="bf-sec">
+            <div class="bt"><span class="n">3</span>다음 세션</div>
+            <p><b>6/24 (화) 오후 4:30</b> · 놀이치료 · 준비물 없음</p>
+          </div>
+          <div class="trust">🛡️ 이 브리핑은 김하늘 선생님이 직접 확인하고 보냈어요</div>
+        </div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>9. 브리핑 상세 — 3칸 템플릿</b><br>활동(사실만) · 퀘스트 슬롯 · 다음 세션(자동) + 신뢰 문구</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 10. 자녀 허브 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0 4px"><div class="back">‹</div></div>
+          <div class="hub-hd">
+            <div class="hav">서</div>
+            <div><div class="hn">서연이의 여정</div><div class="hs">2026년 3월부터 · 32개의 기록</div></div>
+            <div class="share">↗ 공유</div>
+          </div>
+          <div class="tfilter"><span class="tf on">전체</span><span class="tf">브리핑</span><span class="tf">내 기록</span><span class="tf">검사</span></div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="li2"><div class="ic" style="background:linear-gradient(135deg,#ffd66b,#ffab2e)">🎯</div><div><div class="t">'기분 묻기' 하루 한 번</div><div class="s">진행 중 · 김하늘 선생님</div></div><div class="ar">›</div></div>
+          </div>
+          <div class="jday">오늘</div>
+          <div class="jline">
+            <div class="jitem"><div class="jt">📩 브리핑 · 놀이치료 <span class="ctg" style="background:#e2f6ea;color:#1d9a55">마음숲</span></div><div class="js">방금</div><div class="jb">감정 카드로 마음을 말했어요 — "속상해" 표현 연습</div></div>
+          </div>
+          <div class="jday">지난주</div>
+          <div class="jline">
+            <div class="jitem rec"><div class="jt">✏️ 내 관찰기록</div><div class="js">6/15 (일)</div><div class="jb">마트에서 장난감을 못 사자 소리 지르는 대신 "속상해"라고 말함. 처음!</div></div>
+            <div class="jitem"><div class="jt">📩 브리핑 · 언어치료 <span class="ctg" style="background:#dff8f3;color:#0fa08e">온마음</span></div><div class="js">6/12 (금)</div><div class="jb">두 단어 문장 만들기 — "엄마 주세요" 안정적으로</div></div>
+            <div class="jitem test"><div class="jt">📄 종합심리검사 결과지 <span class="ctg" style="background:#e2f6ea;color:#1d9a55">마음숲</span></div><div class="js">6/10 (수) 발행</div></div>
+          </div>
+          <div style="text-align:center;font-size:10.5px;color:#aca4c9;padding:10px 0 4px">⋮ 처음 온 날까지 이어져요</div>
+        </div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>10. 자녀 허브 — 여정 스트림 (원장)</b><br>타입 필터 · 시간 역순 · [공유] = intake·2차 엔진</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <!-- 11. 마이 -->
+    <div class="unit">
+      <div class="phone"><div class="notch"></div><span class="deco"></span><span class="deco2"></span>
+        <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="scr tabbed">
+          <div style="padding:8px 2px 14px"><span class="ttl" style="font-size:18px">마이</span></div>
+          <div class="acct"><div class="aav">지</div><div><div class="an">박지현</div><div class="ae">카카오 로그인 · 010-1234-5678</div></div><div class="ar" style="margin-left:auto;color:#cdc7e2">›</div></div>
+          <div class="sec">
+            <div class="sh"><h4>프로필</h4><a href="#">＋ 추가</a></div>
+            <div class="card">
+              <div class="prof-row"><div class="pv" style="background:linear-gradient(135deg,#8f9dff,#5f8dff)">지</div><div><div class="t">나 (박지현)</div><div class="s">🌳 마음숲 연결</div></div><span class="lk" style="background:#dff8f3;color:#0fa08e">연동</span></div>
+              <div class="prof-row"><div class="pv" style="background:linear-gradient(135deg,#c4a8ff,#8b6cf5)">서</div><div><div class="t">서연</div><div class="s">🌳 마음숲 · 🌿 온마음 연결</div></div><span class="lk" style="background:#dff8f3;color:#0fa08e">연동 2</span></div>
+              <div class="prof-row"><div class="pv" style="background:linear-gradient(135deg,#7fd8c9,#10b6a3)">준</div><div><div class="t">준</div><div class="s">해솔센터 · 아직 연결 전</div></div><span class="lk" style="background:#f0eef8;color:#a49cc4">미연동</span></div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>알림</h4></div>
+            <div class="card">
+              <div class="li2"><div class="ic" style="background:#efeaff">🕶️</div><div><div class="t">잠금화면에 내용 감추기</div><div class="s">"새 소식이 도착했어요"로만 표시</div></div><span class="tgl"></span></div>
+              <div class="li2"><div class="ic" style="background:#e9efff">🔔</div><div><div class="t">브리핑·일정 알림</div><div class="s">변경·휴강은 항상 바로</div></div><span class="tgl"></span></div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sh"><h4>기록</h4></div>
+            <div class="card">
+              <div class="li2"><div class="ic" style="background:#dff8f3">📚</div><div><div class="t">여정 내보내기</div><div class="s">새 센터에 히스토리 공유 (PDF)</div></div><div class="ar">›</div></div>
+              <div class="li2"><div class="ic" style="background:#fff1d6">💌</div><div><div class="t">초대코드 입력</div><div class="s">새 센터 연결</div></div><div class="ar">›</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar"><div class="tab"><span class="ti">🏠</span>홈</div><div class="tab"><span class="ti">🗓️</span>일정</div><div class="tab on"><span class="ti">👤</span>마이</div></div>
+        <div class="hind"></div>
+      </div>
+      <div class="shot-label"><b>11. 마이 — Profile·연결 관리</b><br>프로필별 연동 상태 · 디스크리트 알림 토글(기본 ON) · 여정 내보내기</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

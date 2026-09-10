@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mindscope-web-config
+  namespace: mindscope-prod
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  BODY_SIZE_LIMIT: "50m"
+  ORIGIN: "https://app.mindscope.kr"
+  # Web server-side proxy → API internal DNS
+  API_URL: "http://mindscope-api-svc.mindscope-prod.svc.cluster.local:80/api/v1"
+  # Firebase (Public - 브라우저 노출 공개 키)
+  PUBLIC_FIREBASE_API_KEY: "AIzaSyBk629lwYJtwrsVyPK8PzJMRH23qs8_KO8"
+  PUBLIC_FIREBASE_AUTH_DOMAIN: "mindscope-dev.firebaseapp.com"
+  PUBLIC_FIREBASE_PROJECT_ID: "mindscope-dev"
+  PUBLIC_FIREBASE_STORAGE_BUCKET: "mindscope-dev.firebasestorage.app"
+  PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "297387376359"
+  PUBLIC_FIREBASE_APP_ID: "1:297387376359:web:6e645cee908b826d3fac42"
+  PUBLIC_FIREBASE_VAPID_KEY: "BGF5SejZ5_1gkVpT-9QBmfn2kxKGGwV6_KTinH3DOg-SJnANMsiS3mEY_psPE9HcYbGgZHT1o4XD8LgU_x1AfkQ"

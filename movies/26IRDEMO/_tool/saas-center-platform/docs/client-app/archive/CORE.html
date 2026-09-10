@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내담자 앱 — 핵심 기획안 (CORE)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --line:#2a2f3a;
+    --txt:#e8eaed; --muted:#9aa3b2; --dim:#6b7280;
+    --core:#5b8cff; --acq:#3ec98a; --no:#ff6b6b; --warn:#f5b14c;
+    --accent:#7c9cff;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    line-height:1.7;font-size:15px;
+  }
+  a{color:var(--accent);text-decoration:none}
+  .wrap{display:grid;grid-template-columns:240px 1fr;max-width:1180px;margin:0 auto;gap:0}
+  /* nav */
+  nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:32px 20px;border-right:1px solid var(--line)}
+  nav .brand{font-weight:700;font-size:15px;letter-spacing:.3px;margin-bottom:4px}
+  nav .sub{color:var(--dim);font-size:12px;margin-bottom:24px}
+  nav a{display:block;color:var(--muted);font-size:13.5px;padding:7px 10px;border-radius:8px;margin-bottom:2px}
+  nav a:hover{background:var(--panel2);color:var(--txt)}
+  nav .tag{display:inline-block;font-size:10px;color:var(--dim);margin-top:18px;text-transform:uppercase;letter-spacing:1px;padding-left:10px}
+  /* main */
+  main{padding:48px 56px 120px;min-width:0}
+  section{margin-bottom:64px;scroll-margin-top:24px}
+  h1{font-size:13px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin:0 0 8px}
+  .hero{background:linear-gradient(135deg,#1a2030,#141821);border:1px solid var(--line);border-radius:var(--radius);padding:40px;margin-bottom:48px}
+  .hero .id{font-size:30px;font-weight:800;line-height:1.35;margin:8px 0 16px;letter-spacing:-.5px}
+  .hero .id em{color:var(--core);font-style:normal}
+  .hero p{color:var(--muted);margin:0;font-size:15px}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:12.5px;color:var(--dim)}
+  .meta b{color:var(--muted);font-weight:600}
+  h2{font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.3px}
+  .lead{color:var(--muted);margin:0 0 22px;font-size:14px}
+  /* big quote */
+  .why{border-left:3px solid var(--core);background:var(--panel);padding:22px 26px;border-radius:0 12px 12px 0;font-size:18px;font-weight:600;line-height:1.6}
+  .why span{color:var(--core)}
+  /* cards */
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:1fr 1fr}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .card h3{margin:0 0 6px;font-size:15px}
+  .card .q{color:var(--accent);font-size:13px;margin-bottom:10px}
+  .card p{margin:0;color:var(--muted);font-size:13.5px}
+  /* boundary 3 columns */
+  .bound{display:grid;grid-template-columns:1fr;gap:14px}
+  .blk{border-radius:12px;padding:20px 22px;border:1px solid var(--line)}
+  .blk.core{background:rgba(91,140,255,.08);border-color:rgba(91,140,255,.35)}
+  .blk.acq{background:rgba(62,201,138,.07);border-color:rgba(62,201,138,.3)}
+  .blk.no{background:rgba(255,107,107,.06);border-color:rgba(255,107,107,.28)}
+  .blk .hd{font-weight:700;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .blk .desc{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+  .blk.core .hd{color:var(--core)} .blk.acq .hd{color:var(--acq)} .blk.no .hd{color:var(--no)}
+  .blk ul{margin:0;padding:0;list-style:none}
+  .blk li{padding:5px 0;font-size:13.5px;display:flex;gap:9px;align-items:flex-start}
+  .blk li .ic{flex:0 0 auto;font-weight:700;width:16px}
+  .yes{color:var(--acq)} .nay{color:var(--no)} .warn{color:var(--warn)}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  tr:last-child td{border-bottom:none}
+  td b{color:var(--txt)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .pill.id{background:rgba(124,156,255,.15);color:var(--accent)}
+  td code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px;color:#cdd6f4}
+  .subhd{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:26px 0 10px;font-weight:600}
+  /* flow */
+  .flow{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px}
+  .frow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .frow:last-child{margin-bottom:0}
+  .frow .lbl{flex:0 0 84px;font-size:12px;color:var(--dim);font-weight:600}
+  .step{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:13px;white-space:nowrap}
+  .step.hot{border-color:rgba(91,140,255,.5);color:#cfe0ff}
+  .arr{color:var(--dim);font-size:13px}
+  /* feature chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px;font-size:13px}
+  .chip b{color:var(--accent);font-weight:600}
+  .chip.acq{border-color:rgba(62,201,138,.3)}
+  .chip.acq b{color:var(--acq)}
+  /* backend paths */
+  .path{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
+  .path .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--core);color:#fff;text-align:center;line-height:24px;font-size:12px;font-weight:700;margin-right:10px}
+  .path .t{font-weight:600;font-size:14px}
+  .path .d{color:var(--muted);font-size:12.5px;margin:8px 0 0;padding-left:34px}
+  .path code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:11.5px;color:#cdd6f4}
+  /* phases */
+  .phase{display:grid;grid-template-columns:90px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--panel)}
+  .phase .ph{padding:18px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .phase.mvp .ph{background:rgba(91,140,255,.14);color:var(--core)}
+  .phase.p2 .ph{background:rgba(62,201,138,.12);color:var(--acq)}
+  .phase.p3 .ph{background:rgba(245,177,76,.12);color:var(--warn)}
+  .phase .body{padding:16px 20px;color:var(--muted);font-size:13.5px;border-left:1px solid var(--line)}
+  .note{font-size:12.5px;color:var(--dim);margin-top:8px}
+  .footer{border-top:1px solid var(--line);padding-top:24px;color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    nav{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px}
+    nav .brand,nav .sub,nav .tag{width:100%}
+    main{padding:32px 24px 80px}
+    .g2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="brand">마인드엔서 · CORE</div>
+    <div class="sub">내담자 앱 핵심 기획안 (SSOT)</div>
+    <a href="#identity">0 · 정체성 선언</a>
+    <a href="#why">1 · 왜 존재하는가</a>
+    <a href="#target">2 · 타겟과 욕구</a>
+    <a href="#boundary">3 · 정체성 경계</a>
+    <a href="#decisions">4 · 확정 결정 로그</a>
+    <a href="#flow">5 · 핵심 가치 흐름</a>
+    <a href="#features">6 · 기능 골격 · 백엔드</a>
+    <a href="#roadmap">7 · Phase 로드맵</a>
+    <a href="#open">8 · 별도 트랙 · 미결</a>
+    <div class="tag">진실원 우선순위</div>
+    <a href="#hierarchy" style="font-size:12.5px;color:var(--dim)">문서 위상 계층</a>
+  </nav>
+
+  <main>
+    <!-- HERO / IDENTITY -->
+    <section id="identity">
+      <div class="hero">
+        <h1>제품 정체성 선언</h1>
+        <div class="id">“연동된 상담의 <em>동반자</em>”<br>동반자 코어는 양보 불가, 획득은 센터에 위협 안 되는 선까지만.</div>
+        <p>마인드엔서는 <b style="color:var(--txt)">마음건강 슈퍼앱이 아니다.</b> B2B 고객(상담센터)과 이해충돌하는 모든 것을 배제한다.
+        정체성 노선 = <b style="color:var(--core)">절충</b> (동반자 코어 + 선택적 획득).</p>
+        <div class="meta">
+          <span><b>확정일</b> 2026-06-23</span>
+          <span><b>방식</b> 백지 재정의 (기존 산출물은 재료로만)</span>
+          <span><b>위상</b> 최상위 SSOT — 충돌 시 최우선</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section id="why">
+      <h1>Section 1</h1><h2>왜 존재하는가</h2>
+      <div class="why">상담은 비싸고, 느리고, 중간이 안 보인다.<br>이 앱은 그 <span>불투명함을 메워 ‘진전 감각’</span>을 만든다.</div>
+      <p class="lead" style="margin-top:18px">내담자·보호자의 근본 문제는 <b style="color:var(--txt)">불확실성</b>이다. 다음에 뭘 하는지, 지금 어디쯤인지, 나아지고 있는지가 안 보인다.
+      앱의 존재 이유 = <b style="color:var(--txt)">불확실성 해소 → 진전 감각 → 상담 지속(센터의 리텐션)</b>.</p>
+    </section>
+
+    <!-- TARGET -->
+    <section id="target">
+      <h1>Section 2</h1><h2>타겟과 근본 욕구</h2>
+      <p class="lead">두 경험은 <b>동일 화면, 데이터만 다름</b>. 역할 선택·분기 없음. 아동은 보호자가 대신 사용.</p>
+      <div class="grid g2">
+        <div class="card">
+          <h3>성인 내담자</h3>
+          <div class="q">“다음에 뭘 하지? 나아지고 있나?”</div>
+          <p>다음 일정 + 회차 진행 + 검사결과</p>
+        </div>
+        <div class="card">
+          <h3>아동 보호자</h3>
+          <div class="q">“우리 애 어디까지 했고, 좋아지고 있나?”</div>
+          <p>자녀별 진행 + 결과 + 내가 도울 거리</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOUNDARY -->
+    <section id="boundary">
+      <h1>Section 3</h1><h2>정체성 경계 — 무엇을 하고 / 안 하는가</h2>
+      <p class="lead">“절충”을 구호가 아닌 실행 규칙으로 못 박는다.</p>
+      <div class="bound">
+        <div class="blk core">
+          <div class="hd">◆ 코어 — 양보 불가</div>
+          <div class="desc">연동된 상담의 동반자. 모든 화면의 중력 중심. 절대 안 흔듦.</div>
+          <ul>
+            <li><span class="ic">›</span>다음 행동·진행·결과를 투명하게 비춘다 <b style="color:var(--muted)">(읽기 투영)</b></li>
+          </ul>
+        </div>
+        <div class="blk acq">
+          <div class="hd">＋ 획득 레이어 — “센터에 위협 안 되는 선”까지만</div>
+          <div class="desc">비연동 사용자를 끌어오는 깔때기. 경계 안에서만.</div>
+          <ul>
+            <li><span class="ic yes">✓</span>무료 셀프체크 (결과 비저장) — 즉시 가치 + 연동 동기</li>
+            <li><span class="ic yes">✓</span>큐레이션 매거진 (정적 seed) — 빈 화면 이탈 방어</li>
+            <li><span class="ic yes">✓</span>셀프체크 → “더 받으려면 센터 연결” 깔때기</li>
+            <li><span class="ic yes">✓</span>정부 바우처 <b>정보성 안내만</b> — 자격판정/매칭 엔진 없이 정적 정보 + 외부 링크</li>
+            <li><span class="ic nay">✕</span>주변 센터 노출 — 제외 (B2B 고객 간 경쟁 노출 = 이해충돌)</li>
+          </ul>
+        </div>
+        <div class="blk no">
+          <div class="hd">✕ 비목표 — 영구 제외</div>
+          <div class="desc">정체성을 흐리거나 B2B와 충돌하는 것.</div>
+          <ul>
+            <li><span class="ic nay">✕</span>마음건강 슈퍼앱 정체성</li>
+            <li><span class="ic nay">✕</span>주변 센터 찾기 / 디렉터리 / 마켓플레이스</li>
+            <li><span class="ic nay">✕</span>정부 바우처 자격판정·매칭 엔진 (오안내 법적 리스크)</li>
+            <li><span class="ic nay">✕</span>검사결과 AI 재가공 (임상 책임 경계 붕괴)</li>
+            <li><span class="ic nay">✕</span>미발행 노트·내부메모 노출 (신뢰 차단막)</li>
+            <li><span class="ic nay">✕</span>전역 프로파일/센터 전환 스위처 (가짜 어포던스)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECISIONS -->
+    <section id="decisions">
+      <h1>Section 4</h1><h2>확정 결정 로그</h2>
+      <p class="lead">2026-06-23 확정. D1~D4는 정체성·범위, D5~D11은 세부 정책(미결 7건).</p>
+
+      <div class="subhd">정체성 · 범위</div>
+      <table>
+        <tr><th style="width:52px">#</th><th>쟁점</th><th>결정</th><th>이유</th></tr>
+        <tr><td><span class="pill id">D1</span></td><td>제품 정체성 노선</td><td><b>절충</b> (동반자 코어 + 선택 획득)</td><td>동반자 안전성 + 획득 깔때기 둘 다 취함</td></tr>
+        <tr><td><span class="pill id">D2</span></td><td>정부 바우처</td><td><b>정보성 안내만 허용</b></td><td>자격판정 엔진은 오안내 법적 리스크. 정적 정보+외부링크는 안전</td></tr>
+        <tr><td><span class="pill id">D3</span></td><td>주변 센터 노출</td><td><b>제외 유지</b></td><td>B2B 고객(센터) 간 경쟁 노출 = SaaS 이해충돌</td></tr>
+        <tr><td><span class="pill id">D4</span></td><td>작업 방식</td><td><b>백지 재정의</b></td><td>auto-design 결론을 당연시 않고 제1원칙에서 재도출</td></tr>
+      </table>
+
+      <div class="subhd">세부 정책 (미결 7건 확정)</div>
+      <table>
+        <tr><th style="width:52px">#</th><th>쟁점</th><th>결정</th><th>이유</th></tr>
+        <tr><td><span class="pill id">D5</span></td><td>바우처 신선도 표시</td><td><b><code>updated_at</code> 정직 라벨링</b></td><td>잔여 조회는 P2. 신규 컬럼은 MVP 백엔드 0 위반·오버엔지니어링</td></tr>
+        <tr><td><span class="pill id">D6</span></td><td>멀티센터 푸시 토큰</td><td><b>account-wide 단일 토큰</b></td><td>로그인 주체=Person, 디바이스 1개. 알림 본문에 센터 라벨로 구분</td></tr>
+        <tr><td><span class="pill id">D7</span></td><td>오브 이름 / 좌표</td><td><b>이름 없음(P2) / 좌표 미저장</b></td><td>이름은 브랜드 결정(P2). 길찾기는 주소 문자열 딥링크</td></tr>
+        <tr><td><span class="pill id">D8</span></td><td>F05 셀프체크 척도</td><td><b>임상팀 별도 트랙</b></td><td>라이선스·임상 타당성 영역. MVP는 척도 무관 구조로 선제작</td></tr>
+        <tr><td><span class="pill id">D9</span></td><td>바우처 안내 콘텐츠</td><td><b>운영팀 별도 트랙</b></td><td>제도 선정·문구는 운영 영역. MVP는 영역·레이아웃·링크 슬롯만</td></tr>
+        <tr><td><span class="pill id">D10</span></td><td>연동 거절 사유</td><td><b>비노출 + 재신청 허용</b></td><td>사유 노출은 분쟁·CS 부담. 거절 대부분 번호 재입력으로 해소</td></tr>
+        <tr><td><span class="pill id">D11</span></td><td>매거진 운영 주체</td><td><b>본사 공통 큐레이션</b></td><td>브랜드 일관성 + 센터 운영 부담 0 + MVP 백엔드 0</td></tr>
+      </table>
+      <p class="note">↳ auto-design SUMMARY가 영구 exclude했던 항목 중 <b>정부 바우처</b>만 D2로 부활(정보성 한정), <b>주변 센터</b>는 D3으로 제외 확정.</p>
+    </section>
+
+    <!-- FLOW -->
+    <section id="flow">
+      <h1>Section 5</h1><h2>핵심 가치 흐름 — 단일 여정</h2>
+      <div class="flow">
+        <div class="frow">
+          <span class="lbl">비연동</span>
+          <span class="step">셀프체크로 “내 상태” 확인</span><span class="arr">→</span>
+          <span class="step">매거진</span><span class="arr">→</span>
+          <span class="step">“더 받으려면 연결”</span><span class="arr">→</span>
+          <span class="step hot">연동신청</span>
+        </div>
+        <div class="frow">
+          <span class="lbl">대기</span>
+          <span class="step">신뢰 유지 (가짜 미완료감 방지)</span>
+        </div>
+        <div class="frow">
+          <span class="lbl">연동 후</span>
+          <span class="step hot">다음 일정</span><span class="arr">→</span>
+          <span class="step hot">회차 진행</span><span class="arr">→</span>
+          <span class="step hot">검사 결과</span><span class="arr">→</span>
+          <span class="step">(보호자) 자녀 현황</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <h1>Section 6</h1><h2>기능 골격 (MVP) · 백엔드 경로</h2>
+      <p class="lead"><b>프레임</b>: 2탭(홈/마이) 고정 — 정보는 하나의 흐름, 분리 안 함.
+      <b>읽기 전용 원칙</b>: 내담자 write는 ①연동신청 ②OTP/푸시토큰 등록뿐. 일정·검사·예약은 전부 읽기.</p>
+
+      <div class="subhd">코어 MVP</div>
+      <div class="chips">
+        <span class="chip"><b>F01</b> 인증·연동</span>
+        <span class="chip"><b>F02</b> 홈·상태별</span>
+        <span class="chip"><b>F03</b> 일정·타임라인</span>
+        <span class="chip"><b>F04</b> 검사결과</span>
+        <span class="chip"><b>F08</b> 마이</span>
+        <span class="chip"><b>F09</b> 오브 경량</span>
+      </div>
+
+      <div class="subhd">획득 레이어 MVP</div>
+      <div class="chips">
+        <span class="chip acq"><b>F05</b> 셀프체크</span>
+        <span class="chip acq"><b>F06</b> 매거진 (정적)</span>
+        <span class="chip acq"><b>F07</b> 알림</span>
+        <span class="chip acq"><b>＋</b> 바우처 정보성 안내</span>
+      </div>
+
+      <div class="subhd">신규 백엔드 도메인 경로 (MVP)</div>
+      <div class="path"><span class="n">1</span><span class="t">연동 (link)</span>
+        <p class="d"><code>POST /me/link-requests</code> (JWT person_id 강제) · 전화 OTP · 1Person-1Client 중복 가드 · 센터코드→센터명 lookup</p></div>
+      <div class="path"><span class="n">2</span><span class="t">임상 조회 (counseling)</span>
+        <p class="d">클라이언트 셀프 JWT 회차/일정 조회 EP · client-facing 화이트리스트 스키마 (정산·내부 필드 차단)</p></div>
+      <div class="path"><span class="n">3</span><span class="t">검사결과 (assessment)</span>
+        <p class="d"><code>GET /me/assessment-results</code> (발행분만, N-call 머지) · JWT presigned PDF 열람</p></div>
+      <div class="path"><span class="n">4</span><span class="t">알림 (notification)</span>
+        <p class="d">client JWT 푸시 토큰 등록 · <code>client_id→Person.account_id</code> 해석 헬퍼 · 일정 리마인더 SMS→푸시 승격</p></div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section id="roadmap">
+      <h1>Section 7</h1><h2>Phase 로드맵</h2>
+      <div class="phase mvp"><div class="ph">MVP</div><div class="body">읽기 투영 + 백엔드 4경로 + 획득 레이어 (셀프체크·매거진·알림·바우처 정보성 안내)</div></div>
+      <div class="phase p2"><div class="ph">Phase 2</div><div class="body">write 개방 (인앱 셀프응답·셀프예약·변경취소) · 바우처 잔여 조회 · 검사 시각화 · 오브 풀캐릭터 · 콘텐츠 CMS</div></div>
+      <div class="phase p3"><div class="ph">Phase 3</div><div class="body">AI — <b style="color:var(--warn)">production 미배포, 별도 승인 필수</b>. 점수 비교 차트 · F12 AI 성장가이드</div></div>
+    </section>
+
+    <!-- OPEN -->
+    <section id="open">
+      <h1>Section 8</h1><h2>별도 트랙 · Phase 2 결정 대기</h2>
+      <p class="lead">D1~D11로 구현 착수 차단 요소 없음. 아래는 구현과 <b>병렬</b> 진행 또는 P2 진입 시 결정.</p>
+      <div class="grid g2">
+        <div class="card">
+          <h3 class="warn">별도 트랙 (병렬 진행)</h3>
+          <p style="margin-top:8px"><b style="color:var(--txt)">F05 척도 목록</b> → 임상팀 (D8). MVP는 척도 무관 구조 선제작.<br>
+          <b style="color:var(--txt)">바우처 안내 콘텐츠</b> → 운영팀 (D9). MVP는 영역·레이아웃·링크 슬롯.</p>
+        </div>
+        <div class="card">
+          <h3 class="warn">Phase 2 진입 시</h3>
+          <p style="margin-top:8px">바우처 잔여 표시 정책(만료/소진) · 비주보호자/성인 자녀 잔존 relation 접근 · 오브 이름 브랜드 정책(ISSUE-003)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIERARCHY -->
+    <section id="hierarchy">
+      <h1>부록</h1><h2>문서 위상 (이 폴더의 진실 계층)</h2>
+      <table>
+        <tr><th style="width:120px">계층</th><th>문서</th><th>역할</th></tr>
+        <tr><td><b>0 · 핵심 SSOT</b></td><td><code>CORE.md</code> / <code>CORE.html</code></td><td>정체성·경계·확정 결정 — 충돌 시 최우선</td></tr>
+        <tr><td>1 · 설계 원칙</td><td><code>principles.md</code></td><td>디자인 방향·사용자 심리</td></tr>
+        <tr><td>2 · 기능 명세</td><td><code>README.md</code>, <code>features/F01~F12</code></td><td>기능별 상세</td></tr>
+        <tr><td>3 · 토론 근거</td><td><code>auto-design/</code> (SEED·rounds·SUMMARY)</td><td>결정의 정당성 기록 (참조용)</td></tr>
+        <tr><td>시안</td><td><code>viewer.html</code>, <code>b2c-home-*.html</code>, <code>mockups/*</code></td><td>시각 탐색 (RN 구현 명세 아님)</td></tr>
+      </table>
+      <p class="footer"><code>auto-design/SUMMARY.md</code>의 “동반자 영구고정”은 본 문서 D1(절충)으로 <b>갱신됨</b>. 충돌 시 CORE 우선.<br>
+      마인드엔서 · 내담자 앱 핵심 기획안 · 2026-06-23</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

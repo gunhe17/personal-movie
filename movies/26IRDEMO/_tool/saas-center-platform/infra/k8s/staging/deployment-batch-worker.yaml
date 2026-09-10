@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-batch-worker
+  namespace: mindscope-staging
+  labels:
+    app: mindscope-batch-worker
+    environment: staging
+spec:
+  # 즉시 응답이 필요 없는 여유 작업 범용 worker (voucher 추출 등). 시간에 민감한
+  # realtime 워커(mindscope-worker, ai:jobs)와 별도 프로세스로 격리. 긴 CPU/LLM 잡이
+  # realtime 작업을 방해하지 않는다. 부하 증가 시 이 deployment 만 독립 스케일.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-batch-worker
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: mindscope-batch-worker
+        environment: staging
+    spec:
+      # 진행 중 batch 잡(최장 ~3분) drain 시간 확보 — SIGTERM 후 현재 메시지
+      # 처리를 끝내고 XACK 할 때까지 강제 kill 을 미룬다(PEL 잔류/재과금 방지).
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: batch-worker
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-staging/api:latest
+          imagePullPolicy: Always
+          command: ["uv", "run", "python", "-m", "app.worker.batch"]
+          envFrom:
+            - configMapRef:
+                name: mindscope-api-config
+            - secretRef:
+                name: mindscope-api-secret
+          env:
+            - name: AI_WORKER_MODE
+              value: "distributed"
+          resources:
+            requests:
+              # 여유 작업용 — 낮은 요청, 필요 시 burst
+              cpu: "50m"
+              memory: "256Mi"
+            limits:
+              # PDF 렌더(PNG)·표검출 등 대용량 처리 대비
+              cpu: "1500m"
+              memory: "2Gi"

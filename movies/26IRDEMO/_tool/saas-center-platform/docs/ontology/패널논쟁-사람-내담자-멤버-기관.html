@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>패널 논쟁 — 사람·내담자·멤버·기관 온톨로지 (회의 준비)</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb; --card:#fff;
+    --accent:#4486FF; --accent-soft:#EAF1FF;
+    --pa:#2456c4; --pa-bg:#eef4ff; --pa-line:#c8daff;      /* A 아키텍트 */
+    --pb:#a16207; --pb-bg:#fdf6e3; --pb-line:#ecd9a8;      /* B 버티컬 */
+    --pc:#6d3fc0; --pc-bg:#f1ecfb; --pc-line:#d8c9f2;      /* C UX */
+    --ok:#15803d; --ok-soft:#e7f6ec;
+    --warn:#b45309; --warn-soft:#fef3e2;
+    --danger:#b91c1c; --danger-soft:#fdeaea;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:44px 24px 100px; line-height:1.65; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:26px; margin-bottom:8px; }
+  .subtitle { color:var(--sub); font-size:14.5px; margin-bottom:16px; max-width:860px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+  section { margin-bottom:64px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+  h2 { font-size:20px; }
+  h3 { font-size:15px; margin-bottom:10px; }
+  .sec-desc { color:var(--sub); font-size:14px; margin-bottom:20px; max-width:860px; }
+  .sec-desc b { color:var(--ink); }
+
+  /* 패널 배지 */
+  .panels { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:36px; }
+  .panel-chip { display:flex; align-items:center; gap:8px; border:1.5px solid; border-radius:14px; padding:8px 16px; background:#fff; font-size:13px; }
+  .panel-chip b { font-size:13px; }
+  .panel-chip small { color:var(--sub); font-size:11px; }
+  .panel-chip.pa { border-color:var(--pa-line); } .panel-chip.pa b { color:var(--pa); }
+  .panel-chip.pb { border-color:var(--pb-line); } .panel-chip.pb b { color:var(--pb); }
+  .panel-chip.pc { border-color:var(--pc-line); } .panel-chip.pc b { color:var(--pc); }
+  .badge { display:inline-block; font-size:10.5px; font-weight:700; border-radius:9px; padding:1px 8px; color:#fff; }
+  .badge.pa { background:var(--pa); } .badge.pb { background:var(--pb); } .badge.pc { background:var(--pc); }
+
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+  th { background:#f0f3f8; text-align:left; padding:8px 12px; font-size:12px; color:var(--sub); font-weight:600; border-bottom:1px solid var(--line); }
+  td { padding:8px 12px; border-bottom:1px solid #eef1f6; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  td.mono { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:11.5px; font-weight:600; }
+
+  /* 원칙 카드 */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
+  .rule { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 18px; }
+  .rule b { display:block; font-size:13.5px; margin-bottom:4px; }
+  .rule p { font-size:12.5px; color:var(--sub); }
+  .rule .who { float:right; }
+
+  /* 쟁점 타임라인 */
+  .battle { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:18px; }
+  .battle > h3 { font-size:15.5px; margin-bottom:14px; }
+  .battle .verdict { font-size:12.5px; background:var(--ok-soft); color:var(--ok); border-radius:10px; padding:8px 12px; margin-top:12px; font-weight:600; }
+  .tl { display:flex; flex-direction:column; gap:0; }
+  .tl-row { display:grid; grid-template-columns:64px 1fr; gap:12px; }
+  .tl-turn { font-size:11px; font-weight:700; color:var(--sub); padding-top:10px; text-align:right; }
+  .tl-body { border-left:2.5px solid var(--line); padding:8px 0 14px 16px; position:relative; }
+  .tl-body::before { content:""; position:absolute; left:-6.5px; top:14px; width:10px; height:10px; border-radius:50%; background:#fff; border:2.5px solid #94a3b8; }
+  .say { font-size:12.5px; margin-bottom:5px; }
+  .say .badge { margin-right:6px; transform:translateY(-1px); }
+  .say .q { color:var(--sub); }
+
+  /* 사상표 셀 강조 */
+  .roster-cell { background:var(--warn-soft); font-weight:600; }
+
+  /* 판정 리스트 */
+  .verdict-list { display:flex; flex-direction:column; gap:8px; }
+  .v-item { display:grid; grid-template-columns:34px 1fr; gap:12px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:11px 14px; align-items:start; }
+  .v-item .n { background:var(--danger); color:#fff; border-radius:8px; font-size:12px; font-weight:700; text-align:center; padding:2px 0; }
+  .v-item b { font-size:13px; display:block; }
+  .v-item p { font-size:12px; color:var(--sub); }
+  .v-item.check .n { background:var(--warn); }
+
+  /* 아키타입 */
+  .arch { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:900px){ .arch { grid-template-columns:1fr 1fr; } }
+  .arch-card { background:#fff; border:1.5px solid var(--pc-line); border-radius:14px; padding:13px 15px; }
+  .arch-card b { font-size:13px; color:var(--pc); display:block; margin-bottom:3px; }
+  .arch-card small { font-size:11px; color:var(--sub); display:block; line-height:1.5; }
+  .arch-card .data { font-family:"SF Mono",Menlo,monospace; font-size:10px; background:var(--pc-bg); border-radius:7px; padding:2px 7px; display:inline-block; margin-top:7px; color:var(--pc); }
+
+  /* 접이식 전문 */
+  details { background:#fff; border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; }
+  details summary { cursor:pointer; padding:13px 18px; font-size:13.5px; font-weight:700; list-style:none; display:flex; align-items:center; gap:10px; }
+  details summary::before { content:"▸"; color:var(--sub); transition:transform .15s; }
+  details[open] summary::before { transform:rotate(90deg); }
+  details .body { padding:4px 22px 20px; font-size:13px; }
+  details .body h4 { font-size:13px; margin:14px 0 6px; }
+  details .body p, details .body li { font-size:12.5px; color:#2b3446; margin-bottom:7px; }
+  details .body ul, details .body ol { padding-left:20px; margin-bottom:10px; }
+  details .body table { margin:8px 0 12px; }
+  .pin { font-size:12.5px; border-radius:10px; padding:8px 12px; margin:6px 0; }
+  .pin.warn { background:var(--warn-soft); }
+  .pin.ok { background:var(--ok-soft); }
+  blockquote { border-left:3px solid var(--line); padding-left:12px; color:var(--sub); font-size:12.5px; margin:8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>패널 논쟁 — 사람 · 내담자 · 멤버 · 기관 온톨로지</h1>
+<p class="subtitle">
+  2026-08-11 · 익일 회의 준비 · <b>실제 에이전트 3인 패널 × 3턴</b>(입장 → 교차 반박 → 수렴), 각 패널이 코드베이스를 직접 열어 근거 확인.
+  후속 산출물: 온톨로지 graph explorer + UI/UX 통일성 개선. 전문 기록: <code>패널논쟁-사람-내담자-멤버-기관.md</code>
+</p>
+<div class="panels">
+  <div class="panel-chip pa"><span class="badge pa">A</span><div><b>온톨로지 아키텍트</b><br><small>식별·스키마·아키타입 유도 규칙</small></div></div>
+  <div class="panel-chip pb"><span class="badge pb">B</span><div><b>기관 버티컬 전문가</b><br><small>학교(Wee)·병원(EMR)·군(상담관)·센터 현장</small></div></div>
+  <div class="panel-chip pc"><span class="badge pc">C</span><div><b>UI/UX 리드</b><br><small>멘탈 모델·화면 패턴·apps/web 실측</small></div></div>
+</div>
+
+<!-- 1. 합의 스키마 -->
+<section>
+  <div class="sec-head"><span class="sec-num">1</span><h2>합의된 스키마 (3인 서명 수준)</h2></div>
+  <table>
+    <tr><th>테이블</th><th>핵심 컬럼</th><th>계약</th></tr>
+    <tr><td class="mono">screening_rounds <small>신설</small></td><td>center_id · institution_id · name · status · threshold 기록 필드 · purge_due_at</td><td>회차 = 파기 단위</td></tr>
+    <tr><td class="mono">roster_entries <small>신설</small></td><td>round_id · org_unit_id · name · birth_date · external_ref(발번 원문) · response_status · <b>client_id nullable(승격 링크)</b></td><td>회차 귀속 소모품. code·role 없음. 회차 단위 하드 파기</td></tr>
+    <tr><td class="mono">org_units <small>신설</small></td><td>center_id · parent_id(자기참조) · name · unit_type · <b>valid_from/valid_to(행 수명)</b></td><td>학교 반=1학년도 행 / 군 중대=개방 기간 행. 종료 후 불변. <span style="color:var(--warn)">⚠ B 조건 unit_code 안정 축 — 구현 전 1줄 결정</span></td></tr>
+    <tr><td class="mono">enrollments <small>신설</small></td><td>client_id · org_unit_id · started_at · ended_at</td><td>배정 이력의 정본, append-only. <code>clients.org_unit_id</code>는 파생 캐시</td></tr>
+    <tr><td class="mono">client_identifiers <small>신설</small></td><td>client_id · id_type · id_value · issuer_institution_id · period_key nullable · valid_from/to</td><td>partial unique 2본: stable=(center,type,value) WHERE period IS NULL / periodic=+period_key. id_type 메타 <code>temporal: stable|periodic</code></td></tr>
+    <tr><td class="mono">referrals <small>신설</small></td><td>center_id · client_id · direction · institution_id · status · referred_at</td><td>v1 행 기록만 — 워크플로는 버티컬 팩 몫</td></tr>
+    <tr><td class="mono">centers.center_type <small>추가</small></td><td>enum counseling | school | hospital | military</td><td>용어 팩 인덱스</td></tr>
+    <tr><td class="mono">institutions <small>재정의</small></td><td>현행 + 발번 주체(issuer) 참조처 역할까지만</td><td>테넌트 불가. 워크플로·화면 확장 없음</td></tr>
+  </table>
+</section>
+
+<!-- 2. 합의 원칙 -->
+<section>
+  <div class="sec-head"><span class="sec-num">2</span><h2>합의된 원칙</h2></div>
+  <div class="grid2">
+    <div class="rule"><b>Person 비승격 <span class="who"><span class="badge pa">A</span><span class="badge pb">B</span></span></b><p>"Person을 신원 스파인으로 승격시키지 않는다"(합의 종결). Person = 계정 보유자의 크로스센터 앵커. 승격은 본인 앱 계정 순간(CenterLink)만. Person 자동 병합 금지 — 병합은 Client 층 수동 merge만. 근거: <code>persons.account_id NOT NULL</code> vs <code>clients.person_id nullable</code></p></div>
+    <div class="rule"><b>스크리닝 대상자 ≠ Client <span class="who"><span class="badge pa">A</span><span class="badge pb">B</span><span class="badge pc">C</span></span></b><p>2테이블 깔때기 만장일치(B는 자기 client_stage안 철회). Client의 새 정의 = "개별 관리 관계를 맺은 사람". 탄생 관문은 승격 시트 하나. 전역 검색 정본은 Client만</p></div>
+    <div class="rule"><b>role 3층 분리 <span class="who"><span class="badge pa">A</span><span class="badge pc">C</span><span class="badge pb">B</span></span></b><p>저장: enum 3값 동결 / 정합: 관계 변경 시 재계산+감사(파생-검증값) / 표시: 관계에서 파생, <b>관계 없으면 무표시</b>. 기관 트랙 화면·집계는 role 무참조(참조축=승격 여부·enrollment)</p></div>
+    <div class="rule"><b>시간성 2원 <span class="who"><span class="badge pa">A</span><span class="badge pb">B</span></span></b><p>컨테이너 수명(org_units 행 valid_from/to) + 배정 구간(enrollments). period_key는 식별자에만. 소급 불변 3중: unit 행 불변 · enrollment append-only · 과거 참조는 당시 행</p></div>
+    <div class="rule"><b>외부 식별자 = Client 소유 <span class="who"><span class="badge pa">A</span></span></b><p>학번·군번·환자번호는 자연인 속성이 아니라 기관이 부여한 역할 인스턴스의 좌표. 주민번호는 어느 층에도 저장 금지</p></div>
+    <div class="rule"><b>Member↔Client 엣지 비노출 <span class="who"><span class="badge pa">A</span><span class="badge pc">C</span></span></b><p>동일 인물 엣지는 테넌트 표면 금지(직원의 내담자성 = 최고 민감). 노출은 중복 경고 + super_admin 병합 표면 두 곳만</p></div>
+    <div class="rule"><b>어휘·탭은 용어 팩 소유 <span class="who"><span class="badge pc">C</span><span class="badge pa">A</span></span></b><p>플랫폼 프리셋만(센터 오버라이드 v1 금지). 팩이 선언: 레이블·탭 구성·기본 랜딩 뷰·식별자 패턴·명렬표 컬럼. 팩이 못 함: n&lt;5 완화, 온톨로지 구조 변경. 프론트 한국어 분기 금지("아동" 하드코딩 제거)</p></div>
+    <div class="rule"><b>온톨로지는 '순간'으로만 노출 <span class="who"><span class="badge pc">C</span></span></b><p>① 중복 경고 배너 ② super_admin 병합 표면 ③ 방출 게이트 마스킹 고지 — 이 3곳이 전부. Person·Account 명사는 어느 화면에도 금지</p></div>
+    <div class="rule"><b>정보 배치 기준 <span class="who"><span class="badge pa">A</span></span></b><p>"거르고·정렬·집계=컬럼, 표시만=JSONB extension(팩 서술자)". EAV 금지. clients.name/phone 비정규화는 지켜야 할 계약(테넌트 표기 소유)</p></div>
+    <div class="rule"><b>graph explorer 엣지 정본 <span class="who"><span class="badge pc">C</span></span></b><p>Client—Case—Session / Client—enrollment—OrgUnit / roster_entry⇢Client(승격, 단방향) / Client—referral—Institution. Person·Account 노드 없음</p></div>
+  </div>
+</section>
+
+<!-- 3. 쟁점 전개 -->
+<section>
+  <div class="sec-head"><span class="sec-num">3</span><h2>3대 격전지 — 턴별 전개</h2></div>
+
+  <div class="battle">
+    <h3>① 스크리닝 대상자를 어디에 담나 (최대 격전지)</h3>
+    <div class="tl">
+      <div class="tl-row"><div class="tl-turn">T1</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>단일 Client론 — 스파인 그대로, person_id nullable이 자산</div>
+        <div class="say"><span class="badge pb">B</span><span class="q">"전교생 800명은 Client가 아니라 회차 귀속 roster 스냅샷. 절단선 통과자만 승격"</span> — 건별 등록·6자 code로 운영 불가</div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T2</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>수용 — <code>screening_rounds</code>+<code>roster_entries</code> 2테이블. "동의 이전 종단 추적 금지를 스키마가 강제"</div>
+        <div class="say"><span class="badge pb">B</span>오히려 후퇴 — "테이블 하나 + <code>client_stage</code> 컬럼"으로 절충 제안(승격 이관 비용·크로스 테이블 대조 우려)</div>
+        <div class="say"><span class="badge pc">C</span>데이터 이원화 수용 / 화면은 명렬표 아키타입 분리 + 승격 시트 단일 관문 + 전역 검색은 Client만</div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T3</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>2테이블 확정 — <span class="q">"clients.code·role NOT NULL 계약이 물리적으로 거부. soft delete와 회차 hard purge는 한 테이블에 공존 불가. 누출 실수 지점 N개 vs 0개"</span></div>
+        <div class="say"><span class="badge pc">C</span>2테이블 지지 — <span class="q">"'기본 제외'가 네거티브 규칙이냐 위상적 사실이냐. client_stage면 십수 개 표면(에이전트 query_client 포함)이 기억해야 한다"</span></div>
+        <div class="say"><span class="badge pb">B</span><b>철회·채택</b> — <span class="q">"내 파기 논거가 상대안을 지지하고 있었다"</span> + 조건 2: 승격 시 과거 회차 <b>소급 링크</b> · roster에 발번 원문 보관</div>
+      </div></div>
+    </div>
+    <div class="verdict">✓ 만장일치: screening_rounds + roster_entries 2테이블. "안전은 사용자의 기억이 아니라 구조가 지킨다"(C)</div>
+  </div>
+
+  <div class="battle">
+    <h3>② 소속의 시간성 + 식별자의 수명</h3>
+    <div class="tl">
+      <div class="tl-row"><div class="tl-turn">T1</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>org_units 1급 테이블(group_by dim=자기 FK) + clients.org_unit_id · client_identifiers (center,type,value) 유니크</div>
+        <div class="say"><span class="badge pb">B</span><span class="q">"학번은 매년 3월 리셋+이듬해 재사용. 소속 이력 없이는 '작년 3반이던 그 아이' 종단 비교 불가 — 스크리닝 핵심 가치"</span></div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T2</div><div class="tl-body">
+        <div class="say"><span class="badge pb">B</span>A 유니크 결함 입증 — 신학기 일괄 업로드에서 깨짐(soft-delete=조인 키 파기 / 미삭제=유니크 위반). period_key+temporal 메타+issuer 제안</div>
+        <div class="say"><span class="badge pa">A</span>"unit 행 자체가 기간 귀속" + memberships 이력 ↔ <span class="badge pb">B</span>"안정 unit + enrollments 배정 행" — 기간의 위치가 대립</div>
+        <div class="say"><span class="badge pc">C</span>소급 불변 요구 — 진급 시점마다 과거 집계가 소급 오염되면 안 됨</div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T3</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>절충 확정 — <span class="q">"unit은 플라톤적 라벨이 아니라 구체적 코호트 컨테이너, 수명은 도메인이 정한다"</span>: 행에 valid_from/to(학교 반=1학년도, 군 중대=개방 기간) + enrollments 정본(B안 수용) + period_key는 식별자에만. 유니크는 partial 2본으로 정정</div>
+        <div class="say"><span class="badge pb">B</span>채택 — <span class="q">"반 편성은 매년 실제로 새로 만들어진다(NEIS도 학년도 단위). '안정 unit'은 학교에서 거짓말"</span> + 조건: 안정 unit_code 축</div>
+      </div></div>
+    </div>
+    <div class="verdict">✓ 합의: 수명 보유 unit 행 + enrollments 정본 + temporal 식별자. 잔여 1: unit_code 축 명시 여부</div>
+  </div>
+
+  <div class="battle">
+    <h3>③ role의 정체 + 화면 분화의 경계</h3>
+    <div class="tl">
+      <div class="tl-row"><div class="tl-turn">T1</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>role enum 3값 동결 — 담임·지휘관·주치의는 관계다</div>
+        <div class="say"><span class="badge pc">C</span><span class="q">"role='both'는 화면에서 이미 파산(guardian 버킷으로 뭉개짐). role은 저장값이 아니라 파생 뷰여야"</span> + 기관별 화면 세트 금지, 아키타입 4개</div>
+        <div class="say"><span class="badge pb">B</span>군엔 보호자 개념 자체가 없다. 지휘관=비직원 수신자가 role 4종에 없다</div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T2</div><div class="tl-body">
+        <div class="say"><span class="badge pa">A</span>층별 분리 — 저장 동결(필터·group_by 유도 근거) / 정합=파생-검증 / 표시=관계 파생. "both 뭉개짐은 표시층 버그"</div>
+        <div class="say"><span class="badge pb">B</span><span class="q">"명부 엑셀엔 관계 행이 0건 — 파생원이 없다. 기관 트랙에서 role은 실패가 아니라 무용"</span> + (c)층은 스크리닝+<b>방출</b> 둘</div>
+        <div class="say"><span class="badge pc">C</span>수정 — "폴백은 무표시"(파생 소스 부재=그 기관에 그 어휘가 없다는 신호). 탭 존재 자체가 관계 데이터에서 파생</div>
+      </div></div>
+      <div class="tl-row"><div class="tl-turn">T3</div><div class="tl-body">
+        <div class="say"><span class="badge pc">C</span>방출 인정하되 5번째 아키타입이 아니라 <b>집계 대시보드의 모드</b>(내부/방출 미리보기, "보이는 것=나가는 것", n&lt;5는 플랫폼 고정) — 아키타입 총수 4 유지</div>
+        <div class="say"><span class="badge pb">B</span>단, <span class="q">"익명 집계 화면+반출은 v1 제외 불가 — 교육청·사단 계약의 성립 조건"</span> → 대표 판정으로</div>
+      </div></div>
+    </div>
+    <div class="verdict">✓ 합의: role 3층 분리 + 기관 트랙 무참조 + 아키타입 4종(방출은 모드). 잔여: 방출 v1 포함 여부 = 대표 판정</div>
+  </div>
+</section>
+
+<!-- 4. 사상표 -->
+<section>
+  <div class="sec-head"><span class="sec-num">4</span><h2>기관별 사상표 (B 최종판)</h2></div>
+  <table>
+    <tr><th></th><th>식별자</th><th>소속(시간성)</th><th>관계</th><th>입력 경로</th></tr>
+    <tr><td class="mono">학교</td><td>학번 — periodic, 연 단위 재사용, issuer 필수</td><td>unit 행 = 학년도 귀속</td><td>보호자 = 코어 가구 모델 그대로</td><td class="roster-cell">명부 일괄 → roster_entries</td></tr>
+    <tr><td class="mono">병원</td><td>원내번호 — stable, issuer=병원</td><td>unit = 병동/진료과, 개방 기간</td><td>보호자·법정대리인</td><td>개별 등록 (Client 직행)</td></tr>
+    <tr><td class="mono">군</td><td>군번 — stable, 반출 통제</td><td>unit = 중대/소대, 개방 기간 + 이동 이력</td><td>보호자 축 부재 (팩이 탭 제거)</td><td class="roster-cell">명부 일괄 → roster_entries</td></tr>
+    <tr><td class="mono">센터</td><td>code 자체 발번 (현행)</td><td>org_units 0행 가능</td><td>가구·보호자 완전체</td><td>개별 등록 (현행)</td></tr>
+  </table>
+</section>
+
+<!-- 5. 화면 아키타입 -->
+<section>
+  <div class="sec-head"><span class="sec-num">5</span><h2>화면 아키타입 4종 + 데이터 계약 (C 최종판)</h2></div>
+  <div class="arch">
+    <div class="arch-card"><b>① 명렬표</b><small>대량 목록 · 발송·회수·판정 컬럼 · 화면 내 검색만(전역 검색 오염 금지)</small><span class="data">screening_rounds + roster_entries</span></div>
+    <div class="arch-card"><b>② 개인 관리</b><small>기존 Client 화면군 · 관계 캔버스 · 기간 칩 검색(periodic 식별자)</small><span class="data">clients + identifiers + enrollments</span></div>
+    <div class="arch-card"><b>③ 집계 대시보드</b><small>내부 / 방출 미리보기 2모드 · n&lt;5 서버 마스킹 · 방출 이력</small><span class="data">집계 투영 (round·org_unit 차원)</span></div>
+    <div class="arch-card"><b>④ 승격 시트</b><small>"개별 관리 시작" 단일 관문 · roster 프리필 Client 생성 · 중복 경고 재사용 · 역링크</small><span class="data">roster_entry → Client 탄생</span></div>
+  </div>
+</section>
+
+<!-- 6. 대표 판정 + 외부 확인 -->
+<section>
+  <div class="sec-head"><span class="sec-num">6</span><h2>대표 판정 항목 (내일 회의 안건)</h2></div>
+  <p class="sec-desc">기술로 결정 불가 — 사업·법무·정책 판단.</p>
+  <div class="verdict-list">
+    <div class="v-item"><span class="n">1</span><div><b>익명 집계 화면+반출의 v1 포함 여부</b><p>B: "교육청·사단 계약 성립 조건 — 이거 빼면 파일럿 계약 못 함"(서명 거부 수준) / A: 범위 통제 성향 / C: 대시보드 방출 모드로 구현 부담 흡수 가능</p></div></div>
+    <div class="v-item"><span class="n">2</span><div><b>절단선 정책 — 누가 원점수·등급을 보나</b><p>명렬표 개인 클릭 정보 수준이 여기 종속. 기존 미결(스크리닝 피벗)과 동일 건</p></div></div>
+    <div class="v-item"><span class="n">3</span><div><b>군 배포 모델 — SaaS 공용 vs 격리</b><p>파기·감사 요건이 갈림. 외부 확인 최우선(국방망)과 연동</p></div></div>
+    <div class="v-item"><span class="n">4</span><div><b>roster 파기 — 주기 · 범위(원자료 vs 무기명 통계 보존) · 자동/수동</b><p>되돌릴 수 없는 정책. 집계 재현성과 상충</p></div></div>
+    <div class="v-item"><span class="n">5</span><div><b>승격 시 과거 회차 소급 링크의 동의 범위</b><p>B의 조건 1(위기 개입 가치) vs 회차 한정 동의 — 법무 감수 연동</p></div></div>
+    <div class="v-item"><span class="n">6</span><div><b>교육청 vs 사단 파일럿 우선순위 / 방출 산출물 형태·보존 / 학년도 롤오버 트리거</b><p>첫 반입·보고 화면의 기준 결정 + 운영 정책</p></div></div>
+  </div>
+
+  <h3 style="margin-top:26px">외부 확인 필요 (B 정리)</h3>
+  <div class="verdict-list">
+    <div class="v-item check"><span class="n">!</span><div><b>군 국방망 반입 요건 (최우선)</b><p>인터넷망 SaaS의 부대 내 사용 가능 여부 — 불가 시 군 트랙은 전혀 다른 제품이 된다</p></div></div>
+    <div class="v-item check"><span class="n">·</span><div><b>병영생활 전문상담관 훈령의 기록·보고 의무 조항 / 교육부 학생정서·행동특성검사 지침(관심군 통보·보존·파기) / 만 14세 미만 일괄 수합 동의의 유효성(법무) / 검사 도구 판권(기존 미결과 병합)</b><p></p></div></div>
+  </div>
+</section>
+
+<!-- 7. v1 제외 -->
+<section>
+  <div class="sec-head"><span class="sec-num">7</span><h2>v1 범위 제외 (합의)</h2></div>
+  <div class="pin ok">지휘관·교육청 수신자 계정(report_grant류로 예약) · 기록 보존 정책 엔진(단, <b>회차 파기 실행은 v1 필수</b>) · 절단선 판정 로직(기록 필드만) · referrals 확장(행 기록만) · roster→앱 계정 경로 · 크로스센터 신원 통합 · NEIS 등 외부 연계 · institutions 워크플로 확장</div>
+</section>
+
+<!-- 8. 전문 (접이식) -->
+<section>
+  <div class="sec-head"><span class="sec-num">8</span><h2>턴별 발언 전문</h2></div>
+  <p class="sec-desc">전체 기록은 <code>패널논쟁-사람-내담자-멤버-기관.md</code>가 정본. 아래는 동일 내용의 접이식 수록.</p>
+
+  <details><summary><span class="badge pa">A</span> Turn 1 — "스파인은 이미 맞다. 문제는 세 곳의 미완이다"</summary><div class="body">
+    <p><b>총론</b>: Account(인증)→Person(자연인)→역할 인스턴스(Client/Member) 3층 스파인은 확장에 그대로 유효. <code>persons.account_id NOT NULL</code>(계정 가진 자연인) vs <code>clients.person_id NULLABLE</code>(계정 없이 존재)의 비대칭이 핵심 자산 — 학생·용사·환자는 계정 없이 등록되고 나중에 center_links로 접합. 고칠 곳 3: ① 테넌트 유형 부재 ② 외부 식별자 자리 부재 ③ 조직 위계 부재.</p>
+    <h4>고유함 — 층마다 다른 규칙</h4>
+    <p>Person=자연인 전역 1(account 1:1 유니크, 불변) / Client=테넌트 내(center_id+code 유니크, name+birth 차단) / Member=테넌트 내 직원(person_id NOT NULL).</p>
+    <p><b>주장 1</b>: 학번·군번·환자번호는 Person이 아니라 Client 소유 — "기관이 부여한 역할 인스턴스의 좌표"(전학하면 바뀌고 병원마다 다름). Person에 올리면 테넌시 격리가 깨짐. 전용 테이블 client_identifiers + partial unique(JSONB엔 유니크 불가). 주민번호는 어느 층에도 금지. 병합은 Client 층 수동 merge만(관계·케이스 승계 + merged_into 마커), Person 자동 병합 금지(되돌릴 수 없는 개인정보 사고).</p>
+    <h4>정보 — 컬럼 vs JSONB</h4>
+    <p>"거르거나·정렬·집계할 정보는 컬럼, 보여주기만 할 정보는 JSONB"(아키타입 유도 규칙이 근거). Person 코어 불변. Client 코어 + extension JSONB(기관 팩이 키 선언·검증, 필터 수요 실측 시 컬럼 승격). EAV 금지(감사 체계 무력화). <b>주장 2</b>: clients.name/phone 중복 저장은 결함이 아니라 계약 — 개명이 임상 기록을 소리 없이 바꾸면 안 됨.</p>
+    <h4>기관 사상 — 어휘는 바뀌고 구조는 안 바뀐다</h4>
+    <p><b>주장 3</b>: Institution은 테넌트가 될 수 없다 — 테넌트는 영원히 Center(center_type enum 추가, institutions는 의뢰처 디렉터리로 강등). <b>주장 4</b>: 조직 위계는 1급 테이블(org_units + clients.org_unit_id) — "3학년 2반 현황"은 group_by 질문이고 dim은 자기 FK여야(JSONB 불가). <b>주장 5</b>: role enum 3값 동결 — 담임·지휘관·주치의는 관계(relation_detail)지 role 값이 아니다.</p>
+    <h4>UI 계약</h4>
+    <p>API는 중립 코드만, 어휘는 center_type 용어 팩(세션 1회 로드) · 프론트 한국어 분기 금지 · extension은 팩 서술자로 렌더 · 필터는 승격 컬럼만 · 외부 식별자 검색은 정확 일치 전용.</p>
+  </div></details>
+
+  <details><summary><span class="badge pb">B</span> Turn 1 — "명부(roster)와 소속의 시간성을 먼저 인정해야 성립한다"</summary><div class="body">
+    <h4>기관별 식별 실무</h4>
+    <p>학교: 학번은 매년 3월 리셋·이듬해 재사용, NEIS 번호는 외부 제공 불가, 주민번호 수집 불가 — 얻을 수 있는 건 이름+생년+학년반번호뿐. 병원: 원내번호 평생 유지·병원별 독립, 주민번호는 외부 안 넘김 — 원내번호가 유일 교환 키. 군: 군번은 복무 기간 유일, 소속·계급은 수개월 단위 변동, 군번·소속은 그 자체로 민감(반출 통제). 센터: 현행 정합. → 셋은 우리가 통제 못 하는 외부 발번 + 기간 한정·재사용. external_ref 개념 부재가 첫 갭.</p>
+    <h4>필수 필드와 입력자</h4>
+    <p>학교: 학년·반·번호·담임·보호자 연락처 — 입력자는 행정실/담임의 명부 엑셀(학기 초 일괄, 갱신 누락 일상). 병원: 원내번호·진료과·주치의·오더 — EMR 연동 없으면 수기 이중입력=사장. 군: 계급·소속·복무구분·입대일 — 지휘관이라는 비직원 수신자 존재. 공통: 1차 입력자는 상담 직군이 아니라 행정 라인, 형식은 명부 일괄 — 건별 등록 UI와 정면 충돌.</p>
+    <h4>깨지는 지점 7</h4>
+    <ol><li>군엔 보호자 없음 — role=guardian|both는 센터 특수해</li><li>대상 규모 800명 — 건별 등록·code 발번 불가, "명부→절단선→개별 관리" 깔때기 부재</li><li>소속 시간성 — "작년 3반이던 그 아이" 종단 비교가 스크리닝 핵심 가치</li><li>Person.account_id NOT NULL — 계정 없는 학생·병사는 Person 불가, 통합 전제 붕괴</li><li>의뢰(referral) 1급 엔티티 부재</li><li>기록 법적 지위 분화(의무기록 10년·학생부 분리·군 반출 통제)</li><li>직원 온톨로지(파견 상담관, 결과만 받는 상급자)</li></ol>
+    <h4>Institution 3역할</h4>
+    <p>(a) 테넌트=Center+center_type (b) 계약·집계 조직=교육청·사단(계약 주체 — 데이터 위계 트리가 아니라 링크+절단선 정책. 하향 조회를 스키마 기본값으로 주면 규정 위반) (c) 외부 참조처=현행 institutions.</p>
+    <h4>규정</h4>
+    <p>학교: 만 14세 미만 법정대리인 동의, 가정통신문+명시 동의 관행. 병원: 의무기록 열람 제한(의료법 21조). 군: 기록·인사자료 분리 원칙(조항 확인 필요), 국방망 요건 확인 필요 — 배포 모델이 갈림.</p>
+    <p class="pin warn"><b>논쟁 주장</b>: ① Person 전역 통합은 학교·군에서 부채 ② 스크리닝 대상자≠내담자(roster 스냅샷→승격) ③ 보호자는 role이 아니라 관계+권한 ④ Institution 트리를 데이터 위계로 만들지 마라</p>
+  </div></details>
+
+  <details><summary><span class="badge pc">C</span> Turn 1 — "화면은 이미 답을 알고 있다"</summary><div class="body">
+    <h4>현행 화면 실측</h4>
+    <p>등록 화면은 이미 '가구 등록'(보호자·형제 배치 — 화면 멘탈 모델이 API를 견인한 선례). 보호자가 별도 Client 행이라는 사실을 UI가 은폐("보호자 정보는 내담자 정보에 함께 저장돼요") ↔ 목록에선 동급 행 부활(전체/보호자/아동 탭 — "아동" 하드코딩은 센터 중립 위반). role="both"는 view-model에서 guardian 버킷으로 뭉개짐=파산. 상세는 관계 칩만, member 화면은 완전히 다른 세계. 신원 모델이 새는 유일한 지점=중복 경고 배너 — 이것이 정확히 옳은 패턴.</p>
+    <h4>멘탈 모델 갭</h4>
+    <p>상담사의 명사는 "아이·엄마·우리 센터". 마찰 3곳: 등록 중복(배너→병합/재사용 제안 승격) / 보호자 이중 정체성(목록 기본 탭에서 제외) / 앱 연동(배지+액션만). 일반 원칙: <b>온톨로지는 명사가 아니라 '순간'으로만 노출</b>.</p>
+    <h4>분화 3층</h4>
+    <p>(a) 어휘=레이블 카탈로그 (b) 정보 구조=뷰 설정(학교 명렬표·병원 타임라인·군 위계+익명 집계·센터 1:1) (c) 화면 자체=코어 루프가 다를 때만 — 승격은 스크리닝 "명단→발송→집계" 하나. 화면 아키타입 4개.</p>
+    <h4>산출물 전제 3</h4>
+    <p>① 레이블 카탈로그 소유·키 체계 ② graph explorer 엣지 정본(Member↔Client 엣지 판정 요청) ③ role의 지위.</p>
+    <p class="pin warn"><b>논쟁 주장</b>: ① Person·Account UI 명사 노출 금지 ② 기관별 화면 세트 금지(아키타입 4+설정) ③ role은 저장값이 아니라 파생 뷰 ④ 확장의 정본은 화면 멘탈 모델</p>
+  </div></details>
+
+  <details><summary><span class="badge pa">A</span> Turn 2 — 교차 반박: "수용하되 스키마는 깔때기 2테이블"</summary><div class="body">
+    <p><b>B-② roster 수용</b>: screening_rounds+roster_entries. 회차 귀속은 round_id, 스냅샷 복제가 정상. 종단 연결은 승격자만 client_id로 — "동의·관리 관계가 생긴 뒤에만 종단 추적"을 스키마가 강제. Client 정의 축소("개별 관리 관계"). <b>B-③ 시간성 수용</b>: unit 행 기간 귀속 + client_org_memberships 이력 + denorm 캐시(name/phone 선례). <b>B-④ 재프레이밍</b>: Person=계정 보유자의 크로스센터 앵커, 승격은 앱 계정 순간만. <b>B-⑤ referrals 조건부 수용</b>(v1 행 기록만). <b>B-⑦ 지휘관 범위 제외</b>: 신원이 아니라 공유·권한(grant) 문제 + 절단선 정책 미결 — report_grant류 예약.</p>
+    <p><b>C-③ role — 층별 분리</b>: 저장 enum 유지(닫힌 스칼라만 필터·group_by 유도 대상 — 파생 술어는 유도원 셋 밖, "보호자 제외 목록"이 커스텀 조인이 됨), 정합은 파생-검증값(재계산+감사), API·화면은 C 수용 — "both 뭉개짐은 표시층 버그". 군은 guardian 관계가 없어 자연 퇴화. <b>C-① 전면 수용</b>. <b>C-② 판정</b>: Member↔Client 엣지는 테넌트 표면에서 그리지 않는다(직원의 내담자성=맥락 교차 누출) — 중복 경고+admin 감사만. <b>C-④</b> 아키타입 4개 수용하되 명렬표의 데이터 계약은 roster_entries.</p>
+  </div></details>
+
+  <details><summary><span class="badge pb">B</span> Turn 2 — 교차 반박: "그 유니크는 첫 신학기에 깨진다"</summary><div class="body">
+    <p><b>A1</b>: 합의 명제 교체 — "Person 통합을 지킨다"가 아니라 <b>"Person을 신원 스파인으로 승격시키지 않는다"</b>(Person=앱 계정의 그림자, 스키마가 내 편). <b>A2</b>: client_identifiers 유니크 결함 — 2026년 3-2-14 김민준→2027년 3-2-14 박서연: soft-delete=종단 조인 키 파기, 미삭제=일괄 업로드 실패. 원인은 유효 구간 부재(id_type마다 시간 시맨틱 다름). 수정: +issuer, period_key, valid_from/to, temporal: stable|periodic 메타. institutions는 발번 주체 참조처로 승격 필요. <b>A4</b>: org_units 수용하되 귀속은 배정 행(enrollments)으로, clients.org_unit_id는 캐시.</p>
+    <p><b>정직한 저울질</b>: 이원화 비용 자백(검색 2표면·중복 판정 2벌·이관 코드·크로스 테이블 대조) → 절충 후퇴: Client 단일+client_stage 컬럼+기본 제외+회차 파기. "이원화의 본질은 테이블 수가 아니라 생명주기·파기 정책 분리".</p>
+    <p><b>C에게</b>: "9할은 어휘+뷰 설정"은 7할만 — 의뢰는 화면으론 (b)지만 스키마 없인 렌더 대상이 없고, 절단선은 판정·감사 대상이며, <b>익명 집계(방출)가 진짜 두 번째 (c)</b>(비직원 수신자, n&lt;5는 방출 게이트). "role 관계 파생"은 명부에서 파생원 0 — 기관 트랙에서 role은 무용, 참조축은 client_stage·enrollment.</p>
+  </div></details>
+
+  <details><summary><span class="badge pc">C</span> Turn 2 — 교차 반박: "화면 이원화는 거부, 관문은 하나"</summary><div class="body">
+    <p><b>roster</b>: 데이터 이원화 수용 / 두 종류 사람 행이 같은 목록·검색·라우팅에 공존하면 파산. 그러나 "한 목록 상태 구분"도 아니다 — 코어 루프가 다르면 화면이 분화(명렬표 아키타입). 승격 인터랙션: "개별 관리 시작"→승격 시트(중복 경고 배너 재사용)→내담자 목록 등장+roster엔 케이스 배지만. 전역 검색 정본은 Client만.</p>
+    <p><b>관계 없는 명부</b>: 폴백은 무표시 — 파생 소스 부재=그 기관에 그 어휘가 없다는 신호. 탭의 존재 자체가 관계 데이터에서 파생. A의 enum 동결과 충돌 해소(저장=A, 표시=관계, 폴백=침묵).</p>
+    <p><b>용어 팩 합류</b>: 플랫폼 프리셋만 소유(센터 오버라이드 v1 금지). "아동" 제거 경로: ROLE_TABS→카탈로그 키→탭 구성 자체를 팩이 선언(군 팩=보호자 탭 부재). <b>식별자 검색</b>: 통합 검색창+패턴 감지+결과 섹션 분리("학번 정확 일치 — 1건"). <b>org_units</b>: 수용+시간성 판정 요청(소급 불변). <b>Member↔Client 엣지</b>: 보이는 곳 두 곳(중복 경고·super_admin 병합), 그 외 전부 숨김.</p>
+  </div></details>
+
+  <details><summary><span class="badge pa">A</span> Turn 3 — 최종: "2테이블 유지, 수명은 행이 보유한다"</summary><div class="body">
+    <p><b>(a) roster — client_stage 기각</b>: ① clients.code String(6) NOT NULL+role NOT NULL 계약이 물리적으로 거부(컬럼 하나 넣으려고 계약 두 개를 깸) ② soft delete와 회차 hard purge가 한 테이블에 공존하면 "이 테이블의 삭제는 무엇인가"에 답이 두 개 ③ 누출 실수 지점 N개 vs 0개. B에게서 취함: 종단 조인은 enrollments+identifiers 담당, roster는 신원 야심 없는 회차 소모품. 승격 시 당시 소속 라벨 텍스트 스냅샷 동반(회차 파기 후 판독).</p>
+    <p><b>(b) 시간성 절충</b>: unit 행에 valid_from/to — "unit은 플라톤적 라벨이 아니라 구체적 코호트 컨테이너, 수명은 도메인이 정한다"(학교 반=1학년도 신행, 군 중대=안정 행 — 둘 다 맞게 됨). enrollments 정본(B 수용)+캐시. period_key는 enrollment에 불필요(FK 자립성으로 연도 합쳐짐 버그 원천 차단). 소급 불변 3중: unit 불변·enrollment append-only·과거 참조는 당시 행.</p>
+    <p><b>(c) identifiers</b>: B 수정안 수용 + 유니크만 정정 — period_key nullable이 유니크에 들어가면 NULL끼리 충돌 안 함 → partial index 2본(stable/periodic). issuer 승격 수용하되 참조처 역할까지만.</p>
+    <p><b>대표 판정 이관</b>: 절단선 / 군 배포 모델 / roster 파기 주기 / 파기 범위(원자료 vs 무기명 통계).</p>
+  </div></details>
+
+  <details><summary><span class="badge pb">B</span> Turn 3 — 최종: "A안 채택. 단 종단 계보와 집계 반출은 생명선"</summary><div class="body">
+    <p><b>(a) client_stage 철회, 2테이블 채택</b>: ① 명부 800행 때문에 코어 정합 계약(code·중복 차단·가구 UX)을 오염시키는 비용은 기관 트랙이 지불시켜선 안 됨 ② 파기는 오히려 분리 테이블이 유리(soft-delete 충돌 — "내 논거가 상대안을 지지하고 있었다") ③ 동의 이전 최소수집 프레임은 법무 관점에서도 맞음. <b>조건 1</b>: 승격 시 과거 회차 소급 링크("작년에도 관심군이었나"=위기 개입 핵심 — 없으면 임상 가치 반토막). <b>조건 2</b>: roster에 발번 원문 보관, 매칭은 계산(temporal 대칭).</p>
+    <p><b>(b) A안 채택 + unit_code</b>: 학교 반은 매년 실제로 새로 생성(NEIS도 학년도 단위) — "안정 unit"은 학교에서 거짓말. 군 중대는 개방 기간 행으로 무손실 포섭. 단 안정 unit_code 축 필수("1중대 연도별 추이" 계보).</p>
+    <p><b>(c) 제외 부분 동의 + 1건 불가</b>: 지휘관 계정·보존 엔진·절단선 로직 제외 동의(회차 purge 실행·threshold 기록 필드는 v1). <b>⚠ 익명 집계 화면+반출(n&lt;5 게이트)은 제외 불가 — 계약 성립 조건.</b> 수신자는 시스템 밖, 산출물은 시스템 안.</p>
+    <p><b>외부 확인</b>: 군 국방망(최우선) / 상담관 훈령 / 교육부 검사 지침 / 만 14세 동의 / 판권. — "종단 계보와 집계 반출이 빠진 합의라면 나는 서명하지 않았을 것이다."</p>
+  </div></details>
+
+  <details><summary><span class="badge pc">C</span> Turn 3 — 최종: "안전은 사용자의 기억이 아니라 구조가 지킨다"</summary><div class="body">
+    <p><b>(a) 2테이블 지지</b>: 판정 기준 — "기본 제외"가 네거티브 규칙이냐 위상적 사실이냐. client_stage면 Client 읽기 표면 십수 곳(목록·즐겨찾기·일정 피커·검사 접수·바우처·청구·알림·admin·<b>에이전트 query_client</b>)이 전부 필터를 기억해야 하고, 아키타입 자동 유도로 client_stage가 에이전트 필터에 자동 편입. 한 곳이라도 새면 800명이 자동완성·에이전트 답변에 침입. 2테이블이면 보장이 공짜 + 파기 오폭 구조적 불가능. 승격 시트는 mutation이 아니라 탄생(creation) — roster 프리필 Client 생성 폼.</p>
+    <p><b>(b) 방출 = 대시보드의 모드</b>: 뷰 문법은 동일 아키타입, 새로운 건 방출 액션 표면(수신자→마스킹 미리보기→산출물 확정 게이트)+이력. "보이는 것=나가는 것". n&lt;5는 플랫폼 고정·팩 완화 불가. 아키타입 총수 4 유지.</p>
+    <p><b>(c) 기간 스코프</b>: 통합 검색창 유지 + periodic 감지 시 기간 칩 행([2026 ✓][2025][전체], 기본=팩의 현재 period). 자동완성은 현재 기간만. 검색어 문법은 만들지 않는다 — 스코프는 항상 시각적 칩.</p>
+    <p><b>대표 판정(UI)</b>: 명렬표 개인 클릭 정보 수준(절단선 종속 — 절단선을 프롭으로 받는 구조로 구현) / 방출 산출물 형태·보존 / 회차 파기 자동 vs 수동 / 학년도 롤오버 트리거.</p>
+  </div></details>
+</section>
+
+</div>
+</body>
+</html>

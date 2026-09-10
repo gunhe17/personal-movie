@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온톨로지 v1 — 두 트랙 작업 안내 (레이어 + 스크리닝)</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb;
+    --accent:#4486FF;
+    --t1:#6d3fc0; --t1-bg:#f1ecfb; --t1-line:#d8c9f2;   /* 트랙1 레이어 */
+    --t2:#0e7490; --t2-bg:#e8f6fa; --t2-line:#b8e0ec;   /* 트랙2 스크리닝 */
+    --be:#2456c4; --be-bg:#eef4ff; --be-line:#c8daff;
+    --fe:#1f6f5c; --fe-bg:#e8f4f0; --fe-line:#bfe0d5;
+    --de:#b0387a; --de-bg:#fdeef6; --de-line:#f3c6dd;
+    --warn:#b45309; --warn-soft:#fef3e2;
+    --ok:#15803d; --ok-soft:#e7f6ec;
+    --danger:#b91c1c; --danger-soft:#fdeaea;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:44px 24px 100px; line-height:1.75; }
+  .wrap { max-width:960px; margin:0 auto; }
+  h1 { font-size:25px; margin-bottom:8px; }
+  .subtitle { color:var(--sub); font-size:14.5px; margin-bottom:28px; max-width:840px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+  section { margin-bottom:52px; }
+  h2 { font-size:19px; margin-bottom:4px; }
+  h3 { font-size:14.5px; margin:18px 0 8px; }
+  h4 { font-size:13.5px; margin:12px 0 6px; }
+  p, li { font-size:13.5px; }
+  ul, ol { padding-left:22px; margin-bottom:10px; }
+  li { margin-bottom:5px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+
+  /* 레이어 다이어그램 */
+  .layers { display:flex; flex-direction:column; gap:6px; margin:14px 0; }
+  .layer { border-radius:12px; padding:12px 18px; border:1.5px solid var(--line); background:#fff; font-size:13px; }
+  .layer b { display:block; font-size:13.5px; margin-bottom:2px; }
+  .layer small { color:var(--sub); font-size:12px; display:block; }
+  .layer.frozen { background:#f1f4f8; }
+  .layer.onto { background:var(--t1-bg); border-color:var(--t1-line); }
+  .layer.onto b { color:var(--t1); }
+  .layer.consumer { background:var(--ok-soft); border-color:#a9d8bb; }
+  .l-arrow { text-align:center; color:#94a3b8; font-size:12px; line-height:1; }
+
+  /* 트랙 배너 */
+  .track-banner { border-radius:16px; padding:16px 22px; margin:30px 0 16px; border:2px solid; }
+  .track-banner.t1 { background:var(--t1-bg); border-color:var(--t1-line); }
+  .track-banner.t2 { background:var(--t2-bg); border-color:var(--t2-line); }
+  .track-banner h2 { font-size:17px; }
+  .track-banner.t1 h2 { color:var(--t1); } .track-banner.t2 h2 { color:var(--t2); }
+  .track-banner p { font-size:13px; color:var(--sub); }
+
+  /* 담당자 카드 */
+  .role { background:#fff; border:2px solid; border-radius:18px; overflow:hidden; margin-bottom:22px; }
+  .role.be { border-color:var(--be-line); } .role.fe { border-color:var(--fe-line); } .role.de { border-color:var(--de-line); }
+  .role-head { padding:14px 24px 11px; }
+  .role.be .role-head { background:var(--be-bg); } .role.fe .role-head { background:var(--fe-bg); } .role.de .role-head { background:var(--de-bg); }
+  .role-head h2 { font-size:16px; }
+  .role.be .role-head h2 { color:var(--be); } .role.fe .role-head h2 { color:var(--fe); } .role.de .role-head h2 { color:var(--de); }
+  .role-head p { font-size:13px; color:var(--sub); }
+  .role-body { padding:6px 24px 20px; }
+
+  .why-box { background:var(--bg); border-radius:12px; padding:14px 18px; margin:12px 0; }
+  .why-box h4 { margin-top:8px; }
+  .why-box h4:first-child { margin-top:0; }
+  .why-box p, .why-box li { font-size:13px; }
+
+  .example { border-left:3px solid var(--accent); padding:8px 0 8px 16px; margin:12px 0; }
+  .example h4 { margin-top:0; color:var(--accent); }
+  .example p, .example li { font-size:13px; }
+  .example pre { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:11.5px; background:#f4f6fa; border-radius:8px; padding:10px 14px; overflow-x:auto; line-height:1.6; margin:8px 0; }
+
+  .todo { border:1px solid var(--line); border-radius:12px; padding:12px 16px; margin:8px 0; background:#fafbfd; }
+  .todo b { font-size:13.5px; }
+  .todo small { display:block; color:var(--sub); font-size:12.5px; }
+  .todo .dod { font-size:12px; color:var(--ok); margin-top:5px; }
+  .todo .dod::before { content:"✓ 다 됐는지 확인하는 법: "; font-weight:700; }
+
+  .decide { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:14px; }
+  @media (max-width:780px){ .decide { grid-template-columns:1fr; } }
+  .decide > div { border-radius:12px; padding:11px 14px; font-size:12.5px; }
+  .decide .self { background:var(--ok-soft); }
+  .decide .ask { background:var(--warn-soft); }
+  .decide .wait { background:var(--danger-soft); }
+  .decide b { display:block; font-size:12.5px; margin-bottom:5px; }
+  .decide li { font-size:12px; margin-bottom:3px; }
+  .decide ul { padding-left:16px; margin:0; }
+
+  .pin { font-size:13px; border-radius:10px; padding:10px 14px; margin:8px 0; }
+  .pin.warn { background:var(--warn-soft); }
+  .pin.danger { background:var(--danger-soft); }
+  .pin.ok { background:var(--ok-soft); }
+  .funnel { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; margin:8px 0; }
+  .fstep { border:1.5px solid var(--line); border-radius:20px; padding:4px 14px; background:#fff; font-weight:600; }
+  .fstep.hl { background:var(--ok-soft); border-color:#a9d8bb; color:var(--ok); }
+  .far { color:#94a3b8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>온톨로지 v1 — 두 트랙 작업 안내</h1>
+<p class="subtitle">
+  <b>4인(FE-A · FE-B · BE-B · DE)이 이 문서만 읽고 시작할 수 있게</b> 만들었습니다.
+  §0 공통 + 자기 카드만 읽으면 됩니다 (15분). 모든 결정은 팀 안에서 합니다.
+</p>
+
+<!-- ═══════ 0. 공통 ═══════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">0</span><h2>먼저 — 궁극 목표와 두 트랙</h2></div>
+
+  <h3>궁극 목표 (한 문장)</h3>
+  <p><b>기존 스키마(테이블)는 최대한 건드리지 않고, 그 위에 "온톨로지 레이어"를 얹어서 —
+  나중에 군대·학교·병원으로 확장할 때 코드가 아니라 레이어의 설정(프로필)만 추가하면 되게 만든다.</b></p>
+
+  <h3>온톨로지 레이어가 뭔가</h3>
+  <p>"내담자·학생·환자·장병은 사실 같은 개념(서비스 대상자)이고, 기관마다 부르는 말과 화면만 다르다" —
+  이 공통 개념을 코드 바깥의 <b>데이터(정의서)</b>로 만든 것입니다. 3장짜리 문서라고 생각하면 됩니다:</p>
+  <div class="layers">
+    <div class="layer frozen"><b>맨 아래: 기존 테이블 (원칙적으로 불변)</b><small>clients · members · centers · cases · sessions … 지금 그대로. 이번에 추가하는 컬럼은 <code>centers.center_type</code>(기관 유형) 하나뿐.</small></div>
+    <div class="l-arrow">▲ ② 바인딩이 연결</div>
+    <div class="layer onto"><b>가운데: 온톨로지 레이어 (이번에 만드는 것)</b>
+      <small>① <b>개념 카탈로그</b> — 중립 개념 목록: Subject(대상자)·Guardian(보호자)·Practitioner(제공자)·Organization(조직)·Encounter(만남)… 각각의 속성·관계 정의<br>
+      ② <b>바인딩</b> — 개념이 실제 어느 테이블·컬럼·API에 사는지 연결표: "Subject = clients 테이블, Subject.이름 = clients.name"<br>
+      ③ <b>버티컬 프로필</b> — 기관 유형별 해석: 학교 프로필이면 "Subject를 '학생'이라 부르고, Guardian은 '학부모', 첫 화면은 명부" / 군 프로필이면 "Guardian은 <b>없음</b>"</small></div>
+    <div class="l-arrow">▼ 소비자가 레이어를 읽음</div>
+    <div class="layer consumer"><b>맨 위: 레이어를 읽는 것들</b><small>화면(라벨·탭·첫 화면을 프로필에서) · graph explorer(카탈로그+바인딩을 그래프로 그려서 눈으로 확인) · 새 기관 온보딩(프로필 파일 하나 추가 = 끝)</small></div>
+  </div>
+
+  <div class="example">
+    <h4>이게 되면 뭐가 좋아지나 — "군대 버전 만들어주세요"가 왔을 때</h4>
+    <pre>지금:   군대용 화면·용어·로직을 코드에 분기 추가 → 몇 주 개발
+목표:   military.json 프로필 하나 작성 →
+        { "Subject": "장병", "Guardian": null(없음), "첫화면": "명부", "식별자": "군번" }
+        → 화면·explorer가 자동으로 군대 모습이 됨. 코드 변경 0.</pre>
+  </div>
+
+  <h3>왜 트랙이 두 개인가</h3>
+  <p>레이어를 만들다 보면 <b>기존 테이블에 대응물이 아예 없는 개념</b>이 나옵니다 — 조직 단위(반·중대), 스크리닝 명부(전교생 명단).
+  이건 레이어(매핑)로는 해결이 안 되고 저장 공간이 실제로 필요합니다. 그래서:</p>
+  <ul>
+    <li><b>트랙 1 (레이어)</b>: 개념 카탈로그·바인딩·프로필·소비자. 스키마 변경 거의 0. — 궁극 목표 그 자체</li>
+    <li><b>트랙 2 (스크리닝 기능)</b>: 대응물 없는 개념 중 사업상 당장 필요한 것(조직 단위·명부)만 새 테이블로 구현 + 그 화면들</li>
+    <li><b>연결 규칙 하나</b>: 트랙 2가 만드는 테이블·API는 반드시 <b>트랙 1 카탈로그의 개념 이름·속성을 따라</b> 만든다. (트랙 1이 먼저 개념 정의를 내려놓고, 트랙 2가 그걸 구현하는 순서 — 안 그러면 나중에 레이어에 안 붙는 섬이 생김)</li>
+  </ul>
+
+  <div class="pin danger"><b>🔴 아직 만들면 안 되는 것 (대표 결정 대기):</b> ① 외부 기관(교육청·부대)에 통계 내보내기 ② 검사 점수를 화면에 어디까지 보여줄지 ③ 명부의 사람을 승격할 때 과거 기록 자동 연결. — 이 셋만 피하면 전부 오늘부터 시작 가능.</div>
+  <div class="pin warn"><b>⚠ 전원 공통 규칙:</b> ① 화면에 "Person", "Account" 같은 시스템 내부 개념을 글자로 노출하지 않기 ② 어떤 직원이 내담자이기도 하다는 사실은 어떤 화면에도 표시하지 않기 ③ 5명 미만 통계 가리기는 서버가 한다.</div>
+</section>
+
+<!-- ═══════════════ 트랙 1 ═══════════════ -->
+<div class="track-banner t1">
+  <h2>트랙 1 — 온톨로지 레이어 (궁극 목표)</h2>
+  <p>담당: BE-B(정의·바인딩 — 먼저 이것부터) + FE-B(소비자 구현) + 디자이너(프로필 내용). 스키마 변경: <code>center_type</code> 컬럼 1개.</p>
+</div>
+
+<!-- BE-B 트랙1 -->
+<section class="role be">
+  <div class="role-head"><h2>백엔드 — BE-B ①</h2><p>먼저 맡는 것: 레이어의 <b>정의 그 자체</b> — 개념 카탈로그 + 바인딩 표. 이게 나와야 두 트랙이 다 돈다 (그다음에 아래 트랙 2로 넘어감)</p></div>
+  <div class="role-body">
+    <div class="todo"><b>1. (최우선, 3일 내) 개념 카탈로그 초안</b><small>중립 개념 10±개(Subject·Guardian·Practitioner·Organization·OrgUnit·Encounter·Episode·Assessment·Identifier·Referral)의 속성·관계 + 기관별 존재 여부 표. <b>맨땅이 아님</b> — <code>docs/ontology/도메인-API흐름-온톨로지-분석.html</code> §4 매핑 표가 초안의 8할</small>
+      <div class="dod">기계가 읽을 수 있는 형식(JSON/YAML) + 사람이 읽는 설명 1장</div></div>
+    <div class="todo"><b>2. 바인딩 표</b><small>개념→기존 테이블·컬럼·API 연결. "Subject=clients, Guardian=clients(role=guardian)+client_relations, Organization=centers…". 대응물 없는 개념(OrgUnit·Roster)은 "미구현 — 트랙 2가 구현"으로 표시</small>
+      <div class="dod">FE-B가 이 표만 보고 explorer를 그릴 수 있음</div></div>
+    <div class="todo"><b>3. center_type 컬럼 + 프로필 데이터 형식 확정</b><small>프로필 JSON 스키마(디자이너 사전이 담길 그릇) — FE-B·디자이너와 첫 주에 합의</small></div>
+  </div>
+</section>
+
+<!-- FE-B -->
+<section class="role fe">
+  <div class="role-head"><h2>프론트 — FE-B</h2><p>맡는 것: 레이어의 <b>소비자</b> — 프로필 로더, 기존 화면의 하드코딩 걷어내기, graph explorer</p></div>
+  <div class="role-body">
+    <h3>시작 전에 이해할 것</h3>
+    <div class="why-box">
+      <h4>① "학교 버전"은 새 화면이 아니라 프로필이다</h4>
+      <p>API는 <code>role: "client"</code> 같은 중립 코드만 줍니다. 화면에 "내담자"라 쓸지 "학생"이라 쓸지는 그 센터의 <code>center_type</code>이 가리키는
+      <b>프로필</b>이 정합니다. 그런데 지금 코드엔 <code>features/clients/constants.ts</code>에 <b>"아동"이 하드코딩</b>돼 있는 식의 위반이 있습니다 — 이걸 걷어내고 프로필을 읽게 바꾸는 게 이 작업의 절반.</p>
+      <h4>② 프로필은 단어만이 아니라 화면 구성도 정한다</h4>
+      <p>군대엔 "보호자" 개념이 없습니다 → 군 프로필에선 보호자 탭이 번역되는 게 아니라 <b>아예 안 생겨야</b> 합니다. 프로필이 정하는 것 = 단어 + 탭 구성 + 첫 화면 + 검색 방식. 컴포넌트는 하나, 프로필 데이터로만 달라짐.</p>
+      <h4>③ explorer는 레이어의 거울이다</h4>
+      <p>graph explorer는 예쁜 그림이 목적이 아니라 <b>"카탈로그+바인딩이 실제 데이터와 맞는지 눈으로 확인하는 도구"</b>입니다. BE-B의 카탈로그·바인딩 표를 입력으로 받아 그대로 그리세요 — explorer에 별도 하드코딩이 생기면 목적이 무너집니다.</p>
+    </div>
+    <h3>할 일</h3>
+    <div class="todo"><b>1. 프로필 로더</b><small>center_type → 프로필 JSON 로드(로그인 시 1회) → 전 화면이 읽는 스토어/헬퍼</small>
+      <div class="dod">center_type만 바꾸면 재배포 없이 "내담자 관리"→"학생 관리", 보호자 탭 유무가 바뀜</div></div>
+    <div class="todo"><b>2. 하드코딩 걷어내기</b><small>역할·관계 한국어 리터럴 전수 수색 → 프로필 키로 교체, 탭 구성도 프로필에서</small>
+      <div class="dod">clients 화면군에서 역할·관계 한국어 리터럴 0건 (grep으로 확인)</div></div>
+    <div class="todo"><b>3. graph explorer</b><small>카탈로그·바인딩을 읽어 개념 그래프 + 실제 데이터 조회. 팬·줌 캔버스는 <code>docs/ontology/API-관계도-캔버스.html</code> 코드 재사용</small>
+      <div class="dod">카탈로그에 개념을 추가하면 explorer에 코드 수정 없이 나타남 · Person·Account 노드 없음</div></div>
+    <div class="decide">
+      <div class="self"><b>🟢 알아서 결정</b><ul><li>로더·스토어 설계</li><li>explorer 시각화 방식</li><li>치환 PR 쪼개기</li></ul></div>
+      <div class="ask"><b>🟡 BE-B와 결정</b><ul><li>프로필 JSON 스키마</li><li>바인딩 표에 없는 관계를 그리고 싶을 때</li></ul></div>
+      <div class="wait"><b>🔴 없음</b><ul><li>이 트랙은 전부 즉시 가능</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- DE -->
+<section class="role de">
+  <div class="role-head"><h2>디자이너 — DE (두 트랙 겸)</h2><p>맡는 것: <b>프로필 4종의 내용</b>(기관별 말 사전) + 트랙 2 신규 화면 시안 + "보여주면 안 되는 것" 가이드</p></div>
+  <div class="role-body">
+    <h3>시작 전에 이해할 것</h3>
+    <div class="why-box">
+      <h4>① 프로필의 내용물은 디자인 산출물이다</h4>
+      <p>"내담자→학생"은 번역이 아니라 <b>그 기관 사람들이 실제로 쓰는 말과 안 쓰는 말의 목록</b>입니다.
+      군대에 "보호자"가 없다는 것, 학교의 공식 용어가 "관심군"이라는 것 — 개발자가 정할 수 없는 영역이고, 이 사전의 품질이 "오, 우리 기관용이네"라는 첫인상을 결정합니다.
+      각 프로필에는 단어 + 탭 구성 + 첫 화면 + <b>"이 기관에 없는 개념" 목록</b>이 들어갑니다. (형식은 BE-B·FE-B와 첫 주 합의, 내용은 전적으로 DE 소유)</p>
+      <h4>② 이 제품은 "안 보여주는 것"이 기능이다</h4>
+      <p>심리 데이터라서요. 공통 규칙 3가지(§0)의 화면 적용 예시집 — 해도 되는 표현/안 되는 표현을 나란히 — 을 만들면 모든 PR의 체크리스트가 됩니다.</p>
+    </div>
+    <h3>할 일</h3>
+    <div class="todo"><b>1. (최우선) 명부 화면 + [개별 관리 시작] 시안</b><small>트랙 2의 FE-A 착수 조건. 800행 표의 정보 우선순위, 발송/회수/판정 컬럼, 승격 플로우</small>
+      <div class="dod">3일 내 전달 · FE-A가 추가 질문 없이 1차 구현 가능</div></div>
+    <div class="todo"><b>2. 프로필 사전 4종 (센터·학교·병원·군)</b><small>대상자·보호자·직원·조직·검사 어휘 + 탭 구성 + 첫 화면 + 없는 개념 목록</small>
+      <div class="dod">FE-B가 그대로 JSON에 옮길 수 있는 표 형태</div></div>
+    <div class="todo"><b>3. 통계·explorer 시안</b><small>가려진 칸 표현(빈칸 금지 — "5명 미만 비표시"가 읽히게) 포함</small></div>
+    <div class="todo"><b>4. "보여주면 안 되는 것" 가이드 1장</b><small>좋은 예/나쁜 예 나란히, PR 셀프 체크용</small></div>
+    <div class="decide">
+      <div class="self"><b>🟢 알아서 결정</b><ul><li>어휘 선택·화면 구성 전부</li></ul></div>
+      <div class="ask"><b>🟡 BE-B와 결정</b><ul><li>사전 항목이 실제 데이터·개념 카탈로그에 있는지</li></ul></div>
+      <div class="wait"><b>🔴 보류</b><ul><li>외부 반출 문서 · 점수 노출 수준</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 트랙 2 ═══════════════ -->
+<div class="track-banner t2">
+  <h2>트랙 2 — 스크리닝 기능 (대응물 없는 개념의 구현)</h2>
+  <p>담당: BE-B(테이블·API) + FE-A(화면). 새 테이블 허용 — 단 <b>트랙 1의 개념 카탈로그에 정의된 이름·속성을 따라</b> 만든다. 기존 테이블은 안 건드림.</p>
+</div>
+
+<section>
+  <div class="why-box" style="margin-top:0">
+    <h4>이 트랙의 배경 — 깔때기</h4>
+    <p>학교·군대 영업의 핵심은 "전체 검사(스크리닝)"인데, 전교생 800명을 내담자로 등록하면 기존 목록·검색·일정이 전부 오염됩니다. 그래서:</p>
+    <div class="funnel">
+      <span class="fstep">전교생 800명 명단 업로드</span><span class="far">→</span>
+      <span class="fstep">검사 발송·회수</span><span class="far">→</span>
+      <span class="fstep">기준 넘은 12명</span><span class="far">→</span>
+      <span class="fstep hl">[개별 관리 시작] → 그때부터 내담자</span>
+    </div>
+    <p>명단은 <b>별도 테이블(명부)</b>에 두고, 걸러진 소수만 내담자로 "승격"합니다. 회차가 끝나면 명단은 통째로 삭제 가능, 승격된 사람의 기록만 남습니다.
+    조직 단위(반·중대)도 기존 테이블에 없어서 이 트랙에서 새로 만듭니다.</p>
+  </div>
+</section>
+
+<!-- BE-B -->
+<section class="role be">
+  <div class="role-head"><h2>백엔드 — BE-B ②</h2><p>그다음 맡는 것: 새 테이블(조직 단위·명부·회차)과 그 API — 반입·파기·집계. 트랙 1에서 본인이 정의한 개념 이름·속성을 그대로 따라 만들면 됨</p></div>
+  <div class="role-body">
+    <h3>시작 전에 이해할 것 3가지</h3>
+    <div class="why-box">
+      <h4>① "3학년 2반"은 매년 새로 만들어지는 행이다</h4>
+      <p>2026년의 3-2와 2027년의 3-2는 이름만 같지 구성원·담임이 다른 실체. 조직 단위 행에 <b>시작일·종료일</b>을 두고 학교 반은 1년짜리, 군 중대는 종료일 없는 행으로.
+      <b>끝난 행은 수정 금지</b>(고칠 일 있으면 종료+새 행) — 안 그러면 작년 통계가 나중에 슬쩍 바뀝니다.</p>
+      <h4>② "지금 어느 반"과 "그동안 어느 반이었나"는 저장 위치가 다르다</h4>
+      <p>현재 소속 = clients 캐시 컬럼(빠른 조회), 이력 = 배정 테이블(추가만, 삭제 없음).</p>
+      <h4>③ 명부가 내담자와 다른 테이블인 이유</h4>
+      <ul><li>내담자에는 코드 발급·중복 검사 절차가 붙어 있어 800명 일괄이 안 됨</li>
+          <li>내담자는 표시만 삭제(soft delete), 명부는 회차 끝나면 <b>진짜 삭제</b></li>
+          <li>테이블이 다르면 기존 화면·검색·AI 조회가 수정 없이 안전</li></ul>
+    </div>
+    <h3>할 일</h3>
+    <div class="todo"><b>1. 조직 단위 + 배정 이력 API</b><div class="dod">반 이동시키면 이력이 남고 캐시 갱신 · "반별 인원" 집계가 나옴</div></div>
+    <div class="todo"><b>2. 명부 엑셀 반입 API</b><small>업로드→검사→미리보기→확정</small><div class="dod">800행 10초 내 · 오류는 "몇 번째 줄이 왜" · 두 번 올려도 중복 없음</div></div>
+    <div class="todo"><b>3. 회차 삭제(파기)</b><div class="dod">파기해도 승격된 내담자 데이터는 멀쩡함을 테스트로 증명</div></div>
+    <div class="todo"><b>4. 통계 API (내부용)</b><small>회차별·반별 + 5명 미만 가리기</small><div class="dod">API 직접 호출로도 5 미만 숫자 안 나옴</div></div>
+    <div class="decide">
+      <div class="self"><b>🟢 알아서 결정</b><ul><li>검증 규칙·집계 구현·성능</li></ul></div>
+      <div class="ask"><b>🟡 팀 논의 후 결정</b><ul><li>기존 테이블에 컬럼 추가가 필요해 보일 때 — 원칙은 "안 함", 정말 불가피하면 근거를 문서에 남기고 진행</li></ul></div>
+      <div class="wait"><b>🔴 만들지 않기</b><ul><li>외부 반출 통계 · 절단선 자동 판정</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- FE-A -->
+<section class="role fe">
+  <div class="role-head"><h2>프론트 — FE-A</h2><p>맡는 것: 스크리닝 화면 4개 — 명부, [개별 관리 시작], 조직 편성, 통계</p></div>
+  <div class="role-body">
+    <h3>시작 전에 이해할 것 — 사용자가 다르게 생각한다</h3>
+    <div class="why-box">
+      <p>상담사는 <b>"아이 한 명 한 명"</b>을 봅니다(한 명 등록, 프로필, 일정). 학교·군대 사용자는 <b>"명단을 굴립니다"</b> —
+      800명 올리고, 검사 뿌리고, 회수율 보고, 걸러진 소수만 들여다봄. 일하는 방식이 달라서 새 화면을 만듭니다.</p>
+      <h4>꼭 지킬 것: 명단 800명이 기존 화면에 새면 안 된다</h4>
+      <p>명부는 <b>회차 화면 안에서만</b>. 내담자 목록·전체 검색·일정의 사람 선택·자동완성 어디에도 안 나옴.</p>
+      <h4>[개별 관리 시작] = 기존 내담자 등록 폼이 미리 채워져 열리는 것</h4>
+      <p>저장하면 진짜 내담자가 되고, 기존 등록 화면의 <b>노란 중복 경고 배너를 그대로 재사용</b>("비슷한 기록이 있어요 → [기존 기록 열기] [새로 등록]"). 명부 행에는 "관리 중" 배지만 남음.</p>
+    </div>
+    <div class="example">
+      <h4>실제 사용 흐름 (학교 상담 선생님의 검사 주간)</h4>
+      <ol>
+        <li>행정실에서 받은 엑셀을 회차에 업로드 → 오류 3줄 고치고 확정</li>
+        <li>명부에서 반별 발송 → 매일 회수 상태 확인</li>
+        <li>회수 끝 → 정렬 → 기준 넘은 12명 확인</li>
+        <li>12명 [개별 관리 시작] → 이 12명만 기존 내담자 화면에 등장</li>
+        <li>학기 끝 → 회차 삭제 → 명단은 사라지고 12명 기록은 그대로</li>
+      </ol>
+    </div>
+    <h3>할 일</h3>
+    <div class="todo"><b>1. 명부 화면</b><small>디자이너 시안 선행 — 그 전엔 데이터 연동부터</small><div class="dod">800행 스크롤·정렬 쾌적 · 이 화면 안에서만 검색됨</div></div>
+    <div class="todo"><b>2. [개별 관리 시작] 화면</b><div class="dod">저장하면 내담자 목록에 등장 · 명부 행에 배지 · 중복이면 기존 기록 연결 가능</div></div>
+    <div class="todo"><b>3. 조직 편성 화면</b><small>반/중대 트리 + 학년도 넘기기</small><div class="dod">지난 학년도는 읽기 전용</div></div>
+    <div class="todo"><b>4. 통계 화면 (내부용)</b><div class="dod">가려진 칸이 빈칸이 아니라 "5명 미만 비표시"로 읽힘</div></div>
+    <div class="decide">
+      <div class="self"><b>🟢 알아서 결정</b><ul><li>표 인터랙션·컴포넌트 (디자이너와)</li></ul></div>
+      <div class="ask"><b>🟡 BE-B와 결정</b><ul><li>승격 API 스펙 · 중복 판정 기준</li></ul></div>
+      <div class="wait"><b>🔴 만들지 않기</b><ul><li>개인 점수 상세 노출 · 외부 반출 화면</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 마무리 -->
+<section>
+  <div class="sec-head"><span class="sec-num">✓</span><h2>시작하는 법 + 성공 기준</h2></div>
+  <ol>
+    <li>자기 카드 + §0 읽기 (15분)</li>
+    <li>첫 3일: BE-B = 개념 카탈로그+바인딩 초안 / 디자이너 = 명부·승격 시안. 이 둘이 나오면 전원 병렬 (FE-A·FE-B는 그동안 환경 세팅·목데이터로 선진행)</li>
+    <li>막히면: 🟢 그냥 결정하고 PR에 이유 한 줄 · 🟡 팀에서 결정(백엔드·스키마는 BE-B가 최종) · 🔴 손대지 않기</li>
+  </ol>
+  <div class="pin ok"><b>v1이 성공했는지 확인하는 최종 테스트:</b> ① 가상의 "군 프로필"을 추가했을 때 코드 변경 없이 화면 어휘·탭·첫 화면이 바뀌는가 ② explorer에서 개념→실제 데이터가 이어져 보이는가 ③ 기존 스키마 diff가 <code>center_type</code> 1컬럼(+트랙 2 신규 테이블)뿐인가 — 기존 테이블 변경 0인가</div>
+</section>
+
+</div>
+</body>
+</html>

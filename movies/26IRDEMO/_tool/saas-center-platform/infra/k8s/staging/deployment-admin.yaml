@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-admin
+  namespace: mindscope-staging
+  labels:
+    app: mindscope-admin
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-admin
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # 스테이징 노드 1대·파드 상한 11개 — surge 슬롯이 없어 구 파드 먼저 내리고 교체
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mindscope-admin
+        environment: staging
+    spec:
+      containers:
+        - name: admin
+          image: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com/mindscope-staging/admin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: mindscope-admin-config
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "5m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

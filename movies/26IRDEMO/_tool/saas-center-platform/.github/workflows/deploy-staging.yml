@@ -1,0 +1,291 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REGISTRY: 786180311928.dkr.ecr.ap-northeast-2.amazonaws.com
+  ECR_REPOSITORY_API: mindscope-staging/api
+  ECR_REPOSITORY_WEB: mindscope-staging/web
+  ECR_REPOSITORY_ADMIN: mindscope-staging/admin
+  EKS_CLUSTER_NAME: mindscope-staging-eks
+  K8S_NAMESPACE: mindscope-staging
+
+jobs:
+  # ============================================
+  # Resolve image tag (commit SHA)
+  # ============================================
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.IMAGE_TAG }}
+      short_sha: ${{ steps.tag.outputs.SHORT_SHA }}
+    steps:
+      - name: Set image tag
+        id: tag
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=staging-${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+  # ============================================
+  # Build API image (parallel)
+  # ============================================
+  build-api:
+    name: Build API
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          file: apps/api/Dockerfile.prod
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_API }}:${{ needs.prepare.outputs.image_tag }}
+          cache-from: type=gha,scope=staging-api
+          cache-to: type=gha,mode=min,scope=staging-api
+
+  # ============================================
+  # Build Web image (parallel)
+  # ============================================
+  build-web:
+    name: Build Web
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile.prod
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_WEB }}:${{ needs.prepare.outputs.image_tag }}
+          cache-from: type=gha,scope=staging-web
+          cache-to: type=gha,mode=min,scope=staging-web
+
+  # ============================================
+  # Build Admin image (parallel)
+  # ============================================
+  build-admin:
+    name: Build Admin
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Admin image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/admin/Dockerfile.prod
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_ADMIN }}:${{ needs.prepare.outputs.image_tag }}
+          cache-from: type=gha,scope=staging-admin
+          cache-to: type=gha,mode=min,scope=staging-admin
+
+  # ============================================
+  # Deploy (after all builds complete)
+  # ============================================
+  deploy:
+    name: Deploy
+    needs: [prepare, build-api, build-web, build-admin]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      # ============================================
+      # Database Migration
+      # ============================================
+      - name: Run database migration
+        run: |
+          TIMESTAMP=$(date +%s)
+
+          # Create migration job from template
+          sed -e "s|IMAGE_TAG|${{ needs.prepare.outputs.image_tag }}|g" \
+              -e "s|NAMESPACE|${{ env.K8S_NAMESPACE }}|g" \
+              -e "s|ECR_REPO_PREFIX|mindscope-staging|g" \
+              -e "s|TIMESTAMP|${TIMESTAMP}|g" \
+              infra/k8s/migrate-job.yaml | kubectl apply -f -
+
+          # Wait for migration to complete
+          echo "Waiting for migration job to complete..."
+          kubectl wait --for=condition=complete job/db-migrate-${TIMESTAMP} \
+            -n ${{ env.K8S_NAMESPACE }} --timeout=180s
+
+          # Show migration logs
+          echo "=== Migration Logs ==="
+          kubectl logs job/db-migrate-${TIMESTAMP} -n ${{ env.K8S_NAMESPACE }}
+
+      # ============================================
+      # Deploy to Kubernetes (parallel rollout)
+      # ============================================
+      - name: Deploy API + Web + Admin
+        run: |
+          TAG="${{ needs.prepare.outputs.image_tag }}"
+          NS="${{ env.K8S_NAMESPACE }}"
+          REG="${{ env.ECR_REGISTRY }}"
+
+          # Update images
+          kubectl set image deployment/mindscope-api \
+            api=${REG}/${{ env.ECR_REPOSITORY_API }}:${TAG} -n ${NS}
+
+          kubectl set image deployment/mindscope-web \
+            web=${REG}/${{ env.ECR_REPOSITORY_WEB }}:${TAG} -n ${NS}
+
+          kubectl set image deployment/mindscope-admin \
+            admin=${REG}/${{ env.ECR_REPOSITORY_ADMIN }}:${TAG} -n ${NS}
+
+          # Wait for all rollouts in parallel
+          echo "Waiting for all rollouts..."
+          kubectl rollout status deployment/mindscope-api   -n ${NS} --timeout=180s &
+          PID_API=$!
+          kubectl rollout status deployment/mindscope-web   -n ${NS} --timeout=180s &
+          PID_WEB=$!
+          kubectl rollout status deployment/mindscope-admin -n ${NS} --timeout=180s &
+          PID_ADMIN=$!
+
+          FAILED=0
+          wait $PID_API   || { echo "API rollout failed";   FAILED=1; }
+          wait $PID_WEB   || { echo "Web rollout failed";   FAILED=1; }
+          wait $PID_ADMIN || { echo "Admin rollout failed"; FAILED=1; }
+
+          if [ $FAILED -ne 0 ]; then
+            echo "One or more rollouts failed"
+            exit 1
+          fi
+
+          echo "All rollouts completed successfully"
+
+  # ============================================
+  # Slack Notification (always runs)
+  # ============================================
+  notify:
+    name: Slack Notification
+    needs: [prepare, build-api, build-web, build-admin, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine result
+        id: result
+        run: |
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "STATUS=Staging 배포 성공" >> $GITHUB_OUTPUT
+            echo "COLOR=#36a64f" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build-api.result }}" = "failure" ]; then
+            echo "STATUS=Staging API 빌드 실패" >> $GITHUB_OUTPUT
+            echo "COLOR=#dc3545" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build-web.result }}" = "failure" ]; then
+            echo "STATUS=Staging Web 빌드 실패" >> $GITHUB_OUTPUT
+            echo "COLOR=#dc3545" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build-admin.result }}" = "failure" ]; then
+            echo "STATUS=Staging Admin 빌드 실패" >> $GITHUB_OUTPUT
+            echo "COLOR=#dc3545" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.deploy.result }}" = "failure" ]; then
+            echo "STATUS=Staging 배포 실패" >> $GITHUB_OUTPUT
+            echo "COLOR=#dc3545" >> $GITHUB_OUTPUT
+          else
+            echo "STATUS=Staging 배포 취소됨" >> $GITHUB_OUTPUT
+            echo "COLOR=#ffc107" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ steps.result.outputs.COLOR }}",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "*${{ steps.result.outputs.STATUS }}*\n*Tag:* `${{ needs.prepare.outputs.image_tag }}`\n*Commit:* `${{ needs.prepare.outputs.short_sha }}`\n*Triggered by:* ${{ github.actor }}"
+                      }
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "Build API: ${{ needs.build-api.result }} | Build Web: ${{ needs.build-web.result }} | Build Admin: ${{ needs.build-admin.result }} | Deploy: ${{ needs.deploy.result }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|워크플로우 로그 보기>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }

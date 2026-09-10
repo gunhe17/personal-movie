@@ -1,0 +1,1057 @@
+<title>검사 모듈화와 플랫폼 연동</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --ground:#f7f8fa;
+    --surface:#ffffff;
+    --surface-sunk:#eef1f6;
+    --ink:#151d2b;
+    --ink-soft:#4d5769;
+    --ink-faint:#78829a;
+    --line:#dde2ea;
+    --line-soft:#eaeef4;
+
+    --ms:#2f6fd0;
+    --ms-bg:#eaf1fc;
+    --mb:#0d7490;
+    --mb-bg:#e4f4f8;
+
+    --ok:#15803d;
+    --ok-bg:#e6f4ea;
+    --fix:#b45309;
+    --fix-bg:#fbf0dd;
+    --gap:#b91c1c;
+    --gap-bg:#fbeaea;
+
+    --shadow:0 1px 2px rgba(21,29,43,.05), 0 1px 8px rgba(21,29,43,.04);
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --ground:#11151c;
+      --surface:#181d26;
+      --surface-sunk:#1f252f;
+      --ink:#e7ecf3;
+      --ink-soft:#a3adbd;
+      --ink-faint:#7d8798;
+      --line:#2b323d;
+      --line-soft:#232a34;
+      --ms:#7aaaf0;
+      --ms-bg:#1a2634;
+      --mb:#4ec3dc;
+      --mb-bg:#122a31;
+      --ok:#5fc27e;
+      --ok-bg:#14261a;
+      --fix:#e0a44b;
+      --fix-bg:#2a2114;
+      --gap:#f08a8a;
+      --gap-bg:#2c1717;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 1px 8px rgba(0,0,0,.2);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:#11151c;
+    --surface:#181d26;
+    --surface-sunk:#1f252f;
+    --ink:#e7ecf3;
+    --ink-soft:#a3adbd;
+    --ink-faint:#7d8798;
+    --line:#2b323d;
+    --line-soft:#232a34;
+    --ms:#7aaaf0;
+    --ms-bg:#1a2634;
+    --mb:#4ec3dc;
+    --mb-bg:#122a31;
+    --ok:#5fc27e;
+    --ok-bg:#14261a;
+    --fix:#e0a44b;
+    --fix-bg:#2a2114;
+    --gap:#f08a8a;
+    --gap-bg:#2c1717;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 1px 8px rgba(0,0,0,.2);
+  }
+
+  * { box-sizing:border-box; }
+
+  body {
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:'IBM Plex Sans KR', system-ui, -apple-system, sans-serif;
+    font-size:15px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap { max-width:960px; margin:0 auto; padding:0 24px 96px; }
+
+  /* --- 헤더 --- */
+  header.top {
+    padding:56px 0 28px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:0;
+  }
+  header.top h1 {
+    margin:0 0 10px;
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-.02em;
+    line-height:1.3;
+  }
+  header.top .sub {
+    margin:0;
+    color:var(--ink-soft);
+    font-size:15px;
+  }
+  header.top .meta {
+    margin-top:14px;
+    color:var(--ink-faint);
+    font-size:13px;
+  }
+
+  /* --- 탭 --- */
+  nav.tabs {
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:flex;
+    gap:2px;
+    background:var(--ground);
+    border-bottom:1px solid var(--line);
+    padding-top:4px;
+    margin-bottom:36px;
+    overflow-x:auto;
+  }
+  nav.tabs button {
+    flex:0 0 auto;
+    appearance:none;
+    border:none;
+    background:none;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink-faint);
+    padding:12px 18px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    transition:color .15s;
+    white-space:nowrap;
+  }
+  nav.tabs button:hover { color:var(--ink-soft); }
+  nav.tabs button[aria-selected="true"] {
+    color:var(--mb);
+    border-bottom-color:var(--mb);
+    font-weight:600;
+  }
+
+  .panel { display:none; }
+  .panel.on { display:block; animation:fade .18s ease-out; }
+  @keyframes fade { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+
+  /* --- 섹션 --- */
+  h2 {
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:-.01em;
+    margin:56px 0 6px;
+    padding-top:8px;
+  }
+  h2:first-of-type { margin-top:8px; }
+  h2 .n {
+    display:inline-block;
+    color:var(--ink-faint);
+    font-size:14px;
+    font-weight:600;
+    margin-right:10px;
+    font-variant-numeric:tabular-nums;
+  }
+  h2 + .lead {
+    margin:0 0 26px;
+    color:var(--ink-soft);
+    font-size:15px;
+  }
+
+  h3 {
+    font-size:16px;
+    font-weight:600;
+    margin:34px 0 10px;
+  }
+
+  p { margin:0 0 16px; }
+  .wrap :is(p, li) strong { font-weight:600; }
+
+  ul, ol { margin:0 0 18px; padding-left:22px; }
+  li { margin-bottom:7px; }
+  li::marker { color:var(--ink-faint); }
+
+  code {
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:.87em;
+    background:var(--surface-sunk);
+    padding:.14em .42em;
+    border-radius:4px;
+    color:var(--ink-soft);
+  }
+
+  /* --- 카드 --- */
+  .card {
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px 24px;
+    box-shadow:var(--shadow);
+    margin:0 0 20px;
+  }
+  .card > :last-child { margin-bottom:0; }
+  .card h3:first-child { margin-top:0; }
+
+  /* --- 인용/강조 박스 --- */
+  .note {
+    border-left:3px solid var(--line);
+    padding:2px 0 2px 18px;
+    margin:0 0 20px;
+    color:var(--ink-soft);
+  }
+  .note > :last-child { margin-bottom:0; }
+  .note.warn { border-left-color:var(--fix); }
+  .note.bad { border-left-color:var(--gap); }
+  .note.good { border-left-color:var(--ok); }
+
+  .quote {
+    background:var(--surface-sunk);
+    border-radius:10px;
+    padding:16px 20px;
+    margin:0 0 20px;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .quote > :last-child { margin-bottom:0; }
+  .quote .src {
+    display:block;
+    margin-top:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+  }
+
+  /* --- 표 --- */
+  .tw { overflow-x:auto; margin:0 0 22px; }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+    min-width:440px;
+  }
+  th {
+    text-align:left;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:.02em;
+    color:var(--ink-faint);
+    padding:0 14px 9px;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td {
+    padding:11px 14px;
+    border-bottom:1px solid var(--line-soft);
+    vertical-align:top;
+  }
+  tr:last-child td { border-bottom:none; }
+  th:first-child, td:first-child { padding-left:0; }
+  th:last-child, td:last-child { padding-right:0; }
+
+  /* --- 칩 --- */
+  .chip {
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    line-height:1.6;
+  }
+  .chip.ok   { background:var(--ok-bg);  color:var(--ok); }
+  .chip.fix  { background:var(--fix-bg); color:var(--fix); }
+  .chip.gap  { background:var(--gap-bg); color:var(--gap); }
+  .chip.ms   { background:var(--ms-bg);  color:var(--ms); }
+  .chip.mb   { background:var(--mb-bg);  color:var(--mb); }
+  .chip.mute { background:var(--surface-sunk); color:var(--ink-faint); }
+
+  /* --- 숫자 --- */
+  .stats {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+    gap:1px;
+    background:var(--line-soft);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    margin:0 0 22px;
+  }
+  .stat { background:var(--surface); padding:18px 20px; }
+  .stat .v {
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;
+    line-height:1.2;
+  }
+  .stat .v small { font-size:14px; font-weight:600; color:var(--ink-faint); }
+  .stat .k {
+    font-size:12.5px;
+    color:var(--ink-faint);
+    margin-top:3px;
+  }
+
+  /* --- 도식 --- */
+  figure { margin:0 0 24px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption {
+    margin-top:10px;
+    font-size:13px;
+    color:var(--ink-faint);
+    text-align:center;
+  }
+  .svg-ink   { fill:var(--ink); }
+  .svg-soft  { fill:var(--ink-soft); }
+  .svg-faint { fill:var(--ink-faint); }
+  .svg-box   { fill:var(--surface); stroke:var(--line); stroke-width:1.5; }
+  .svg-sunk  { fill:var(--surface-sunk); stroke:var(--line); stroke-width:1.5; }
+  .svg-mb    { fill:var(--mb-bg); stroke:var(--mb); stroke-width:1.5; }
+  .svg-ms    { fill:var(--ms-bg); stroke:var(--ms); stroke-width:1.5; }
+  .svg-gapb  { fill:var(--gap-bg); stroke:var(--gap); stroke-width:1.5; }
+  .svg-okb   { fill:var(--ok-bg); stroke:var(--ok); stroke-width:1.5; }
+  .svg-line  { stroke:var(--line); stroke-width:1.5; fill:none; }
+  .svg-arrow { stroke:var(--ink-faint); stroke-width:1.5; fill:none; }
+  .svg-dash  { stroke:var(--ink-faint); stroke-width:1.5; fill:none; stroke-dasharray:4 4; }
+  .svg-t     { font-family:'IBM Plex Sans KR', sans-serif; font-size:12px; }
+  .svg-t.b   { font-weight:600; }
+  .svg-t.s   { font-size:11px; }
+  .svg-mono  { font-family:'JetBrains Mono', monospace; font-size:11px; }
+
+  /* --- 비포/애프터 --- */
+  .ba {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin:0 0 22px;
+  }
+  @media (max-width:640px) { .ba { grid-template-columns:1fr; } }
+  .ba > div {
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 20px;
+    background:var(--surface);
+  }
+  .ba > div > :last-child { margin-bottom:0; }
+  .ba .lbl {
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.03em;
+    margin-bottom:12px;
+  }
+  .ba .before { border-color:color-mix(in srgb, var(--gap) 32%, var(--line)); }
+  .ba .before .lbl { color:var(--gap); }
+  .ba .after { border-color:color-mix(in srgb, var(--ok) 32%, var(--line)); }
+  .ba .after .lbl { color:var(--ok); }
+  .ba ul { padding-left:18px; margin-bottom:0; font-size:14px; }
+
+  hr {
+    border:none;
+    border-top:1px solid var(--line);
+    margin:44px 0;
+  }
+
+  footer.end {
+    margin-top:64px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+    color:var(--ink-faint);
+    font-size:13px;
+  }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <h1>검사 모듈화와 운영 플랫폼 연동</h1>
+  <p class="sub">따로 만들던 검사 셋을 하나로 묶고, 그 위에 플랫폼 연동을 얹는 일</p>
+  <p class="meta">마인드봄 · 2026-08-18 기준</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true"  data-t="p1">1. 검사 모듈화</button>
+  <button role="tab" aria-selected="false" data-t="p2">2. 두 개의 축</button>
+  <button role="tab" aria-selected="false" data-t="p3">3. 플랫폼 연동</button>
+  <button role="tab" aria-selected="false" data-t="p4">4. 지금 상태</button>
+</nav>
+
+
+<!-- ═══════════════ 1 ═══════════════ -->
+<section class="panel on" id="p1" role="tabpanel">
+
+<h2><span class="n">1.1</span>문제 — 같은 일을 세 번 만들었다</h2>
+<p class="lead">HTP·로르샤하·SCT를 작업자 세 명이 하나씩 맡아 따로 만들었다.</p>
+
+<p>
+검사는 셋이지만 <strong>화면이 하는 일은 대부분 같다.</strong> 검사를 열고,
+왼쪽에 단계 목록을 보여주고, 지금 어디까지 왔는지 표시하고, 다음 단계로
+넘긴다. 그런데 셋이 따로 만들어졌으니 이 공통된 일이 세 벌로 존재했다.
+</p>
+
+<div class="stats">
+  <div class="stat"><div class="v">3<small>벌</small></div><div class="k">검사 화면 껍데기</div></div>
+  <div class="stat"><div class="v">2<small>곳</small></div><div class="k">HTP·SCT 껍데기의 실질 차이</div></div>
+  <div class="stat"><div class="v">7<small>벌</small></div><div class="k">상태 표시 규칙</div></div>
+  <div class="stat"><div class="v">14<small>곳</small></div><div class="k">화면 경로를 직접 적은 자리</div></div>
+</div>
+
+<p>
+가장 상징적인 숫자가 두 번째다. HTP 껍데기(112줄)와 SCT 껍데기(112줄)를
+나란히 놓고 비교하면 <strong>다른 곳이 딱 두 군데</strong>였다 — 주소에서 검사 번호를
+읽는 이름이 <code>examId</code>냐 <code>id</code>냐, 그리고 검사 종류가
+<code>'htp'</code>냐 <code>'sct'</code>냐. 나머지 110줄은 글자 하나까지 같았다.
+</p>
+
+<h3>왜 이게 문제인가</h3>
+<p>
+같은 규칙이 세 곳에 적혀 있으면 <strong>언젠가 어긋난다.</strong> 한 곳을 고칠 때
+나머지 두 곳은 조용히 옛날 규칙으로 남는다. 아무도 에러를 보지 못하고,
+그저 화면마다 동작이 조금씩 달라진다.
+</p>
+
+<div class="note bad">
+<p>
+실제로 일어난 일: 같은 검사가 어떤 화면에선 <strong>'로르샤하'</strong>, 어떤 화면에선
+<strong>'로샤'</strong>로 표시됐다. 같은 상태가 <strong>'AI 초안'</strong>과 <strong>'AI 초안완료'</strong>로 갈렸고,
+색깔도 주황과 보라가 공존했다. 셋 다 "누가 봐도 버그"는 아니어서 오래 남았다.
+</p>
+</div>
+
+<div class="quote">
+<p>
+"SCT 결과 화면이 판정 규칙을 직접 베껴 적으면서 상태 하나를 빠뜨렸다.
+그래서 <strong>이미 끝난 검사에 '검사 확정' 버튼이 다시 떴다.</strong>
+고친 뒤에도 로르샤하에 같은 코드가 남아 있었다."
+<span class="src">core/status.ts:48-56 주석에 기록된 실제 사고</span>
+</p>
+</div>
+
+
+<h2><span class="n">1.2</span>해법 — 껍데기 하나 + 자기소개서 셋</h2>
+<p class="lead">공통된 일은 한 벌만 두고, 검사마다 다른 것만 따로 적는다.</p>
+
+<figure>
+<svg viewBox="0 0 720 300" role="img" aria-label="리팩터링 전후 구조 비교 도식">
+  <!-- BEFORE -->
+  <text x="20" y="24" class="svg-t b svg-soft">전 — 세 벌</text>
+  <g>
+    <rect x="20" y="38" width="96" height="86" rx="8" class="svg-gapb"/>
+    <text x="68" y="60" text-anchor="middle" class="svg-t b svg-ink">HTP</text>
+    <text x="68" y="79" text-anchor="middle" class="svg-t s svg-soft">껍데기</text>
+    <text x="68" y="95" text-anchor="middle" class="svg-t s svg-soft">단계 규칙</text>
+    <text x="68" y="111" text-anchor="middle" class="svg-t s svg-soft">고유 화면</text>
+  </g>
+  <g>
+    <rect x="126" y="38" width="96" height="86" rx="8" class="svg-gapb"/>
+    <text x="174" y="60" text-anchor="middle" class="svg-t b svg-ink">로르샤하</text>
+    <text x="174" y="79" text-anchor="middle" class="svg-t s svg-soft">껍데기</text>
+    <text x="174" y="95" text-anchor="middle" class="svg-t s svg-soft">단계 규칙</text>
+    <text x="174" y="111" text-anchor="middle" class="svg-t s svg-soft">고유 화면</text>
+  </g>
+  <g>
+    <rect x="232" y="38" width="96" height="86" rx="8" class="svg-gapb"/>
+    <text x="280" y="60" text-anchor="middle" class="svg-t b svg-ink">SCT</text>
+    <text x="280" y="79" text-anchor="middle" class="svg-t s svg-soft">껍데기</text>
+    <text x="280" y="95" text-anchor="middle" class="svg-t s svg-soft">단계 규칙</text>
+    <text x="280" y="111" text-anchor="middle" class="svg-t s svg-soft">고유 화면</text>
+  </g>
+  <text x="174" y="146" text-anchor="middle" class="svg-t s svg-faint">같은 규칙이 세 곳에 — 하나 고치면 둘이 뒤처진다</text>
+
+  <!-- arrow -->
+  <path d="M348 82 L392 82" class="svg-arrow" marker-end="url(#ah)"/>
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-faint)"/>
+    </marker>
+  </defs>
+
+  <!-- AFTER -->
+  <text x="412" y="24" class="svg-t b svg-soft">후 — 코어 한 벌</text>
+  <rect x="412" y="38" width="288" height="52" rx="8" class="svg-okb"/>
+  <text x="556" y="59" text-anchor="middle" class="svg-t b svg-ink">공통 코어</text>
+  <text x="556" y="77" text-anchor="middle" class="svg-t s svg-soft">껍데기 · 단계 판정 · 상태 표시 — 한 벌만</text>
+
+  <path d="M470 90 L470 108" class="svg-line"/>
+  <path d="M556 90 L556 108" class="svg-line"/>
+  <path d="M642 90 L642 108" class="svg-line"/>
+
+  <rect x="426" y="108" width="88" height="46" rx="7" class="svg-box"/>
+  <text x="470" y="127" text-anchor="middle" class="svg-t b svg-ink">HTP</text>
+  <text x="470" y="143" text-anchor="middle" class="svg-mono svg-faint">module.ts</text>
+
+  <rect x="512" y="108" width="88" height="46" rx="7" class="svg-box"/>
+  <text x="556" y="127" text-anchor="middle" class="svg-t b svg-ink">로르샤하</text>
+  <text x="556" y="143" text-anchor="middle" class="svg-mono svg-faint">module.ts</text>
+
+  <rect x="598" y="108" width="88" height="46" rx="7" class="svg-box"/>
+  <text x="642" y="127" text-anchor="middle" class="svg-t b svg-ink">SCT</text>
+  <text x="642" y="143" text-anchor="middle" class="svg-mono svg-faint">module.ts</text>
+
+  <text x="556" y="174" text-anchor="middle" class="svg-t s svg-faint">각 60~70줄 — "내 단계는 이렇고, 이 조건에서 열린다"만 적는다</text>
+
+  <!-- 검사 고유 -->
+  <rect x="426" y="196" width="260" height="44" rx="7" class="svg-sunk"/>
+  <text x="556" y="215" text-anchor="middle" class="svg-t b svg-soft">검사 고유 화면</text>
+  <text x="556" y="231" text-anchor="middle" class="svg-t s svg-faint">그림 편집 · 녹음/채점 · 문항 — 이건 원래 다르다</text>
+  <path d="M556 154 L556 196" class="svg-dash"/>
+</svg>
+<figcaption>공통된 일은 코어가 한 벌만 갖고, 검사는 자기 특성만 선언한다</figcaption>
+</figure>
+
+<h3>자기소개서(<code>module.ts</code>)에 적는 것</h3>
+<p>
+각 검사는 화면 껍데기를 만들지 않는다. <strong>자기가 어떤 검사인지만 적는다.</strong>
+</p>
+<ul>
+  <li>이름과 짧은 이름 — <code>'로르샤하'</code> / <code>'로샤'</code></li>
+  <li>단계 목록 — SCT는 작성 → 검토 → 결과 3단계</li>
+  <li>각 단계가 <strong>언제 열리는지</strong> — "문항을 다 채우면 검토가 열린다"</li>
+  <li>잠겨 있을 때 <strong>왜 잠겼는지</strong> 알려줄 문구</li>
+</ul>
+<p>
+이게 전부라 파일 하나가 60~70줄이고, 그중 대부분이 주석(왜 이렇게
+판정하는가)이다. 실제 선언은 20~30줄.
+</p>
+
+<div class="note good">
+<p>
+효과가 가장 잘 드러나는 곳: <strong>검사 목록판에 한 줄 추가하면</strong> 주소 연결·
+사이드바·필터·배지·아이콘이 전부 따라온다. 예전엔 새 검사를 붙이려면
+11곳 이상을 손봐야 했다.
+</p>
+</div>
+
+
+<h2><span class="n">1.3</span>규칙을 베껴 적지 못하게 막기</h2>
+<p class="lead">묶어놓아도, 나중에 누군가 또 베껴 적으면 원점으로 돌아간다.</p>
+
+<p>
+그래서 <strong>테스트가 코드를 감시</strong>하게 했다. 프로젝트 전체 파일을 훑어서
+"확정 여부 판정"을 직접 다시 계산하는 코드가 있으면 테스트가 실패한다.
+</p>
+
+<div class="quote">
+<p>
+테스트가 실패하면 이렇게 말한다 — <strong>"목록에 추가하지 말고 코드를 고쳐라."</strong>
+</p>
+</div>
+
+<p>
+구분이 섬세하다. 상태를 <em>나열</em>하는 것 자체는 막지 않는다. 타입 정의나
+라벨 표는 나열이지 판정이 아니고, 그것까지 막으면 정의를 쓸 수 없다.
+잡아야 하는 건 <strong>"이 상태들 중 하나인가"를 다시 계산하는</strong> 코드다.
+</p>
+
+<h3>테스트가 지키는 것</h3>
+<div class="tw">
+<table>
+  <tr><th>테스트</th><th style="text-align:right">개수</th><th>지키는 것</th></tr>
+  <tr>
+    <td><code>gate.spec.ts</code></td>
+    <td style="text-align:right"><strong>109</strong></td>
+    <td>클릭한 단계가 항상 열려 있는가 — 7가지 결재상태 × 4가지 진행상태 × 3검사 전수</td>
+  </tr>
+  <tr>
+    <td><code>state-contract.spec.ts</code></td>
+    <td style="text-align:right">21</td>
+    <td>프론트와 백엔드가 같은 상태 목록을 쓰는가</td>
+  </tr>
+  <tr>
+    <td><code>extensibility.spec.ts</code></td>
+    <td style="text-align:right">5</td>
+    <td><strong>새 검사를 붙일 때 코어를 안 고쳐도 되는가</strong></td>
+  </tr>
+  <tr>
+    <td><code>status-guard.spec.ts</code></td>
+    <td style="text-align:right">1</td>
+    <td>규칙을 베껴 적은 코드가 없는가</td>
+  </tr>
+</table>
+</div>
+
+<p>
+<code>extensibility.spec.ts</code>가 특히 재밌다. <strong>존재하지 않는 검사 두 개</strong>
+(MMPI-2, 웩슬러)를 가짜로 선언해놓고, 그것들이 코어를 안 건드리고
+동작하는지 본다. 이 파일이 깨지면 "새 검사를 붙이려면 코어를 고쳐야
+한다"는 뜻이다.
+</p>
+
+<div class="note">
+<p>
+리팩터링 전에는 이 테스트조차 <strong>새 검사를 선언할 수 없어</strong> 기존
+<code>'htp'</code>를 빌려 쓰고 있었다. 확장성 테스트가 확장 불가를 증언하던
+자리였다.
+</p>
+</div>
+
+</section>
+
+
+<!-- ═══════════════ 2 ═══════════════ -->
+<section class="panel" id="p2" role="tabpanel">
+
+<h2><span class="n">2.1</span>가장 어려웠던 문제</h2>
+<p class="lead">"다음 방에 들어가야 도장이 찍히는데, 도장이 없어서 못 들어간다"</p>
+
+<p>
+검사 화면은 단계를 순서대로 밟는다. 그럼 <strong>"다음 단계에 들어가도 되는가"</strong>를
+무엇으로 판단할까? 처음엔 자연스럽게 <em>검사 상태</em>로 판단했다.
+</p>
+<p>그런데 실제 데이터를 보니 이랬다.</p>
+
+<div class="tw">
+<table>
+  <tr><th>검사</th><th>수집을 마쳐도</th><th>상태는</th></tr>
+  <tr><td>로르샤하</td><td>녹음 종료 시각만 기록</td><td><code>검사 진행중</code> 그대로</td></tr>
+  <tr><td>HTP</td><td>그림 4장 업로드 완료</td><td>아무 변화 없음</td></tr>
+  <tr><td>SCT</td><td>문항 전부 제출</td><td><code>검사 진행중</code> 그대로</td></tr>
+</table>
+</div>
+
+<p>
+세 검사 모두 <strong>"수집이 끝났다"를 상태에 남기지 않는다.</strong> 그러니 상태로
+단계를 막으면 순환에 빠진다 — 다음 화면에 들어가야 상태가 바뀌는데,
+상태가 안 바뀌어서 못 들어간다.
+</p>
+
+<figure>
+<svg viewBox="0 0 720 190" role="img" aria-label="데드락과 해결 도식">
+  <!-- 데드락 -->
+  <text x="20" y="22" class="svg-t b svg-soft">축이 하나일 때 — 순환</text>
+  <rect x="20" y="36" width="118" height="44" rx="8" class="svg-gapb"/>
+  <text x="79" y="55" text-anchor="middle" class="svg-t b svg-ink">검토 화면</text>
+  <text x="79" y="71" text-anchor="middle" class="svg-t s svg-soft">못 들어감</text>
+
+  <rect x="196" y="36" width="118" height="44" rx="8" class="svg-gapb"/>
+  <text x="255" y="55" text-anchor="middle" class="svg-t b svg-ink">상태 변경</text>
+  <text x="255" y="71" text-anchor="middle" class="svg-t s svg-soft">안 일어남</text>
+
+  <path d="M138 50 L196 50" class="svg-arrow" marker-end="url(#ah2)"/>
+  <path d="M196 68 L138 68" class="svg-arrow" marker-end="url(#ah2)"/>
+  <defs>
+    <marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-faint)"/>
+    </marker>
+  </defs>
+  <text x="167" y="46" text-anchor="middle" class="svg-t s svg-faint">필요</text>
+  <text x="167" y="88" text-anchor="middle" class="svg-t s svg-faint">필요</text>
+  <text x="167" y="112" text-anchor="middle" class="svg-t s" fill="var(--gap)">서로를 기다린다</text>
+
+  <!-- 해결 -->
+  <text x="412" y="22" class="svg-t b svg-soft">축을 둘로 나누면</text>
+
+  <rect x="412" y="36" width="288" height="40" rx="8" class="svg-mb"/>
+  <text x="432" y="61" class="svg-t b svg-ink">진행 (progress)</text>
+  <text x="700" y="61" text-anchor="end" class="svg-t s svg-soft">환자가 어디까지 받았나</text>
+
+  <rect x="412" y="86" width="288" height="40" rx="8" class="svg-ms"/>
+  <text x="432" y="111" class="svg-t b svg-ink">결재 (status)</text>
+  <text x="700" y="111" text-anchor="end" class="svg-t s svg-soft">임상가 검토가 어디까지</text>
+
+  <text x="556" y="150" text-anchor="middle" class="svg-t s svg-faint">단계 진입은 <tspan font-weight="600" fill="var(--mb)">진행</tspan>이 판단한다 — 결재를 기다리지 않는다</text>
+</svg>
+<figcaption>한 칸에 담으려던 두 가지를 분리한 것이 이 리팩터링의 핵심</figcaption>
+</figure>
+
+<h3>병원 차트로 비유하면</h3>
+<div class="ba">
+  <div class="before">
+    <div class="lbl">칸이 하나일 때</div>
+    <p style="font-size:14px">
+      "진료 단계"라는 칸 하나에 <strong>환자 진행</strong>과 <strong>의사 결재</strong>를 같이 적으려 한다.
+      환자가 검사를 다 받았는데 의사 도장이 없으면, 그 사실을 적을 칸이 없다.
+    </p>
+  </div>
+  <div class="after">
+    <div class="lbl">칸을 둘로 나누면</div>
+    <p style="font-size:14px">
+      <strong>진행</strong>: 환자가 어디까지 받았나 (검사 완료 ✓)<br>
+      <strong>결재</strong>: 의사 검토가 어디까지 (아직 미검토)<br>
+      두 사실이 동시에 기록되고, 다음 방 입장은 진행만 보면 된다.
+    </p>
+  </div>
+</div>
+
+
+<h2><span class="n">2.2</span>분리가 만든 것</h2>
+
+<p>
+이 분리는 화면 하나 고치는 수준이 아니라 <strong>시스템의 뼈대를 바꿨다.</strong>
+</p>
+
+<h3>① 상태 목록이 줄었다</h3>
+<p>
+<code>ai_analyzing</code>(AI 분석중)이 상태에서 빠졌다. 그건 <strong>상태가 아니라
+작업</strong>이었기 때문이다 — 순간적이고, 여러 번 반복되고, 실패하고, 어떤
+검사에는 아예 없다. 별도의 작업 기록표로 옮겼다.
+</p>
+<div class="note">
+<p>
+앞으로 붙을 표준화 검사(MMPI·웩슬러)는 규준표 기반이라 AI 분석 단계가
+아예 없다. 상태 목록에 그게 있으면 <strong>없는 단계를 억지로 통과</strong>해야 한다.
+실제로 SCT가 그래서 상태 관리를 우회하고 있었다.
+</p>
+</div>
+
+<h3>② 실데이터로 검증했다</h3>
+<div class="quote">
+<p>
+실제 검사 40건에 새 판정을 적용했더니, 겉보기에 똑같이
+<code>검사 진행중</code>이던 로르샤하 3건이 <strong>2건(기록 완료)과 1건(기록 중)으로
+갈렸다.</strong> 상태만 보던 눈에는 보이지 않던 구분이다.
+</p>
+</div>
+
+<h3>③ 우연히 안전하던 곳이 드러났다</h3>
+<p>
+진행 상황을 아직 모르는 동안 뒤 단계를 열면 안 된다는 규칙이 있다. 그런데
+<strong>로르샤하 모듈만</strong> 그 방어를 자기 안에 갖고 있었다. HTP와 SCT가 안전했던
+건 규칙을 지켜서가 아니라, 판정식이 <strong>마침</strong> 진행 상황을 참조해서 생긴
+우연이었다.
+</p>
+<p>
+지금은 코어가 보장한다. 모듈이 진행 상황을 안 봐도 코어가 막고,
+<strong>가짜 모듈로 그걸 검증하는 테스트</strong>가 있다.
+</p>
+
+</section>
+
+
+<!-- ═══════════════ 3 ═══════════════ -->
+<section class="panel" id="p3" role="tabpanel">
+
+<h2><span class="n">3.1</span>연결해야 할 두 시스템</h2>
+<p class="lead">마인드봄은 검사를 하고, 마인드스코프는 센터 운영을 한다.</p>
+
+<div class="ba">
+  <div style="border-color:color-mix(in srgb, var(--mb) 32%, var(--line))">
+    <div class="lbl" style="color:var(--mb)">마인드봄 — 우리</div>
+    <p style="font-size:14px">검사 <strong>한 건</strong>을 실시하고 해석 초안을 만든다.
+    "이 검사가 어디까지 진행됐나"를 <strong>규칙</strong>으로 관리한다.</p>
+  </div>
+  <div style="border-color:color-mix(in srgb, var(--ms) 32%, var(--line))">
+    <div class="lbl" style="color:var(--ms)">마인드스코프 — 운영 플랫폼</div>
+    <p style="font-size:14px">내담자·케이스·배정·청구를 관리한다.
+    검사 진행을 <strong>사건(이벤트)</strong>으로 기록한다.</p>
+  </div>
+</div>
+
+<p>
+연결 지점은 명확하다. <strong>마인드봄 검사 1건 = 플랫폼 검사과제 1건.</strong>
+우리는 개별 실시에 집중하고, 여러 검사를 묶는 '케이스' 개념은 플랫폼이 갖는다.
+</p>
+
+<h3>어려운 점 — 같은 현실을 다른 어휘로 적는다</h3>
+<div class="tw">
+<table>
+  <tr><th></th><th>마인드봄</th><th>플랫폼</th></tr>
+  <tr>
+    <td><strong>표현 방식</strong></td>
+    <td>규칙 — "이 상태에서 저 상태로만 갈 수 있다"</td>
+    <td>사건 — "시작됐다", "제출됐다"</td>
+  </tr>
+  <tr>
+    <td><strong>강제력</strong></td>
+    <td><span class="chip ok">있음</span> 규칙 위반은 거부된다</td>
+    <td><span class="chip mute">없음</span> 사건은 기록될 뿐</td>
+  </tr>
+  <tr>
+    <td><strong>상태 개수</strong></td>
+    <td>6종</td>
+    <td>6종 (이름과 의미가 다름)</td>
+  </tr>
+</table>
+</div>
+
+<div class="note warn">
+<p>
+<strong>느슨한 쪽으로 통일하면 안 된다.</strong> 우리는 SaMD 2등급 의료기기라
+상태 전이를 엄격히 관리해야 하는 규제 요건이 있다. 플랫폼 방식에
+맞추면 그 요건이 성립하지 않는다. <span class="chip gap">회의 안건</span>
+</p>
+</div>
+
+
+<h2><span class="n">3.2</span>사상표 — 무엇이 무엇에 대응하는가</h2>
+<p class="lead">"어떤 사건이 어떤 전이를 뜻하는가"를 표로 고정한다.</p>
+
+<p>
+이걸 표로 못박지 않으면, 양쪽이 각자 알아서 해석하다가 <strong>어긋나도 아무도
+모른다.</strong> 그래서 대응 관계를 코드로 적고, 양쪽 검증 장치가 같은 데이터를
+읽게 했다.
+</p>
+
+<figure>
+<svg viewBox="0 0 720 250" role="img" aria-label="상태 사상 도식">
+  <text x="20" y="20" class="svg-t b" fill="var(--mb)">마인드봄 6종</text>
+  <text x="700" y="20" text-anchor="end" class="svg-t b" fill="var(--ms)">플랫폼</text>
+
+  <!-- 마인드봄 -->
+  <rect x="20" y="34" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="54" text-anchor="middle" class="svg-t svg-ink">생성됨</text>
+
+  <rect x="20" y="72" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="92" text-anchor="middle" class="svg-t svg-ink">검사 진행중</text>
+  <rect x="20" y="106" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="126" text-anchor="middle" class="svg-t svg-ink">AI 초안 완료</text>
+  <rect x="20" y="140" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="160" text-anchor="middle" class="svg-t svg-ink">검토중</text>
+  <rect x="20" y="174" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="194" text-anchor="middle" class="svg-t svg-ink">확인 완료</text>
+
+  <rect x="20" y="212" width="150" height="30" rx="6" class="svg-mb"/>
+  <text x="95" y="232" text-anchor="middle" class="svg-t svg-ink">보고서 생성</text>
+
+  <!-- 화살표 -->
+  <path d="M170 49 L380 49" class="svg-arrow" marker-end="url(#ah3)"/>
+  <defs>
+    <marker id="ah3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-faint)"/>
+    </marker>
+  </defs>
+
+  <!-- 4구간 접힘 -->
+  <path d="M170 87 L300 87 L300 138 L380 138" class="svg-arrow" marker-end="url(#ah3)"/>
+  <path d="M170 121 L300 121 L300 138" class="svg-arrow"/>
+  <path d="M170 155 L300 155 L300 138" class="svg-arrow"/>
+  <path d="M170 189 L300 189 L300 138" class="svg-arrow"/>
+  <text x="300" y="172" text-anchor="middle" class="svg-t s svg-faint">4구간이</text>
+  <text x="300" y="186" text-anchor="middle" class="svg-t s svg-faint">하나로 접힘</text>
+
+  <path d="M170 227 L380 227" class="svg-arrow" marker-end="url(#ah3)"/>
+
+  <!-- 플랫폼 -->
+  <rect x="380" y="34" width="150" height="30" rx="6" class="svg-ms"/>
+  <text x="455" y="54" text-anchor="middle" class="svg-t svg-ink">대기중</text>
+
+  <rect x="380" y="123" width="150" height="30" rx="6" class="svg-ms"/>
+  <text x="455" y="143" text-anchor="middle" class="svg-t svg-ink">진행중</text>
+
+  <rect x="380" y="212" width="150" height="30" rx="6" class="svg-ms"/>
+  <text x="455" y="232" text-anchor="middle" class="svg-t svg-ink">제출완료</text>
+
+  <!-- 대응 없음 -->
+  <rect x="558" y="34" width="142" height="30" rx="6" class="svg-sunk" stroke-dasharray="4 3"/>
+  <text x="629" y="54" text-anchor="middle" class="svg-t svg-faint">검수완료</text>
+  <rect x="558" y="72" width="142" height="30" rx="6" class="svg-sunk" stroke-dasharray="4 3"/>
+  <text x="629" y="92" text-anchor="middle" class="svg-t svg-faint">거부</text>
+  <rect x="558" y="110" width="142" height="30" rx="6" class="svg-sunk" stroke-dasharray="4 3"/>
+  <text x="629" y="130" text-anchor="middle" class="svg-t svg-faint">취소</text>
+  <text x="629" y="163" text-anchor="middle" class="svg-t s" fill="var(--gap)">대응 없음</text>
+  <text x="629" y="180" text-anchor="middle" class="svg-t s svg-faint">(의도적)</text>
+</svg>
+<figcaption>우리 4구간이 플랫폼 '진행중' 하나로 접힌다. 우리 축은 '보고서 생성'에서 끝난다</figcaption>
+</figure>
+
+<h3>왜 4구간을 하나로 접는가</h3>
+<p>
+AI 초안·검토·확인은 전부 <strong>우리 임상가 안에서 일어나는 일</strong>이고, 플랫폼
+입장에선 아직 "제출 전"이다. 이걸 플랫폼의 '제출완료'로 보내면 안 된다 —
+우리는 아직 <strong>재분석으로 되돌아갈 수 있기</strong> 때문이다.
+</p>
+
+<div class="note good">
+<p>
+<strong>검증으로 확인했다.</strong> 우리 되돌리기 전이 두 개가 접힘 <em>안</em>에 갇혀 있어
+플랫폼에서는 아무 일도 없던 것처럼 보인다. 일부러 '제출완료'로 접어보면
+<strong>위반 3건</strong>이 뜬다. 이 역테스트도 함께 고정해뒀다.
+</p>
+</div>
+
+<h3>일부러 대응시키지 않은 것 — '완료'</h3>
+<div class="note bad">
+<p>
+양쪽에 <code>완료</code>라는 같은 이름이 있지만 <strong>다른 개념이다.</strong> 플랫폼의
+완료는 <strong>담당자가 검수해야만</strong> 도달한다. 우리 '보고서 생성'을 거기에
+자동 연결하면, <strong>사람의 검수가 조용히 건너뛰어진다</strong> — 감사추적 구멍이자
+규제 위반이다.
+</p>
+<p style="margin-top:10px">
+그래서 우리 축은 '보고서 생성'에서 끝내고, 그 뒤는 플랫폼 소관으로 남긴다.
+</p>
+</div>
+
+
+<h2><span class="n">3.3</span>실측하며 찾은 것</h2>
+<p class="lead">문서만 읽지 않고 플랫폼 코드를 직접 확인했더니 두 가지가 어긋나 있었다.</p>
+
+<div class="card">
+<h3>① "이벤트 10종"이 실은 8종이다</h3>
+<p>
+플랫폼 문서는 검사 이벤트 10종이 전부 진행 상태를 나타낸다고 적고 있다.
+그런데 코드를 보면 <code>수정</code>과 <code>삭제</code> 두 개는 <strong>상태를 바꾸지 않는다.</strong>
+단순 편집 기록일 뿐이다.
+</p>
+<p style="margin-bottom:0">
+대응표를 만들 때 이 둘을 빼야 한다. 안 그러면 "대응되지 않는 항목"이
+표에 섞여 들어가 나중에 혼선이 생긴다. <span class="chip fix">문서 정정 필요</span>
+</p>
+</div>
+
+<div class="card">
+<h3>② '되돌리기'는 표로 표현할 수 없다</h3>
+<p>
+플랫폼에는 완료를 취소하는 <code>되돌리기</code> 기능이 있다. 문제는 <strong>되돌아갈
+목적지가 고정돼 있지 않다</strong>는 것 — 취소하기 직전 상태를 따로 저장해뒀다가
+거기로 돌아간다.
+</p>
+<p style="margin-bottom:0">
+우리 규칙표는 "A에서는 B로만 갈 수 있다"는 <strong>고정된 표</strong>라서, 목적지가
+그때그때 달라지는 이 동작은 구조적으로 담을 수가 없다.
+<span class="chip gap">회의 안건 추가</span>
+</p>
+</div>
+
+</section>
+
+
+<!-- ═══════════════ 4 ═══════════════ -->
+<section class="panel" id="p4" role="tabpanel">
+
+<h2><span class="n">4.1</span>4층 방어</h2>
+<p class="lead">"두 곳이 어긋나도 모르게 지나갈 수 있나"를 층층이 막는다.</p>
+
+<div class="tw">
+<table>
+  <tr><th style="width:52px">층</th><th>막는 것</th><th style="width:96px">상태</th></tr>
+  <tr>
+    <td><strong>1층</strong></td>
+    <td>선언과 실제 구현이 다르면 <strong>서버가 안 뜬다</strong></td>
+    <td><span class="chip ms">플랫폼 보유</span></td>
+  </tr>
+  <tr>
+    <td><strong>2층</strong></td>
+    <td>규칙을 베껴 적은 코드가 있으면 <strong>테스트 실패</strong></td>
+    <td><span class="chip ok">완료</span></td>
+  </tr>
+  <tr>
+    <td><strong>3층</strong></td>
+    <td>프론트와 백엔드가 <strong>같은 표로 전수 대조</strong></td>
+    <td><span class="chip ok">완료</span></td>
+  </tr>
+  <tr>
+    <td><strong>4층</strong></td>
+    <td>DB에 규칙 밖 값이 있으면 <strong>감사 로그에 기록</strong></td>
+    <td><span class="chip ok">완료</span> <span class="chip mute">미연결</span></td>
+  </tr>
+</table>
+</div>
+
+<p>
+1~3층은 <strong>코드가 규칙을 어기는 것</strong>을 막는다. 4층만 성격이 다르다 —
+코드를 거치지 않고 들어온 값(과거 버전이 남긴 데이터, 외부 시스템 연동)을
+읽는 시점에 발견한다.
+</p>
+
+<div class="note">
+<p>
+<strong>4층은 차단하지 않고 기록만 한다.</strong> 규칙 밖 값을 만났다고 조회를 막으면
+과거 데이터를 가진 검사는 열람 자체가 불가능해진다. 임상 기록 접근이
+막히는 편이 값이 낡은 것보다 나쁘다.
+</p>
+<p style="margin-top:10px;margin-bottom:0">
+원칙: <strong>읽기는 관대하게, 쓰기는 엄격하게.</strong>
+</p>
+</div>
+
+
+<h2><span class="n">4.2</span>지금까지 한 것</h2>
+
+<div class="tw">
+<table>
+  <tr><th>작업</th><th>내용</th></tr>
+  <tr><td>상태 표시 통일</td><td>7벌로 갈려 있던 표기·색을 한 곳으로</td></tr>
+  <tr><td>모듈 구조 도입</td><td>검사별 라우트 3개 → 단일 진입점</td></tr>
+  <tr><td>진행 축 분리</td><td>결재와 진행을 두 축으로 — 데드락 해소</td></tr>
+  <tr><td>상태 계약</td><td>백엔드가 생성하는 표를 양쪽이 함께 검증</td></tr>
+  <tr><td>재구현 제거</td><td>규칙을 베껴 적은 9곳 정리 + 재발 방지 테스트</td></tr>
+  <tr><td>상태 정리</td><td><code>ai_analyzing</code>·<code>completed</code> 제거 (8종 → 6종)</td></tr>
+  <tr><td>사상표</td><td>플랫폼 대응 관계 고정 + 준동형 검증</td></tr>
+  <tr><td>4층 관측</td><td>규칙 밖 값 감지 모듈</td></tr>
+</table>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="v">171</div><div class="k">백엔드 테스트 통과</div></div>
+  <div class="stat"><div class="v">229</div><div class="k">프론트 테스트 통과</div></div>
+  <div class="stat"><div class="v">0<small>건</small></div><div class="k">준동형 위반</div></div>
+  <div class="stat"><div class="v">6<small>종</small></div><div class="k">상태 (8종에서 정리)</div></div>
+</div>
+
+
+<h2><span class="n">4.3</span>남은 것</h2>
+
+<h3>회의 합의가 필요한 것</h3>
+<div class="tw">
+<table>
+  <tr><th style="width:32px">#</th><th>안건</th><th>왜 막혔나</th></tr>
+  <tr><td>1</td><td>레포·런타임 분리 형태</td><td>조회 경로와 강제 수단이 갈린다</td></tr>
+  <tr><td>2</td><td>전이 규칙 엄격함의 기준</td><td>느슨한 쪽 통일 시 SaMD 요건 불성립</td></tr>
+  <tr><td>3</td><td>거부·취소 상태 추가</td><td>우리 맘대로 추가하면 매핑이 어긋난다</td></tr>
+  <tr><td>4</td><td>종합보고서 단위</td><td><strong>현행이 이미 어긋나 있다</strong></td></tr>
+  <tr><td>5</td><td>검사 정의 개조 주체</td><td>우리 3종 등록이 여기 막혀 있다</td></tr>
+  <tr><td>6</td><td>PDF 저장·무결성</td><td>저쪽엔 체크섬이 있고 우리는 비저장</td></tr>
+  <tr><td>7</td><td>되돌리기 대응</td><td>고정 표로 표현 불가능 <span class="chip gap">이번에 발견</span></td></tr>
+</table>
+</div>
+
+<h3>연동이 붙어야 의미가 생기는 것</h3>
+<p>
+4층 관측 모듈은 만들어뒀지만 <strong>아직 조회 경로에 연결하지 않았다.</strong>
+지금 규칙 밖 값이 나올 수 있는 건 과거 <code>completed</code> 하나뿐이고,
+그건 이미 알고 있는 사실이라 쿼리 한 번이면 확인된다. 4층이 진짜 필요해지는
+건 <strong>외부 시스템이 우리 DB에 값을 넣기 시작할 때</strong>다.
+</p>
+<div class="note">
+<p style="margin-bottom:0">
+연결 지점을 정하려면 회의 안건 1번(레포·런타임 분리 형태)이 먼저 정해져야
+한다. 모듈은 호출부가 없어 아무 동작도 하지 않으므로 부담이 없다.
+</p>
+</div>
+
+<h3>모듈화에 남은 기술 부채</h3>
+<ul>
+  <li style="text-decoration:line-through;color:var(--ink-faint)"><strong>아이콘만 여전히 검사별 분기</strong> — 해결됨. 임시 SVG를 옮기는 대신 아예 없애고, 검사 심볼 색을 모듈이 선언하게 했다. <strong>프론트에 검사종류 하드코딩 분기가 남지 않았다.</strong></li>
+  <li><strong>백엔드 진행 판정은 아직 손으로 분기</strong> — 프론트는 목록판에서 파생되는데 백엔드는 대칭이 아니다</li>
+  <li><strong>진행 축이 두 개의 예/아니오뿐</strong> — 웩슬러처럼 소검사 12개짜리는 담을 수 없다</li>
+  <li><strong>HTP만 검토 단계가 없다</strong> — 결과 화면에 검토가 섞여 있어 CDSS 원칙과 충돌</li>
+  <li><strong>로르샤하 자유반응·질문 미분리</strong> — 표준 실시 절차는 2단계인데 하나로 합쳐져 있다</li>
+</ul>
+
+</section>
+
+<footer class="end">
+  마인드봄 · 검사 모듈화와 플랫폼 연동 · 2026-08-18<br>
+  상세 자료는 <code>docs/온톨로지/</code> 참조 — 대응 문서, 구현방안, 작업 기록
+</footer>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('nav.tabs button')
+  const panels = document.querySelectorAll('.panel')
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.setAttribute('aria-selected', String(b === btn)))
+      panels.forEach(p => p.classList.toggle('on', p.id === btn.dataset.t))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+  })
+</script>

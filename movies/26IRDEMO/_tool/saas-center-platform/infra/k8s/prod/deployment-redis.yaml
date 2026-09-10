@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindscope-redis
+  namespace: mindscope-prod
+  labels:
+    app: mindscope-redis
+    environment: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mindscope-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mindscope-redis
+        environment: prod
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          command: ["redis-server"]
+          args:
+            - "--maxmemory"
+            - "256mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+            - "--appendonly"
+            - "yes"
+            - "--appendfsync"
+            - "everysec"
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "320Mi"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: mindscope-redis-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mindscope-redis-pvc
+  namespace: mindscope-prod
+  labels:
+    app: mindscope-redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 2Gi

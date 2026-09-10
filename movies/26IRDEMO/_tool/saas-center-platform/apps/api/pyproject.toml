@@ -1,0 +1,81 @@
+[project]
+name = "saas-center-api"
+version = "1.0.0"
+description = "상담센터 SaaS API"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.14.0",
+    "asyncpg>=0.30.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "email-validator>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt<4.1",
+    "python-multipart>=0.0.9",
+    "aioboto3>=12.0.0",
+    "jinja2>=3.1.6",
+    "weasyprint>=68.1",
+    "greenlet>=3.3.0",
+    "httpx>=0.28.1",
+    "firebase-admin>=6.5.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+    "openai>=1.30.0",
+    "numpy>=1.24.0",
+    "mutagen>=1.47.0",
+    "apscheduler>=3.10.0",
+    "redis[hiredis]>=5.0.0",
+    "pymupdf>=1.24.0",
+    "amazon-transcribe>=0.6.0",
+    "anthropic>=0.115.0",
+    "opencv-python-headless>=5.0.0.93",
+    # torch(easyocr 의존)는 macOS x86_64 휠을 배포하지 않는다 — Intel Mac 로컬에서만 제외
+    "easyocr>=1.7.2; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    # uv sources는 직접 의존성에만 적용 — CPU 인덱스 고정을 위해 easyocr의 torch 의존을 직접 선언
+    "torch>=2.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "torchvision>=0.15; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "pdf-inspector==1.17.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",
+    "black>=24.0.0",
+    "ruff>=0.7.0",
+]
+
+# API 서버는 GPU 없음 — Linux에서 torch(easyocr 의존)가 CUDA 스택(~7GB)을 끌고 오지 않게 CPU 휠로 고정
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+# 무한 await(스트리밍 등)로 스위트가 영구 hang 하면 N초 후 전체 스레드 스택을 덤프한다.
+faulthandler_timeout = 60

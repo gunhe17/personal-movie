@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>앱 시안 v5 — 홈 3상황 + 온보딩 + 말씀 담기 (2026-07-08)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root {
+    /* design system v2 */
+    --blue:#4486FF; --blue-600:#2566DD; --blue-100:#E5EEFF; --blue-50:#F4F8FF;
+    --mint:#00C3BC; --mint-600:#009B96;
+    --orange:#FF9200; --orange-50:#FFF3E5;
+    --ink:#1D2227; --ink2:#58626C; --ink3:#7D848F; --ink4:#AAB2BE;
+    --base:#F5F7F8; --sunken:#F0F3F5; --line:#E9EEF0;
+    --tag-green:#12BA54; --tag-teal:#00B5A5; --tag-orange:#F88F16; --tag-blue:#2872F8; --tag-purple:#7C4DFF;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif; letter-spacing:-0.41px; }
+  body { background:#15171b; color:#e8eaed; padding:48px 36px 110px; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1420px; margin:0 auto; }
+
+  /* ===== 갤러리 ===== */
+  h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+  .page-sub { margin-top:10px; font-size:14px; color:#9aa0a6; line-height:1.7; max-width:860px; }
+  .page-sub a { color:#8ab4f8; font-weight:700; text-decoration:none; }
+  .rulebox { margin:20px 0 8px; display:flex; flex-wrap:wrap; gap:8px; }
+  .rulebox span { font-size:12.5px; font-weight:600; color:#c6cbd2; background:#22252b; border:1px solid #2e3238; border-radius:999px; padding:7px 14px; }
+  .section { margin-top:58px; }
+  .section > h2 { font-size:18px; font-weight:800; color:#fff; padding-bottom:14px; border-bottom:1px solid #2b2f35; }
+  .section > h2 .num { color:#8ab4f8; margin-right:10px; }
+  .frames { display:flex; gap:44px; margin-top:30px; flex-wrap:wrap; align-items:flex-start; }
+  .unit { width:312px; }
+  .cap { margin-top:16px; }
+  .cap .t { font-size:14.5px; font-weight:800; color:#e8eaed; }
+  .cap .t .tag { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:7px; vertical-align:2px; }
+  .tag.t0 { background:#2a2e35; color:#9aa0a6; }
+  .tag.t1 { background:rgba(68,134,255,.18); color:#8ab4f8; }
+  .tag.t2 { background:rgba(248,143,22,.16); color:#ffb45e; }
+  .tag.t3 { background:rgba(0,195,188,.15); color:#5fd9d4; }
+  .cap .d { margin-top:7px; font-size:12.5px; color:#9aa0a6; line-height:1.7; }
+  .cap .rule { margin-top:9px; font-size:12px; color:#7f8790; line-height:1.65; padding:9px 12px; background:#1d2026; border-radius:10px; }
+  .cap .rule b { color:#b9c0c8; }
+
+  /* ===== 폰 프레임 ===== */
+  .phone { width:312px; background:#0b0d10; border-radius:52px; padding:9px; box-shadow:0 30px 60px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.06) inset; }
+  .screen { position:relative; background:var(--base); border-radius:44px; overflow:hidden; height:668px; display:flex; flex-direction:column; }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:92px; height:26px; border-radius:999px; background:#0b0d10; z-index:60; }
+  .statusbar { flex:none; height:48px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 4px; font-size:12px; font-weight:700; color:var(--ink); }
+  .homebar { position:absolute; bottom:7px; left:50%; transform:translateX(-50%); width:118px; height:5px; border-radius:99px; background:rgba(29,34,39,.25); z-index:60; }
+
+  .scroll { flex:1; overflow:hidden; padding:4px 16px 0; display:flex; flex-direction:column; gap:10px; }
+
+  /* 앱 헤더 + 인사 */
+  .appbar { display:flex; align-items:center; justify-content:space-between; padding:6px 4px 0; }
+  .appbar .logo { font-size:15px; font-weight:800; color:var(--ink); }
+  .appbar .logo em { font-style:normal; color:var(--blue); }
+  .appbar .bell { width:34px; height:34px; border-radius:12px; background:#fff; box-shadow:0 1px 8px rgba(2,28,51,.05); display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .hello { padding:8px 4px 4px; }
+  .hello .day { font-size:12.5px; font-weight:600; color:var(--ink3); margin-bottom:5px; }
+  .hello .line { font-size:22px; font-weight:800; color:var(--ink); line-height:1.32; letter-spacing:-0.6px; }
+  .hello .line em { font-style:normal; color:var(--blue); }
+
+  /* 사람 칩 */
+  .people { display:flex; gap:7px; padding:2px 4px; }
+  .pchip { display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:6px 12px 6px 7px; border-radius:999px; background:#fff; color:var(--ink2); box-shadow:0 1px 8px rgba(2,28,51,.05); }
+  .pchip.all { padding:6px 14px; }
+  .pchip.on { background:var(--ink); color:#fff; }
+  .pchip .av { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; }
+  .av.a1 { background:linear-gradient(135deg,#689DFF,#4486FF); }
+  .av.a2 { background:linear-gradient(135deg,#59CED8,#00C3BC); }
+
+  /* 카드 */
+  .c { background:#fff; border-radius:20px; padding:16px; box-shadow:0 1px 12px rgba(2,28,51,.06); }
+  .c .row { display:flex; align-items:center; gap:12px; }
+  .tile { flex:none; width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .tile.blue { background:linear-gradient(135deg,#EDF3FF,#DCE9FF); }
+  .tile.mint { background:linear-gradient(135deg,#E7FAF8,#D2F5F1); }
+  .tile.orange { background:linear-gradient(135deg,#FFF4E4,#FFEACC); }
+  .tile.purple { background:linear-gradient(135deg,#F2EDFF,#E7DEFF); }
+  .tile.gray { background:linear-gradient(135deg,#F3F5F7,#EAEEF1); }
+  .c .k { font-size:11.5px; font-weight:700; margin-bottom:3px; }
+  .k.blue { color:var(--blue-600); } .k.mint { color:var(--mint-600); } .k.orange { color:#c26a00; } .k.gray { color:var(--ink3); } .k.purple { color:#6b3fe0; }
+  .c .t { font-size:16px; font-weight:800; color:var(--ink); line-height:1.38; letter-spacing:-0.4px; }
+  .c .t small { font-size:12.5px; font-weight:600; color:var(--ink3); margin-left:4px; }
+  .c .d { font-size:13.5px; color:var(--ink2); line-height:1.55; margin-top:5px; }
+  .c .who { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; border-radius:7px; padding:2.5px 8px; margin-right:6px; vertical-align:2px; }
+  .who.w1 { background:var(--blue-100); color:var(--blue-600); }
+  .who.w2 { background:rgba(0,195,188,.12); color:var(--mint-600); }
+  .btns { margin-top:13px; display:flex; gap:8px; }
+  .btn { flex:1; text-align:center; font-size:13.5px; font-weight:800; padding:12px 0; border-radius:12px; }
+  .btn.pri { background:var(--blue); color:#fff; box-shadow:0 4px 12px rgba(68,134,255,.28); }
+  .btn.dark { background:var(--ink); color:#fff; }
+  .btn.mint { background:var(--mint); color:#fff; box-shadow:0 4px 12px rgba(0,195,188,.24); }
+  .btn.tint { background:var(--blue-100); color:var(--blue-600); }
+  .btn.asst { background:#F0F3F5; color:var(--ink2); }
+  .bar { margin-top:12px; height:8px; border-radius:99px; background:var(--sunken); overflow:hidden; }
+  .bar i { display:block; height:100%; border-radius:99px; }
+  .quiet { text-align:center; font-size:12px; font-weight:500; color:var(--ink4); padding:4px 0 2px; }
+
+  /* 히어로(그라데이션) 카드 */
+  .c.heroed { background:linear-gradient(150deg,#4E8DFF 0%,#3B79F0 55%,#2E68DE 100%); box-shadow:0 10px 24px rgba(46,104,222,.35); position:relative; overflow:hidden; }
+  .c.heroed::after { content:""; position:absolute; right:-34px; top:-38px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.12); }
+  .c.heroed::before { content:""; position:absolute; right:20px; bottom:-52px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,.08); }
+  .c.heroed .k { color:rgba(255,255,255,.75); }
+  .c.heroed .t { color:#fff; }
+  .c.heroed .d { color:rgba(255,255,255,.8); }
+  .c.heroed .btn.pri { background:#fff; color:var(--blue-600); box-shadow:none; }
+  .c.heroed .btn.asst { background:rgba(255,255,255,.18); color:#fff; }
+
+  /* 탭바 */
+  .tabbar { flex:none; display:flex; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid rgba(233,238,240,.9); padding:9px 8px 20px; }
+  .tab { flex:1; text-align:center; font-size:10px; font-weight:700; color:var(--ink4); }
+  .tab .ic { display:block; font-size:19px; margin-bottom:3px; filter:grayscale(1) opacity(.45); }
+  .tab.on { color:var(--blue-600); }
+  .tab.on .ic { filter:none; }
+
+  /* ===== 온보딩 ===== */
+  .ob-screen { background:linear-gradient(180deg,#EAF2FF 0%,#F5F7F8 42%); }
+  .ob { flex:1; display:flex; flex-direction:column; gap:11px; padding:26px 20px 18px; }
+  .ob .hi { font-size:13px; font-weight:700; color:var(--blue-600); }
+  .ob .q { font-size:25px; font-weight:800; color:var(--ink); line-height:1.34; letter-spacing:-0.7px; padding-bottom:10px; }
+  .opt { display:flex; align-items:center; gap:13px; background:#fff; border:1.5px solid transparent; border-radius:20px; padding:17px 16px; box-shadow:0 1px 12px rgba(2,28,51,.06); }
+  .opt.sel { border-color:var(--blue); background:var(--blue-50); box-shadow:0 4px 16px rgba(68,134,255,.16); }
+  .opt .ot { font-size:15.5px; font-weight:800; color:var(--ink); }
+  .opt .od { font-size:12.5px; color:var(--ink3); margin-top:2px; }
+  .opt .chk { margin-left:auto; width:22px; height:22px; border-radius:50%; background:var(--blue); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .ob .cta { margin-top:auto; }
+  .ob .cta .btn { display:block; padding:15px 0; font-size:15.5px; border-radius:14px; }
+
+  /* ===== 담기 시트 ===== */
+  .dim { flex:1; background:linear-gradient(rgba(13,18,26,.45),rgba(13,18,26,.6)); display:flex; flex-direction:column; justify-content:flex-end; }
+  .sheet { background:#fff; border-radius:28px 28px 44px 44px; padding:12px 22px 30px; box-shadow:0 -8px 30px rgba(0,0,0,.18); }
+  .sheet .grab { width:38px; height:4px; border-radius:99px; background:#D1D5DB; margin:0 auto 18px; }
+  .sheet .st { font-size:20px; font-weight:800; color:var(--ink); letter-spacing:-0.5px; }
+  .sheet .quote { margin-top:14px; background:var(--blue-50); border-radius:16px; padding:14px 16px; }
+  .sheet .quote .ql { font-size:11.5px; font-weight:700; color:var(--blue-600); margin-bottom:4px; }
+  .sheet .quote .qt { font-size:15px; font-weight:700; color:var(--ink); line-height:1.5; }
+  .recwrap { display:flex; flex-direction:column; align-items:center; padding:22px 0 4px; }
+  .recbtn { width:78px; height:78px; border-radius:50%; background:radial-gradient(circle at 32% 28%, #6AA3FF, #4486FF 60%, #2F6EE8); display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow:0 0 0 11px rgba(68,134,255,.10), 0 0 0 22px rgba(68,134,255,.05), 0 10px 22px rgba(68,134,255,.4); }
+  .recbtn span { filter:brightness(0) invert(1); }
+  .reclabel { margin-top:13px; font-size:14px; font-weight:800; color:var(--ink); }
+  .sheet .alt { margin-top:16px; text-align:center; font-size:14px; font-weight:700; color:var(--ink2); background:#F0F3F5; border-radius:13px; padding:13px 0; }
+  .sheet .fine { margin-top:13px; text-align:center; font-size:11.5px; color:var(--ink3); line-height:1.65; }
+
+  /* 빈 홈 */
+  .zen { text-align:center; padding:26px 16px 18px; }
+  .zen .orb { width:96px; height:96px; margin:0 auto; border-radius:50%; background:radial-gradient(circle at 34% 30%, #E9FBF4, #CFF3E6 58%, #B8E9DB); display:flex; align-items:center; justify-content:center; font-size:42px; box-shadow:0 14px 26px rgba(0,155,150,.16), inset 0 -6px 12px rgba(0,155,150,.08); }
+  .zen .zt { margin-top:16px; font-size:15px; font-weight:800; color:var(--ink); }
+  .zen .zd { margin-top:4px; font-size:12.5px; color:var(--ink3); }
+
+  /* 공유 토글 */
+  .share-row { display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--line); }
+  .share-row:last-child { border-bottom:none; }
+  .share-row .sl { font-size:14px; font-weight:600; color:var(--ink2); display:flex; align-items:center; gap:8px; }
+  .share-row .sv { font-size:12.5px; font-weight:800; color:var(--ink); }
+  .switch { width:44px; height:26px; border-radius:99px; background:var(--mint); position:relative; }
+  .switch::after { content:""; position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+  .switch.off { background:#D9DFE4; }
+  .switch.off::after { right:auto; left:3px; }
+
+  .thumb { width:100%; height:118px; border-radius:14px; background:linear-gradient(135deg,#DFE9F5,#C9D8EA); margin-top:12px; position:relative; display:flex; align-items:center; justify-content:center; }
+  .thumb .play { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.9); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--ink); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+  .thumb .dur { position:absolute; right:10px; bottom:9px; font-size:11px; font-weight:700; color:#fff; background:rgba(13,18,26,.55); border-radius:7px; padding:3px 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>내담자 앱 시안 v5 — 홈 3상황 · 온보딩 · 말씀 담기</h1>
+  <p class="page-sub">
+    2026-07-08 확정 기획(<a href="기획-대시보드.html">기획-대시보드</a>) 기준. 디자인 시스템 v2(brand blue <b style="color:#8ab4f8">#4486FF</b> · Pretendard · radius=패딩 · 보더 없는 카드 + 명도 대비 · shadow-card) 적용.
+    세 상황의 홈이 같은 골격(급한 것부터 쌓이는 카드)에서 공급원만 달라지는 것을 보여준다.
+  </p>
+  <div class="rulebox">
+    <span>공감 문구 화면당 1문장 · 크게</span><span>카드 2줄 상한 · 명사와 숫자</span><span>빨간색·경고·미완료 카운트 없음</span><span>임박은 주황 온도로만</span><span>판정 문구 금지</span><span>문구는 가안 (치료사 감수 전)</span>
+  </div>
+
+  <!-- ============ 0. 온보딩 + 상황 ① ============ -->
+  <div class="section">
+    <h2><span class="num">01</span>첫 실행 — 시작 질문 · 상황 ① 홈</h2>
+    <div class="frames">
+
+      <!-- 온보딩 -->
+      <div class="unit">
+        <div class="phone"><div class="screen ob-screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="ob">
+            <div class="hi">반가워요 👋</div>
+            <div class="q">지금 어느 쪽에<br>가까우세요?</div>
+            <div class="opt sel">
+              <div class="tile mint" style="width:42px;height:42px;border-radius:13px;">🌱</div>
+              <div><div class="ot">아직 지켜보고 있어요</div><div class="od">뭔가 마음에 걸리는 게 있어요</div></div>
+              <div class="chk">✓</div>
+            </div>
+            <div class="opt">
+              <div class="tile blue" style="width:42px;height:42px;border-radius:13px;">🧭</div>
+              <div><div class="ot">센터를 알아보고 있어요</div><div class="od">어디로 가야 할지 찾는 중이에요</div></div>
+            </div>
+            <div class="opt">
+              <div class="tile orange" style="width:42px;height:42px;border-radius:13px;">🏡</div>
+              <div><div class="ot">다니는 센터가 있어요</div><div class="od">이미 다니고 있어요</div></div>
+            </div>
+            <div class="cta">
+              <div class="quiet">나중에 언제든 달라져도 괜찮아요</div>
+              <div class="btn pri" style="margin-top:8px;">시작하기</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">시작 질문 <span class="tag t0">온보딩 · 게스트</span></div>
+          <div class="d">진단 언어 없음, "가까우세요"로 선언의 무게를 낮춤. 가입 요구 없음 — 첫 저장 때 소셜 로그인.</div>
+        </div>
+      </div>
+
+      <!-- ① 지켜보는 중 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell">🔔</div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">지켜보는 것도<br><em>돌봄</em>이에요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t">오늘 마음에 걸린 순간이 있었나요?</div></div>
+              </div>
+              <div class="btns"><div class="btn mint">한 줄 남기기</div><div class="btn asst">📷 30초 찍기</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">📋</div>
+                <div><div class="k blue">무료 검사</div><div class="t">무료 발달 선별검사 알아보기</div><div class="d">받아보셨는지에 따라 알려드려요</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile orange">🎁</div>
+                <div><div class="k orange">지원 제도</div><div class="t">치료비, 지원받을 수 있어요</div><div class="d">발달재활 바우처 · 신청은 연중</div></div>
+              </div>
+            </div>
+            <div class="quiet">센터 찾기는 필요할 때, 아래에 있어요</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic">🏠</span>홈</div>
+            <div class="tab"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🗺️</span>센터 찾기</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ① — 지켜보는 중 <span class="tag t1">상황 ①</span></div>
+          <div class="d">공급원 = 사용자 + 공공 정보. 기록이 첫 카드, 검사·지원은 안심 톤.</div>
+          <div class="rule"><b>규칙:</b> 공감 1문장(22px 강조), 카드 2줄, 지시형("검사 받으세요") 대신 질문·초대형 문구.</div>
+        </div>
+      </div>
+
+      <!-- ① 알아보는 중 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell">🔔</div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">오늘은 <em>전화 하나</em>만<br>하면 돼요</div></div>
+            <div class="c heroed">
+              <div class="k">오늘 · 다시 확인하기로 한 날</div>
+              <div class="t" style="margin-top:2px;">해솔아동발달센터</div>
+              <div class="d">3월에 문의 · "자리 나면 연락드려요"</div>
+              <div class="btns"><div class="btn pri">📞 전화하기</div><div class="btn asst">물어볼 것 3</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">📅</div>
+                <div><div class="k blue">첫 방문 D-7</div><div class="t">7월 15일 · 마음숲센터</div><div class="d">기록 12개를 한 장으로 정리해 드릴게요</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🎬</div>
+                <div><div class="k mint">기다리는 동안</div><div class="t">30초 영상 하나 어때요?</div><div class="d">밥 먹을 때 · 친구랑 놀 때 · 원하는 게 있을 때</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic">🏠</span>홈</div>
+            <div class="tab"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🗺️</span>센터 찾기</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ① — 알아보는 중 <span class="tag t1">상황 ①</span></div>
+          <div class="d">급한 것이 위로: 오늘의 전화(히어로) → 첫 방문 디데이 → 촬영 가이드. 히어로 카드는 화면당 1개.</div>
+          <div class="rule"><b>규칙:</b> "대기 12주째" 같은 부정 집계 없음 — 다음 행동만. 히어로=Primary 1곳 원칙.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 1. 상황 ② ============ -->
+  <div class="section">
+    <h2><span class="num">02</span>상황 ② — 세션 리듬 (미연동 센터)</h2>
+    <div class="frames">
+
+      <!-- ② 세션 직후 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>4:42</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell">🔔</div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">오늘도 <em>다녀왔네요</em></div></div>
+            <div class="c heroed" style="background:linear-gradient(150deg,#00CFC6,#00B5AD 60%,#009B96);box-shadow:0 10px 24px rgba(0,155,150,.32);">
+              <div class="k">오늘 세션 · 언어치료 4:00</div>
+              <div class="t" style="margin-top:2px;">해솔센터, 수업이 끝났어요</div>
+              <div class="btns"><div class="btn pri" style="color:var(--mint-600);">다녀왔어요 ✓</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile purple">🏡</div>
+                <div><div class="k purple">이번 주 집에서</div><div class="t">그림책 읽고 한 단어씩 따라 말하기</div><div class="d">지난주 선생님 말씀에서</div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t">요즘 새로 보이는 모습이 있나요?</div></div>
+              </div>
+            </div>
+            <div class="quiet">남은 회기는 센터에 확인해 주세요</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic">🏠</span>홈</div>
+            <div class="tab"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🧩</span>다른 영역</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ② — 수업 끝난 직후 <span class="tag t2">상황 ②</span></div>
+          <div class="d">대기실 프라임타임. 종료 시각이 지나면 히어로가 "다녀왔어요"로 바뀜. 숙제는 일주일 상주.</div>
+          <div class="rule"><b>규칙:</b> 잔여 회기 계산 안 함(센터 장부 존중) — 정직한 한 줄로 대체. 탭 명칭 "다른 영역".</div>
+        </div>
+      </div>
+
+      <!-- 말씀 담기 시트 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="dim">
+            <div class="sheet">
+              <div class="grab"></div>
+              <div class="st">선생님 말씀 담기</div>
+              <div class="quote">
+                <div class="ql">이렇게 말씀드려 보세요</div>
+                <div class="qt">"잊어버릴까 봐 담아둘게요"</div>
+              </div>
+              <div class="recwrap">
+                <div class="recbtn"><span>🎙</span></div>
+                <div class="reclabel">눌러서 녹음</div>
+              </div>
+              <div class="alt">✏️ 직접 적을게요</div>
+              <div class="fine">우리 가족과, 내가 허용한 선생님만 들을 수 있어요<br>지금 안 담아도 괜찮아요 — 기록에서 언제든지</div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">말씀 담기 시트 <span class="tag t2">상황 ②·③ 공용</span></div>
+          <div class="d">"다녀왔어요" 직후 자동 등장. 녹음 기본 + 직접 적기 폴백. 양해 대사를 화면이 쥐여줌.</div>
+          <div class="rule"><b>규칙:</b> 몰래 녹음 방지 프레임 내장 · 저장 위치/열람 범위 한 줄(투명성) · "안 담아도 괜찮아요"(죄책감 금지).</div>
+        </div>
+      </div>
+
+      <!-- ② 연동 안내 원샷 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>5:12</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello"><div class="day">기록 저장됨</div><div class="line">평가 보고서를<br>잘 담아뒀어요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile gray">📄</div>
+                <div><div class="k gray">7월 8일 · 기록</div><div class="t">언어평가 보고서 <small>사진 2장</small></div><div class="d">지우의 기록에 추가됐어요</div></div>
+              </div>
+              <div class="thumb"><div class="play">📄</div><div class="dur">2장</div></div>
+            </div>
+            <div class="c" style="background:linear-gradient(160deg,#F4F8FF,#fff);">
+              <div class="row">
+                <div class="tile blue">✨</div>
+                <div><div class="k blue">이런 방법도 있어요</div><div class="t">연동 센터에선 결과지가 자동으로 들어와요</div></div>
+              </div>
+              <div class="btns"><div class="btn tint">알아보기</div><div class="btn asst">괜찮아요</div></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><span class="ic">🏠</span>홈</div>
+            <div class="tab on"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🧩</span>다른 영역</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ② — 연동 안내 (원샷) <span class="tag t2">상황 ②</span></div>
+          <div class="d">상시 배너 금지 — 종이 결과지를 찍은 직후에만 한 장. 월 1회 이하 쿨다운.</div>
+          <div class="rule"><b>규칙:</b> "여긴 안 돼요"(센터 탓) 대신 "이런 방법도 있어요". [괜찮아요]로 조용히 닫힘.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 2. 상황 ③ ============ -->
+  <div class="section">
+    <h2><span class="num">03</span>상황 ③ — 연동 (다자녀 혼합 상태)</h2>
+    <div class="frames">
+
+      <!-- ③ 다자녀 홈 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell">🔔</div></div>
+            <div class="hello"><div class="day">7월 8일 화요일</div><div class="line">내일 <em>하나만</em><br>확인하면 돼요</div></div>
+            <div class="people">
+              <div class="pchip all on">전체</div>
+              <div class="pchip"><span class="av a1">지</span>지우</div>
+              <div class="pchip"><span class="av a2">서</span>서준</div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🗓️</div>
+                <div><div class="k blue">내일 4:00 · 해솔센터</div><div class="t"><span class="who w1">지우</span>언어치료</div></div>
+              </div>
+              <div class="btns"><div class="btn pri">확인했어요</div><div class="btn asst">변경 문의</div></div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">📄</div>
+                <div><div class="k mint">새로 도착</div><div class="t"><span class="who w1">지우</span>언어평가 결과지</div></div>
+                <div style="margin-left:auto;font-size:15px;color:var(--ink4);">›</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile orange">🎟️</div>
+                <div style="flex:1;"><div class="k orange">발달재활 바우처</div><div class="t"><span class="who w1">지우</span>잔여 2회 <small>8/31까지</small></div>
+                <div class="bar"><i style="width:18%;background:linear-gradient(90deg,#FFB65C,#FF9200);"></i></div></div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">🌱</div>
+                <div><div class="k mint">기록</div><div class="t"><span class="who w2">서준</span>요즘 모습, 한 줄 남겨볼까요?</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic">🏠</span>홈</div>
+            <div class="tab"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🧩</span>다른 영역</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ③ — 연동 + 다자녀 <span class="tag t3">상황 ③</span></div>
+          <div class="d">센터 데이터가 세 번째 공급원으로 합류. 홈은 하나, 아이는 칩. 첫째(연동)와 둘째(지켜보는 중)가 한 스택에.</div>
+          <div class="rule"><b>규칙:</b> 바우처 잔여 = 센터의 진짜 숫자, 임박은 주황 바만(빨간색·독촉 없음).</div>
+        </div>
+      </div>
+
+      <!-- ③ 빈 홈 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="appbar"><div class="logo">마인드<em>스코프</em></div><div class="bell">🔔</div></div>
+            <div class="hello"><div class="day">7월 10일 목요일</div><div class="line">오늘은 챙길 일이<br><em>없어요</em></div></div>
+            <div class="c" style="padding:8px 16px 20px;">
+              <div class="zen">
+                <div class="orb">🌿</div>
+                <div class="zt">이번 주 3개를 챙기셨어요</div>
+                <div class="zd">잠시 쉬어가도 좋은 날이에요</div>
+              </div>
+            </div>
+            <div class="c">
+              <div class="row">
+                <div class="tile mint">📔</div>
+                <div><div class="k mint">기록</div><div class="t">지난 기록 다시 보기</div><div class="d">지우 187개 · 서준 4개</div></div>
+                <div style="margin-left:auto;font-size:15px;color:var(--ink4);">›</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><span class="ic">🏠</span>홈</div>
+            <div class="tab"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🧩</span>다른 영역</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">상황 ③ — 할 일 없는 날 <span class="tag t3">상황 ③</span></div>
+          <div class="d">빈 홈 = 평온. 소프트 3D 오브 + 긍정 집계 한 줄. 채우기용 콘텐츠 없음.</div>
+          <div class="rule"><b>규칙:</b> 미완료·놓침의 흔적 없음. 빈 상태가 실패처럼 보이지 않게.</div>
+        </div>
+      </div>
+
+      <!-- 공유 설정 -->
+      <div class="unit">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+          <div class="scroll">
+            <div class="hello" style="padding-top:14px;"><div class="day">기록 · 7월 5일</div><div class="line" style="font-size:20px;">이 기록, 누가<br>볼 수 있나요</div></div>
+            <div class="c">
+              <div class="row">
+                <div class="tile blue">🎬</div>
+                <div><div class="k blue">영상 32초</div><div class="t">친구랑 블록놀이 하는 모습</div></div>
+              </div>
+              <div class="thumb"><div class="play">▶</div><div class="dur">0:32</div></div>
+            </div>
+            <div class="c">
+              <div class="share-row"><div class="sl">👨‍👩‍👧 우리 가족</div><div class="sv">항상 볼 수 있어요</div></div>
+              <div class="share-row"><div class="sl">🏡 해솔센터 김하윤 선생님</div><div class="switch"></div></div>
+            </div>
+            <div class="quiet" style="text-align:left;padding:2px 8px;line-height:1.8;">
+              선생님에게 알림이 가지 않아요.<br>
+              수업 준비하실 때 직접 열어보시는 방식이에요.<br>
+              끄면 선생님 화면에서 바로 사라져요.
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><span class="ic">🏠</span>홈</div>
+            <div class="tab on"><span class="ic">📔</span>기록</div>
+            <div class="tab"><span class="ic">🧩</span>다른 영역</div>
+            <div class="tab"><span class="ic">👤</span>마이</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div>
+        <div class="cap">
+          <div class="t">기록 공유 설정 <span class="tag t3">상황 ③</span></div>
+          <div class="d">"보여주기 허용" 모델 — 항목별 스위치, 열람 범위 상시 표기, 즉시 철회.</div>
+          <div class="rule"><b>규칙:</b> 투명성 가드레일 + 풀 원칙("알림이 가지 않아요") 문구가 UI에 상주.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="rulebox" style="margin-top:56px;">
+    <span>다음 시안: 연결 흐름(문자 링크→인증→아이 확인)</span><span>기록 타임라인(아이별)</span><span>첫 방문 정리본</span><span>바우처 상세 승계</span><span>가족 초대(2등급)</span>
+  </div>
+
+</div>
+</body>
+</html>

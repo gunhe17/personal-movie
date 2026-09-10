@@ -1,0 +1,11 @@
+import { chromium } from 'playwright'
+const wait=ms=>new Promise(r=>setTimeout(r,ms))
+const b=await chromium.launch();const page=await b.newPage({viewport:{width:390,height:844}})
+await page.goto('https://app.staging.mindscope.kr/verify-link?send_link_id=00000000-0000-0000-0000-000000000000'); await wait(4000)
+const input=page.locator('input').first()
+await input.fill('1234')
+await page.locator('button:has-text("확인")').first().click(); await wait(3000)
+await page.screenshot({path:'shots/re-verify-link-error.png'})
+const err=await page.evaluate(()=>document.body.textContent?.match(/유효하지 않은[^.]*|not found[^"]*|인증에 실패[^.]*/)?.[0])
+console.log('error text:',err)
+await b.close()

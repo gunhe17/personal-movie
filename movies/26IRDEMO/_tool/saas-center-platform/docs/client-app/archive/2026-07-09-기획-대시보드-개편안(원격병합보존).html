@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내담자 앱 기획 대시보드 — 2026-07-08</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #fff; --ink: #191f28; --ink2: #4e5968; --ink3: #8b95a1;
+    --line: #e5e8eb; --gray-bg: #f2f4f6;
+    --blue: #3182f6; --blue-bg: #e8f3ff; --blue-dark: #1b64da;
+    --green: #04b56c; --green-bg: #e6f7f0; --green-dark: #027a4c;
+    --orange: #f28b00; --orange-bg: #fff3e0; --orange-dark: #c26a00;
+    --red: #e5484d; --red-bg: #fdecec; --red-dark: #c2282d;
+    --purple: #7048e8; --purple-bg: #f0ebfd;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    background: var(--bg); color: var(--ink); padding: 40px 24px 100px;
+    -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.5;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  /* ===== HERO ===== */
+  .hero { margin-bottom: 40px; }
+  .eyebrow { font-size: 13px; font-weight: 700; color: var(--blue); letter-spacing: .02em; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-top: 8px; line-height: 1.25; }
+  .hero .sub { margin-top: 14px; font-size: 16px; color: var(--ink2); line-height: 1.6; max-width: 760px; }
+  .hero .sub b { color: var(--ink); }
+  .hero .meta { margin-top: 16px; font-size: 12.5px; color: var(--ink3); }
+
+  /* ===== SECTION SCAFFOLD ===== */
+  .block { margin-bottom: 46px; }
+  .block-head { margin-bottom: 18px; }
+  .block-head .n { font-size: 13px; font-weight: 800; color: var(--ink3); letter-spacing: .06em; }
+  .block-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin-top: 4px; }
+  .block-head p { font-size: 14px; color: var(--ink2); margin-top: 8px; line-height: 1.6; max-width: 720px; }
+
+  /* ===== 상황 3단계 스트립 ===== */
+  .strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 820px) { .strip { grid-template-columns: 1fr; } }
+  .sbox { border-radius: 16px; padding: 18px 18px 16px; border: 1px solid var(--line); background: var(--card); position: relative; overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s, background .15s, border-color .15s; }
+  .sbox::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; }
+  .sbox.s1::before { background: var(--blue); } .sbox.s2::before { background: var(--orange); } .sbox.s3::before { background: var(--green); }
+  .sbox:not(.active) { opacity: .68; }
+  .sbox:hover { opacity: 1; }
+  .sbox.active { opacity: 1; box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-1px); }
+  .sbox.active.s1 { background: var(--blue-bg); border-color: #bcdcff; }
+  .sbox.active.s2 { background: var(--orange-bg); border-color: #ffdca8; }
+  .sbox.active.s3 { background: var(--green-bg); border-color: #b6ead2; }
+  .sbox:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .sbox .tag { font-size: 12px; font-weight: 800; }
+  .s1 .tag { color: var(--blue-dark); } .s2 .tag { color: var(--orange-dark); } .s3 .tag { color: var(--green-dark); }
+  .sbox .st { font-size: 16px; font-weight: 800; margin: 5px 0 8px; }
+  .sbox .sd { font-size: 13px; color: var(--ink2); line-height: 1.55; }
+  .sbox .more { margin-top: 12px; font-size: 11.5px; font-weight: 800; color: var(--ink3); }
+  .sbox.active .more { color: var(--ink2); }
+
+  /* 상황 상세 패널 */
+  .detail { margin-top: 14px; }
+  .detail-panel { display: none; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 6px 22px 20px; }
+  .detail-panel.active { display: block; animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  .drow { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--gray-bg); }
+  @media (max-width: 620px) { .drow { grid-template-columns: 1fr; gap: 5px; } }
+  .drow .dk { font-size: 12.5px; font-weight: 800; color: var(--ink3); padding-top: 4px; }
+  .drow .dv { font-size: 14px; color: var(--ink); line-height: 1.55; }
+  .drow .dv b { font-weight: 700; }
+  .hchips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hchips .c { font-size: 12.5px; font-weight: 700; border-radius: 8px; padding: 5px 10px; }
+  .hchips.h1 .c { background: var(--blue-bg); color: var(--blue-dark); }
+  .hchips.h2 .c { background: var(--orange-bg); color: var(--orange-dark); }
+  .hchips.h3 .c { background: var(--green-bg); color: var(--green-dark); }
+  .hchips .c.inherit { background: var(--gray-bg); color: var(--ink3); font-weight: 600; }
+  .delta { background: var(--gray-bg); border-radius: 12px; padding: 14px 16px; margin-top: 16px; }
+  .delta .dh { font-size: 12px; font-weight: 800; color: var(--ink3); letter-spacing: .03em; margin-bottom: 8px; }
+  .delta ul { list-style: none; }
+  .delta li { font-size: 13.5px; color: var(--ink2); padding: 4px 0; line-height: 1.55; }
+  .delta li b { color: var(--ink); }
+  .delta li .op { display: inline-block; width: 18px; font-weight: 800; }
+  .delta li .op.add { color: var(--green-dark); }
+  .delta li .op.chg { color: var(--orange-dark); }
+
+  /* ===== 문제 → 해결 ===== */
+  .ps { display: flex; flex-direction: column; gap: 10px; }
+  .ps-row { display: grid; grid-template-columns: 1fr 40px 1.15fr; align-items: stretch; }
+  @media (max-width: 760px) { .ps-row { grid-template-columns: 1fr; gap: 6px; } .ps-arrow { display:none !important; } }
+  .ps-prob, .ps-sol { border-radius: 14px; padding: 15px 18px; }
+  .ps-prob { background: var(--card); border: 1px solid var(--line); }
+  .ps-sol { background: var(--blue-bg); }
+  .ps-prob .lb { font-size: 11.5px; font-weight: 800; color: var(--ink3); letter-spacing:.04em; }
+  .ps-sol .lb { font-size: 11.5px; font-weight: 800; color: var(--blue-dark); letter-spacing:.04em; }
+  .ps-prob .tx { font-size: 14.5px; font-weight: 700; color: var(--ink); margin-top: 5px; line-height: 1.45; }
+  .ps-sol .tx { font-size: 14.5px; font-weight: 700; color: var(--ink); margin-top: 5px; line-height: 1.45; }
+  .ps-sol .tx b { color: var(--blue-dark); }
+  .ps-arrow { display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--ink3); font-weight: 700; }
+
+  /* ===== 여정 흐름 ===== */
+  .flow-scroll { overflow-x: auto; padding-bottom: 6px; }
+  .flow { display: flex; align-items: stretch; gap: 0; min-width: 760px; }
+  .fnode { flex: 1 1 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 15px; position: relative; }
+  .fnode .fs { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 8px; display:inline-block; }
+  .fnode.n1 .fs { background: var(--blue-bg); color: var(--blue-dark); }
+  .fnode.n2 .fs { background: var(--orange-bg); color: var(--orange-dark); }
+  .fnode.n3 .fs { background: var(--green-bg); color: var(--green-dark); }
+  .fnode .ft { font-size: 14.5px; font-weight: 800; margin: 9px 0 6px; }
+  .fnode .fw { font-size: 12.5px; color: var(--ink2); line-height: 1.5; }
+  .fnode .fk { font-size: 12px; color: var(--ink3); margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--line); }
+  .fnode .fk b { color: var(--ink2); }
+  .farrow { flex: 0 0 26px; display: flex; align-items: center; justify-content: center; color: var(--ink3); font-size: 18px; font-weight: 700; }
+  .flow-note { margin-top: 12px; font-size: 13px; color: var(--ink2); background: var(--gray-bg); border-radius: 12px; padding: 12px 16px; }
+  .flow-note b { color: var(--ink); }
+
+  /* ===== 기능 목록 ===== */
+  .feat { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 820px) { .feat { grid-template-columns: 1fr; } }
+  .fcol { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 4px 18px 18px; }
+  .fcol .ch { font-size: 13px; font-weight: 800; padding: 15px 0 12px; border-bottom: 1px solid var(--gray-bg); margin-bottom: 6px; }
+  .fcol.f1 .ch { color: var(--blue-dark); } .fcol.f2 .ch { color: var(--orange-dark); } .fcol.f3 .ch { color: var(--green-dark); }
+  .fcol ul { list-style: none; }
+  .fcol li { font-size: 13.5px; padding: 8px 0; border-bottom: 1px solid var(--gray-bg); line-height: 1.5; }
+  .fcol li:last-child { border-bottom: none; }
+  .fcol li b { font-weight: 700; }
+  .fcol li .sm { display:block; font-size: 12px; color: var(--ink3); margin-top: 2px; }
+  .fcol li .later { font-size: 11px; font-weight:800; color: var(--ink3); background: var(--gray-bg); border-radius:5px; padding: 1px 6px; margin-left: 4px; }
+
+  /* ===== 절대 규칙 ===== */
+  .guard { background: #fffaf6; border: 1px solid #ffe0c2; border-radius: 18px; padding: 22px 24px; }
+  .guard h3 { font-size: 16px; font-weight: 800; color: var(--orange-dark); margin-bottom: 4px; }
+  .guard .gsub { font-size: 13px; color: var(--ink2); margin-bottom: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .grow { }
+  .grow .gt { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+  .grow .gd { font-size: 13px; color: var(--ink2); line-height: 1.55; }
+  .grow .gd .no { color: var(--red-dark); font-weight: 700; }
+
+  /* ===== 하단 카드 ===== */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; }
+  .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; gap: 24px; } }
+  .todo { list-style: none; }
+  .todo li { display: flex; gap: 9px; align-items: flex-start; padding: 8px 0; font-size: 13.5px; line-height: 1.55; color: var(--ink2); }
+  .todo li b { color: var(--ink); }
+  .files li { padding: 8px 0; font-size: 13.5px; border-bottom: 1px solid var(--gray-bg); list-style: none; }
+  .files li:last-child { border-bottom: none; }
+  .files a { color: var(--blue); text-decoration: none; font-weight: 700; }
+  .files a:hover { text-decoration: underline; }
+  .files .fd { color: var(--ink3); font-size: 12px; margin-top: 1px; }
+  ul.files { }
+
+  footer { margin-top: 40px; font-size: 12.5px; color: var(--ink3); text-align: center; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="eyebrow">내담자 앱 기획 대시보드</div>
+    <h1>막막한 부모에게 "지금 할 한 가지"와<br>그동안의 기록을 모아주는 앱</h1>
+    <div class="sub">
+      상담·발달 센터에 <b>다니는 중이거나 알아보는 중인 보호자·내담자</b>를 위한 모바일 앱.
+      본업은 센터용 SaaS이고, 이 앱은 그 센터의 고객에게 준다. 최종 목표는 <b>센터와 연동된 상태(상황 ③)</b>이지만, 연동 전에도 앱이 혼자 설 수 있게 설계했다.
+    </div>
+    <div class="meta">기준일 2026-07-08 · 설계는 대부분 확정, 화면 시안·문구는 진행 중 · 상세 근거는 맨 아래 확정안 문서</div>
+  </div>
+
+  <!-- ===== 1. 한 앱, 세 상황 ===== -->
+  <div class="block">
+    <div class="block-head">
+      <div class="n">01 — 기본 뼈대</div>
+      <h2>한 앱인데, 사용자 상황에 따라 홈이 달라진다</h2>
+      <p>첫 실행 때 한 번만 물어 시작점을 정하고, 이후엔 사용자의 행동(센터 찜·등록·연동)에 따라 자동으로 넘어간다. <b>카드를 눌러</b> 상황별로 홈 구성과 이전 대비 무엇이 달라지는지 확인하세요.</p>
+    </div>
+    <div class="strip" role="tablist">
+      <div class="sbox s1 active" data-s="1" role="tab" tabindex="0">
+        <div class="tag">상황 ①</div>
+        <div class="st">센터가 처음이에요</div>
+        <div class="sd">발달이 걱정되기 시작했거나 상담을 알아보는 중. 다니는 센터 없음.</div>
+        <div class="more">자세히 ▾</div>
+      </div>
+      <div class="sbox s2" data-s="2" role="tab" tabindex="0">
+        <div class="tag">상황 ②</div>
+        <div class="st">다니는데, 미연동</div>
+        <div class="sd">주 1~2회 다니는 중. 센터가 우리 프로그램을 안 써 데이터가 안 내려온다.</div>
+        <div class="more">자세히 ▾</div>
+      </div>
+      <div class="sbox s3" data-s="3" role="tab" tabindex="0">
+        <div class="tag">상황 ③ · 회사 최우선 ★</div>
+        <div class="st">다니는 센터가 연동됨</div>
+        <div class="sd">센터 운영 데이터가 앱으로 자동 내려온다. ②의 전부 + 센터가 주는 것.</div>
+        <div class="more">자세히 ▾</div>
+      </div>
+    </div>
+
+    <div class="detail">
+      <!-- 상황 ① -->
+      <div class="detail-panel active" data-s="1">
+        <div class="drow"><div class="dk">이런 사람</div><div class="dv">발달 걱정이 시작됐거나 상담을 알아보는 중. 아직 다니는 센터가 없다.</div></div>
+        <div class="drow"><div class="dk">홈에 뜨는 것</div><div class="dv"><div class="hchips h1"><span class="c">관찰 기록</span><span class="c">무료 검사 안내</span><span class="c">바우처 정보</span><span class="c">센터 찾기(지도)</span><span class="c">전화 도우미</span></div></div></div>
+        <div class="drow"><div class="dk">데이터 출처</div><div class="dv">전부 <b>사용자가 직접</b> 만든다. 게스트로 둘러보기 → 첫 저장(기록·찜·알림) 때 소셜 로그인.</div></div>
+        <div class="delta">
+          <div class="dh">이 단계의 역할</div>
+          <ul><li><span class="op add">＝</span> 아직 시작점. 앱은 <b>"다음 한 걸음"</b>만 알려준다 — 판정도 콘텐츠도 아닌 행동 안내.</li></ul>
+        </div>
+      </div>
+
+      <!-- 상황 ② -->
+      <div class="detail-panel" data-s="2">
+        <div class="drow"><div class="dk">이런 사람</div><div class="dv">주 1~2회 다니는 중. 센터가 미연동이라 앱에 데이터가 안 내려온다.</div></div>
+        <div class="drow"><div class="dk">홈에 뜨는 것</div><div class="dv"><div class="hchips h2"><span class="c">다녀왔어요 체크</span><span class="c">선생님 말씀 담기</span><span class="c">숙제 카드</span><span class="c">종이 결과지 보관</span><span class="c inherit">관찰 기록 (이어받음)</span></div></div></div>
+        <div class="drow"><div class="dk">데이터 출처</div><div class="dv">여전히 <b>사용자가 직접</b>. 센터 데이터 없음.</div></div>
+        <div class="delta">
+          <div class="dh">상황 ① 대비 달라진 점</div>
+          <ul>
+            <li><span class="op add">＋</span> <b>수업 중심 기능 등장</b> — 다녀왔어요·선생님 말씀 담기·숙제 카드</li>
+            <li><span class="op chg">↻</span> "센터 찾기" → <b>"다른 영역 알아보기"</b>로 명분 전환(여러 영역 병행이 흔해서)</li>
+            <li><span class="op add">＋</span> <b>연동 안내</b>(소개장 보내기) 등장 — 이 센터를 SaaS 고객으로</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 상황 ③ -->
+      <div class="detail-panel" data-s="3">
+        <div class="drow"><div class="dk">이런 사람</div><div class="dv">다니는 센터가 우리 프로그램을 쓴다(연동). <b>회사 입장에서 가장 중요한 상황.</b></div></div>
+        <div class="drow"><div class="dk">홈에 뜨는 것</div><div class="dv"><div class="hchips h3"><span class="c inherit">②의 전부 (이어받음)</span><span class="c">예약·휴강 알림</span><span class="c">온라인 검사·설문</span><span class="c">결과지</span><span class="c">바우처 잔여 (진짜 숫자)</span></div></div></div>
+        <div class="drow"><div class="dk">데이터 출처</div><div class="dv"><b>센터 데이터가 세 번째 공급원으로 자동 합류.</b> 전화번호 본인인증으로 센터와 연결.</div></div>
+        <div class="delta">
+          <div class="dh">상황 ② 대비 달라진 점</div>
+          <ul>
+            <li><span class="op add">＋</span> <b>센터가 자동으로 주는 것</b> 등장 — 예약·검사·설문·결과지·바우처 실제 숫자</li>
+            <li><span class="op chg">↻</span> "다녀왔어요" 수동 체크 → <b>자동 생성</b>(센터 데이터로)</li>
+            <li><span class="op add">＋</span> <b>남은 횟수가 진짜 숫자로</b> 표시 가능(①②에선 금지였던 것)</li>
+            <li><span class="op add">＋</span> 부모→상담사 공유 · 가족 공유 · 여러 아이/센터</li>
+            <li><span class="op add">＝</span> 기존 기록 습관은 그대로, <b>손으로 하던 것만 자동으로.</b></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. 문제 → 해결 ===== -->
+  <div class="block">
+    <div class="block-head">
+      <div class="n">02 — 왜 이 앱인가</div>
+      <h2>부모가 겪는 문제, 앱은 이렇게 푼다</h2>
+      <p>기획의 출발점은 "지친 30~40대 부모가 실제로 겪는 막막함"이다. 각 문제에 대응하는 해결이 곧 이 앱의 기능이 된다.</p>
+    </div>
+    <div class="ps">
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">"우리 아이 괜찮나?" 밤새 검색·맘카페만 보고 아무것도 못 한다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>지금 할 한 가지만</b> — 관찰 기록(글+영상), 공공 무료 발달검사 안내, 치료비 지원 정보.</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">전화하면 진짜가 될까 봐 겁나고, 걸어도 대기가 길어 잊어버린다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>전화 도우미</b> — "물어볼 것" 목록 + "언제 다시 확인?" 한 줄 → 그 날짜 알림.</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">어느 센터가 좋은지 모르겠고, 후기는 믿을 수가 없다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>센터 찾기(지도)</b> — 정부 공개 바우처 기관 명단이 기본. 리뷰·후기는 넣지 않는다(운영 리스크).</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">선생님이 수업 후 5분 설명해주는데, 집에 오면 다 까먹는다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>선생님 말씀 담기</b> — 녹음 기본/메모 대안. "잊어버릴까 봐 담아둘게요" 양해 프레임 내장.</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">미연동 센터라 앱에 데이터가 안 내려온다. 남은 횟수도 헷갈린다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>직접 남기기</b> — 다녀왔어요·숙제·종이 결과지 사진. 단, 남은 횟수는 앱이 계산 안 함(센터 장부 영역).</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제</div><div class="tx">육아 기록 앱은 빈칸·연속기록으로 죄책감만 줬다. 그래서 지웠다.</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx"><b>채근하지 않는 설계</b> — 빨간 배지·스트릭·빈 달력 없음. 안 하면 조용히 사라진다.</div></div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-prob"><div class="lb">문제 (회사)</div><div class="tx">연동 안 된 센터를 어떻게 우리 SaaS 고객으로 만들까?</div></div>
+        <div class="ps-arrow">→</div>
+        <div class="ps-sol"><div class="lb">해결</div><div class="tx">아쉬운 순간에만 <b>[센터에 소개장 보내기]</b>. 조르는 구조가 아니라 관심을 받아주는 구조. 연동되면 손으로 하던 게 자동으로 바뀐다.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 3. 여정 흐름 ===== -->
+  <div class="block">
+    <div class="block-head">
+      <div class="n">03 — 흐름</div>
+      <h2>한 사람의 여정으로 보는 전체 흐름</h2>
+      <p>38세 워킹맘, 5세 아이가 어린이집에서 "언어가 좀 느린 듯"이라는 말을 들은 상황을 기준으로 잡았다. 왼쪽에서 오른쪽으로, 상황이 바뀌어도 기록은 계속 이어진다.</p>
+    </div>
+    <div class="flow-scroll">
+      <div class="flow">
+        <div class="fnode n1">
+          <span class="fs">상황 ①</span>
+          <div class="ft">걱정 시작</div>
+          <div class="fw">밤마다 검색·맘카페. 아직 전화도 못 함.</div>
+          <div class="fk"><b>앱:</b> 관찰 기록 시작 · 무료 검사 안내 · 지원 정보</div>
+        </div>
+        <div class="farrow">→</div>
+        <div class="fnode n1">
+          <span class="fs">상황 ①</span>
+          <div class="ft">알아보기</div>
+          <div class="fw">센터를 찾기 시작, 전화를 돌린다.</div>
+          <div class="fk"><b>앱:</b> 센터 지도 · 전화 도우미 · "5월에 다시" 알림</div>
+        </div>
+        <div class="farrow">→</div>
+        <div class="fnode n1">
+          <span class="fs">상황 ①</span>
+          <div class="ft">첫 방문</div>
+          <div class="fw">대기 몇 주간 기록이 쌓임. 초진이 잡힘.</div>
+          <div class="fk"><b>앱:</b> 그동안의 기록을 시간순 한 장으로 정리</div>
+        </div>
+        <div class="farrow">→</div>
+        <div class="fnode n2">
+          <span class="fs">상황 ②</span>
+          <div class="ft">등록 · 매주</div>
+          <div class="fw">주 1회 언어치료(센터는 미연동). 대기실이 앱 쓰는 시간.</div>
+          <div class="fk"><b>앱:</b> 다녀왔어요 · 선생님 말씀 담기 · 숙제 카드</div>
+        </div>
+        <div class="farrow">→</div>
+        <div class="fnode n3">
+          <span class="fs">상황 ③</span>
+          <div class="ft">연동 후</div>
+          <div class="fw">센터가 우리 프로그램 도입. 습관은 그대로, 손으로 하던 것만 자동.</div>
+          <div class="fk"><b>앱:</b> 예약·휴강 알림 · 검사·결과지 · 바우처 잔여</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-note">흐름 요약: <b>① → (센터 등록) → ② 또는 ③</b> · ②의 센터가 우리 프로그램을 도입하면 ③으로 승격 · <b>상황이 바뀌어도 사용자의 기록은 전부 이어진다.</b></div>
+  </div>
+
+  <!-- ===== 4. 기능 목록 ===== -->
+  <div class="block">
+    <div class="block-head">
+      <div class="n">04 — 만들 것</div>
+      <h2>상황별로 필요한 기능</h2>
+      <p>각 항목이 화면·기능 하나. 별도 표기 없으면 전부 설계 확정 상태. 한 줄 정의만 두었고, 세부 규격·근거는 맨 아래 확정안 문서에 있다.</p>
+    </div>
+    <div class="feat">
+      <div class="fcol f1">
+        <div class="ch">상황 ① — 센터가 처음</div>
+        <ul>
+          <li><b>시작 질문</b><span class="sm">첫 실행 3택으로 시작점 결정</span></li>
+          <li><b>관찰 기록</b><span class="sm">글 한 줄 + 사진/영상, 촬영 가이드</span></li>
+          <li><b>무료 검사 안내</b><span class="sm">공공 발달검사, 상황 3갈래</span></li>
+          <li><b>치료비 지원 정보</b><span class="sm">바우처 제도 + 신청기간 알림</span></li>
+          <li><b>센터 찾기(지도)</b><span class="sm">정부 공개 기관 명단 기본</span></li>
+          <li><b>전화 도우미</b><span class="sm">질문 목록 + 다시 확인 알림</span></li>
+          <li><b>첫 방문 준비</b><span class="sm">D-day + 기록 시간순 정리</span></li>
+        </ul>
+      </div>
+      <div class="fcol f2">
+        <div class="ch">상황 ② — 미연동</div>
+        <ul>
+          <li><b>센터 등록 분기</b><span class="sm">검색 → ③절차 / ②모드 / 직접입력</span></li>
+          <li><b>수업 일정</b><span class="sm">"매주 화 4시" 반복 1개만</span></li>
+          <li><b>다녀왔어요 체크</b><span class="sm">한 탭 → 세션 생성 (횟수 계산은 안 함)</span></li>
+          <li><b>선생님 말씀 담기</b><span class="sm">녹음 기본 / 메모 대안</span></li>
+          <li><b>숙제 카드</b><span class="sm">일주일간 홈 상주</span></li>
+          <li><b>종이 문서 보관</b><span class="sm">보고서 사진 첨부</span></li>
+          <li><b>연동 안내</b><span class="sm">아쉬운 순간에만 + 소개장 버튼</span></li>
+        </ul>
+      </div>
+      <div class="fcol f3">
+        <div class="ch">상황 ③ — 연동 <span style="color:var(--ink3);font-weight:600">(진행 중)</span></div>
+        <ul>
+          <li><b>센터 자동 수신</b><span class="sm">예약·휴강·검사·설문·결과지·바우처</span></li>
+          <li><b>세션 기록 자동화</b><span class="sm">"다녀왔어요" 자동 생성</span></li>
+          <li><b>센터 연결 절차</b><span class="sm">문자 링크 + 본인인증 / 요청→승인</span></li>
+          <li><b>부모→상담사 공유</b><span class="sm">"보여주기 허용" 스위치</span></li>
+          <li><b>여러 아이·센터</b><span class="sm">홈 하나, 기록은 아이별</span></li>
+          <li><b>가족 공유</b><span class="sm">권한 2등급(관리자/구성원)</span></li>
+          <li><b>상담사가 보내주는 것<span class="later">⏸ 다음</span></b><span class="sm">세션 요약·과제 발행</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 5. 절대 규칙 ===== -->
+  <div class="block">
+    <div class="block-head">
+      <div class="n">05 — 지켜야 할 것</div>
+      <h2>어느 화면에서도 어기면 안 되는 규칙</h2>
+      <p>공통 뿌리는 하나 — <b>"이 앱은 사용자를 채근하지 않고, 아이를 평가하지 않는다."</b> 이걸 어기면 부모가 앱을 지운다.</p>
+    </div>
+    <div class="guard">
+      <div class="grid2">
+        <div class="grow"><div class="gt">죄책감 장치 금지</div><div class="gd"><span class="no">금지:</span> 빨간 배지·미완료 개수·연속기록(스트릭)·빈 달력. 할 일은 때 지나면 조용히 사라진다.</div></div>
+        <div class="grow"><div class="gt">아이를 평가하지 않는다</div><div class="gd"><span class="no">금지:</span> "괜찮아 보여요/걱정되네요" 판정 뉘앙스 일체. 거짓 안심이 최악. 해석은 사람(전문가) 몫.</div></div>
+        <div class="grow"><div class="gt">남은 횟수는 계산 안 함</div><div class="gd">횟수는 센터 장부의 영역. 앱이 계산하면 숫자가 어긋나 <span class="no">신뢰가 깨진다.</span> 연동(③)에서만 진짜 숫자.</div></div>
+        <div class="grow"><div class="gt">몰래 녹음 금지</div><div class="gd">말씀 담기는 <span class="no">항상 양해 프레임</span>. 몰래 녹음 모드는 절대 제공하지 않는다.</div></div>
+        <div class="grow"><div class="gt">글은 최소, 숫자·명사로</div><div class="gd">공감 문구는 화면당 1문장. 형용사보다 명사·숫자("잔여 2회", "0.8km"). 훈계·응원 강요 금지.</div></div>
+        <div class="grow"><div class="gt">해당 없으면 아예 안 보이게</div><div class="gd">바우처 없는 사용자에겐 바우처 영역 자체가 안 뜬다. 빈 상태로 보여주지 않고 표면을 없앤다.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. 미정 + 문서 ===== -->
+  <div class="block">
+    <div class="cols">
+      <div>
+        <div class="card">
+          <h3>🟡 아직 정하지 않은 것</h3>
+          <ul class="todo">
+            <li><span>🎨</span><span><b>화면 시안</b> — 세 상황의 홈·온보딩·바우처. 설계는 끝, 그리는 단계.</span></li>
+            <li><span>🔒</span><span><b>민감정보 동의</b> — 영상·녹음 서버 저장 전환에 따른 온보딩 동의.</span></li>
+            <li><span>🗺️</span><span><b>센터 찾기 형식</b> — 리스트 vs 지도, 데이터 밀도 확인 후.</span></li>
+            <li><span>🏷️</span><span><b>서비스 이름</b> — 가칭 "마인드스코프", 재검토 대상.</span></li>
+            <li><span>✍️</span><span><b>문구 일체</b> — 치료사 감수 후 시안에서 확정.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>📄 더 읽을 문서 <span style="font-size:12px;font-weight:600;color:var(--ink3)">(근거·결정 이력)</span></h3>
+          <ul class="files">
+            <li><a href="2026-07-08-내담자앱-기획-v5-케이스A-A1-탐색기.md">상황 ① 확정안</a><div class="fd">결정 이력·근거 상세 (07-08)</div></li>
+            <li><a href="2026-07-08-내담자앱-기획-v5-케이스2-미연동-소속.md">상황 ② 확정안</a><div class="fd">결정 이력·근거 상세 (07-08)</div></li>
+            <li><a href="2026-07-08-내담자앱-기획-v5-케이스3-연동.md">상황 ③ 확정안</a><div class="fd">저장 정책·가족 공유·연결 절차 (07-08)</div></li>
+            <li><a href="2026-07-08-앱시안-v5-홈-3상황.html">앱 시안 v5 — 홈 3상황</a><div class="fd">화면 9종, 문구 가안 (07-08)</div></li>
+            <li><a href="2026-07-07-바우처-시안.html">바우처 화면 시안</a><div class="fd">노출 3단계, ③에서 승계 예정 (07-07)</div></li>
+            <li><a href="2026-07-06-디렉터리-시안-배민vs네이버지도.html">센터 찾기 형식 비교</a><div class="fd">리스트형 vs 지도형 (07-06)</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    내담자 앱 기획 대시보드 · 기준일 2026-07-08 · 이 파일(기획-대시보드.html)이 항상 최신본입니다.
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var cards = document.querySelectorAll('.sbox');
+    var panels = document.querySelectorAll('.detail-panel');
+    function activate(s) {
+      cards.forEach(function (c) { c.classList.toggle('active', c.dataset.s === s); });
+      panels.forEach(function (p) { p.classList.toggle('active', p.dataset.s === s); });
+    }
+    cards.forEach(function (c) {
+      c.addEventListener('click', function () { activate(c.dataset.s); });
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(c.dataset.s); }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          var arr = Array.prototype.slice.call(cards);
+          var i = arr.indexOf(c);
+          var next = e.key === 'ArrowRight' ? (i + 1) % arr.length : (i - 1 + arr.length) % arr.length;
+          arr[next].focus(); activate(arr[next].dataset.s);
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

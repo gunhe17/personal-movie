@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mindscope-prod
+  labels:
+    project: mindscope
+    environment: prod

@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MindScope Mobile Prototype</title>
+<style>
+/* ===== DESIGN SYSTEM ===== */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+:root {
+  --primary-50: #f4f8ff;
+  --primary-100: #d7e5fd;
+  --primary-200: #b2cefb;
+  --primary-300: #85aff9;
+  --primary-400: #4c87f6;
+  --primary-500: #256ef4;
+  --imomtae: #ef4967;
+  --imomtae-light: #feedf0;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f5f6;
+  --gray-200: #e2e5e9;
+  --gray-300: #d1d5db;
+  --gray-400: #aab2be;
+  --gray-500: #7d848f;
+  --gray-600: #606a74;
+  --gray-700: #464f58;
+  --gray-800: #2d333b;
+  --gray-900: #1d2227;
+  --white: #ffffff;
+  --black: #191919;
+  --success: #017750;
+  --error: #e20808;
+  --warning: #f47500;
+  --info: #0176d0;
+  --trans-gray: rgba(113,113,113,0.1);
+  --trans-blue: rgba(73,170,239,0.1);
+  --trans-green: rgba(1,119,80,0.1);
+  --trans-red: rgba(210,62,70,0.1);
+  --trans-yellow: rgba(251,173,41,0.1);
+  --shadow-card: 0px 4px 12px 0px rgba(200,200,200,0.1);
+  --shadow-overlay: 0 -4px 16px 0 rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.41px;
+  background: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Phone frame */
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  background: var(--white);
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+  border: 8px solid #1a1a1a;
+}
+
+/* Navigation */
+.page-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  padding: 12px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 200px;
+}
+.page-nav h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.page-nav button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  font-size: 12px;
+  color: var(--gray-600);
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: inherit;
+  letter-spacing: -0.41px;
+}
+.page-nav button:hover { background: var(--gray-50); }
+.page-nav button.active { background: var(--primary-50); color: var(--primary-500); font-weight: 600; }
+.page-nav .divider { height: 1px; background: var(--gray-200); margin: 6px 0; }
+
+/* Screen container */
+.screen { display: none; height: 100%; flex-direction: column; background: var(--gray-50); }
+.screen.active { display: flex; }
+
+/* Status bar */
+.status-bar {
+  height: 54px;
+  padding: 14px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  flex-shrink: 0;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; }
+.status-bar .icons { display: flex; gap: 5px; align-items: center; font-size: 12px; color: var(--gray-800); }
+
+/* Common header */
+.app-header {
+  height: 52px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  flex-shrink: 0;
+}
+.app-header .title { font-size: 18px; font-weight: 600; color: var(--gray-900); }
+.app-header .back-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; cursor: pointer; font-size: 20px; color: var(--gray-700);
+}
+.app-header .action-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; cursor: pointer; font-size: 18px; color: var(--gray-600);
+}
+.app-header .header-left { display: flex; align-items: center; gap: 8px; }
+.app-header .header-right { display: flex; align-items: center; gap: 4px; }
+
+/* Tab bar */
+.tab-bar {
+  height: 84px;
+  padding: 0 8px;
+  padding-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--white);
+  border-top: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.tab-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: none; background: none; cursor: pointer;
+  padding: 6px 12px;
+  font-family: inherit;
+}
+.tab-item .tab-icon { font-size: 22px; }
+.tab-item .tab-label { font-size: 10px; font-weight: 500; color: var(--gray-400); letter-spacing: -0.41px; }
+.tab-item.active .tab-label { color: var(--primary-500); font-weight: 600; }
+.tab-item.active .tab-icon { color: var(--primary-500); }
+.tab-item .tab-icon { color: var(--gray-400); }
+
+/* Content area */
+.content { flex: 1; overflow-y: auto; }
+.content::-webkit-scrollbar { display: none; }
+
+/* Cards */
+.card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--gray-100);
+  box-shadow: var(--shadow-card);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge-gray { background: var(--trans-gray); color: var(--gray-500); }
+.badge-blue { background: var(--trans-blue); color: var(--info); }
+.badge-green { background: var(--trans-green); color: var(--success); }
+.badge-red { background: var(--trans-red); color: var(--error); }
+.badge-yellow { background: var(--trans-yellow); color: var(--warning); }
+.badge-primary { background: var(--primary-50); color: var(--primary-500); }
+.badge-pill {
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.41px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+.btn-primary { background: var(--primary-500); color: var(--white); }
+.btn-primary:hover { background: var(--primary-400); }
+.btn-outline { background: var(--white); color: var(--primary-500); border: 1px solid var(--primary-500); }
+.btn-ghost { background: var(--primary-50); color: var(--primary-500); }
+.btn-danger { background: var(--error); color: var(--white); }
+.btn-lg { height: 52px; padding: 0 24px; font-size: 16px; border-radius: 14px; width: 100%; }
+.btn-md { height: 44px; padding: 0 20px; font-size: 14px; }
+.btn-sm { height: 36px; padding: 0 14px; font-size: 13px; border-radius: 10px; }
+.btn-xs { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 8px; }
+
+/* Input */
+.input-field {
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  letter-spacing: -0.41px;
+  width: 100%;
+  outline: none;
+  background: var(--white);
+  color: var(--gray-900);
+}
+.input-field::placeholder { color: var(--gray-400); }
+.input-field:focus { border-color: var(--primary-400); }
+.input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Avatar */
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600; color: var(--gray-500);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar-sm { width: 32px; height: 32px; font-size: 13px; }
+.avatar-lg { width: 48px; height: 48px; font-size: 18px; }
+
+/* Dot indicator */
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--success); }
+.dot-red { background: var(--error); }
+.dot-blue { background: var(--primary-500); }
+.dot-gray { background: var(--gray-400); }
+.dot-yellow { background: var(--warning); }
+
+/* Divider */
+.divider { height: 1px; background: var(--gray-100); width: 100%; }
+
+/* Chip */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  font-size: 13px; font-weight: 500; color: var(--gray-600);
+  cursor: pointer;
+}
+.chip.active { border-color: var(--primary-500); background: var(--primary-50); color: var(--primary-500); }
+
+/* Search bar */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  height: 44px; padding: 0 14px;
+  border-radius: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+}
+.search-bar input {
+  border: none; outline: none; background: none;
+  font-size: 14px; font-family: inherit; letter-spacing: -0.41px;
+  width: 100%; color: var(--gray-900);
+}
+.search-bar input::placeholder { color: var(--gray-400); }
+.search-icon { color: var(--gray-400); font-size: 16px; }
+
+/* Section */
+.section-title {
+  font-size: 16px; font-weight: 600; color: var(--gray-900);
+  padding: 16px 20px 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- Page Navigation -->
+<nav class="page-nav" id="pageNav">
+  <h3>Pages</h3>
+  <button class="active" onclick="showPage('login')">1. 로그인</button>
+  <button onclick="showPage('center-select')">2. 센터 선택</button>
+  <div class="divider"></div>
+  <button onclick="showPage('home')">3. 홈 (대시보드)</button>
+  <button onclick="showPage('schedule')">4. 일정 캘린더</button>
+  <button onclick="showPage('schedule-detail')">5. 일정 상세</button>
+  <button onclick="showPage('clients')">6. 내담자 목록</button>
+  <button onclick="showPage('client-detail')">7. 내담자 상세</button>
+  <div class="divider"></div>
+  <button onclick="showPage('counseling')">8. 상담 현황</button>
+  <button onclick="showPage('assessment')">9. 검사 현황</button>
+  <button onclick="showPage('fieldnote')">10. 필드노트 녹음</button>
+  <button onclick="showPage('notifications')">11. 알림 목록</button>
+  <button onclick="showPage('more')">12. 더보기</button>
+</nav>
+
+<!-- Phone Frame -->
+<div class="phone-frame">
+
+<!-- ==================== 1. LOGIN ==================== -->
+<div class="screen active" id="page-login">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#128267;</span>
+    </span>
+  </div>
+
+  <div class="content" style="display:flex;flex-direction:column;justify-content:center;padding:32px 24px;background:var(--white);">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:48px;">
+      <div style="width:64px;height:64px;border-radius:16px;background:var(--primary-500);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:28px;color:var(--white);font-weight:700;">M</span>
+      </div>
+      <div style="font-size:24px;font-weight:700;color:var(--gray-900);">MindScope</div>
+      <div style="font-size:14px;color:var(--gray-500);margin-top:4px;">상담센터 전문가용</div>
+    </div>
+
+    <!-- Form -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label class="input-label">이메일</label>
+        <input class="input-field" type="email" placeholder="email@example.com">
+      </div>
+      <div>
+        <label class="input-label">비밀번호</label>
+        <input class="input-field" type="password" placeholder="비밀번호를 입력해주세요">
+      </div>
+      <button class="btn btn-primary btn-lg" style="margin-top:8px;" onclick="showPage('center-select')">
+        로그인
+      </button>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;">
+      <span style="font-size:13px;color:var(--gray-400);">비밀번호를 잊으셨나요? </span>
+      <span style="font-size:13px;color:var(--primary-500);font-weight:500;cursor:pointer;">재설정</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. CENTER SELECT ==================== -->
+<div class="screen" id="page-center-select">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+
+  <div class="content" style="display:flex;flex-direction:column;padding:32px 24px;background:var(--white);">
+    <div style="margin-bottom:8px;">
+      <div style="font-size:24px;font-weight:700;color:var(--gray-900);">센터 선택</div>
+      <div style="font-size:14px;color:var(--gray-500);margin-top:6px;">이용할 센터를 선택해주세요</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+      <!-- Center card 1 -->
+      <div class="card" style="padding:20px;cursor:pointer;border:2px solid var(--primary-500);" onclick="showPage('home')">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-50);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;">&#127963;</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);">마음돌봄 심리상담센터</div>
+            <div style="font-size:13px;color:var(--gray-500);margin-top:3px;">서울 강남구 · 상담사</div>
+          </div>
+          <div style="color:var(--primary-500);font-size:18px;">&#10003;</div>
+        </div>
+      </div>
+
+      <!-- Center card 2 -->
+      <div class="card" style="padding:20px;cursor:pointer;" onclick="showPage('home')">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:48px;height:48px;border-radius:12px;background:var(--gray-50);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;">&#127963;</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);">해맑은 아동발달센터</div>
+            <div style="font-size:13px;color:var(--gray-500);margin-top:3px;">서울 서초구 · 검사사</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 3. HOME (DASHBOARD) ==================== -->
+<div class="screen" id="page-home">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+
+  <!-- Header -->
+  <div class="app-header" style="height:56px;">
+    <div class="header-left">
+      <span style="font-size:20px;font-weight:700;color:var(--gray-900);">홈</span>
+    </div>
+    <div class="header-right">
+      <button class="action-btn" onclick="showPage('notifications')" style="position:relative;">
+        &#128276;
+        <span style="position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--imomtae);"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;">
+    <!-- User greeting -->
+    <div style="padding:16px 0 12px;">
+      <div style="font-size:15px;color:var(--gray-500);">안녕하세요,</div>
+      <div style="font-size:20px;font-weight:700;color:var(--gray-900);margin-top:2px;">김상담 상담사님 &#128075;</div>
+      <div style="font-size:13px;color:var(--gray-400);margin-top:4px;">마음돌봄 심리상담센터</div>
+    </div>
+
+    <!-- Today summary cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div class="card" style="padding:16px;">
+        <div style="font-size:12px;font-weight:500;color:var(--gray-500);margin-bottom:8px;">오늘 예정</div>
+        <div style="display:flex;align-items:baseline;gap:3px;">
+          <span style="font-size:28px;font-weight:700;color:var(--primary-500);">5</span>
+          <span style="font-size:14px;color:var(--gray-500);">건</span>
+        </div>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div style="font-size:12px;font-weight:500;color:var(--gray-500);margin-bottom:8px;">완료</div>
+        <div style="display:flex;align-items:baseline;gap:3px;">
+          <span style="font-size:28px;font-weight:700;color:var(--success);">2</span>
+          <span style="font-size:14px;color:var(--gray-500);">건</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next session -->
+    <div class="card" style="padding:16px;margin-bottom:16px;border-left:4px solid var(--primary-500);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span class="badge badge-primary badge-pill">&#9201; 30분 후</span>
+        <span style="font-size:12px;color:var(--gray-400);">10:00 - 10:50</span>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:4px;">개인상담 · 이지은</div>
+      <div style="font-size:13px;color:var(--gray-500);">상담실 1 · 회기 3/10</div>
+    </div>
+
+    <!-- Today's timeline -->
+    <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:12px;">오늘 일정</div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <!-- Completed -->
+      <div class="card" style="padding:14px 16px;opacity:0.6;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:44px;">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-500);">09:00</span>
+            <span style="font-size:11px;color:var(--gray-400);">09:50</span>
+          </div>
+          <div style="width:3px;height:40px;border-radius:2px;background:var(--success);"></div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:14px;font-weight:500;color:var(--gray-700);">개인상담 · 박민수</span>
+              <span class="badge badge-green" style="font-size:10px;padding:2px 6px;">완료</span>
+            </div>
+            <span style="font-size:12px;color:var(--gray-400);">상담실 2</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current -->
+      <div class="card" style="padding:14px 16px;border:1px solid var(--primary-200);background:var(--primary-50);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:44px;">
+            <span style="font-size:13px;font-weight:600;color:var(--primary-500);">10:00</span>
+            <span style="font-size:11px;color:var(--primary-300);">10:50</span>
+          </div>
+          <div style="width:3px;height:40px;border-radius:2px;background:var(--primary-500);"></div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:14px;font-weight:600;color:var(--primary-500);">개인상담 · 이지은</span>
+              <span class="badge badge-blue" style="font-size:10px;padding:2px 6px;">예정</span>
+            </div>
+            <span style="font-size:12px;color:var(--primary-400);">상담실 1 · 회기 3/10</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="card" style="padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:44px;">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-500);">11:00</span>
+            <span style="font-size:11px;color:var(--gray-400);">11:50</span>
+          </div>
+          <div style="width:3px;height:40px;border-radius:2px;background:var(--warning);"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--gray-700);">심리검사 · 최유진</div>
+            <span style="font-size:12px;color:var(--gray-400);">검사실 1 · WISC-V</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:44px;">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-500);">14:00</span>
+            <span style="font-size:11px;color:var(--gray-400);">14:50</span>
+          </div>
+          <div style="width:3px;height:40px;border-radius:2px;background:var(--primary-400);"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--gray-700);">개인상담 · 한서윤</div>
+            <span style="font-size:12px;color:var(--gray-400);">상담실 1 · 회기 1/8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:44px;">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-500);">16:00</span>
+            <span style="font-size:11px;color:var(--gray-400);">16:50</span>
+          </div>
+          <div style="width:3px;height:40px;border-radius:2px;background:var(--gray-300);"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--gray-700);">사례회의</div>
+            <span style="font-size:12px;color:var(--gray-400);">회의실</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;">
+      <button class="btn btn-ghost btn-md" style="border-radius:14px;" onclick="showPage('fieldnote')">&#127908; 필드노트</button>
+      <button class="btn btn-outline btn-md" style="border-radius:14px;" onclick="showPage('schedule')">&#128197; 일정 추가</button>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active"><span class="tab-icon">&#127968;</span><span class="tab-label">홈</span></button>
+    <button class="tab-item" onclick="showPage('schedule')"><span class="tab-icon">&#128197;</span><span class="tab-label">일정</span></button>
+    <button class="tab-item" onclick="showPage('clients')"><span class="tab-icon">&#128101;</span><span class="tab-label">내담자</span></button>
+    <button class="tab-item" onclick="showPage('more')"><span class="tab-icon">&#8943;</span><span class="tab-label">더보기</span></button>
+  </div>
+</div>
+
+<!-- ==================== 4. SCHEDULE (CALENDAR) ==================== -->
+<div class="screen" id="page-schedule">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+
+  <div class="app-header">
+    <span class="title">일정</span>
+    <button class="action-btn" style="font-size:22px;">+</button>
+  </div>
+
+  <div class="content" style="background:var(--white);">
+    <!-- View toggle -->
+    <div style="display:flex;padding:0 20px;margin-bottom:4px;">
+      <div style="display:flex;background:var(--gray-50);border-radius:10px;padding:3px;">
+        <button style="padding:7px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;background:var(--white);color:var(--primary-500);box-shadow:0 1px 3px rgba(0,0,0,0.08);cursor:pointer;font-family:inherit;">일간</button>
+        <button style="padding:7px 18px;border:none;border-radius:8px;font-size:13px;font-weight:500;background:none;color:var(--gray-500);cursor:pointer;font-family:inherit;">주간</button>
+      </div>
+    </div>
+
+    <!-- Week strip -->
+    <div style="display:flex;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--gray-400);font-weight:500;">월</span>
+        <span style="font-size:14px;color:var(--gray-500);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">10</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--gray-400);font-weight:500;">화</span>
+        <span style="font-size:14px;color:var(--gray-500);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">11</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--primary-500);font-weight:600;">수</span>
+        <span style="font-size:14px;font-weight:700;color:var(--white);width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--primary-500);border-radius:50%;">12</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--gray-400);font-weight:500;">목</span>
+        <span style="font-size:14px;color:var(--gray-500);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">13</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--gray-400);font-weight:500;">금</span>
+        <span style="font-size:14px;color:var(--gray-500);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">14</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--gray-400);font-weight:500;">토</span>
+        <span style="font-size:14px;color:var(--gray-400);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">15</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--imomtae);font-weight:500;">일</span>
+        <span style="font-size:14px;color:var(--imomtae);width:32px;height:32px;display:flex;align-items:center;justify-content:center;">16</span>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div style="padding:0 20px;">
+      <div style="font-size:15px;font-weight:600;color:var(--gray-900);padding:14px 0 10px;">3월 12일 수요일</div>
+
+      <!-- Time slots -->
+      <div style="display:flex;flex-direction:column;">
+        <!-- 09:00 -->
+        <div style="display:flex;gap:12px;min-height:70px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">09:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);padding:8px 0;">
+            <div onclick="showPage('schedule-detail')" style="background:rgba(1,119,80,0.08);border-left:3px solid var(--success);border-radius:8px;padding:10px 12px;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-800);">개인상담 · 박민수</div>
+              <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">상담실 2 · 09:00-09:50</div>
+            </div>
+          </div>
+        </div>
+        <!-- 10:00 -->
+        <div style="display:flex;gap:12px;min-height:70px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">10:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);padding:8px 0;">
+            <div onclick="showPage('schedule-detail')" style="background:var(--primary-50);border-left:3px solid var(--primary-500);border-radius:8px;padding:10px 12px;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-800);">개인상담 · 이지은</div>
+              <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">상담실 1 · 10:00-10:50</div>
+            </div>
+          </div>
+        </div>
+        <!-- 11:00 -->
+        <div style="display:flex;gap:12px;min-height:70px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">11:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);padding:8px 0;">
+            <div onclick="showPage('schedule-detail')" style="background:rgba(244,117,0,0.06);border-left:3px solid var(--warning);border-radius:8px;padding:10px 12px;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-800);">심리검사 · 최유진</div>
+              <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">검사실 1 · 11:00-11:50 · WISC-V</div>
+            </div>
+          </div>
+        </div>
+        <!-- 12:00 empty -->
+        <div style="display:flex;gap:12px;min-height:50px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">12:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);"></div>
+        </div>
+        <!-- 13:00 empty -->
+        <div style="display:flex;gap:12px;min-height:50px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">13:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);"></div>
+        </div>
+        <!-- 14:00 -->
+        <div style="display:flex;gap:12px;min-height:70px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">14:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);padding:8px 0;">
+            <div onclick="showPage('schedule-detail')" style="background:var(--primary-50);border-left:3px solid var(--primary-400);border-radius:8px;padding:10px 12px;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-800);">개인상담 · 한서윤</div>
+              <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">상담실 1 · 14:00-14:50</div>
+            </div>
+          </div>
+        </div>
+        <!-- 15:00 empty -->
+        <div style="display:flex;gap:12px;min-height:50px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">15:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);"></div>
+        </div>
+        <!-- 16:00 -->
+        <div style="display:flex;gap:12px;min-height:70px;">
+          <div style="width:44px;padding-top:2px;"><span style="font-size:12px;color:var(--gray-400);">16:00</span></div>
+          <div style="flex:1;border-top:1px solid var(--gray-100);padding:8px 0;">
+            <div style="background:var(--trans-gray);border-left:3px solid var(--gray-400);border-radius:8px;padding:10px 12px;">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-800);">사례회의</div>
+              <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">회의실 · 16:00-16:50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-item" onclick="showPage('home')"><span class="tab-icon">&#127968;</span><span class="tab-label">홈</span></button>
+    <button class="tab-item active"><span class="tab-icon">&#128197;</span><span class="tab-label">일정</span></button>
+    <button class="tab-item" onclick="showPage('clients')"><span class="tab-icon">&#128101;</span><span class="tab-label">내담자</span></button>
+    <button class="tab-item" onclick="showPage('more')"><span class="tab-icon">&#8943;</span><span class="tab-label">더보기</span></button>
+  </div>
+</div>
+
+<!-- ==================== 5. SCHEDULE DETAIL ==================== -->
+<div class="screen" id="page-schedule-detail">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="showPage('schedule')">&#8249;</button>
+      <span class="title">일정 상세</span>
+    </div>
+    <button class="action-btn">&#8942;</button>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;background:var(--white);">
+    <!-- Type & Status -->
+    <div style="display:flex;align-items:center;gap:8px;padding:16px 0 12px;">
+      <span class="badge badge-primary badge-pill">개인상담</span>
+      <span class="badge badge-blue badge-pill">예정</span>
+    </div>
+
+    <div style="font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:20px;">이지은 · 개인상담</div>
+
+    <!-- Info grid -->
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;">&#128197;</span>
+          <div>
+            <div style="font-size:12px;color:var(--gray-400);">날짜</div>
+            <div style="font-size:15px;font-weight:500;color:var(--gray-800);">2026년 3월 12일 (수)</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;">&#9201;</span>
+          <div>
+            <div style="font-size:12px;color:var(--gray-400);">시간</div>
+            <div style="font-size:15px;font-weight:500;color:var(--gray-800);">10:00 - 10:50 (50분)</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;">&#127970;</span>
+          <div>
+            <div style="font-size:12px;color:var(--gray-400);">장소</div>
+            <div style="font-size:15px;font-weight:500;color:var(--gray-800);">상담실 1</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;">&#128100;</span>
+          <div>
+            <div style="font-size:12px;color:var(--gray-400);">내담자</div>
+            <div style="font-size:15px;font-weight:500;color:var(--primary-500);cursor:pointer;" onclick="showPage('client-detail')">이지은 (C-0023)</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;">&#128203;</span>
+          <div>
+            <div style="font-size:12px;color:var(--gray-400);">회기</div>
+            <div style="font-size:15px;font-weight:500;color:var(--gray-800);">3회 / 총 10회</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memo -->
+    <div style="margin-top:16px;">
+      <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:8px;">메모</div>
+      <div class="card" style="padding:14px;font-size:14px;color:var(--gray-600);line-height:1.5;">
+        이전 회기에서 학교 적응 관련 이야기 진행. 또래 관계에서의 불안감 다룰 예정.
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
+      <button class="btn btn-primary btn-lg" onclick="showPage('fieldnote')">&#127908; 필드노트 작성</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost btn-md" style="flex:1;">&#10003; 완료</button>
+        <button class="btn btn-outline btn-md" style="flex:1;border-color:var(--gray-300);color:var(--gray-600);">&#10007; 노쇼</button>
+        <button class="btn btn-outline btn-md" style="flex:1;border-color:var(--error);color:var(--error);">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. CLIENTS LIST ==================== -->
+<div class="screen" id="page-clients">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <span class="title">내 내담자</span>
+    <div class="header-right">
+      <!-- intentionally no add button - clients are added via case assignment -->
+    </div>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;">
+    <!-- Filter chips: by case type -->
+    <div style="display:flex;gap:8px;padding:12px 0;overflow-x:auto;">
+      <span class="chip active">전체</span>
+      <span class="chip">&#128172; 상담</span>
+      <span class="chip">&#128203; 검사</span>
+    </div>
+
+    <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">내 담당 · 4명</div>
+
+    <!-- Client list - derived from cases -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- Client 1: 상담 케이스로 연결 -->
+      <div class="card" style="padding:16px;cursor:pointer;" onclick="showPage('client-detail')">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div class="avatar" style="background:var(--primary-50);color:var(--primary-500);">이</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:var(--gray-900);">이지은</span>
+              <span style="font-size:12px;color:var(--gray-400);">C-0023</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-500);">여 · 만 14세</div>
+          </div>
+        </div>
+        <!-- Case connection info -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-blue" style="font-size:11px;padding:3px 8px;gap:4px;display:inline-flex;align-items:center;">
+            <span style="font-size:10px;">&#128172;</span> 개인상담 · 3/10회기
+          </span>
+        </div>
+      </div>
+
+      <!-- Client 2: 상담 케이스로 연결 -->
+      <div class="card" style="padding:16px;cursor:pointer;" onclick="showPage('client-detail')">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div class="avatar" style="background:var(--trans-blue);color:var(--info);">박</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:var(--gray-900);">박민수</span>
+              <span style="font-size:12px;color:var(--gray-400);">C-0021</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-500);">남 · 만 32세</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-blue" style="font-size:11px;padding:3px 8px;gap:4px;display:inline-flex;align-items:center;">
+            <span style="font-size:10px;">&#128172;</span> 개인상담 · 5/8회기
+          </span>
+        </div>
+      </div>
+
+      <!-- Client 3: 검사 케이스로 연결 -->
+      <div class="card" style="padding:16px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div class="avatar" style="background:var(--imomtae-light);color:var(--imomtae);">최</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:var(--gray-900);">최유진</span>
+              <span style="font-size:12px;color:var(--gray-400);">C-0025</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-500);">여 · 만 9세</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-yellow" style="font-size:11px;padding:3px 8px;gap:4px;display:inline-flex;align-items:center;">
+            <span style="font-size:10px;">&#128203;</span> 종합심리검사 · 진행중
+          </span>
+        </div>
+      </div>
+
+      <!-- Client 4: 상담 케이스로 연결 -->
+      <div class="card" style="padding:16px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div class="avatar" style="background:var(--trans-green);color:var(--success);">한</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:var(--gray-900);">한서윤</span>
+              <span style="font-size:12px;color:var(--gray-400);">C-0018</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-500);">여 · 만 28세</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-blue" style="font-size:11px;padding:3px 8px;gap:4px;display:inline-flex;align-items:center;">
+            <span style="font-size:10px;">&#128172;</span> 개인상담 · 1/8회기
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation note -->
+    <div style="margin-top:16px;padding:12px 14px;background:var(--gray-50);border-radius:10px;display:flex;gap:8px;align-items:flex-start;">
+      <span style="font-size:14px;color:var(--gray-400);flex-shrink:0;">&#9432;</span>
+      <span style="font-size:12px;color:var(--gray-400);line-height:1.5;">상담 또는 검사 케이스에 담당자로 배정된 내담자만 표시됩니다.</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-item" onclick="showPage('home')"><span class="tab-icon">&#127968;</span><span class="tab-label">홈</span></button>
+    <button class="tab-item" onclick="showPage('schedule')"><span class="tab-icon">&#128197;</span><span class="tab-label">일정</span></button>
+    <button class="tab-item active"><span class="tab-icon">&#128101;</span><span class="tab-label">내담자</span></button>
+    <button class="tab-item" onclick="showPage('more')"><span class="tab-icon">&#8943;</span><span class="tab-label">더보기</span></button>
+  </div>
+</div>
+
+<!-- ==================== 7. CLIENT DETAIL ==================== -->
+<div class="screen" id="page-client-detail">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="showPage('clients')">&#8249;</button>
+      <span class="title">내담자 상세</span>
+    </div>
+    <button class="action-btn">&#8942;</button>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;background:var(--white);">
+    <!-- Profile header -->
+    <div style="display:flex;align-items:center;gap:16px;padding:20px 0;">
+      <div class="avatar avatar-lg" style="background:var(--primary-50);color:var(--primary-500);font-size:20px;">이</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:20px;font-weight:700;color:var(--gray-900);">이지은</span>
+          <span class="badge badge-primary badge-pill">내담자</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-500);">C-0023 · 여 · 만 14세</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;">&#128222; 전화</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;">&#128172; 문자</button>
+    </div>
+
+    <!-- Info card -->
+    <div class="card" style="padding:20px;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:14px;">기본 정보</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:14px;color:var(--gray-500);">생년월일</span>
+          <span style="font-size:14px;color:var(--gray-800);">2012.03.15</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:14px;color:var(--gray-500);">연락처</span>
+          <span style="font-size:14px;color:var(--gray-800);">010-****-5678</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:14px;color:var(--gray-500);">학교/학년</span>
+          <span style="font-size:14px;color:var(--gray-800);">서울중학교 2학년</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:14px;color:var(--gray-500);">등록일</span>
+          <span style="font-size:14px;color:var(--gray-800);">2024.08.12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relations -->
+    <div class="card" style="padding:20px;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:14px;">관계 정보</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+        <div class="avatar avatar-sm" style="background:var(--gray-100);color:var(--gray-500);">김</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--gray-800);">김태희</div>
+          <div style="font-size:12px;color:var(--gray-500);">보호자 (모)</div>
+        </div>
+        <span class="badge badge-gray" style="font-size:10px;">주 보호자</span>
+      </div>
+    </div>
+
+    <!-- Related cases -->
+    <div class="card" style="padding:20px;">
+      <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:14px;">연관 케이스</div>
+      <!-- Counseling -->
+      <div style="padding:10px 0;border-bottom:1px solid var(--gray-100);cursor:pointer;" onclick="showPage('counseling')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--gray-800);">개인상담</span>
+          <span class="badge badge-blue" style="font-size:10px;">진행중</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);">김상담 · 3/10 회기 · 2024.08 ~</div>
+      </div>
+      <!-- Assessment -->
+      <div style="padding:10px 0;cursor:pointer;" onclick="showPage('assessment')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--gray-800);">종합심리검사</span>
+          <span class="badge badge-green" style="font-size:10px;">완료</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);">박검사 · WISC-V 외 3종 · 2024.08</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 8. COUNSELING STATUS ==================== -->
+<div class="screen" id="page-counseling">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="showPage('more')">&#8249;</button>
+      <span class="title">상담 현황</span>
+    </div>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;">
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:0;margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--gray-200);">
+      <button style="flex:1;padding:10px;border:none;background:var(--primary-50);color:var(--primary-500);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">전체</button>
+      <button style="flex:1;padding:10px;border:none;border-left:1px solid var(--gray-200);background:var(--white);color:var(--gray-500);font-size:13px;cursor:pointer;font-family:inherit;">진행중</button>
+      <button style="flex:1;padding:10px;border:none;border-left:1px solid var(--gray-200);background:var(--white);color:var(--gray-500);font-size:13px;cursor:pointer;font-family:inherit;">종결</button>
+    </div>
+
+    <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">내 담당 · 8건</div>
+
+    <!-- Cases -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- Case 1 -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--primary-50);color:var(--primary-500);">이</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">이지은</span>
+          </div>
+          <span class="badge badge-blue badge-pill">진행중</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:8px;">개인상담 · 학교적응 / 또래관계</div>
+        <!-- Progress bar -->
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
+            <div style="width:30%;height:100%;background:var(--primary-500);border-radius:3px;"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--primary-500);">3/10</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">다음 세션: 3월 12일 (수) 10:00</div>
+      </div>
+
+      <!-- Case 2 -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--trans-blue);color:var(--info);">박</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">박민수</span>
+          </div>
+          <span class="badge badge-blue badge-pill">진행중</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:8px;">개인상담 · 우울 / 직장스트레스</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
+            <div style="width:62%;height:100%;background:var(--primary-500);border-radius:3px;"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--primary-500);">5/8</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">다음 세션: 3월 14일 (금) 15:00</div>
+      </div>
+
+      <!-- Case 3 -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--trans-green);color:var(--success);">한</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">한서윤</span>
+          </div>
+          <span class="badge badge-blue badge-pill">진행중</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:8px;">개인상담 · 불안 / 대인관계</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
+            <div style="width:12%;height:100%;background:var(--primary-500);border-radius:3px;"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--primary-500);">1/8</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">다음 세션: 3월 12일 (수) 14:00</div>
+      </div>
+
+      <!-- Case 4 - completed -->
+      <div class="card" style="padding:16px;opacity:0.65;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--gray-100);color:var(--gray-500);">정</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">정하늘</span>
+          </div>
+          <span class="badge badge-green badge-pill">종결</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:8px;">개인상담 · 진로탐색</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
+            <div style="width:100%;height:100%;background:var(--success);border-radius:3px;"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--success);">6/6</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">종결일: 2025.02.28</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 9. ASSESSMENT STATUS ==================== -->
+<div class="screen" id="page-assessment">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="showPage('more')">&#8249;</button>
+      <span class="title">검사 현황</span>
+    </div>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;">
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:0;margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--gray-200);">
+      <button style="flex:1;padding:10px;border:none;background:var(--primary-50);color:var(--primary-500);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">전체</button>
+      <button style="flex:1;padding:10px;border:none;border-left:1px solid var(--gray-200);background:var(--white);color:var(--gray-500);font-size:13px;cursor:pointer;font-family:inherit;">진행중</button>
+      <button style="flex:1;padding:10px;border:none;border-left:1px solid var(--gray-200);background:var(--white);color:var(--gray-500);font-size:13px;cursor:pointer;font-family:inherit;">완료</button>
+    </div>
+
+    <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">내 담당 · 5건</div>
+
+    <!-- Cases -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- Case 1 -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--imomtae-light);color:var(--imomtae);">최</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">최유진</span>
+          </div>
+          <span class="badge badge-blue badge-pill">진행중</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:10px;">종합심리검사 · WISC-V 외 3종</div>
+        <!-- Tasks -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--success);font-size:14px;">&#10003;</span>
+            <span style="font-size:13px;color:var(--gray-500);text-decoration:line-through;">K-WISC-V</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--success);font-size:14px;">&#10003;</span>
+            <span style="font-size:13px;color:var(--gray-500);text-decoration:line-through;">HTP</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--primary-500);font-size:14px;">&#9711;</span>
+            <span style="font-size:13px;color:var(--gray-800);">BGT</span>
+            <span class="badge badge-blue" style="font-size:9px;padding:1px 5px;">오늘</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--gray-300);font-size:14px;">&#9711;</span>
+            <span style="font-size:13px;color:var(--gray-400);">Rorschach</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Case 2 -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--trans-gray);color:var(--gray-600);">윤</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">윤도현</span>
+          </div>
+          <span class="badge badge-gray badge-pill">대기</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:4px;">학습능력검사 · K-WISC-V</div>
+        <div style="font-size:12px;color:var(--gray-400);">예약일: 3월 18일 (화) 10:00</div>
+      </div>
+
+      <!-- Case 3 - completed -->
+      <div class="card" style="padding:16px;opacity:0.65;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-sm" style="background:var(--primary-50);color:var(--primary-500);">이</div>
+            <span style="font-size:15px;font-weight:600;color:var(--gray-900);">이지은</span>
+          </div>
+          <span class="badge badge-green badge-pill">완료</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:4px;">종합심리검사 · WISC-V 외 3종</div>
+        <div style="font-size:12px;color:var(--gray-400);">완료일: 2024.09.15</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 10. FIELDNOTE (RECORDING) ==================== -->
+<div class="screen" id="page-fieldnote">
+  <div class="status-bar" style="background:var(--gray-900);">
+    <span class="time" style="color:var(--white);">9:41</span>
+    <span class="icons" style="color:var(--white);"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+
+  <div class="app-header" style="background:var(--gray-900);">
+    <div class="header-left">
+      <button class="back-btn" style="color:var(--white);" onclick="showPage('schedule-detail')">&#8249;</button>
+      <span class="title" style="color:var(--white);">필드노트</span>
+    </div>
+    <span style="font-size:13px;color:var(--imomtae);font-weight:600;">&#9679; REC</span>
+  </div>
+
+  <div class="content" style="background:var(--gray-900);padding:0;">
+    <!-- Recording info -->
+    <div style="text-align:center;padding:20px 0 16px;">
+      <div style="font-size:13px;color:var(--gray-400);margin-bottom:4px;">이지은 · 개인상담 · 회기 3</div>
+      <div style="font-size:36px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;">00:15:32</div>
+      <!-- Waveform simulation -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:2px;height:32px;margin-top:12px;">
+        <div style="width:3px;height:8px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite;"></div>
+        <div style="width:3px;height:18px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.1s;"></div>
+        <div style="width:3px;height:12px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.2s;"></div>
+        <div style="width:3px;height:24px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.3s;"></div>
+        <div style="width:3px;height:16px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.4s;"></div>
+        <div style="width:3px;height:28px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.15s;"></div>
+        <div style="width:3px;height:10px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.35s;"></div>
+        <div style="width:3px;height:20px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.25s;"></div>
+        <div style="width:3px;height:14px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.45s;"></div>
+        <div style="width:3px;height:22px;background:var(--primary-400);border-radius:2px;animation:wave 0.8s ease-in-out infinite 0.05s;"></div>
+      </div>
+      <style>@keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(0.4)} }</style>
+    </div>
+
+    <!-- Transcript area -->
+    <div style="background:var(--gray-800);border-radius:20px 20px 0 0;flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div style="padding:16px 20px 8px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:14px;font-weight:600;color:var(--white);">실시간 트랜스크립트</span>
+        <span style="font-size:12px;color:var(--gray-400);">자동 기록중</span>
+      </div>
+
+      <!-- Transcript lines -->
+      <div style="flex:1;overflow-y:auto;padding:8px 20px;">
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span class="badge badge-primary" style="font-size:10px;padding:2px 8px;">상담사</span>
+            <span style="font-size:11px;color:var(--gray-500);">00:12:45</span>
+          </div>
+          <div style="font-size:14px;color:var(--gray-200);line-height:1.6;padding-left:2px;">
+            지난 시간에 학교에서 있었던 일에 대해 이야기했었는데, 이번 주는 어땠어요?
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span class="badge" style="font-size:10px;padding:2px 8px;background:rgba(239,73,103,0.15);color:var(--imomtae);">내담자</span>
+            <span style="font-size:11px;color:var(--gray-500);">00:13:02</span>
+          </div>
+          <div style="font-size:14px;color:var(--gray-200);line-height:1.6;padding-left:2px;">
+            이번 주는 조금 나아진 것 같아요. 점심시간에 같이 밥 먹자고 말한 친구가 있었어요.
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span class="badge badge-primary" style="font-size:10px;padding:2px 8px;">상담사</span>
+            <span style="font-size:11px;color:var(--gray-500);">00:14:18</span>
+          </div>
+          <div style="font-size:14px;color:var(--gray-200);line-height:1.6;padding-left:2px;">
+            그랬구나. 그때 기분이 어땠어요?
+          </div>
+        </div>
+        <!-- Typing indicator -->
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span class="badge" style="font-size:10px;padding:2px 8px;background:rgba(239,73,103,0.15);color:var(--imomtae);">내담자</span>
+            <span style="font-size:11px;color:var(--gray-500);">00:15:30</span>
+          </div>
+          <div style="font-size:14px;color:var(--gray-400);line-height:1.6;padding-left:2px;">
+            좀 놀랐는데 기분이 좋았어요. 그런데...
+            <span style="display:inline-block;width:2px;height:14px;background:var(--primary-400);animation:blink 1s infinite;vertical-align:middle;margin-left:2px;"></span>
+          </div>
+          <style>@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }</style>
+        </div>
+      </div>
+
+      <!-- Memo area -->
+      <div style="padding:12px 20px;border-top:1px solid var(--gray-700);">
+        <div style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;">
+          <span class="chip" style="background:var(--gray-700);border-color:var(--gray-600);color:var(--gray-300);font-size:12px;padding:4px 10px;">&#128065; 관찰</span>
+          <span class="chip" style="background:var(--gray-700);border-color:var(--gray-600);color:var(--gray-300);font-size:12px;padding:4px 10px;">&#128170; 행동</span>
+          <span class="chip" style="background:var(--gray-700);border-color:var(--gray-600);color:var(--gray-300);font-size:12px;padding:4px 10px;">&#128156; 감정</span>
+          <span class="chip" style="background:var(--gray-700);border-color:var(--gray-600);color:var(--gray-300);font-size:12px;padding:4px 10px;">+ 기타</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input style="flex:1;height:40px;border-radius:10px;border:1px solid var(--gray-600);background:var(--gray-700);color:var(--white);padding:0 12px;font-size:14px;outline:none;font-family:inherit;" placeholder="빠른 메모 입력...">
+          <button class="btn btn-primary btn-sm" style="padding:0 14px;">&#10148;</button>
+        </div>
+      </div>
+
+      <!-- Recording controls -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:32px;padding:16px 20px 40px;background:var(--gray-800);">
+        <button style="width:48px;height:48px;border-radius:50%;background:var(--gray-700);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);">&#9208;</button>
+        <button style="width:64px;height:64px;border-radius:50%;background:var(--imomtae);border:4px solid rgba(239,73,103,0.3);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);">&#9632;</button>
+        <button style="width:48px;height:48px;border-radius:50%;background:var(--gray-700);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);">&#128221;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 11. NOTIFICATIONS ==================== -->
+<div class="screen" id="page-notifications">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="showPage('home')">&#8249;</button>
+      <span class="title">알림</span>
+    </div>
+    <button style="font-size:13px;color:var(--primary-500);border:none;background:none;cursor:pointer;font-family:inherit;font-weight:500;">모두 읽음</button>
+  </div>
+
+  <div class="content" style="padding:0;background:var(--white);">
+    <!-- Today -->
+    <div style="padding:12px 20px 6px;font-size:12px;font-weight:600;color:var(--gray-400);background:var(--gray-50);">오늘</div>
+
+    <!-- Notification items -->
+    <div style="padding:0;">
+      <!-- Unread -->
+      <div style="display:flex;gap:12px;padding:14px 20px;background:var(--primary-50);border-bottom:1px solid var(--gray-100);cursor:pointer;" onclick="showPage('schedule-detail')">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--primary-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">&#128197;</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:3px;">일정 알림</div>
+          <div style="font-size:13px;color:var(--gray-600);line-height:1.4;">이지은 개인상담이 30분 후 시작됩니다. (상담실 1)</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">9:30</div>
+        </div>
+        <div class="dot dot-blue" style="margin-top:6px;"></div>
+      </div>
+
+      <div style="display:flex;gap:12px;padding:14px 20px;background:var(--primary-50);border-bottom:1px solid var(--gray-100);cursor:pointer;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(1,119,80,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">&#10003;</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:3px;">세션 완료</div>
+          <div style="font-size:13px;color:var(--gray-600);line-height:1.4;">박민수 개인상담 세션이 완료 처리되었습니다.</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">9:55</div>
+        </div>
+        <div class="dot dot-blue" style="margin-top:6px;"></div>
+      </div>
+
+      <!-- Read -->
+      <div style="display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid var(--gray-100);cursor:pointer;">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">&#128276;</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:3px;">시스템 알림</div>
+          <div style="font-size:13px;color:var(--gray-500);line-height:1.4;">3월 정기 사례회의가 등록되었습니다.</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">8:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yesterday -->
+    <div style="padding:12px 20px 6px;font-size:12px;font-weight:600;color:var(--gray-400);background:var(--gray-50);">어제</div>
+
+    <div style="display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid var(--gray-100);cursor:pointer;">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--trans-yellow);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">&#128203;</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:3px;">검사 완료</div>
+        <div style="font-size:13px;color:var(--gray-500);line-height:1.4;">최유진 K-WISC-V 검사가 완료되었습니다.</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">어제 16:30</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid var(--gray-100);cursor:pointer;">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--trans-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">&#10007;</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:3px;">일정 취소</div>
+        <div style="font-size:13px;color:var(--gray-500);line-height:1.4;">정하늘 개인상담 일정이 취소되었습니다.</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">어제 10:15</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 12. MORE (SETTINGS) ==================== -->
+<div class="screen" id="page-more">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&#128267;</span></span>
+  </div>
+  <div class="app-header">
+    <span class="title">더보기</span>
+  </div>
+
+  <div class="content" style="padding:0 20px 20px;">
+    <!-- Profile card -->
+    <div class="card" style="padding:20px;margin:12px 0 20px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="avatar avatar-lg" style="background:var(--primary-50);color:var(--primary-500);">김</div>
+        <div style="flex:1;">
+          <div style="font-size:17px;font-weight:700;color:var(--gray-900);">김상담</div>
+          <div style="font-size:13px;color:var(--gray-500);margin-top:2px;">counselor@mindscope.kr</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+            <span style="font-size:12px;color:var(--gray-400);">마음돌봄 심리상담센터</span>
+            <span style="font-size:12px;color:var(--primary-500);font-weight:500;cursor:pointer;">변경</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu sections -->
+    <div style="font-size:12px;font-weight:600;color:var(--gray-400);padding:0 4px 8px;">업무</div>
+    <div class="card" style="margin-bottom:20px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-50);cursor:pointer;" onclick="showPage('counseling')">
+        <span style="font-size:18px;">&#128172;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">상담 현황</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-50);cursor:pointer;" onclick="showPage('assessment')">
+        <span style="font-size:18px;">&#128203;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">검사 현황</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;" onclick="showPage('fieldnote')">
+        <span style="font-size:18px;">&#127908;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">필드노트</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--gray-400);padding:0 4px 8px;">설정</div>
+    <div class="card" style="margin-bottom:20px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-50);cursor:pointer;">
+        <span style="font-size:18px;">&#128276;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">알림 설정</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;">
+        <span style="font-size:18px;">&#128274;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">비밀번호 변경</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--gray-400);padding:0 4px 8px;">정보</div>
+    <div class="card" style="margin-bottom:20px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-50);">
+        <span style="font-size:18px;">&#9432;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">앱 버전</span>
+        <span style="font-size:14px;color:var(--gray-400);">1.0.0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;">
+        <span style="font-size:18px;">&#128196;</span>
+        <span style="font-size:15px;color:var(--gray-800);flex:1;">개인정보 처리방침</span>
+        <span style="font-size:14px;color:var(--gray-400);">&#8250;</span>
+      </div>
+    </div>
+
+    <button class="btn btn-lg" style="background:var(--gray-100);color:var(--error);font-weight:500;" onclick="showPage('login')">
+      로그아웃
+    </button>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-item" onclick="showPage('home')"><span class="tab-icon">&#127968;</span><span class="tab-label">홈</span></button>
+    <button class="tab-item" onclick="showPage('schedule')"><span class="tab-icon">&#128197;</span><span class="tab-label">일정</span></button>
+    <button class="tab-item" onclick="showPage('clients')"><span class="tab-icon">&#128101;</span><span class="tab-label">내담자</span></button>
+    <button class="tab-item active"><span class="tab-icon">&#8943;</span><span class="tab-label">더보기</span></button>
+  </div>
+</div>
+
+</div><!-- End phone frame -->
+
+<script>
+function showPage(pageId) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+  // Update nav
+  document.querySelectorAll('.page-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page-nav button').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(pageId)) {
+      b.classList.add('active');
+    }
+  });
+}
+</script>
+</body>
+</html>

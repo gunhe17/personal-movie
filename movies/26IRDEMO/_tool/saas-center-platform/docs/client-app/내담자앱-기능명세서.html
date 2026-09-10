@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마인드스코프 기능명세서 v1.0</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root { --ink:#191F28; --ink2:#4E5968; --ink3:#8B95A1; --line:#E5E8EB; --bg:#F9FAFB; --blue:#3182F6; --blue-bg:#E8F3FF; --warn:#B04A00; --warn-bg:#FFF6EC; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif; letter-spacing:-0.01em; }
+  body { background:var(--bg); color:var(--ink); font-size:14px; }
+  a { color:inherit; text-decoration:none; }
+  .layout { display:flex; max-width:1280px; margin:0 auto; }
+  /* 사이드바 */
+  .side { width:250px; flex:none; position:sticky; top:0; height:100vh; overflow-y:auto; padding:28px 18px 60px; border-right:1px solid var(--line); background:#fff; }
+  .side .logo { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .side .logo em { font-style:normal; color:var(--blue); }
+  .side .docno { font-size:11.5px; color:var(--ink3); margin-bottom:18px; }
+  .toc-dom { display:flex; justify-content:space-between; align-items:center; margin:14px 0 4px; }
+  .toc-dom a { font-size:13px; font-weight:800; color:var(--ink); }
+  .toc-dom span { font-size:11px; color:var(--ink3); }
+  .toc-fn { display:block; font-size:12px; color:var(--ink2); padding:3.5px 0 3.5px 10px; border-left:2px solid var(--line); }
+  .toc-fn:hover { color:var(--blue); border-left-color:var(--blue); }
+  /* 본문 */
+  .main { flex:1; padding:36px 40px 120px; min-width:0; }
+  .doc-head { background:#fff; border:1px solid var(--line); border-radius:12px; padding:26px 28px; margin-bottom:14px; }
+  h1 { font-size:24px; font-weight:800; letter-spacing:-0.02em; }
+  .doc-sub { margin-top:6px; font-size:13.5px; color:var(--ink2); line-height:1.7; }
+  .meta { margin-top:16px; display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .meta > div { padding:10px 14px; border-right:1px solid var(--line); }
+  .meta > div:last-child { border-right:none; }
+  .meta .k { font-size:11px; font-weight:700; color:var(--ink3); margin-bottom:3px; }
+  .meta .v { font-size:13px; font-weight:700; }
+  .legend { margin-top:12px; font-size:12.5px; color:var(--ink2); line-height:1.7; }
+  .legend b { font-weight:800; }
+  /* 챕터 */
+  .chapter { margin-top:34px; }
+  .chapter h2 { font-size:18px; font-weight:800; padding-bottom:10px; border-bottom:2px solid var(--ink); margin-bottom:14px; }
+  .chapter h2 span { color:var(--blue); margin-right:8px; }
+  .chapter h2 small { font-size:12px; font-weight:600; color:var(--ink3); margin-left:8px; }
+  /* 기능 블록 */
+  .fn { background:#fff; border:1px solid var(--line); border-radius:12px; margin-bottom:14px; overflow:hidden; scroll-margin-top:16px; }
+  .fn-head { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#F4F6F8; border-bottom:1px solid var(--line); }
+  .fid { font-size:12px; font-weight:800; color:var(--blue); background:var(--blue-bg); border-radius:6px; padding:3px 9px; font-variant-numeric:tabular-nums; }
+  .fname { font-size:15px; font-weight:800; }
+  .pri { font-size:11px; font-weight:800; border-radius:6px; padding:3px 8px; margin-left:auto; }
+  .pri.p0 { background:#FDEBEC; color:#C0392B; }
+  .pri.p1 { background:var(--blue-bg); color:#1B64DA; }
+  .pri.p2 { background:#F2F4F6; color:var(--ink3); }
+  .ref { font-size:11.5px; font-weight:700; color:var(--ink3); }
+  .fn table { width:100%; border-collapse:collapse; }
+  .fn th { width:96px; text-align:left; vertical-align:top; font-size:12px; font-weight:700; color:var(--ink3); padding:10px 14px; border-bottom:1px solid #F2F4F6; background:#FCFCFD; }
+  .fn td { font-size:13.5px; color:var(--ink2); line-height:1.65; padding:10px 16px 10px 4px; border-bottom:1px solid #F2F4F6; }
+  .fn tr:last-child th, .fn tr:last-child td { border-bottom:none; }
+  .fl { margin-left:18px; } .fl li { margin:2px 0; }
+  .lm { list-style:none; }
+  .lm li { position:relative; padding:2px 0 2px 20px; color:var(--warn); }
+  .lm li::before { content:"⛔"; position:absolute; left:0; font-size:11px; top:4px; }
+  .none { color:var(--ink3); }
+  td.data { font-size:12.5px; color:var(--ink3); font-weight:600; }
+  .backlink { display:inline-block; margin-bottom:14px; font-size:13px; font-weight:700; color:var(--blue); }
+  @media (max-width:900px) { .side { display:none; } .main { padding:20px 16px 80px; } .meta { grid-template-columns:1fr 1fr; } }
+  @media print { .side { display:none; } .fn { break-inside:avoid; } body { background:#fff; } }
+
+  td.design { font-size:13px; color:#1B64DA; background:#FAFCFF; }
+  td.design b { font-weight:800; }
+
+  td.ex { font-size:13px; color:#4E5968; background:#FBFDF7; line-height:1.7; border-left:3px solid #C9E4A5; }
+
+
+  .mini-link { display:inline-block; margin-left:6px; font-size:12px; font-weight:800; color:#1B64DA; background:#E8F3FF; border-radius:6px; padding:2px 8px; white-space:nowrap; }
+  .mini-link:hover { background:#D8EAFF; }
+/* ============ 시안 갤러리 (스코프 격리) ============ */
+/* 마인드스코프 디자인 언어 — 토스 아이덴티티 (2026-07-09)
+   특징: 플랫(그림자 최소) · radius 20 · 배경 없는 큰 아이콘 · 크고 굵은 타이포 · 토스 그레이 · 액센트 #3182F6
+   브랜드 블루(#4486FF)로 되돌리려면 --blue 계열 3개 변수만 교체 */
+.gallery {
+  --blue:#3182F6; --blue-600:#1B64DA; --blue-100:#E8F3FF; --blue-50:#F2F7FF;
+  --g0:#FFFFFF; --g50:#F9FAFB; --g100:#F2F4F6; --g200:#E5E8EB; --g300:#D1D6DB;
+  --g400:#B0B8C1; --g500:#8B95A1; --g600:#6B7684; --g700:#4E5968; --g800:#333D4B; --g900:#191F28;
+  --c-rec:#00C9B7; --c-rec-deep:#009B8E; --c-sch:#3182F6; --c-sup:#FF9F0A; --c-sup-deep:#C77800; --c-fam:#7C5CFF; --c-doc:#6B7684;
+  background:#15171b; padding:48px 36px 110px; color:#e8eaed;
+}
+.gallery * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif; letter-spacing:-0.02em; }
+.gallery .wrap { max-width:1420px; margin:0 auto; }
+.gallery h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.gallery .page-sub { margin-top:10px; font-size:14px; color:#9aa0a6; line-height:1.7; max-width:880px; }
+.gallery .page-sub a { color:#8ab4f8; font-weight:700; text-decoration:none; }
+.gallery .cap { margin-top:16px; }
+.gallery .cap .t { font-size:14.5px; font-weight:700; color:#e8eaed; }
+.gallery .cap .t .tag { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:7px; vertical-align:2px; }
+.gallery .tag.t0 { background:#2a2e35; color:#9aa0a6; }
+.gallery .tag.t1 { background:rgba(49,130,246,.18); color:#8ab4f8; }
+.gallery .tag.t2 { background:rgba(255,159,10,.16); color:#ffb45e; }
+.gallery .tag.t3 { background:rgba(0,201,183,.15); color:#5fd9d4; }
+.gallery .cap .d { margin-top:7px; font-size:12.5px; color:#9aa0a6; line-height:1.7; }
+.gallery .cap .rule { margin-top:9px; font-size:12px; color:#7f8790; line-height:1.65; padding:9px 12px; background:#1d2026; border-radius:10px; }
+.gallery .cap .rule b { color:#b9c0c8; }
+
+/* ===== 폰 프레임 ===== */
+.gallery .phone { width:312px; background:#0b0d10; border-radius:50px; padding:8px; box-shadow:0 30px 60px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.06) inset; }
+.gallery .screen { position:relative; background:var(--g100); border-radius:42px; overflow:hidden; height:668px; display:flex; flex-direction:column; }
+.gallery .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:90px; height:25px; border-radius:999px; background:#0b0d10; z-index:60; }
+.gallery .statusbar { flex:none; height:48px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 4px; font-size:12px; font-weight:600; color:var(--g900); }
+.gallery .homebar { position:absolute; bottom:7px; left:50%; transform:translateX(-50%); width:118px; height:5px; border-radius:99px; background:rgba(25,31,40,.2); z-index:60; }
+.gallery .scroll { flex:1; overflow:hidden; padding:8px 18px 0; display:flex; flex-direction:column; gap:12px; }
+
+/* ===== 헤더 — 크고 굵게 ===== */
+.gallery .appbar { display:flex; align-items:center; justify-content:space-between; padding:2px 2px 0; }
+.gallery .appbar .logo { font-size:16px; font-weight:800; color:var(--g900); }
+.gallery .appbar .logo em { font-style:normal; color:var(--blue); }
+.gallery .appbar .bell { width:36px; height:36px; border-radius:50%; background:transparent; display:flex; align-items:center; justify-content:center; color:var(--g600); }
+.gallery .appbar .bell svg { width:21px; height:21px; }
+.gallery .hello { padding:10px 4px 6px; }
+.gallery .hello .day { font-size:13.5px; font-weight:600; color:var(--g500); margin-bottom:7px; }
+.gallery .hello .line { font-size:25px; font-weight:800; color:var(--g900); line-height:1.36; letter-spacing:-0.03em; }
+.gallery .hello .line em { font-style:normal; color:var(--blue); }
+.gallery .navback { padding:8px 2px 0; font-size:19px; color:var(--g700); font-weight:600; }
+
+/* ===== 사람 칩 ===== */
+.gallery .people { display:flex; gap:8px; padding:0 2px; }
+.gallery .pchip { display:flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; padding:8px 14px 8px 9px; border-radius:999px; background:var(--g0); color:var(--g600); }
+.gallery .pchip.all { padding:8px 16px; }
+.gallery .pchip.on { background:var(--g900); color:#fff; }
+.gallery .av { flex:none; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; }
+.gallery .av.a1 { background:linear-gradient(135deg,#64A8FF,#3182F6); }
+.gallery .av.a2 { background:linear-gradient(135deg,#4DDCCB,#00C9B7); }
+.gallery .av.plus { background:var(--g200); color:var(--g500); }
+
+/* ===== 카드 — 플랫 · radius 20 · 그림자 없음 ===== */
+.gallery .c { background:var(--g0); border-radius:20px; padding:18px; box-shadow:none; }
+.gallery .c .row { display:flex; align-items:center; gap:13px; }
+.gallery .tile { flex:none; width:42px; height:42px; border-radius:0; background:none !important; display:flex; align-items:center; justify-content:center; font-size:30px; }
+.gallery .c .k { font-size:13px; font-weight:700; margin-bottom:3px; }
+.gallery .k.blue { color:var(--c-sch); } .gallery .k.mint { color:var(--c-rec-deep); } .gallery .k.orange { color:var(--c-sup-deep); } .gallery .k.gray { color:var(--c-doc); } .gallery .k.purple { color:#6B4DEB; }
+.gallery .c .t { font-size:16.5px; font-weight:700; color:var(--g900); line-height:1.4; letter-spacing:-0.02em; }
+.gallery .c .t small { font-size:13.5px; font-weight:500; color:var(--g500); margin-left:4px; }
+.gallery .c .d { font-size:14.5px; font-weight:500; color:var(--g600); line-height:1.5; margin-top:4px; }
+.gallery .c .who { display:inline-flex; align-items:center; font-size:11.5px; font-weight:700; border-radius:6px; padding:2.5px 7px; margin-right:6px; vertical-align:2px; }
+.gallery .who.w1 { background:rgba(49,130,246,.09); color:var(--c-sch); }
+.gallery .who.w2 { background:rgba(0,201,183,.1); color:var(--c-rec-deep); }
+.gallery .btns { margin-top:15px; display:flex; gap:9px; }
+.gallery .btn { flex:1; display:flex; align-items:center; justify-content:center; height:48px; font-size:15.5px; font-weight:700; border-radius:14px; }
+.gallery .btn.pri { background:var(--blue); color:#fff; }
+.gallery .btn.dark { background:var(--g900); color:#fff; }
+.gallery .btn.mint { background:var(--c-rec); color:#fff; }
+.gallery .btn.tint { background:rgba(49,130,246,.09); color:var(--blue); }
+.gallery .btn.asst { background:var(--g100); color:var(--g700); }
+.gallery .bar { margin-top:13px; height:8px; border-radius:99px; background:var(--g100); overflow:hidden; }
+.gallery .bar i { display:block; height:100%; border-radius:99px; }
+.gallery .quiet { text-align:center; font-size:13.5px; font-weight:500; color:var(--g500); padding:2px 0; line-height:1.7; }
+.gallery .quiet b { color:var(--g600); }
+
+/* 히어로 — 토스 블루 솔리드 */
+.gallery .c.heroed { background:var(--blue); box-shadow:none; position:relative; overflow:hidden; }
+.gallery .c.heroed::after { content:""; position:absolute; right:-40px; top:-46px; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.09); }
+.gallery .c.heroed .k { color:rgba(255,255,255,.72); }
+.gallery .c.heroed .t { color:#fff; }
+.gallery .c.heroed .d { color:rgba(255,255,255,.78); }
+.gallery .c.heroed .btn.pri { background:#fff; color:var(--blue); }
+.gallery .c.heroed .btn.asst { background:rgba(255,255,255,.18); color:#fff; }
+
+/* ===== 탭바 ===== */
+.gallery .tabbar { flex:none; display:flex; background:var(--g0); border-top:1px solid var(--g100); padding:9px 6px 20px; }
+.gallery .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; font-weight:600; color:var(--g400); }
+.gallery .tab .ic { display:flex; }
+.gallery .tab .ic svg { width:23px; height:23px; }
+.gallery .tab.on { color:var(--blue); font-weight:700; }
+
+/* ===== 투명성 배지 ===== */
+.gallery .pbadge { flex:none; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-left:auto; }
+.gallery .pbadge svg { width:15px; height:15px; }
+.gallery .pbadge.lock { background:var(--g100); color:var(--g500); }
+.gallery .pbadge.shared { background:var(--blue-100); color:var(--blue); }
+
+/* ===== 온보딩 ===== */
+.gallery .ob-screen { background:var(--g0); }
+.gallery .ob { flex:1; display:flex; flex-direction:column; gap:12px; padding:22px 22px 18px; }
+.gallery .ob .hi { font-size:14px; font-weight:700; color:var(--blue); }
+.gallery .ob .q { font-size:25px; font-weight:800; color:var(--g900); line-height:1.36; letter-spacing:-0.03em; padding-bottom:6px; }
+.gallery .ob .q em { font-style:normal; color:var(--blue); }
+.gallery .ob .cta { margin-top:auto; }
+.gallery .ob .cta .btn { display:flex; height:56px; font-size:17px; border-radius:16px; }
+.gallery .opt { display:flex; align-items:center; gap:14px; background:var(--g50); border:none; border-radius:18px; padding:17px 18px; box-shadow:none; }
+.gallery .opt.sel { background:var(--blue-50); box-shadow:inset 0 0 0 1.5px var(--blue); }
+.gallery .opt .ot { font-size:16.5px; font-weight:700; color:var(--g900); }
+.gallery .opt .od { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:3px; }
+.gallery .opt .chk { margin-left:auto; width:24px; height:24px; border-radius:50%; background:var(--blue); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.gallery .opt .tile { width:38px; height:38px; font-size:30px; }
+.gallery .opt .av { width:44px; height:44px; font-size:16px; }
+
+/* ===== 시트 ===== */
+.gallery .dim { flex:1; background:rgba(25,31,40,.55); display:flex; flex-direction:column; justify-content:flex-end; }
+.gallery .dim .peek { padding:60px 22px 0; opacity:.5; }
+.gallery .sheet { background:var(--g0); border-radius:24px 24px 42px 42px; padding:10px 22px 32px; }
+.gallery .sheet .grab { width:40px; height:4px; border-radius:99px; background:var(--g300); margin:8px auto 20px; }
+.gallery .sheet .st { font-size:22px; font-weight:800; color:var(--g900); letter-spacing:-0.03em; line-height:1.38; }
+.gallery .sheet .sd { margin-top:7px; font-size:15px; font-weight:500; color:var(--g600); line-height:1.6; }
+.gallery .sheet .quote { margin-top:16px; background:var(--g100); border-radius:16px; padding:15px 17px; }
+.gallery .sheet .quote .ql { font-size:13px; font-weight:700; color:var(--blue); margin-bottom:4px; }
+.gallery .sheet .quote .qt { font-size:15.5px; font-weight:700; color:var(--g900); line-height:1.5; }
+.gallery .recwrap { display:flex; flex-direction:column; align-items:center; padding:24px 0 4px; }
+.gallery .recbtn { width:80px; height:80px; border-radius:50%; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 0 0 12px rgba(49,130,246,.08), 0 0 0 24px rgba(49,130,246,.04); }
+.gallery .recbtn svg { width:30px; height:30px; }
+.gallery .reclabel { margin-top:14px; font-size:14.5px; font-weight:700; color:var(--g900); }
+.gallery .sheet .alt { margin-top:18px; display:flex; align-items:center; justify-content:center; height:52px; font-size:15.5px; font-weight:700; color:var(--g700); background:var(--g100); border-radius:14px; }
+.gallery .sheet .fine { margin-top:15px; text-align:center; font-size:13.5px; font-weight:500; color:var(--g500); line-height:1.7; }
+
+/* ===== 빈 홈 ===== */
+.gallery .zen { text-align:center; padding:26px 16px 18px; }
+.gallery .zen .orb { width:96px; height:96px; margin:0 auto; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:64px; }
+.gallery .zen .zt { margin-top:14px; font-size:17px; font-weight:700; color:var(--g900); }
+.gallery .zen .zd { margin-top:5px; font-size:14px; font-weight:500; color:var(--g500); }
+
+/* ===== 공유 토글 ===== */
+.gallery .share-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--g100); }
+.gallery .share-row:last-child { border-bottom:none; }
+.gallery .share-row .sl { font-size:15px; font-weight:600; color:var(--g700); display:flex; align-items:center; gap:8px; }
+.gallery .share-row .sv { font-size:13.5px; font-weight:700; color:var(--g900); }
+.gallery .switch { width:50px; height:30px; border-radius:99px; background:var(--blue); position:relative; flex:none; }
+.gallery .switch::after { content:""; position:absolute; top:3px; right:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.15); }
+.gallery .switch.off { background:var(--g200); }
+.gallery .switch.off::after { right:auto; left:3px; }
+.gallery .thumb { width:100%; height:120px; border-radius:16px; background:linear-gradient(135deg,#E3ECF5,#CFDCEB); margin-top:13px; position:relative; display:flex; align-items:center; justify-content:center; }
+.gallery .thumb .play { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.94); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--g900); }
+.gallery .thumb .dur { position:absolute; right:11px; bottom:10px; font-size:11.5px; font-weight:700; color:#fff; background:rgba(25,31,40,.55); border-radius:7px; padding:3px 8px; }
+
+/* ===== 소셜 버튼 ===== */
+.gallery .sns { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.gallery .sns .s { display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:700; height:54px; border-radius:14px; }
+.gallery .s.kakao { background:#FEE500; color:#191F28; }
+.gallery .s.apple { background:#17171C; color:#fff; }
+.gallery .s.google { background:var(--g100); color:var(--g900); }
+
+/* ===== 동의 ===== */
+.gallery .agree-all { display:flex; align-items:center; gap:12px; background:var(--g100); border:none; border-radius:16px; padding:17px 18px; }
+.gallery .agree-all .bt { font-size:17px; font-weight:800; color:var(--g900); }
+.gallery .ckc { flex:none; width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.gallery .ckc.off { background:var(--g200); color:#fff; box-shadow:none; }
+.gallery .agree { display:flex; align-items:center; gap:11px; padding:13px 6px; }
+.gallery .agree .al { flex:1; font-size:14.5px; font-weight:500; color:var(--g600); }
+.gallery .agree .al b { color:var(--g900); font-weight:700; }
+.gallery .agree .req { font-size:11.5px; font-weight:700; color:var(--blue); background:rgba(49,130,246,.09); border-radius:6px; padding:2px 7px; margin-right:6px; }
+.gallery .agree .req.opt { color:var(--g500); background:var(--g100); }
+.gallery .agree .more { font-size:14px; color:var(--g400); }
+.gallery .agree .ckc { width:22px; height:22px; font-size:11px; }
+
+/* ===== 입력 ===== */
+.gallery .fieldset { display:flex; flex-direction:column; gap:11px; }
+.gallery .flabel { font-size:13.5px; font-weight:600; color:var(--g500); margin:4px 2px -4px; }
+.gallery .field { background:var(--g100); border-radius:14px; padding:16px 17px; font-size:17px; font-weight:700; color:var(--g900); box-shadow:none; display:flex; align-items:center; justify-content:space-between; }
+.gallery .field .ph { color:var(--g400); font-weight:500; }
+.gallery .field .cursor { display:inline-block; width:2px; height:19px; background:var(--blue); vertical-align:-3px; margin-left:1px; }
+.gallery .checkline { display:flex; align-items:center; gap:10px; padding:14px 4px 2px; }
+.gallery .checkline .cl { font-size:14.5px; font-weight:600; color:var(--g700); line-height:1.5; }
+.gallery .searchbar { display:flex; align-items:center; gap:9px; background:var(--g0); border-radius:14px; padding:15px 17px; font-size:15.5px; font-weight:600; color:var(--g900); }
+.gallery .searchbar .ph { color:var(--g400); }
+.gallery .linkbadge { font-size:11.5px; font-weight:700; color:var(--blue); background:rgba(49,130,246,.09); border-radius:6px; padding:2.5px 7px; margin-left:6px; vertical-align:2px; white-space:nowrap; }
+.gallery .result { display:flex; align-items:center; gap:13px; background:var(--g0); border-radius:18px; padding:15px 17px; }
+.gallery .result .rt { font-size:15.5px; font-weight:700; color:var(--g900); }
+.gallery .result .rd { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:2px; }
+.gallery .result .go { margin-left:auto; font-size:16px; color:var(--g400); }
+.gallery .result .tile { width:40px; height:40px; font-size:26px; }
+.gallery .codes { display:flex; gap:9px; padding:4px 2px; }
+.gallery .code { width:45px; height:56px; border-radius:14px; background:var(--g100); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:var(--g900); }
+.gallery .code.on { background:var(--g0); box-shadow:inset 0 0 0 2px var(--blue); }
+.gallery .code.empty { color:var(--g400); }
+
+/* ===== 완료 히어로 ===== */
+.gallery .done-hero { text-align:center; padding:26px 16px 8px; }
+.gallery .done-hero .orb { width:96px; height:96px; margin:0 auto; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:66px; }
+.gallery .done-hero .dt { margin-top:14px; font-size:23px; font-weight:800; color:var(--g900); line-height:1.38; letter-spacing:-0.03em; }
+.gallery .done-hero .dt em { font-style:normal; color:var(--blue); }
+.gallery .done-hero .dd { margin-top:7px; font-size:14px; font-weight:500; color:var(--g500); }
+.gallery .flowlist { display:flex; flex-direction:column; }
+.gallery .flowlist .f { display:flex; align-items:center; gap:11px; padding:12px 2px; border-bottom:1px solid var(--g100); font-size:14.5px; font-weight:500; color:var(--g600); }
+.gallery .flowlist .f:last-child { border-bottom:none; }
+.gallery .flowlist .f .fi { flex:none; width:32px; height:32px; border-radius:0; background:none; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.gallery .flowlist .f b { color:var(--g900); font-weight:700; }
+.gallery .flowlist .f .auto { margin-left:auto; font-size:11.5px; font-weight:700; color:var(--c-rec-deep); background:rgba(0,201,183,.1); border-radius:6px; padding:3px 8px; }
+
+/* ===== 가족 ===== */
+.gallery .member { display:flex; align-items:center; gap:12px; padding:13px 2px; border-bottom:1px solid var(--g100); }
+.gallery .member:last-child { border-bottom:none; }
+.gallery .member .mn { font-size:15.5px; font-weight:700; color:var(--g900); }
+.gallery .member .md { font-size:13.5px; font-weight:500; color:var(--g500); margin-top:2px; }
+.gallery .rolechip { margin-left:auto; font-size:11.5px; font-weight:700; border-radius:6px; padding:3px 9px; }
+.gallery .rolechip.admin { color:var(--blue); background:rgba(49,130,246,.09); }
+.gallery .rolechip.fam { color:var(--g500); background:var(--g100); }
+
+  /* 명세서 내 컴포넌트 예시 */
+  .fn .gallery.comp { background:#F2F4F6 !important; padding:14px !important; border-radius:14px; width:312px; flex:none; color:#191F28; }
+  .ex-wrap { display:flex; gap:18px; align-items:flex-start; }
+  .ex-txt { flex:1; min-width:0; }
+  .comp .pbadge { margin-left:auto; }
+  @media (max-width:820px) { .ex-wrap { flex-direction:column; } .fn .gallery.comp { width:100%; } }
+  @media print { .fn .gallery.comp { border:1px solid #E5E8EB; } }
+</style>
+</head>
+<body>
+<div style="max-width:900px;margin:0 auto 24px;padding:16px 20px;border:2px solid #b45309;border-radius:12px;background:#fef3e2;font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;line-height:1.6;">
+  <div style="font-weight:800;font-size:15px;color:#b45309;margin-bottom:6px;">⚠️ 이 문서는 더 이상 갱신되지 않습니다 (07-09 스냅샷)</div>
+  <div style="font-size:13.5px;color:#5b6577;">
+    기능명세는 07-09 시점에서 멈춰 있습니다. 이후 구현(일정 탭·가족 초대·보호자 알림·청구 조회 등)은 반영돼 있지 않습니다.
+    <b>구현 상태·결정의 정본은 <code>내담자앱-설계.md</code> §0·§10</b>이며, 코드가 최종 정본입니다.
+  </div>
+</div>
+<div class="layout">
+  <nav class="side">
+    <div class="logo">마인드<em>스코프</em></div>
+    <div class="docno">MSP-FS-001 · v1.0</div>
+      <div class="toc-dom"><a href="#dONB">1. 온보딩·가입</a><span>6</span></div>
+      <a class="toc-fn" href="#ONB-01">ONB-01 시작 질문</a>
+      <a class="toc-fn" href="#ONB-02">ONB-02 게스트 모드</a>
+      <a class="toc-fn" href="#ONB-03">ONB-03 가입 게이트</a>
+      <a class="toc-fn" href="#ONB-04">ONB-04 동의 스택</a>
+      <a class="toc-fn" href="#ONB-05">ONB-05 아이 프로필 생성</a>
+      <a class="toc-fn" href="#ONB-06">ONB-06 성인 본인 프로필</a>
+      <div class="toc-dom"><a href="#dHOME">2. 홈 카드 엔진</a><span>7</span></div>
+      <a class="toc-fn" href="#HOME-01">HOME-01 카드 스택 조립</a>
+      <a class="toc-fn" href="#HOME-02">HOME-02 히어로 선정</a>
+      <a class="toc-fn" href="#HOME-03">HOME-03 화면 상한·비노출</a>
+      <a class="toc-fn" href="#HOME-04">HOME-04 조용한 소멸</a>
+      <a class="toc-fn" href="#HOME-05">HOME-05 미열람 카드 유지</a>
+      <a class="toc-fn" href="#HOME-06">HOME-06 다자녀 칩·인터리브</a>
+      <a class="toc-fn" href="#HOME-07">HOME-07 빈 홈</a>
+      <div class="toc-dom"><a href="#dREC">3. 기록(원장)</a><span>8</span></div>
+      <a class="toc-fn" href="#REC-01">REC-01 원장 데이터 구조</a>
+      <a class="toc-fn" href="#REC-02">REC-02 기록 작성</a>
+      <a class="toc-fn" href="#REC-03">REC-03 기록 수정</a>
+      <a class="toc-fn" href="#REC-04">REC-04 기록 삭제</a>
+      <a class="toc-fn" href="#REC-05">REC-05 프로필 간 이동</a>
+      <a class="toc-fn" href="#REC-06">REC-06 타임라인</a>
+      <a class="toc-fn" href="#REC-07">REC-07 상황 태그</a>
+      <a class="toc-fn" href="#REC-08">REC-08 1년 전 오늘(되돌아보기)</a>
+      <div class="toc-dom"><a href="#dMED">4. 미디어·녹음</a><span>5</span></div>
+      <a class="toc-fn" href="#MED-01">MED-01 촬영·가져오기</a>
+      <a class="toc-fn" href="#MED-02">MED-02 영상 쿼터</a>
+      <a class="toc-fn" href="#MED-03">MED-03 말씀 담기 녹음</a>
+      <a class="toc-fn" href="#MED-04">MED-04 첫 선택 기억</a>
+      <a class="toc-fn" href="#MED-05">MED-05 업로드 파이프라인·오프라인 큐</a>
+      <div class="toc-dom"><a href="#dDIR">5. 센터 찾기·전화</a><span>5</span></div>
+      <a class="toc-fn" href="#DIR-01">DIR-01 센터 검색</a>
+      <a class="toc-fn" href="#DIR-02">DIR-02 디렉터리 데이터</a>
+      <a class="toc-fn" href="#DIR-03">DIR-03 지방 빈 결과 방지</a>
+      <a class="toc-fn" href="#DIR-04">DIR-04 전화 도우미</a>
+      <a class="toc-fn" href="#DIR-05">DIR-05 탭 컨텍스트 계승</a>
+      <div class="toc-dom"><a href="#dPUB">6. 선별검사·바우처</a><span>4</span></div>
+      <a class="toc-fn" href="#PUB-01">PUB-01 무료 선별검사 3갈래</a>
+      <a class="toc-fn" href="#PUB-02">PUB-02 심화평가 권고 절차 안내</a>
+      <a class="toc-fn" href="#PUB-03">PUB-03 바우처 3층 노출</a>
+      <a class="toc-fn" href="#PUB-04">PUB-04 바우처 임박 승격</a>
+      <div class="toc-dom"><a href="#dLNK">7. 센터 연결</a><span>6</span></div>
+      <a class="toc-fn" href="#LNK-01">LNK-01 연결 상태 머신</a>
+      <a class="toc-fn" href="#LNK-02">LNK-02 역방향 요청·승인</a>
+      <a class="toc-fn" href="#LNK-03">LNK-03 인증 실패 폴백</a>
+      <a class="toc-fn" href="#LNK-04">LNK-04 초대 토큰·랜딩</a>
+      <a class="toc-fn" href="#LNK-05">LNK-05 후회 유예·연결 해제</a>
+      <a class="toc-fn" href="#LNK-06">LNK-06 센터 해지 처리</a>
+      <div class="toc-dom"><a href="#dFAM">8. 가족</a><span>5</span></div>
+      <a class="toc-fn" href="#FAM-01">FAM-01 가족 2등급 권한</a>
+      <a class="toc-fn" href="#FAM-02">FAM-02 가족 초대</a>
+      <a class="toc-fn" href="#FAM-03">FAM-03 관리자 이양·승계</a>
+      <a class="toc-fn" href="#FAM-04">FAM-04 구성원 내보내기</a>
+      <a class="toc-fn" href="#FAM-05">FAM-05 프로필 보관</a>
+      <div class="toc-dom"><a href="#dSHR">9. 공유(상담사 연동)</a><span>5</span></div>
+      <a class="toc-fn" href="#SHR-01">SHR-01 공유 grant 모델</a>
+      <a class="toc-fn" href="#SHR-02">SHR-02 공유 토글 화면</a>
+      <a class="toc-fn" href="#SHR-03">SHR-03 상담사 가정 기록 화면</a>
+      <a class="toc-fn" href="#SHR-04">SHR-04 종결 공유 리뷰</a>
+      <a class="toc-fn" href="#SHR-05">SHR-05 위험 신호 프로토콜</a>
+      <div class="toc-dom"><a href="#dMY">10. 마이·출구</a><span>3</span></div>
+      <a class="toc-fn" href="#MY-01">MY-01 내 기록과 동의 허브</a>
+      <a class="toc-fn" href="#MY-02">MY-02 탈퇴·동의 철회</a>
+      <a class="toc-fn" href="#MY-03">MY-03 투명성 배지 계단</a>
+      <div class="toc-dom"><a href="#dNTF">11. 알림</a><span>2</span></div>
+      <a class="toc-fn" href="#NTF-01">NTF-01 푸시 정책</a>
+      <a class="toc-fn" href="#NTF-02">NTF-02 알림 인벤토리</a>
+      <div class="toc-dom"><a href="#dNFR">12. 비기능 요구사항</a><span>5</span></div>
+      <a class="toc-fn" href="#NFR-01">NFR-01 캐시·정합 계약</a>
+      <a class="toc-fn" href="#NFR-02">NFR-02 보안</a>
+      <a class="toc-fn" href="#NFR-03">NFR-03 오프라인 동작</a>
+      <a class="toc-fn" href="#NFR-04">NFR-04 성능</a>
+      <a class="toc-fn" href="#NFR-05">NFR-05 계측·지표</a>
+  </nav>
+  <div class="main">
+    <a class="backlink" href="내담자앱-설계.html">‹ 설계 대시보드로</a>
+    <div class="doc-head">
+      <h1>내담자 앱 기능명세서</h1>
+      <div class="doc-sub">확정 설계(내담자앱-설계.md §1~17)를 구현 단위 기능으로 분해한 명세. 각 기능의 근거 §번호로 상세 설계·논거를 역추적할 수 있다. <b>제약사항(⛔)은 권고가 아니라 명세의 일부다</b> — 이 앱의 정체성("사용자를 채근하지 않는다")이 그 줄들에 있다.<br><br><b>읽는 법(직군별)</b> — 🎨 <b>디자이너</b>: "화면·문구" 행(관련 시안 #번호·문구집 §·시각 규칙)과 ⛔ 제약사항(그리면 안 되는 것의 목록 = 디자인 금지 규칙) 중심. 🛠 <b>개발자</b>: "동작 명세·예외 처리·데이터" 행 중심. 💡 <b>예시</b> 행은 페르소나(지민맘·지우·해솔센터) 기준의 실제 상황 — 명세가 현실에서 어떻게 동작하는지 한 장면으로 보여준다. 시안 #번호는 <a href="내담자앱-설계.html">설계.html</a> 시안 뷰어의 순번, "시안 갱신 대상" 표시는 확정 스펙이 아직 시안에 반영 안 된 곳이다.</div>
+      <div class="meta">
+        <div><div class="k">문서번호 / 버전</div><div class="v">MSP-FS-001 · v1.0</div></div>
+        <div><div class="k">기준일 / 상태</div><div class="v">2026-07-09 · 감수 전</div></div>
+        <div><div class="k">기능 수</div><div class="v">61개 (12개 영역)</div></div>
+        <div><div class="k">우선순위 분포</div><div class="v">P0 45 · P1 14 · P2 2</div></div>
+      </div>
+      <div class="legend"><b>우선순위</b>: P0 = v1 핵심 경로(이것 없이 출시 불가) · P1 = v1 포함(핵심 경로 뒤 착수) · P2 = v1 포함하되 마지막 순번. <b>범위</b>: v1 = 설계 전체(07-09 판정 — 축소 없음), 우선순위는 빌드 순서다. 문구는 전부 가안(치료사·법무 감수 전).</div>
+    </div>
+  <section class="chapter" id="dONB">
+    <h2><span>1</span>온보딩·가입 <small>ONB · 6개 기능</small></h2>
+    <div class="fn" id="ONB-01">
+      <div class="fn-head"><span class="fid">ONB-01</span><span class="fname">시작 질문</span><span class="pri p0">P0 · 필수</span><span class="ref">§2·§3</span></div>
+      <table>
+        <tr><th>개요</th><td>첫 실행에서 사용자의 상황(①지켜보는 중/②알아보는 중/③다니는 센터 있음)을 정해 홈 구성을 분기한다.</td></tr>
+        <tr><th>사전조건</th><td>앱 최초 실행(게스트)</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>3택 단일 선택 화면 표시(진단 언어 없는 문구)</li><li>선택값을 로컬 저장, 해당 상황 홈으로 진입</li><li>이후 상황 변경은 재질문 없이 행동 팩트(찜·센터 등록·연동)로 자동 승격</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 밤 11시 첫 설치. "아직 지켜보고 있어요" 선택 → ① 걱정 단계 홈(기록·무료 검사·지원 정보) 진입. 3주 뒤 센터를 찜하는 순간 "알아보는 중"으로 자동 승격 — 앱은 아무것도 묻지 않는다. <a class="mini-link" href="내담자앱-설계.html#s1">🖼 시안 #1 보기 ›</a></div><div class="gallery comp"><div class="opt sel"><div class="tile" style="font-size:26px;">🌱</div><div><div class="ot">아직 지켜보고 있어요</div><div class="od">뭔가 마음에 걸리는 게 있어요</div></div><div class="chk">✓</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>선택 없이 이탈 → 다음 실행 시 재표시</li><li>'다니는 센터 있음' 선택 → 센터 검색(DIR-01) 분기로 연결</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>진단·판정 언어 금지</li><li>상황을 다시 묻는 UI 금지(자동 승격만)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#1 시작 질문</b> · 문구 §11-1 · 선택지 카드 3(선택=블루 링) · 공감 리드 크게(§7-3)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">로컬 상태 → 가입 시 profile.stage로 이관</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="ONB-02">
+      <div class="fn-head"><span class="fid">ONB-02</span><span class="fname">게스트 모드</span><span class="pri p0">P0 · 필수</span><span class="ref">§3·§6</span></div>
+      <table>
+        <tr><th>개요</th><td>가입 없이 둘러보기(센터 찾기·제도 정보·3갈래 탐색)와 텍스트 기록의 임시 보관을 허용한다.</td></tr>
+        <tr><th>사전조건</th><td>미가입 상태</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>열람성 기능 전부 허용</li><li>텍스트 기록은 기기 임시 저장(guest_local)</li><li>가입 완료 시 guest_local 전건을 서버로 일괄 이관</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 게스트로 센터 3곳 열람 + 기록 한 줄 작성(기기 보관). 가입 없이 앱 종료 → 다음 실행 시 기록 그대로. 가입 완료 순간 그 한 줄이 서버로 이관돼 타임라인 첫 항목이 된다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>기기 분실·재설치 시 게스트 기록 유실 — 게이트 문구로 사실 고지</li><li>영상·녹음은 게스트 로컬 대상 제외(용량·유실 책임)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>게스트 상태에서 서버 전송 금지(무동의 민감정보 전송 사고)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전용 화면 없음(모드) — 게스트 표시·배지 없음, 저장 시도 시 게이트(ONB-03)로</td></tr>
+        <tr><th>데이터·연동</th><td class="data">MMKV/로컬 → ledger_entries 이관</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="ONB-03">
+      <div class="fn-head"><span class="fid">ONB-03</span><span class="fname">가입 게이트</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-1</span></div>
+      <table>
+        <tr><th>개요</th><td>첫 저장 행위(기록·찜·리마인더) 시점에 소셜 로그인 시트를 띄운다.</td></tr>
+        <tr><th>사전조건</th><td>게스트가 저장 행위 시도</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>작성물이 뒤에 비치는 시트로 소셜 로그인 3종(카카오·Apple·Google) 제시</li><li>로그인 성공 → 동의 스택(ONB-04) → 저장 완료</li><li>취소 → 작성물 로컬 유지, 다음 저장 시도 때 재표시</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 "지우가 '물' 두 번 말했다" 저장 탭 → 작성문이 비치는 시트: "첫 기록이에요! 안전하게 보관해 드릴게요" → 카카오 로그인 → 저장 완료. 취소하면 기록은 화면에 그대로. <a class="mini-link" href="내담자앱-설계.html#s10">🖼 시안 #10 보기 ›</a></div><div class="gallery comp"><div class="sns" style="margin-top:0;"><div class="s kakao">카카오로 계속하기</div></div><div class="quiet" style="margin-top:8px;">방금 쓴 기록은 그대로 있어요</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>소셜 로그인 실패 → 작성물 보존 + 중립 안내</li><li>기존 계정 감지 → 로그인으로 합류(계정 중복 생성 방지)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>전화번호 인증 없음(센터 연결 때만)</li><li>가입 이유 문구는 사용자 이익형만("기록이 이어져요")</li><li>시간·재방문 트리거 게이트 금지(행동 트리거만)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#10 가입 게이트</b> · 문구 §11-2 · 시트 뒤로 작성물 비침(지키려는 것이 보이게) · 소셜 버튼 3</td></tr>
+        <tr><th>데이터·연동</th><td class="data">accounts(소셜 필드 재사용) — Member 없는 Account</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="ONB-04">
+      <div class="fn-head"><span class="fid">ONB-04</span><span class="fname">동의 스택</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-2</span></div>
+      <table>
+        <tr><th>개요</th><td>가입 플로우 안에서 필수 3(약관·개인정보·민감정보)+선택(마케팅)을 한 장으로 수집한다.</td></tr>
+        <tr><th>사전조건</th><td>소셜 로그인 직후</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>전체 동의 원탭 + 항목별 체크 병존</li><li>각 항목 펼침(›)에 4요소 고지(목적·항목·기간·거부권)</li><li>동의 완료 → 동의 이력(버전·시각) 서버 기록</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 [모두 동의하기] 원탭 → 필수 3 체크 + 선택(마케팅)은 미체크 유지 → "동의하고 시작하기". '아이 기록 보관' 항목의 ›를 펼치면 목적·항목·보유기간·거부권 전문. <a class="mini-link" href="내담자앱-설계.html#s11">🖼 시안 #11 보기 ›</a></div><div class="gallery comp"><div class="agree-all" style="margin-bottom:8px;"><div class="ckc">✓</div><div class="bt">모두 동의하기</div></div><div style="background:#fff;border-radius:14px;padding:2px 12px;"><div class="agree"><div class="ckc">✓</div><div class="al"><span class="req">필수</span><b>아이 기록 보관</b> — 암호화 저장</div><div class="more">›</div></div><div class="agree"><div class="ckc off">✓</div><div class="al"><span class="req opt">선택</span>소식·혜택 알림</div><div class="more">›</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>필수 미동의 → 가입 미완, 작성물은 로컬 보존</li><li>선택(마케팅) 미동의 → 정상 진행</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>일괄≠포괄 — 항목 법적 분리 필수</li><li>기능 사용 순간 동의창 재등장 금지(안내만)</li><li>법정 명칭은 본문에, 리드 문구는 순화</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#11 동의 스택</b> · 문구 §11-2 · 신뢰 문구 14px+·대비 의무(§7-8) · 전체 동의 원탭 강조</td></tr>
+        <tr><th>데이터·연동</th><td class="data">consent_logs(버전·시각) — 법적 증적</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="ONB-05">
+      <div class="fn-head"><span class="fid">ONB-05</span><span class="fname">아이 프로필 생성</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-1·2</span></div>
+      <table>
+        <tr><th>개요</th><td>기록의 귀속 주체(Profile)를 만들고 보호자 자기신고를 받는다.</td></tr>
+        <tr><th>사전조건</th><td>동의 완료</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>이름/애칭(필수) + 출생연도(선택) 입력</li><li>"저는 이 아이의 보호자입니다" 체크 1줄(법정대리인 자기신고)</li><li>"내 이야기예요" 선택 시 본인 프로필로 분기(ONB-06)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 이름 "지우", 2021년생 선택, "저는 이 아이의 보호자입니다" 체크 → [기록 이어가기] — 방금 쓰던 기록으로 복귀. 진단명·발달 상태는 아무것도 묻지 않았다. <a class="mini-link" href="내담자앱-설계.html#s12">🖼 시안 #12 보기 ›</a></div><div class="gallery comp"><div class="field" style="margin-bottom:8px;">지우<span class="cursor"></span></div><div class="checkline" style="padding-top:2px;"><div class="ckc" style="width:22px;height:22px;font-size:11px;">✓</div><div class="cl">저는 이 아이의 보호자입니다</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>가족 초대로 합류한 구성원 → 프로필 생성 생략(기존 Profile 공유)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>진단명·발달 상태 등 프로파일링 질문 금지</li><li>필수 입력은 이름 하나</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#12 아이 프로필</b> · 문구 §11-2 · 입력 2개+체크 한 줄(별도 화면 아님)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">families·family_members·profiles</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="ONB-06">
+      <div class="fn-head"><span class="fid">ONB-06</span><span class="fname">성인 본인 프로필</span><span class="pri p1">P1 · 우선</span><span class="ref">§14-3·§17-5</span></div>
+      <table>
+        <tr><th>개요</th><td>성인 내담자가 자신의 기록 주체로 앱을 사용한다(센터 유형 중립).</td></tr>
+        <tr><th>사전조건</th><td>"내 이야기예요" 선택</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>보호자 확인 단계 생략(본인=동의 주체)</li><li>콘텐츠 팩을 성인 팩으로 선택(profile.relation 키)</li><li>센터 연결은 본인인증만으로 성립</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 성인 내담자 민수 씨: "내 이야기예요" 선택 → 보호자 확인 없이 본인 프로필 생성. 배우자는 민수 씨가 명시적으로 초대하기 전까지 아무것도 볼 수 없다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>가족 공유는 본인의 명시 초대 시에만 개방</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>타인이 성인 프로필의 관리자가 될 수 없음(관리자=본인 고정)</li><li>위기 시 가족 접근은 법정대리 서류 SOP만</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 #12의 갈림길("내 이야기예요") · 성인 팩 문구 별도(§17-5)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">profiles.relation='self'</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dHOME">
+    <h2><span>2</span>홈 카드 엔진 <small>HOME · 7개 기능</small></h2>
+    <div class="fn" id="HOME-01">
+      <div class="fn-head"><span class="fid">HOME-01</span><span class="fname">카드 스택 조립</span><span class="pri p0">P0 · 필수</span><span class="ref">§13</span></div>
+      <table>
+        <tr><th>개요</th><td>카드 25종을 4티어(today·deadline·ambient·oneshot)로 정렬해 홈 스택을 만든다.</td></tr>
+        <tr><th>사전조건</th><td>홈 진입·재평가 시점(강: 콜드 스타트·날짜 전환·당겨서 새로고침 / 약: 포그라운드 복귀·홈 재진입·칩 전환·push purge)</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>FactContext 스냅샷 빌드 → 카드 인스턴스화(REGISTRY 선언 조건)</li><li>escalate 해소(팩트만 참조·승격 전용·1-hop)</li><li>4키 정렬: 티어 → 행동 마감 시각(anchor) → 종류 고정 순서 → 아이 칩 순</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 화요일 밤: 지우 예약 D-1(today)·설문 목 마감(deadline)·결과지(deadline)·홈워크(ambient)·서준 기록 프롬프트(ambient) → 정렬 = D-1 히어로, 설문→결과지→홈워크→프롬프트 순. <a class="mini-link" href="내담자앱-설계.html#s7">🖼 시안 #7 보기 ›</a></div><div class="gallery comp"><div class="c heroed" style="margin-bottom:8px;"><div class="k">내일 4:00 · 해솔센터</div><div class="t" style="margin-top:2px;">지우 언어치료</div></div><div class="c"><div class="row"><div class="tile">📋</div><div><div class="k blue">목요일 마감</div><div class="t" style="font-size:15px;">사전 설문 1개</div></div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>센터 파생 카드는 캐시 TTL 초과 시 조용히 제외</li><li>dedupe_key 충돌 → 최신 1장</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>정렬 축은 소멸성(중요도 아님)</li><li>서버가 새 카드 타입 push 금지(REGISTRY가 규칙 검수 강제)</li><li>클라 조립·서버는 소스 피드만</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#2·#3·#4·#7</b>(상황별 홈) · 색=콘텐츠 종류 고정(§7-7) · 카드 2줄 상한(§7-3)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">CardDef REGISTRY(앱 내장+remote config 오버레이)·TierPolicy</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-02">
+      <div class="fn-head"><span class="fid">HOME-02</span><span class="fname">히어로 선정</span><span class="pri p0">P0 · 필수</span><span class="ref">§13-3~4</span></div>
+      <table>
+        <tr><th>개요</th><td>스택 최상단 1장을 큰 카드로 승격한다.</td></tr>
+        <tr><th>사전조건</th><td>스택 조립 완료</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>정렬 최상위가 eligible이면 히어로</li><li>eligible: today 전부 / deadline은 hero=window(마감≤24h) 타입만 / on_escalate는 승격 시</li><li>없으면 히어로 없음 = 평온 헤더</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 오늘 16:00 예약 = 히어로(시각 최근접 today). 평온한 금요일엔 today·deadline 없음 → 히어로 없이 인사+잔잔한 스택 = 평온 상태. <a class="mini-link" href="내담자앱-설계.html#s3">🖼 시안 #3 보기 ›</a></div><div class="gallery comp"><div class="c heroed"><div class="k">오늘 · 다시 확인하기로 한 날</div><div class="t" style="margin-top:2px;">해솔아동발달센터</div><div class="btns"><div class="btn pri">전화하기</div><div class="btn asst">물어볼 것 3</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>동시각 today 쌍(다녀왔어요·말씀 담기)은 type_rank 고정 순서</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>oneshot 히어로 절대 금지(회사 이익 카드 격리)</li><li>무마감 카드(결과지)는 never — escalate로도 불가</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">히어로 = 종류 색의 진한 변형(§7-7), 화면당 1개 — 시안 #3·#4 참조</td></tr>
+        <tr><th>데이터·연동</th><td class="data">CardDef.hero_eligible(never|window|on_escalate)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-03">
+      <div class="fn-head"><span class="fid">HOME-03</span><span class="fname">화면 상한·비노출</span><span class="pri p0">P0 · 필수</span><span class="ref">§13-3</span></div>
+      <table>
+        <tr><th>개요</th><td>히어로 1+카드 4 상한을 지키고 초과분을 완전 비노출한다.</td></tr>
+        <tr><th>사전조건</th><td>정렬 완료</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>TierPolicy 상한 적용(ambient 2·oneshot 1)</li><li>전역 상한 초과분을 oneshot→ambient→deadline 순 비노출</li><li>자리 나면 강 재평가 시점에만 조용히 복귀(플래핑 방지 히스테리시스)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 카드 후보 7장인 날 → oneshot 쿼터 한 줄과 ambient 3번째가 조용히 비노출, 화면엔 히어로+4장만. 내일 설문을 제출하면 빈자리에 비노출분이 아침(강 재평가)에 복귀.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>today 5장 초과 → 시간순 상위 5장(비노출 금지 원칙 유지)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>접힘 줄·더보기·개수 표시 금지</li><li>복귀 시 진입 애니메이션 없음</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">상한 히어로1+4 — 접힘 줄·더보기 UI 자체를 그리지 않음(시안 #7이 만석 상태 기준)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">TierPolicy·전역 상한</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-04">
+      <div class="fn-head"><span class="fid">HOME-04</span><span class="fname">조용한 소멸</span><span class="pri p0">P0 · 필수</span><span class="ref">§13-3·§6-3</span></div>
+      <table>
+        <tr><th>개요</th><td>만료된 카드를 흔적 없이 제거한다.</td></tr>
+        <tr><th>사전조건</th><td>expire_at 경과</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>판정은 재평가 시점에만</li><li>다음 자연 렌더에서 무흔적 제거</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 16:00 예약 카드 → 18:00(예약+2h) 경과 후 저녁에 앱 열면 이미 없음. 그 자리에 "선생님 말씀 담아두셨어요?"(today)가 와 있다 — 어떤 애니메이션도 없이.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>원본 소멸(센터 데이터 삭제) → 소멸 SLA 3계층 우선 적용, 열람 중이면 다음 재검증 때 회수 화면</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>실시간 제거·퇴장 애니메이션·"지난 할 일" 목록 금지</li><li>카드 소멸과 원장 기록은 절대 결합하지 않음</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">소멸 전환 애니메이션 없음 — 다음 진입 시 무흔적(모션 설계 대상 아님)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">CardDef.expire_at</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-05">
+      <div class="fn-head"><span class="fid">HOME-05</span><span class="fname">미열람 카드 유지</span><span class="pri p0">P0 · 필수</span><span class="ref">§13-3</span></div>
+      <table>
+        <tr><th>개요</th><td>사용자가 열지 않은 카드(결과지 등)를 압박 없이 유지한다.</td></tr>
+        <tr><th>사전조건</th><td>deadline 카드 미열람</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>위치·문구·색을 첫날과 동일하게 유지</li><li>열람 or 7일 후 홈에서만 소멸(타임라인 잔존)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 결과지 도착 카드를 3일째 안 열어도 월요일과 똑같은 자리·똑같은 문구·똑같은 색. "3일째 확인 안 하셨어요"는 이 앱에 존재하지 않는 문장.</div><div class="gallery comp"><div class="c"><div class="row"><div class="tile">📄</div><div><div class="k mint">새로 도착</div><div class="t" style="font-size:15px;">언어평가 결과지</div></div><div style="margin-left:auto;color:#B0B8C1;">›</div></div></div><div class="quiet" style="margin-top:6px;">3일째에도 첫날과 완전히 같은 얼굴</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>경과일 표시·색 변화·재알림 절대 금지("읽을 힘을 모으는 중")</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">미열람 카드는 첫날과 동일한 스타일 유지 — 색·뱃지·라벨 추가 금지</td></tr>
+        <tr><th>데이터·연동</th><td class="data">—</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-06">
+      <div class="fn-head"><span class="fid">HOME-06</span><span class="fname">다자녀 칩·인터리브</span><span class="pri p0">P0 · 필수</span><span class="ref">§13-3·§5</span></div>
+      <table>
+        <tr><th>개요</th><td>가족 전체/아이별 보기를 칩으로 전환하고 아이 간 카드를 섞는다.</td></tr>
+        <tr><th>사전조건</th><td>Profile ≥2</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>칩 = 전체/아이별 필터(profile_scope)</li><li>시간 카드는 인터리브 없이 순수 시간순</li><li>무시각 카드만 아이 라운드로빈(같은 아이 연속 2장 금지)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 [전체] 칩: 지우 예약 14:00 → 서준 초진 안내 → 지우 홈워크 → 서준 기록 프롬프트(무시각만 번갈아). [서준] 칩 탭 → 서준 것만.</div><div class="gallery comp"><div class="people"><div class="pchip all on">전체</div><div class="pchip"><span class="av a1">지</span>지우</div><div class="pchip"><span class="av a2">서</span>서준</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>무시각 카드 보유 아이가 1명뿐이면 연속 제한 미적용</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>아이별 앱·홈 분리 금지(홈은 하나)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">사람 칩(시안 #7) — 활성 칩=잉크 배경, 아이별 아바타 그라데이션</td></tr>
+        <tr><th>데이터·연동</th><td class="data">pchip 상태(클라)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="HOME-07">
+      <div class="fn-head"><span class="fid">HOME-07</span><span class="fname">빈 홈</span><span class="pri p1">P1 · 우선</span><span class="ref">§7-6</span></div>
+      <table>
+        <tr><th>개요</th><td>할 일이 없는 날을 평온 상태로 표현한다.</td></tr>
+        <tr><th>사전조건</th><td>히어로·카드 0</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>평온 일러스트 + 긍정 집계 1줄("이번 주 3개를 챙기셨어요")</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 금요일, 할 일 0 → "오늘은 챙길 일이 없어요" + 🌿 + "이번 주 3개를 챙기셨어요". 읽을거리·추천 콘텐츠 없음. <a class="mini-link" href="내담자앱-설계.html#s8">🖼 시안 #8 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="zen" style="padding:10px 8px 6px;"><div class="orb" style="width:64px;height:64px;font-size:44px;">🌿</div><div class="zt">이번 주 3개를 챙기셨어요</div><div class="zd">잠시 쉬어가도 좋은 날이에요</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>채우기 콘텐츠·읽을거리 금지</li><li>빈 상태를 실패처럼 보이게 하는 문구 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#8 빈 홈</b> · 문구 §11-3 · 평온 일러스트+긍정 집계 1줄</td></tr>
+        <tr><th>데이터·연동</th><td class="data">주간 긍정 집계</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dREC">
+    <h2><span>3</span>기록(원장) <small>REC · 8개 기능</small></h2>
+    <div class="fn" id="REC-01">
+      <div class="fn-head"><span class="fid">REC-01</span><span class="fname">원장 데이터 구조</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-1</span></div>
+      <table>
+        <tr><th>개요</th><td>여정 원장의 엔트리 5타입과 귀속 구조를 정의한다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>타입: observation/teacher_note/milestone/paper_doc/call_log — 확장 금지</li><li>귀속=profile, 작성자=account(센터 파생은 null+center_link)</li><li>마디는 내용 없는 사건 스냅샷(센터명 문자열 동결)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 "물 줘 라고 말했다"=observation, 하원 녹음=teacher_note, 화요일 수업=milestone(자동), 언어평가지 사진=paper_doc, 해솔센터 문의 메모=call_log — 전부 지우 타임라인 한 줄기.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>연결 해제·센터 해지에도 마디 생존(스냅샷)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>홈워크·리마인더·예약·검사·설문은 원장 진입 금지(카드는 소멸하고 원장은 축적된다)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전용 화면 없음(데이터 모델) — 표면은 REC-06 타임라인</td></tr>
+        <tr><th>데이터·연동</th><td class="data">ledger_entries·ledger_media(1:N)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-02">
+      <div class="fn-head"><span class="fid">REC-02</span><span class="fname">기록 작성</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-3·§7-10</span></div>
+      <table>
+        <tr><th>개요</th><td>텍스트·사진·영상·녹음을 낙관 커밋으로 저장한다.</td></tr>
+        <tr><th>사전조건</th><td>가입 완료(게스트는 텍스트 로컬)</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>저장 즉시 타임라인 카드 생성(local_committed)</li><li>미디어는 백그라운드 큐 업로드(MED-05)</li><li>2초 내 동기화 실패 시 "보관 중…" 칩 표시</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 지하 대기실에서 30초 영상 저장 → 타임라인에 즉시 등장 + "보관 중…" 칩 → 지상에서 자동 업로드, 칩 소멸. 3일 실패하면 "아직 이 폰에만 있어요 · 다시 보내기". <a class="mini-link" href="내담자앱-설계.html#s22">🖼 시안 #22 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="row"><div class="tile">🎬</div><div><div class="k mint">오늘 · 영상 30초</div><div class="t" style="font-size:15px;">블록놀이 하는 모습</div></div></div><div class="quiet" style="text-align:left;padding:8px 2px 0;">아직 이 폰에만 있어요 · <b>다시 보내기</b></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>업로드 실패 → retry_wait(백오프) → 24h/영구 오류 시 stalled("아직 이 폰에만 있어요·다시 보내기")</li><li>stalled는 무기한 로컬 보존</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>gave_up 상태 없음(포기는 업로드의 포기)</li><li>실패 빨강·에러 아이콘 금지(위치 문법 칩)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">기록 작성 시트 · 문구 §11-4 · 업로드 상태=위치 칩(§7-10, ink 중립·빨강 금지)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">expo-sqlite 큐·client_key 멱등</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-03">
+      <div class="fn-head"><span class="fid">REC-03</span><span class="fname">기록 수정</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-5</span></div>
+      <table>
+        <tr><th>개요</th><td>본문·태그·사건 날짜를 무흔적으로 수정한다.</td></tr>
+        <tr><th>사전조건</th><td>본인 가족의 기록</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>인라인 수정 → updated_at만 갱신</li><li>공유 중이면 상담사 화면은 조회 시점 파생이라 자동 최신</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 "어랑이집" 오타 발견 → 탭해서 고침 → 끝. 공유 중이던 기록이라도 김 선생님 화면엔 고쳐진 문장만 — 알림도, '수정됨'도 없다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>미디어 교체 요청 → 불허 안내(삭제+신규 유도)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>"수정됨" 표시·수정 이력 노출 금지</li><li>상담사 알림 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">인라인 수정 — "수정됨" 라벨·이력 UI 그리지 않음</td></tr>
+        <tr><th>데이터·연동</th><td class="data">ledger_entries(v1 이력 없음)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-04">
+      <div class="fn-head"><span class="fid">REC-04</span><span class="fname">기록 삭제</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-5</span></div>
+      <table>
+        <tr><th>개요</th><td>내용을 즉시 파기하고 무내용 tombstone만 남긴다.</td></tr>
+        <tr><th>사전조건</th><td>본인 가족의 기록</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>본문 null 처리 + 미디어 실파일(원본·렌디션) 즉시 삭제</li><li>행은 멱등키·감사 메타로만 잔존</li><li>공유 중이었으면 grant revoke(entry_deleted) → 상담사 화면 즉시 소멸</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 "오늘 정말 지친다" 기록을 일주일 뒤 삭제 → 타임라인에서 흔적 없이 사라지고 앞뒤 기록이 자연스럽게 이어짐. 잘못 올린 영상 삭제 시: "아무도 보지 못했고, 완전히 삭제됐어요".</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>grant 이력 없는 미디어 → "아무도 보지 못했고, 완전히 삭제됐어요" 확인 문구(사실 진술)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>타임라인 묘비·빈칸 금지</li><li>죄책감 확인 팝업 금지</li><li>휴지통·30일 보관 금지(개별 삭제는 즉시)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">삭제 = 1스텝(무거운 확인 팝업 금지) · 미공유 미디어 삭제 시 사실 확인 한 줄(§11-4 계열)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">tombstone + S3 삭제</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-05">
+      <div class="fn-head"><span class="fid">REC-05</span><span class="fname">프로필 간 이동</span><span class="pri p1">P1 · 우선</span><span class="ref">§15-5·§16-2</span></div>
+      <table>
+        <tr><th>개요</th><td>잘못 귀속된 기록을 다른 아이 프로필로 옮긴다.</td></tr>
+        <tr><th>사전조건</th><td>같은 가족 내 Profile ≥2</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>기록 상세에서 "○○ 기록으로 옮기기" 원탭</li><li>사건 날짜 보존, profile_id 변경</li><li>원 프로필의 grant 전부 revoke(profile_moved)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 서준 얘기를 지우 타임라인에 쓴 걸 나흘 뒤 발견 → "서준이 기록으로 옮기기" 원탭 → 날짜는 쓴 날 그대로, 해솔센터 공유에선 즉시 사라짐(서준은 미연동이라 자동 비공유).</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>대상 프로필 공유 설정을 새로 따름(자동 승계 금지 — 미연동이면 자동 비공유)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>"삭제하고 다시 쓰세요" 금지(이동 기능 필수)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">기록 상세 액션시트 "○○ 기록으로 옮기기" — 정정의 얼굴(경고 프레임 금지)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">grant revoke 연쇄</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-06">
+      <div class="fn-head"><span class="fid">REC-06</span><span class="fname">타임라인</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-4</span></div>
+      <table>
+        <tr><th>개요</th><td>아이별 기록·마디를 사건 시각으로 정렬해 무한 스크롤로 보여준다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>occurred_at desc keyset 커서(페이지 20~30)</li><li>로컬 미전송분을 위치 삽입, synced 시 dedupe</li><li>월 헤더는 기록 있는 달만(개수 미표기)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 지우 187개 기록: 스크롤하면 7월→6월→5월… 기록 있는 달만 헤더. 갤러리에서 가져온 옛 영상은 촬영일로 정렬(사건 시각). <a class="mini-link" href="내담자앱-설계.html#s22">🖼 시안 #22 보기 ›</a></div><div class="gallery comp"><div class="c" style="margin-bottom:8px;"><div class="row"><div class="tile">🌱</div><div style="flex:1;"><div class="k mint">오늘</div><div class="t" style="font-size:15px;">"물 줘"라고 두 단어로</div></div><div class="pbadge lock"><svg viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div style="display:flex;align-items:center;gap:8px;padding:0 6px;font-size:13px;color:#8B95A1;font-weight:600;"><span style="flex:none;width:6px;height:6px;border-radius:50%;background:#D1D6DB;"></span>7월 8일 · 언어치료 34번째 시간</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>pending/synced 썸네일 시각 동일(차이는 칩뿐)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>달력 뷰(빈칸 격자) 금지</li><li>OFFSET 금지</li><li>마디는 얇은 구조 행(카드와 구분)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#22 타임라인</b> · 투명성 배지 1단(§7-9) · 마디=얇은 구조 행, 월 헤더 미니멀</td></tr>
+        <tr><th>데이터·연동</th><td class="data">keyset (occurred_at,id)·FlashList</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-07">
+      <div class="fn-head"><span class="fid">REC-07</span><span class="fname">상황 태그</span><span class="pri p1">P1 · 우선</span><span class="ref">§15-5</span></div>
+      <table>
+        <tr><th>개요</th><td>기록에 장소·상황 칩을 사후 선택으로 붙인다.</td></tr>
+        <tr><th>사전조건</th><td>기록 존재</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>작성 직후 선택 칩(선택사항) 제시</li><li>이후 개별 기록에서 언제든 추가·수정</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 밤에 태그 없이 한 줄 저장 → 다음 날 대기실 40분에 그 기록 열어 "집" 칩 추가. 무태그 기록도 첫 방문 한 장에 똑같이 들어간다.</div><div class="gallery comp"><div style="display:flex;gap:7px;"><span class="pchip on" style="padding:7px 14px;">집</span><span class="pchip" style="padding:7px 14px;">어린이집</span><span class="pchip" style="padding:7px 14px;">밖에서</span></div><div class="quiet" style="margin-top:8px;">안 골라도 아무 일도 일어나지 않아요</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>무태그 기록도 첫 방문 한 장 등 모든 파생에 동등 포함(시간순)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>서버 통제 vocabulary만(자유 텍스트 태그 금지)</li><li>"태그 없음" 표시·무태그 목록·미완료 카운트 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">선택 칩 — "태그 없음" 상태 표시 자체를 그리지 않음</td></tr>
+        <tr><th>데이터·연동</th><td class="data">situation_tags(text[])</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="REC-08">
+      <div class="fn-head"><span class="fid">REC-08</span><span class="fname">1년 전 오늘(되돌아보기)</span><span class="pri p2">P2 · 후순위</span><span class="ref">§15-4</span></div>
+      <table>
+        <tr><th>개요</th><td>과거 같은 날짜의 기록을 서랍에서 다시 만난다.</td></tr>
+        <tr><th>사전조건</th><td>1년 전 기록 존재</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>기록 탭 안 서랍 진입점(사용자가 여는 것)</li><li>두 시점 기록을 나란히 표시</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 기록 탭 서랍에서 "1년 전 오늘" → 작년 7월 지우가 "물"만 하던 영상과 오늘의 "엄마 물 주세요" 기록이 나란히. 앱은 아무 말도 얹지 않는다 — 울컥은 사용자의 몫.</td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>홈 노출·푸시 금지(힘든 날이 아침에 튀어나오는 역효과)</li><li>해석 화살표("늘었어요") 금지 — 나란히 놓기까지만</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">기록 탭 내 서랍 진입점(시안 미작성 — 구현 시 파생) · 두 시점 나란히 레이아웃</td></tr>
+        <tr><th>데이터·연동</th><td class="data">날짜 쿼리</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dMED">
+    <h2><span>4</span>미디어·녹음 <small>MED · 5개 기능</small></h2>
+    <div class="fn" id="MED-01">
+      <div class="fn-head"><span class="fid">MED-01</span><span class="fname">촬영·가져오기</span><span class="pri p0">P0 · 필수</span><span class="ref">§3·§17-2</span></div>
+      <table>
+        <tr><th>개요</th><td>앱 내 촬영을 기본으로, 갤러리는 복사 방식으로 미디어를 수집한다.</td></tr>
+        <tr><th>사전조건</th><td>기록 작성 중</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>앱 내 촬영(기본) — 촬영 가이드 12상황 노출</li><li>갤러리 가져오기 = 파일 복사 후 업로드(원본 무접촉)</li><li>촬영 진입 1회 + 가이드 하단 상시로 안전 지침 5 노출</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 가이드 "그림책을 같이 볼 때" 카드 보고 앱에서 바로 촬영. 갤러리의 지난달 영상은 가져오기=복사(원본 무접촉), 촬영일로 타임라인 배치.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>사후 날짜 지정 허용(갤러리 과거 영상)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>갤러리 참조 방식 금지(OS 권한·원본 이동 문제)</li><li>가이드 예시는 일상·중립 장면만(결핍 프레임 금지)</li><li>임상 용어 노출 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">촬영 가이드 시트(12상황 카드) · 문구 §17-2(치료사 감수) · 일상·중립 장면 일러스트만</td></tr>
+        <tr><th>데이터·연동</th><td class="data">documentDirectory 복사·ledger_media</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MED-02">
+      <div class="fn-head"><span class="fid">MED-02</span><span class="fname">영상 쿼터</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-3·§15-2</span></div>
+      <table>
+        <tr><th>개요</th><td>video 업로드를 월별 소프트 쿼터로 관리한다.</td></tr>
+        <tr><th>사전조건</th><td>video 업로드 시도</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>저장 시점 클라 판정 + 서버 발급 시 예약 + 완료 시 확정(이중 집행)</li><li>quota_month는 발급 시점 동결</li><li>도달 시에만 한 줄("이번 달 영상은 여기까지 담겨요") + oneshot 카드 1회</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 이번 달 10번째 영상 저장 → "이번 달 영상은 여기까지 담겨요 — 다음 달 1일에 새로 열려요" 한 줄. 9번째까지는 쿼터의 존재조차 보이지 않는다.</div><div class="gallery comp"><div class="quiet" style="background:#fff;border-radius:14px;padding:13px;">이번 달 영상은 여기까지 담겨요<br>다음 달 1일에 새로 열려요</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>삭제분 쿼터 반환</li><li>pending 24h 미완료 → GC가 failed 전환+반환</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>월 10개·개당 1분(가안)·전상황 동일</li><li>미터·진행바 비노출</li><li>누적 총량 상한·자동 삭제·소급 잠금 금지</li><li>audio는 쿼터 미적용(회당 15분+엔트리당 1개)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">쿼터 도달 시 한 줄(§11-4)만 — 미터·게이지·잔량 시각화 금지</td></tr>
+        <tr><th>데이터·연동</th><td class="data">ledger_media.quota_month</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MED-03">
+      <div class="fn-head"><span class="fid">MED-03</span><span class="fname">말씀 담기 녹음</span><span class="pri p0">P0 · 필수</span><span class="ref">§4·§15-3</span></div>
+      <table>
+        <tr><th>개요</th><td>하원 브리핑을 포그라운드 한정으로 녹음한다.</td></tr>
+        <tr><th>사전조건</th><td>세션 마디 직후(골든타임) 또는 수동 진입</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>양해 프레임 화면("잊어버릴까 봐 담아둘게요") → 녹음</li><li>60초 청크 로테이션(앱 킬 대비, 손실≤60초)</li><li>잠금·백그라운드·전화·오디오 탈취·15분 도달 → 자동 저장 종료("여기까지 담아뒀어요")</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 하원 복도에서 녹음 시작 → "잊어버릴까 봐 담아둘게요" 화면 → 3분 녹음 중 전화 수신 → 자동 저장 종료, 복귀 시 "여기까지 담아뒀어요". 재개 아닌 새로 담기. <a class="mini-link" href="내담자앱-설계.html#s5">🖼 시안 #5 보기 ›</a></div><div class="gallery comp"><div style="background:#fff;border-radius:16px;padding:14px;"><div class="quote" style="margin-top:0;background:#F2F4F6;border-radius:12px;padding:12px 14px;"><div class="ql">이렇게 말씀드려 보세요</div><div class="qt">"잊어버릴까 봐 담아둘게요"</div></div><div style="display:flex;justify-content:center;padding:14px 0 4px;"><div class="recbtn" style="width:58px;height:58px;box-shadow:0 0 0 8px rgba(49,130,246,.08);"><svg viewBox="0 0 24 24"><rect x="9.2" y="3.5" width="5.6" height="10" rx="2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>inactive 3초 grace(알림 배너 오탐 방지)</li><li>앱 킬 → 콜드 스타트 시 청크 조립 복구</li><li>통화 후 이어담기 없음(새로 담기)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>UIBackgroundModes 미등록·마이크 포그라운드 서비스 미요청(은밀 녹음 구조 차단)</li><li>은밀·백그라운드 녹음 절대 금지</li><li>14분부터 잔여 중립 표시(경고 톤 금지)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#5 말씀 담기</b> · 문구 §11-7 · 녹음 버튼 pulse, 잔여 시간은 14분부터 중립 표시</td></tr>
+        <tr><th>데이터·연동</th><td class="data">expo-av·keep-awake·MMKV 매니페스트</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MED-04">
+      <div class="fn-head"><span class="fid">MED-04</span><span class="fname">첫 선택 기억</span><span class="pri p1">P1 · 우선</span><span class="ref">§4</span></div>
+      <table>
+        <tr><th>개요</th><td>녹음/직접 적기 중 사용자의 마지막 선택을 히어로 자리에 기억한다.</td></tr>
+        <tr><th>사전조건</th><td>말씀 담기 2회차 이상</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>시트 구조 고정, 히어로 슬롯 점유자만 교체</li><li>양해 프레임 인용구는 녹음이 히어로일 때만</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 첫 담기에서 ✏️ 직접 적기 선택 → 다음부터 시트의 큰 자리가 ✏️, 🎙은 같은 크기 보조 줄로. 설정 어디에도 이 옵션은 없다.</td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>설정 토글 금지(행동 기억)</li><li>온보딩 질문 추가 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시트 지오메트리 고정 — 히어로 슬롯 점유자(🎙/✏️)만 교체</td></tr>
+        <tr><th>데이터·연동</th><td class="data">MMKV 플래그 1개</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MED-05">
+      <div class="fn-head"><span class="fid">MED-05</span><span class="fname">업로드 파이프라인·오프라인 큐</span><span class="pri p0">P0 · 필수</span><span class="ref">§15-2~3</span></div>
+      <table>
+        <tr><th>개요</th><td>미디어를 presigned 직행으로 업로드하고 오프라인을 큐로 흡수한다.</td></tr>
+        <tr><th>사전조건</th><td>미디어 저장</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>POST entries(멱등 client_key) → upload-url 발급 → S3 직행 PUT → complete 검증 → 트랜스코딩 → ready</li><li>큐: 백오프 즉시→10s→1m→5m→30m, 트리거=백오프·네트워크 복구·포그라운드 복귀·수동</li><li>synced 후 원본 72h 정리</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 영상 3개 연속 저장 → 큐가 순차 업로드(presigned 직행). 비행기 모드 6시간 → 착륙 후 자동 재개. 업로드 화면·퍼센트는 어디에도 없다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>재전송=기존 행 200(멱등)</li><li>ready 후 다른 checksum 재업로드 거부</li><li>1분 상한 초과 → 트랜스코딩 실패 처리</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>공개 URL 금지(SSE-KMS·presigned GET만)</li><li>Wi-Fi 전용 옵션 v1 없음</li><li>캐시 디렉토리 사용 금지(OS 퍼지)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">표면은 위치 칩(§7-10)뿐 — 진행바·퍼센트·속도 표시 금지</td></tr>
+        <tr><th>데이터·연동</th><td class="data">presigned·트랜스코딩 워커·expo-sqlite 큐</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dDIR">
+    <h2><span>5</span>센터 찾기·전화 <small>DIR · 5개 기능</small></h2>
+    <div class="fn" id="DIR-01">
+      <div class="fn-head"><span class="fid">DIR-01</span><span class="fname">센터 검색</span><span class="pri p0">P0 · 필수</span><span class="ref">§3</span></div>
+      <table>
+        <tr><th>개요</th><td>공공 바우처 명단 기반 리스트 우선 검색을 제공한다.</td></tr>
+        <tr><th>사전조건</th><td>게스트 가능</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>검색바 최상단(이름 부분일치) + 지역·영역 칩</li><li>카드 3줄(이름·거리·바우처) 리스트</li><li>[지도로 보기] 토글(같은 데이터의 뷰 전환)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 검색 "해맑음" → 해맑음아동발달센터[바로 연결]·해맑음심리상담센터… 각 카드 = 이름·0.8km·바우처. 미등재 센터는 "직접 입력하기"로 등록. <a class="mini-link" href="내담자앱-설계.html#s20">🖼 시안 #20 보기 ›</a></div><div class="gallery comp"><div class="result"><div class="tile" style="width:38px;height:38px;font-size:24px;">🌱</div><div><div class="rt">해솔아동발달센터<span class="linkbadge">바로 연결</span></div><div class="rd">0.8km · 송파구 문정동 · 발달재활 바우처</div></div><div class="go">›</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>연동 센터에 "바로 연결" 배지 → 연결 절차(LNK) 분기</li><li>미등재 → 직접 입력 등록(② 모드)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>후기·리뷰·평점 절대 금지</li><li>배지는 기능 사실만(미연동 폄하 금지)</li><li>출처(복지부 명단) 표기</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#13 센터 검색</b>·<b>#20 센터 찾기 A안</b> · 문구 §11-6 · 카드 3줄(이름·거리·바우처)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">공공 명단 2,843곳+지오코딩 배치</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="DIR-02">
+      <div class="fn-head"><span class="fid">DIR-02</span><span class="fname">디렉터리 데이터</span><span class="pri p0">P0 · 필수</span><span class="ref">§3</span></div>
+      <table>
+        <tr><th>개요</th><td>공공 명단을 병합·지오코딩해 검색 바닥 데이터를 만든다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>표준데이터(위경도)+복지부 현황 병합</li><li>누락 좌표 지오코딩 배치</li><li>연간 갱신 시 재실행</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 복지부 명단 2,843곳 + 표준데이터 좌표 병합, 누락분 지오코딩. 전화 후 "대기 6개월이래요" 선택지 입력은 익명 수집만 — 화면 어디에도 노출 안 됨.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>대기 정보 익명 통계는 선택지 입력만 수집(3개월 만료)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>통계 수집만·노출 보류(사업 결정 전)</li><li>자유 텍스트 수집 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전용 화면 없음(데이터) — 출처 표기는 quiet 한 줄</td></tr>
+        <tr><th>데이터·연동</th><td class="data">센터 명단 테이블·수집 통계 별도</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="DIR-03">
+      <div class="fn-head"><span class="fid">DIR-03</span><span class="fname">지방 빈 결과 방지</span><span class="pri p1">P1 · 우선</span><span class="ref">§3</span></div>
+      <table>
+        <tr><th>개요</th><td>밀도 낮은 지역에서 결과를 옆 지역으로 확장한다.</td></tr>
+        <tr><th>사전조건</th><td>검색 결과 부족</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>가까운 순 정렬 + 반경 자동 확장("옆 지역까지 함께 보여드려요")</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 군 단위 검색 결과 2곳 → "가까운 곳부터, 옆 지역까지 함께 보여드려요"로 인접 시군 8곳 이어서 표시. 빈 화면은 없다.</td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>빈 지도·빈 리스트 노출 금지(막막함의 시각화)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">결과 하단 확장 안내 한 줄(§11-6 "가까운 곳부터, 옆 지역까지")</td></tr>
+        <tr><th>데이터·연동</th><td class="data">거리 계산</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="DIR-04">
+      <div class="fn-head"><span class="fid">DIR-04</span><span class="fname">전화 도우미</span><span class="pri p0">P0 · 필수</span><span class="ref">§17-3·§3</span></div>
+      <table>
+        <tr><th>개요</th><td>전화 스크립트와 후속 리마인더로 첫 전화를 돕는다.</td></tr>
+        <tr><th>사전조건</th><td>센터 상세 진입</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>스크립트 4문 표시(대기 시기→초진 진행·비용→바우처 T.O.→영역[보호자가 아는 경우만])</li><li>전화 종료 감지 후 "언제 다시 확인하기로 했어요?" 한 줄 입력</li><li>입력 날짜에 리마인더 카드 생성(today)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 해솔센터 상세에서 [전화하기] → 스크립트 3문 보며 통화 → 종료 후 "언제 다시 확인하기로 했어요?" → "5월 초" 입력 → 5월 1일 아침 today 카드로 부활. <a class="mini-link" href="내담자앱-설계.html#s3">🖼 시안 #3 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="k blue" style="margin-bottom:6px;">전화하면 이걸 물어보세요</div><div style="font-size:14px;color:#4E5968;line-height:1.9;">1. 지금 대기하면 언제쯤 시작할 수 있나요?<br>2. 처음 가면 어떻게 진행되고, 비용은요?<br>3. 바우처로 시작할 자리가 있나요?</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>미입력 이탈 허용(재촉 없음)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>"치료가 필요할까요?" 유도 금지</li><li>4문 상한</li><li>대기 순번 보드 금지</li><li>앱이 치료 영역을 먼저 지정 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전화 스크립트 카드+통화 후 한 줄 입력 · 문구 §11-6 · 리마인더 확인 피드백</td></tr>
+        <tr><th>데이터·연동</th><td class="data">call_log 엔트리+리마인더</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="DIR-05">
+      <div class="fn-head"><span class="fid">DIR-05</span><span class="fname">탭 컨텍스트 계승</span><span class="pri p0">P0 · 필수</span><span class="ref">§5</span></div>
+      <table>
+        <tr><th>개요</th><td>"센터 찾기" 탭이 선택된 아이의 상황을 따라 내용을 바꾼다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>탭 이름 전상황 고정</li><li>연동아 칩 → 첫 결과 = 다니는 센터의 다른 프로그램</li><li>무소속아 칩 → ① 프레임(공공 명단·행동 대본)</li><li>가족 전체 → 가장 이른 상황 아이 기준</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 [지우(연동)] 칩으로 센터 찾기 → 첫 결과 "다니시는 해솔센터에도 감각통합이 있어요". [서준] 칩 → 공공 명단 기반 ① 프레임.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>같은 영역 검색도 차단하지 않음(가짜 어포던스 금지)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>상황별 탭 개명 금지</li><li>홈 배너·추천·알림으로 타 센터 노출 금지(능동 검색에만)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">탭 라벨 "센터 찾기" 고정 — 상황별 아이콘·라벨 변형 그리지 않음</td></tr>
+        <tr><th>데이터·연동</th><td class="data">칩 상태·CenterLink</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dPUB">
+    <h2><span>6</span>선별검사·바우처 <small>PUB · 4개 기능</small></h2>
+    <div class="fn" id="PUB-01">
+      <div class="fn-head"><span class="fid">PUB-01</span><span class="fname">무료 선별검사 3갈래</span><span class="pri p0">P0 · 필수</span><span class="ref">§17-1</span></div>
+      <table>
+        <tr><th>개요</th><td>사용자 상황별(검진 전/권고 받음/정상인데 걱정) 공공 검진 트랙을 안내한다.</td></tr>
+        <tr><th>사전조건</th><td>게스트 가능·① 홈</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>3갈래 선택(무저장 탐색 — 읽기 전용)</li><li>ⓐ: 생일→다음 차수 계산→리마인더 제안→관찰 기록 연결</li><li>ⓒ: 공감 리드→기록·기관 교사 질문 대본·다음 검진 D-day</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 결과지 봉투를 안 연 채 ⓑ 갈래를 눌러봄 → 읽고 나가도 홈은 그대로(무저장). ⓐ에서 생일 입력 → "다음 검진: 5차 · 10~12월" + 리마인더 제안.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>갈래 클릭이 홈 모드·프로필 상태를 바꾸지 않음</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>K-DST 문항 흉내·"미리 해보기" 절대 금지</li><li>판정 뉘앙스 금지</li><li>ⓒ에서 센터 찾기로 밀지 않음(과잉 개입)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">3갈래 선택 화면(시안 미작성 — 시안 갱신 대상) · 문구 §11-5 · 안도 톤, 갈래 카드 3</td></tr>
+        <tr><th>데이터·연동</th><td class="data">제도 콘텐츠 팩(감수 메타 필수)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="PUB-02">
+      <div class="fn-head"><span class="fid">PUB-02</span><span class="fname">심화평가 권고 절차 안내</span><span class="pri p0">P0 · 필수</span><span class="ref">§17-1</span></div>
+      <table>
+        <tr><th>개요</th><td>권고 갈래에서 정밀검사·검사비 지원 절차를 끝까지 안내한다(유일한 의무 구간).</td></tr>
+        <tr><th>사전조건</th><td>ⓑ 갈래 진입</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>"권고≠확진" 문장 선행(안심 리드)</li><li>절차 카드 3: 정밀검사(1년 이내)·검사비 지원(보건소·정부24, 20/40만)·기한 리마인더 제안</li><li>병렬로 센터 찾기 입구("기다리는 동안 알아보기" 프레임)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 ⓑ 진입 → "권고는 진단이 아니라 더 자세히 보자는 뜻이에요" 선행 → 절차 카드 3(정밀검사 1년 이내·검사비 지원·기한 리마인더) → 아래에 "기다리는 동안 알아보기" 입구.</div><div class="gallery comp"><div class="c"><div class="k orange" style="margin-bottom:4px;">심화평가 권고를 받으셨나요</div><div class="t" style="font-size:15.5px;">권고는 진단이 아니라<br>더 자세히 보자는 뜻이에요</div><div class="d">정밀검사는 비용 지원 제도가 있어요</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>리마인더는 제안까지(강제 없음)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>센터가 정밀검사의 대체재로 보이면 안 됨</li><li>소득기준 등 지역차 항목은 릴리스 전 확인</li><li>"정보 드렸어요"로 끝내면 방치(구체 절차 의무)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">절차 카드 3장 · 문구 §11-5 ⓑ · "권고≠확진" 문장이 시각적으로 선행</td></tr>
+        <tr><th>데이터·연동</th><td class="data">제도 팩·리마인더</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="PUB-03">
+      <div class="fn-head"><span class="fid">PUB-03</span><span class="fname">바우처 3층 노출</span><span class="pri p0">P0 · 필수</span><span class="ref">§5</span></div>
+      <table>
+        <tr><th>개요</th><td>바우처 정보를 L1(임박 카드)·L2(마이 상시)·L3(상세)로 계층 노출한다.</td></tr>
+        <tr><th>사전조건</th><td>③ 연동(잔여=진짜 숫자) / ①②는 제도 정보만</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>L1: 잔여 임계·기간 임박 시만 홈 카드</li><li>L2: 마이에 상시 요약</li><li>L3: 상세(잔여·사용 이력·갱신일)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 연동 후 마이에 "잔여 6회" 상시(L2) → 잔여 2회+8/31 임박이 되어서야 홈 카드(L1) 등장 → 탭하면 상세(L3): 사용 이력·다음 갱신. 금액은 어디에도 없다. <a class="mini-link" href="내담자앱-설계.html#s21">🖼 시안 #21 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="row"><div class="tile">🎟️</div><div style="flex:1;"><div class="k orange">이번 달 잔여</div><div class="t" style="font-size:15px;">2회 <small>8월 31일까지</small></div><div class="bar"><i style="width:18%;background:#FF9F0A;"></i></div></div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>바우처 없는 사용자에겐 표면 자체 제거</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>회기 수만 — 금액·본인부담금 비노출(센터 위임)</li><li>미연동 유저에게 잔여 계산 절대 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#21 바우처 L3</b> · 임박=주황 온도만(빨강 금지) · 회기 수만 표기</td></tr>
+        <tr><th>데이터·연동</th><td class="data">센터 SaaS 파생(읽기 전용)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="PUB-04">
+      <div class="fn-head"><span class="fid">PUB-04</span><span class="fname">바우처 임박 승격</span><span class="pri p1">P1 · 우선</span><span class="ref">§13-4</span></div>
+      <table>
+        <tr><th>개요</th><td>해결 경로가 없는 임박만 today로 승격한다.</td></tr>
+        <tr><th>사전조건</th><td>L1 카드 존재</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>escalate_if: 말일≤3일 AND 기간 내 예약 없음 → today+hero</li><li>예약 있으면 deadline 유지(D-1 아래)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 7/29, 잔여 1회 + 내일 예약 있음 → 바우처는 D-1 카드 아래 조용히. 예약이 없는 서준의 바우처만 today로 올라와 "예약을 잡으면 이번 달 지원을 쓸 수 있어요".</td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>카운트다운·빨강 금지("해결 중인 일로 두 번 찌르지 않는다")</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">today 승격 시에도 스타일 동일 — 카운트다운·경고색 금지</td></tr>
+        <tr><th>데이터·연동</th><td class="data">FactContext(bookings·vouchers)</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dLNK">
+    <h2><span>7</span>센터 연결 <small>LNK · 6개 기능</small></h2>
+    <div class="fn" id="LNK-01">
+      <div class="fn-head"><span class="fid">LNK-01</span><span class="fname">연결 상태 머신</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-1~2</span></div>
+      <table>
+        <tr><th>개요</th><td>CenterLink의 생성~해제 전체 라이프사이클을 관리한다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>상태 5: requested/active/suspended/rejected/revoked</li><li>자동 활성 = 센터 발급 토큰+명부 일치일 때만</li><li>대조 실패 → requested 강등(역방향 경로 합류 — 두 경로가 한 머신)</li><li>터미널 재연결 = 새 행(이력 불변)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 해솔센터 초대 문자 링크 → 인증 일치 → 즉시 active. 명부 번호가 남편이라 불일치 → requested로 강등되어 직원 확인 큐로 — 같은 머신의 다른 문.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>엣지 14종 판정표 적용(§14-2) — 동시 요청 자동 수렴·이중 가족 사람 개입·더블탭 멱등 등</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>전화번호 자동 연결 금지</li><li>오매핑 정정은 in-place 수정 금지(revoke+신규)</li><li>전이와 감사 로그 동일 트랜잭션</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전용 화면 없음(상태 머신) — 표면은 LNK-02~06</td></tr>
+        <tr><th>데이터·연동</th><td class="data">center_links·center_link_invitations·center_link_audits(증거 스냅샷)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="LNK-02">
+      <div class="fn-head"><span class="fid">LNK-02</span><span class="fname">역방향 요청·승인</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-2~3</span></div>
+      <table>
+        <tr><th>개요</th><td>유저가 먼저 연결을 요청하고 센터 직원이 확인·승인한다.</td></tr>
+        <tr><th>사전조건</th><td>연동 센터 검색·인증 실패 폴백</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>요청 제출 → 센터 web "연결 요청 N건" 큐</li><li>승인 화면에 대조 근거 자동 표시(전화번호 일치 등) + 기존 연결 N건 배지</li><li>3영업일 미처리 → 유저에게 데스크 QR 폴백 카드("보여주기만 하면 돼요")</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 데스크 화면: "연결 요청 1건 — 김지우 보호자 · 전화번호 일치 ✓ · 기존 연결 0건" → [확인] 원탭 승인. 3영업일 방치 시 지민맘 홈에 QR 폴백 카드. <a class="mini-link" href="내담자앱-설계.html#s18">🖼 시안 #18 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="row"><div class="tile">⏳</div><div><div class="k blue">요청 보냄 · 7월 9일</div><div class="t" style="font-size:15px;">센터 확인을 기다리고 있어요</div><div class="d">다음 방문 때 데스크에서 바로 연결할 수도 있어요</div></div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>거절: 고정 선택지 2(정보 불일치/내원 확인)+내부 메모 — 유저에겐 단일 문구</li><li>대기 중 프로필 삭제 → 자동 정리(유령 승인 방지)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>거절 사유 유저 비노출</li><li>기존 보호자에게 알림 금지(분쟁 가정 역정보)</li><li>대기 일수 표시 금지</li><li>친권 서류 심사 금지(명부 일치만)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#18 연결 요청</b>(요청 전/대기 병기) · 문구 §11-8 · 센터 web 승인 화면은 SaaS 측 시안</td></tr>
+        <tr><th>데이터·연동</th><td class="data">센터 web 승인 화면(관리자)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="LNK-03">
+      <div class="fn-head"><span class="fid">LNK-03</span><span class="fname">인증 실패 폴백</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-4</span></div>
+      <table>
+        <tr><th>개요</th><td>본인인증 불일치를 막다른 골목이 아닌 다음 경로로 잇는다.</td></tr>
+        <tr><th>사전조건</th><td>초대 수락 중 번호 불일치</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>"흔한 일" 안내(다른 가족 번호 등록 사례)</li><li>그 자리에서 역방향 요청으로 갈아타기 버튼</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 인증 실패 → "센터에 다른 가족 번호로 등록된 경우가 많아요(아빠 번호 등)" + [이대로 연결 요청 보내기] — 지민맘은 아무에게도 전화하지 않았다. <a class="mini-link" href="내담자앱-설계.html#s15">🖼 시안 #15 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="t" style="font-size:15px;">등록된 번호와 달라요</div><div class="d">센터에 다른 가족 번호로 등록된 경우가 많아요</div><div class="btns" style="margin-top:10px;"><div class="btn tint" style="height:42px;font-size:14px;">이대로 연결 요청 보내기</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>명부 번호 힌트 노출 절대 금지(마스킹도)</li><li>기계적 에러 문장 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">인증 실패 화면(시안 #15의 실패 상태 — 시안 갱신 대상) · "흔한 일" 안내+갈아타기 버튼</td></tr>
+        <tr><th>데이터·연동</th><td class="data">requested 강등 전이</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="LNK-04">
+      <div class="fn-head"><span class="fid">LNK-04</span><span class="fname">초대 토큰·랜딩</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-2·4</span></div>
+      <table>
+        <tr><th>개요</th><td>센터 발송 초대 링크의 수명과 랜딩 경험을 관리한다.</td></tr>
+        <tr><th>사전조건</th><td>센터가 초대 발송</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>설치 전 웹 랜딩: 초대 맥락 표시+"지금 안 하셔도 돼요, 링크는 사라지지 않아요"</li><li>[가족에게 보내기] 원탭</li><li>토큰은 열람 비소모, 수락 완료 시에만 소모</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 남편 폰에 문자 도착, 무심코 클릭 → 웹 랜딩 "지금 안 하셔도 돼요 — 링크는 사라지지 않아요" + [가족에게 보내기] → 지민맘에게 토스, 링크는 살아 있다. <a class="mini-link" href="내담자앱-설계.html#s14">🖼 시안 #14 보기 ›</a></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>만료 → 재발급 안내 or 데스크 QR</li><li>수락된 토큰의 타 계정 재시도 = 탈취 신호 감사 기록</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>1회 열람 소멸 금지</li><li>유령 계정 생성 금지(링크 클릭만으로 계정 진행 금지)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#14 초대 랜딩</b> · 문구 §11-8 · 설치 전 웹 랜딩+[가족에게 보내기]</td></tr>
+        <tr><th>데이터·연동</th><td class="data">center_link_invitations(단명·채널)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="LNK-05">
+      <div class="fn-head"><span class="fid">LNK-05</span><span class="fname">후회 유예·연결 해제</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-4·§16-2</span></div>
+      <table>
+        <tr><th>개요</th><td>오연결의 즉시 정정과 이별의 '마무리' 프레임을 제공한다.</td></tr>
+        <tr><th>사전조건</th><td>연결 완료 직후 / active 링크</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>완료 화면에 "잘못 연결하셨나요? 여기서 바로" — 10분 내 해제는 센터 표면 무노출(내부 감사만)</li><li>정식 해제: 마디 보존을 숫자로 선행("다녀온 84번의 날들은 그대로") → 확인</li><li>새 센터 연결 흐름에서 이전 센터 마무리 자연 제안</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 엘리베이터에서 서준을 해솔에 잘못 연결 → 완료 화면의 "잘못 연결하셨나요?" 탭(8분 경과) → 센터는 아무것도 못 봄. 이사 시: "다녀온 84번의 날들은 그대로 남아요" 보고 마무리. <a class="mini-link" href="내담자앱-설계.html#s17">🖼 시안 #17 보기 ›</a></div><div class="gallery comp"><div class="c"><div class="k mint">해솔센터와의 시간</div><div class="t" style="font-size:15px;">다녀온 84번의 날들은<br>원장에 그대로 남아요</div><div class="btns" style="margin-top:10px;"><div class="btn asst" style="height:42px;font-size:14px;">마무리하기</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>해제 후 재연결 = 새 행·공유 자동 승계 없음</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>"해제·삭제" 단어 금지(정정·마무리 프레임)</li><li>센터 실시간 통지·해제 사유 질문 금지</li><li>겁주는 경고 프레임 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#17 연결 완료</b>(후회 유예 문구 추가 — 시안 갱신 대상) · 해제 문구 §11-10 "마무리" 프레임</td></tr>
+        <tr><th>데이터·연동</th><td class="data">revoked 전이+grant 일괄 revoke</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="LNK-06">
+      <div class="fn-head"><span class="fid">LNK-06</span><span class="fname">센터 해지 처리</span><span class="pri p1">P1 · 우선</span><span class="ref">§14-5</span></div>
+      <table>
+        <tr><th>개요</th><td>센터의 SaaS 해지 시 보호자 데이터 접근을 정리한다.</td></tr>
+        <tr><th>사전조건</th><td>센터 구독 해지 확정</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>전 링크 suspended("지난 연결" 표면)</li><li>해지 확정 후 30일 파생 데이터 접근 유지 + 조용한 저장 안내 카드</li><li>90일 내 재가입 → 원탭 복원 제안</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 해솔센터 SaaS 해지 확정 → 지민맘 앱: 푸시 없음, 진입 시 "새 소식은 오지 않아요. 기록은 그대로예요" 한 줄 + 30일간 결과지 저장 안내. 5개월 뒤 재계약 → "다시 연결할까요?" 원탭.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>SaaS 해지 플로우에 "연결 보호자 N명" 고지(억지력)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>예고 기간 침묵(앱이 해지를 방송 금지)</li><li>푸시 통지 금지</li><li>무통보 자동 재연결 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">"지난 연결" 상태 표면 — 진입 시 한 줄, 목록에선 회색 처리(경고 아님)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">suspended 일괄 전이</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dFAM">
+    <h2><span>8</span>가족 <small>FAM · 5개 기능</small></h2>
+    <div class="fn" id="FAM-01">
+      <div class="fn-head"><span class="fid">FAM-01</span><span class="fname">가족 2등급 권한</span><span class="pri p0">P0 · 필수</span><span class="ref">§5·§14</span></div>
+      <table>
+        <tr><th>개요</th><td>관리자/구성원 2등급으로 가족 권한을 나눈다.</td></tr>
+        <tr><th>사전조건</th><td>Family 존재</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>관리자: 초대·내보내기·공유 토글·프로필 관리</li><li>구성원: 열람+작성 전부(기록·다녀왔어요·말씀 담기)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 지민맘=관리자, 남편=구성원. 남편은 주말 영상 촬영·다녀왔어요·말씀 담기 전부 가능, 공유 토글과 가족 초대만 불가. <a class="mini-link" href="내담자앱-설계.html#s19">🖼 시안 #19 보기 ›</a></div><div class="gallery comp"><div style="background:#fff;border-radius:14px;padding:4px 14px;"><div class="member"><div class="av a1" style="width:34px;height:34px;font-size:13px;">나</div><div><div class="mn">나</div><div class="md">공유 설정 · 가족 관리</div></div><div class="rolechip admin">관리자</div></div><div class="member"><div class="av a2" style="width:34px;height:34px;font-size:13px;">아</div><div><div class="mn">지우 아빠</div><div class="md">기록 쓰기 · 말씀 담기</div></div><div class="rolechip fam">가족</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>가족 내 같은 아이 프로필 1개(불변식) — 가족 간에는 N 허용(분쟁 가정, 게이트=센터 승인)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>3등급(열람 전용) 금지</li><li>상대 가족의 연결 존재 자체 비노출(안전)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#19 가족 관리</b> · 권한 칩(관리자=블루/가족=그레이)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">family_members.role</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="FAM-02">
+      <div class="fn-head"><span class="fid">FAM-02</span><span class="fname">가족 초대</span><span class="pri p0">P0 · 필수</span><span class="ref">§14-2·§6-2</span></div>
+      <table>
+        <tr><th>개요</th><td>관리자가 구성원을 초대한다.</td></tr>
+        <tr><th>사전조건</th><td>관리자</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>초대 링크 발급(72h·1회용) → 수락 시 합류</li><li>합류자는 자기 가입 시 동일 동의 스택</li><li>합류 시 관리자에게 통지+즉시 내보내기 가능</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 할머니 초대 링크 발송(72h) → 할머니 수락+가입(동일 동의 스택) → 지민맘에게 "합류했어요" 통지. 아이 보호자 확인은 지민맘 것 하나로 충분.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>CenterLink 초대 토큰과 테이블 분리(오용 구조 차단)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>아이 법정대리인 동의는 관리자 1개로 성립(구성원 재확인 없음)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">초대 링크 시트 · 합류 통지 문구 §11-8 계열</td></tr>
+        <tr><th>데이터·연동</th><td class="data">Family 토큰</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="FAM-03">
+      <div class="fn-head"><span class="fid">FAM-03</span><span class="fname">관리자 이양·승계</span><span class="pri p1">P1 · 우선</span><span class="ref">§14-3·5</span></div>
+      <table>
+        <tr><th>개요</th><td>관리자 권한을 넘기거나 승계한다.</td></tr>
+        <tr><th>사전조건</th><td>관리자 / 사망·연락두절 시 유족</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>능동 이양: 구성원 지정 → 수락 → 즉시</li><li>관리자 탈퇴: 이양/전체 정리 갈림길 강제(정리 시 구성원 30일 유예+내보내기 기회)</li><li>강제 승계: 고객센터 SOP — 공적 서류만(사망증명+가족관계/후견 결정문)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 지민맘 탈퇴 결심 → 갈림길 강제: "관리자를 남편에게 넘기고 나가기" 선택 → 남편 수락 → 이양 완료. 사망 케이스는 유족이 고객센터에 사망증명+가족관계증명 제출.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>프로필 삭제 시 구성원 존재하면 30일 유예+무해 통지</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>'연락두절' 단독 승계 불인정(탈취 벡터)</li><li>앱 내 자동 승계 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">이양 플로우(시안 미작성 — 마이 파생) · 갈림길 화면은 중립 2택</td></tr>
+        <tr><th>데이터·연동</th><td class="data">운영 SOP 문서</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="FAM-04">
+      <div class="fn-head"><span class="fid">FAM-04</span><span class="fname">구성원 내보내기</span><span class="pri p1">P1 · 우선</span><span class="ref">§14-5</span></div>
+      <table>
+        <tr><th>개요</th><td>관리자가 구성원의 접근을 회수한다.</td></tr>
+        <tr><th>사전조건</th><td>관리자</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>접근권 즉시 회수</li><li>작성 기록은 아이 타임라인 보존(작성자 표시 유지)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 이혼 후 전 배우자 내보내기 → 접근 즉시 차단, 그가 찍은 영상 12개는 지우 타임라인에 작성자 표시로 잔존. 본인 요청 시 자기 작성분만 파기 선택 가능.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>내보내진 본인의 작성분 사본 열람권 보장</li><li>이탈·탈퇴 시 본인 작성분 파기 선택권</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>기록 무단 소거 금지("구성원 작성 기록은 아이 기록의 일부" 약관)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">내보내기 확인 · 문구 §11-10(기록 보존 사실 명시)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">family_members soft delete</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="FAM-05">
+      <div class="fn-head"><span class="fid">FAM-05</span><span class="fname">프로필 보관</span><span class="pri p2">P2 · 후순위</span><span class="ref">§14-3</span></div>
+      <table>
+        <tr><th>개요</th><td>아이 사망 등 계속 볼 수 없는 상황에서 삭제 아닌 제3의 길을 제공한다.</td></tr>
+        <tr><th>사전조건</th><td>관리자</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>홈·칩에서 숨김</li><li>기록 전체 보존</li><li>모든 알림·리마인더 영구 중단</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 (가장 어려운 날) 프로필 보관 선택 → 홈·칩에서 사라지고 기록은 전부 보존, 알림은 영구히 멈춘다. 앱은 삭제를 권하지 않는다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>보관 해제 가능</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>삭제 강요 금지</li><li>문구 치료사 감수 필수</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">보관 상태 표면 — 문구 치료사 감수 필수, 회색·애도 톤 강요 금지</td></tr>
+        <tr><th>데이터·연동</th><td class="data">profiles.archived_at</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dSHR">
+    <h2><span>9</span>공유(상담사 연동) <small>SHR · 5개 기능</small></h2>
+    <div class="fn" id="SHR-01">
+      <div class="fn-head"><span class="fid">SHR-01</span><span class="fname">공유 grant 모델</span><span class="pri p0">P0 · 필수</span><span class="ref">§16-1~2</span></div>
+      <table>
+        <tr><th>개요</th><td>기록 열람 허용을 불변 동의 행으로 관리한다.</td></tr>
+        <tr><th>사전조건</th><td>active CenterLink</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>단위=엔트리 + include_body 플래그(미디어만/본문 포함 선택)</li><li>ON=행 insert(동의 문구 버전 보관)·OFF=revoked_at·재토글=새 행</li><li>접근 가능 = grant 생존 ∧ link active ∧ entry 생존 ∧ 담당(실시간 합성 — 캐시 금지)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 영상 공유 ON = grant 행 1개 insert(동의 문구 v1.2 기록). OFF → revoked_at. 다시 ON → 새 행. 탈퇴 유예 중엔 grant 그대로 두고 접근만 차단 — 복구하면 원상.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>링크 revoke → grant 일괄 revoke(동일 트랜잭션)</li><li>suspended는 grant 불변(복귀 시 원상)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>미디어 개별 토글 미지원("이 사진으로 새 기록"이 대안)</li><li>기본값 항상 OFF·자동 공유 기능 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">전용 화면 없음(모델) — 표면은 SHR-02</td></tr>
+        <tr><th>데이터·연동</th><td class="data">record_grants(append-only)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="SHR-02">
+      <div class="fn-head"><span class="fid">SHR-02</span><span class="fname">공유 토글 화면</span><span class="pri p0">P0 · 필수</span><span class="ref">§16-1·§6-2</span></div>
+      <table>
+        <tr><th>개요</th><td>공유 범위를 사람이 인지 가능한 형태로 켠다.</td></tr>
+        <tr><th>사전조건</th><td>기록 상세</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>센터별 이름 줄 토글("해솔센터 김○○ 선생님 [ON]")</li><li>범위 명시("이 기록 1개만") + include_body 체크("내 메모는 나만")</li><li>풀 원칙 기대치 문구를 토글 자리에 크게</li><li>일괄=다중 선택 후 한 번에</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 세 단어 문장 영상 공유: "해솔센터 김○○ 선생님 [ON]" + "내 메모는 나만 봐요" 체크 유지 → 영상만 전달. 마음숲 줄은 OFF 그대로. 녹음엔 "이 녹음은 해솔센터에서만 들을 수 있어요". <a class="mini-link" href="내담자앱-설계.html#s9">🖼 시안 #9 보기 ›</a></div><div class="gallery comp"><div style="background:#fff;border-radius:14px;padding:4px 14px;"><div class="share-row"><div class="sl">해솔센터 김○○ 선생님</div><div class="switch"></div></div><div class="share-row"><div class="sl">마음숲센터 박○○ 선생님</div><div class="switch off"></div></div><div class="share-row"><div class="sl" style="font-size:13.5px;color:#8B95A1;">내 메모는 나만 봐요</div><div class="ckc" style="width:22px;height:22px;font-size:11px;">✓</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>녹음: 발화 센터 외 토글 미표시 + 이유 한 줄(버그 오인 방지) + 서버 400 이중 방어</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>"전체 켜기" 버튼 금지</li><li>단일 스위치로 전 센터 전송 금지</li><li>켜기·끄기 모두 관리자만(구성원은 제안)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#9 공유 설정</b>(include_body 체크 행 추가 — 시안 갱신 대상) · 문구 §11-8 · 토글 48×28</td></tr>
+        <tr><th>데이터·연동</th><td class="data">grant insert/revoke</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="SHR-03">
+      <div class="fn-head"><span class="fid">SHR-03</span><span class="fname">상담사 가정 기록 화면</span><span class="pri p0">P0 · 필수</span><span class="ref">§16-3~4</span></div>
+      <table>
+        <tr><th>개요</th><td>상담사 web에 공유된 기록을 임상 동선에 맞게 노출한다(SaaS 측 신설).</td></tr>
+        <tr><th>사전조건</th><td>담당 상담사(active case 배정)</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>내담자 상세의 접힌 섹션 — 기본 뷰 '지난 회기~오늘' 구간, 초진 전은 전체</li><li>회기 준비 화면에 진입 링크(건수 없이·있을 때만)</li><li>기록별 날짜·상황 태그·작성자 관계(엄마/아빠) 표시, 말씀 메모는 접힘</li><li>헤더 상시 문구: "보호자 동의 하에 공유됨 · 확인 의무 없는 참고 자료"</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 김 선생님, 화요일 세션 5분 전: 지우 상세 → "지난 회기 이후 가정 기록" 펼침 → 영상 1(엄마)·한 줄 2(아빠 1) 확인. 안 펼쳐도 아무 일도 일어나지 않는다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>케이스 종결 → 담당 소멸로 열람 자동 차단</li><li>담당 교체 → 신임 자동 열람·전임 차단(케이스 배정 파생)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>미열람 배지·건수·NEW·답장 버튼 금지</li><li>읽음률 통계 존재 자체 금지(관리자 화면 포함 — 계약 수준)</li><li>녹음 자동재생·다운로드 금지(명시 탭·스트리밍만)</li><li>Attention 카드·first fold 진입 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">상담사 web 화면(SaaS 측 시안 — INFORMATION_SPEC 계열로 별도) · 헤더 문구 §11-8</td></tr>
+        <tr><th>데이터·연동</th><td class="data">LedgerSharingFacade(글로벌→센터 유일 출구)·접근 로그</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="SHR-04">
+      <div class="fn-head"><span class="fid">SHR-04</span><span class="fname">종결 공유 리뷰</span><span class="pri p1">P1 · 우선</span><span class="ref">§16-2</span></div>
+      <table>
+        <tr><th>개요</th><td>케이스 종결 시 열린 공유의 정리를 제안한다.</td></tr>
+        <tr><th>사전조건</th><td>활성 케이스 0 전환</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>oneshot 카드: "공유 중인 기록 12개, 이대로 둘까요/모두 끌까요" 원탭</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 언어치료 종결 처리 → 김 선생님 열람 자동 차단 + 지민맘 홈에 원샷: "공유 중인 기록 12개, 이대로 둘까요/모두 끌까요".</div><div class="gallery comp"><div class="c"><div class="k gray">해솔센터 수업이 마무리됐어요</div><div class="t" style="font-size:15px;">공유 중인 기록 12개</div><div class="btns" style="margin-top:10px;"><div class="btn asst" style="height:40px;font-size:13.5px;">이대로 두기</div><div class="btn tint" style="height:40px;font-size:13.5px;">모두 끄기</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>열람은 이미 자동 차단됨을 문구로 안내</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>자동 OFF 금지(추후 점검 대비) — 결정은 유저가, 계기는 앱이</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">oneshot 리뷰 카드 — 2택 원탭, 중립 톤</td></tr>
+        <tr><th>데이터·연동</th><td class="data">grant 일괄 revoke(선택 시)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="SHR-05">
+      <div class="fn-head"><span class="fid">SHR-05</span><span class="fname">위험 신호 프로토콜</span><span class="pri p1">P1 · 우선</span><span class="ref">§16-5</span></div>
+      <table>
+        <tr><th>개요</th><td>가정 기록에서 학대·자해 정황 발견 시의 예외 절차(가안·법무 검토 필수).</td></tr>
+        <tr><th>사전조건</th><td>상담사가 위험 정황 인지</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>상담사 수동 액션 "센터 내부 보고"(원장/관리자 내부 전달)</li><li>해당 기록 스냅샷 보존(신고 판단은 센터 프로토콜 몫)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 가정 영상에서 멍 자국 발견 → 김 선생님 [센터 내부 보고] → 원장에게만 전달, 지민맘 앱은 아무 변화 없음. 기록 스냅샷은 보존(법무 확정 전 가안).</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>보호자 삭제 시에도 스냅샷 잔존 — §15-5 무흔적 삭제와 충돌 지점(법무)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>시스템 자동 감지·플래깅 금지(판정 금지)</li><li>보호자에게 어떤 신호도 금지(증거 인멸 유발 방지)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">상담사 web 액션(SaaS 측) — 앱 쪽 표면 없음</td></tr>
+        <tr><th>데이터·연동</th><td class="data">스냅샷 보존 테이블(법무 확정 후)</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dMY">
+    <h2><span>10</span>마이·출구 <small>MY · 3개 기능</small></h2>
+    <div class="fn" id="MY-01">
+      <div class="fn-head"><span class="fid">MY-01</span><span class="fname">내 기록과 동의 허브</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-2·§16-3</span></div>
+      <table>
+        <tr><th>개요</th><td>동의·공유·출구를 한곳에서 관리한다.</td></tr>
+        <tr><th>사전조건</th><td>가입 완료</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>동의 현황(항목별·일자)</li><li>역방향 공유 목록(어떤 기록이 어느 센터에 열려 있나)</li><li>기록 내보내기·센터 연결 관리·철회·탈퇴 진입점</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 마이 > 내 기록과 동의: 동의 3건(7/9)·해솔센터에 열린 기록 3개·내보내기·철회·탈퇴가 한 화면. 미전송 2건 있으면 로그아웃 시 확인 다이얼로그. <a class="mini-link" href="내담자앱-설계.html#s24">🖼 시안 #24 보기 ›</a></div><div class="gallery comp"><div style="background:#fff;border-radius:14px;padding:4px 14px;"><div class="share-row"><div class="sl">아이 기록 보관 (민감정보)</div><div class="sv">동의함 · 25.7.9</div></div><div class="share-row"><div class="sl">해솔센터에 열린 기록</div><div class="sv">3개 ›</div></div><div class="share-row"><div class="sl" style="color:#8B95A1;">기록 내보내기 · 철회 · 탈퇴</div><div class="sv" style="color:#B0B8C1;">›</div></div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>미전송 큐 존재 시 로그아웃·탈퇴에 N건 확인 다이얼로그</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>출구를 숨기지 않음(목록 마지막 배치)</li><li>상담사 열람 여부는 비노출</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">시안 <b>#24 내 기록과 동의</b> · 문구 §11-2·§11-10 · 출구는 목록 마지막(숨김 금지)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">consent_logs·grants·큐 상태</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MY-02">
+      <div class="fn-head"><span class="fid">MY-02</span><span class="fname">탈퇴·동의 철회</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-2·§15-5</span></div>
+      <table>
+        <tr><th>개요</th><td>30일 복구 유예를 거쳐 완전 파기한다.</td></tr>
+        <tr><th>사전조건</th><td>본인 계정</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>기록 내보내기(전체 파일) 먼저 제안</li><li>T0: link suspended·grant 접근 차단(동의는 보존)</li><li>T+30: S3 실파일 먼저 삭제 → DB hard delete → 파기 대장(메타만)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 탈퇴 진입 → "기록 187개를 파일로 받아두시겠어요?" → 30일 내 재로그인 시 전체 복구 → 31일째 S3 실파일부터 파기, 파기 대장엔 '187건, 8/9 파기' 메타만.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>유예 중 재로그인 → 전체 복구(링크·공유 원상)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>역순 파기 금지(고아 파일 잔존 사고)</li><li>죄책감 만류 문구 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">출구 플로우 · 문구 §11-10 · 내보내기 제안이 첫 화면</td></tr>
+        <tr><th>데이터·연동</th><td class="data">파기 워커·tombstone</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="MY-03">
+      <div class="fn-head"><span class="fid">MY-03</span><span class="fname">투명성 배지 계단</span><span class="pri p0">P0 · 필수</span><span class="ref">§7-9·§6-2</span></div>
+      <table>
+        <tr><th>개요</th><td>"누가 볼 수 있나"를 3단 계단으로 상시 노출한다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>목록: 아이콘만(잠금/공유 중 — SVG 컴포넌트·44pt·접근성 라벨)</li><li>상세: 구체 한 줄("해맑음센터 김○○ 선생님이 볼 수 있어요")</li><li>탭: 펼침(누가·어떤 항목·언제부터) / 입력 화면엔 한 줄 상시</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 타임라인의 영상 카드에 👥 아이콘 → 상세 열면 "해솔센터 김○○ 선생님이 볼 수 있어요" → 탭하면 언제부터·어떤 항목 펼침. OFF 하면 "이제 나와 가족만 볼 수 있어요". <a class="mini-link" href="내담자앱-설계.html#s22">🖼 시안 #22 보기 ›</a></div><div class="gallery comp"><div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:12px 14px;"><div class="pbadge lock" style="margin:0;"><svg viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="pbadge shared" style="margin:0;"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 19c.9-2.6 3-3.9 5.5-3.9s4.6 1.3 5.5 3.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 6.6a3 3 0 1 1 1.4 5.7M16.8 15.4c1.9.4 3.2 1.6 3.7 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div style="font-size:13.5px;color:#4E5968;font-weight:600;">해솔센터 김○○ 선생님이 볼 수 있어요</div></div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>공유 OFF 시 확인 피드백("이제 나와 가족만 볼 수 있어요")</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>이모지 배지 금지</li><li>1단 2상태 고정(열람·업로드 상태 얹기 금지)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">배지 컴포넌트(§7-9) — SVG 에셋·44pt 터치·2상태, 계단 2단은 사람 이름이 보이는 한 줄</td></tr>
+        <tr><th>데이터·연동</th><td class="data">grant 파생 표시</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dNTF">
+    <h2><span>11</span>알림 <small>NTF · 2개 기능</small></h2>
+    <div class="fn" id="NTF-01">
+      <div class="fn-head"><span class="fid">NTF-01</span><span class="fname">푸시 정책</span><span class="pri p0">P0 · 필수</span><span class="ref">§7-4·§17-4</span></div>
+      <table>
+        <tr><th>개요</th><td>잠금화면에 무해한 중립 알림만 보낸다.</td></tr>
+        <tr><th>사전조건</th><td>알림 권한</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>아이 이름·센터 성격 비노출 중립 문구(문구집 §11-9)</li><li>무효화용 silent push는 content-free(리소스 ID만)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex"><div class="ex-wrap"><div class="ex-txt">💡 잠금화면: "내일 일정이 있어요 — 확인해 주세요" (시어머니가 봐도 무해). "지우 언어치료 D-1"은 금지 문구.</div><div class="gallery comp"><div style="background:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;"><div style="flex:none;width:34px;height:34px;border-radius:9px;background:#3182F6;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;">M</div><div><div style="font-size:13.5px;font-weight:700;color:#191F28;">마인드스코프</div><div style="font-size:13.5px;color:#4E5968;">내일 일정이 있어요 — 확인해 주세요</div></div></div><div class="quiet" style="margin-top:6px;">잠금화면에서 누가 봐도 무해하게</div></div></div></td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>알림 권한 거부 → 기능 저하 없이 홈 카드로 대체</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>남발 금지(주 단위 반복은 무음 처리당함)</li><li>아이 발달 근거 재촉 0건(시간 압박은 제도 기한만)</li><li>죄책감·미완료 문구 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">잠금화면 미리보기 기준으로 문구 검수(§11-9) — 아이 이름·센터 성격 비노출</td></tr>
+        <tr><th>데이터·연동</th><td class="data">푸시 발송 직전 재검증(D2)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="NTF-02">
+      <div class="fn-head"><span class="fid">NTF-02</span><span class="fname">알림 인벤토리</span><span class="pri p0">P0 · 필수</span><span class="ref">§11-9·§13·§17-4</span></div>
+      <table>
+        <tr><th>개요</th><td>발송 가능한 알림의 전수를 고정한다.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>리마인더 당일·첫 방문 D-1·예약 D-1(③)·바우처 임박</li><li>세션 종료 알림: 연동 직후 신규만(리추얼 형성기 한정·담기 시작하면 조기 소멸)</li><li>② 세션 리마인드: 서버 푸시 아닌 로컬 노티(옵트인·슬롯 종료+15분·유저 조정)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 수요일 16:40(슬롯 종료+15분, 옵트인 로컬 노티): "오늘 들은 이야기, 잊기 전에 담아둘까요?" — 담기 시작한 지 3주차부터는 오지 않는다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>발송 직전 원본 재검증(취소된 예약 알림 방지)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>인벤토리 밖 알림 신설은 설계 개정 필요</li><li>석 달 정체 유저 재촉 푸시 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">문구 인벤토리 §11-9 고정 — 신규 알림은 문구집 개정과 함께</td></tr>
+        <tr><th>데이터·연동</th><td class="data">알림 큐+dispatch 재검증</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="chapter" id="dNFR">
+    <h2><span>12</span>비기능 요구사항 <small>NFR · 5개 기능</small></h2>
+    <div class="fn" id="NFR-01">
+      <div class="fn-head"><span class="fid">NFR-01</span><span class="fname">캐시·정합 계약</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-3</span></div>
+      <table>
+        <tr><th>개요</th><td>센터 파생 데이터의 캐시와 소멸 SLA를 정의한다.</td></tr>
+        <tr><th>사전조건</th><td>③ 연동</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>read-facade가 ETag 발급, 차등 TTL(예약·바우처 5분 SWR / 결과지 메타 24h)</li><li>content-free silent push로 무효화 + 포그라운드 복귀 재검증</li><li>능동 행위(공유·내보내기·PDF)는 항상 서버 재검증</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 센터가 예약 취소 → silent push → 앱 캐시 purge → 다음 진입 때 카드 없음. push 유실돼도 최대 24h 내 TTL로 소멸 — 처리방침의 "즉시 중단"과 이 경계를 나란히 명기.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>소멸 SLA 3계층: 서버 즉시 / push purge / 최악 TTL 24h(처리방침 문구와 정합 명기)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>웹소켓·폴링 v1 금지</li><li>앱 DB에 센터 원본 복사 금지(내용 복사본 없음 — 사건 스냅샷만 예외)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">디자인 해당 없음(기술 계약)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">ETag·silent push·TTL</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="NFR-02">
+      <div class="fn-head"><span class="fid">NFR-02</span><span class="fname">보안</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-3·§16-3</span></div>
+      <table>
+        <tr><th>개요</th><td>민감정보 보호의 기술 기준선.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>저장 암호화(S3 SSE-KMS 버킷 강제)·미디어는 presigned GET만(5분 단명)</li><li>앱 토큰 권한 분리(앱 계정의 SaaS API 접근 차단)</li><li>접근 로그 append-only 3년(가안)·오매핑 감사 스냅샷</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 상담사가 영상 열람 → 5분 presigned URL + 접근 로그 1행(누가·언제·무엇). 오매핑 사고 시 이 로그가 유출 범위 판정의 유일한 소스.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>개인정보 사고 시 접근 로그가 유출 범위 판정 소스(사고 SOP)</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>공개 URL 금지</li><li>2차 활용(AI 학습) 금지 — 별도 명시 동의 없이 불가</li><li>grant 없는 열람 경로 존재 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">디자인 해당 없음(기술 계약)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">KMS·ledger_access_logs</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="NFR-03">
+      <div class="fn-head"><span class="fid">NFR-03</span><span class="fname">오프라인 동작</span><span class="pri p0">P0 · 필수</span><span class="ref">§6-3·§13-3</span></div>
+      <table>
+        <tr><th>개요</th><td>대기실(약전계) 환경에서의 동작 기준.</td></tr>
+        <tr><th>사전조건</th><td>네트워크 불안정</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>유저 작성 데이터: 낙관 커밋+백그라운드 큐(무기한 보존)</li><li>센터 파생: TTL 내 정상 렌더(stale 표기 없음), 초과 시 조용히 비노출</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 지하 대기실: 기록 작성 전부 정상(로컬 커밋), 예약 카드는 5분 캐시로 표시. 8시간 오프라인 후엔 센터 카드만 조용히 사라짐 — 오류 화면은 없다.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>능동 행위 실패 → 중립 안내("연결되면 이어서 할게요")</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>stale 배지·오류 화면·빈 상태 안내 금지</li><li>센터 파생에 낙관 캐시 금지(정합 불가침)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">디자인 관련 — 오프라인 stale 배지·오류 화면·빈 상태 안내를 그리지 않음(§7-5)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">큐+TTL</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="NFR-04">
+      <div class="fn-head"><span class="fid">NFR-04</span><span class="fname">성능</span><span class="pri p1">P1 · 우선</span><span class="ref">§15-4·§16-3</span></div>
+      <table>
+        <tr><th>개요</th><td>조회 성능의 기준선.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>타임라인·공유 목록 keyset 커서(페이지 20~30)</li><li>요청당 인덱스-온리 3~4쿼리 상한</li><li>미디어 메타 IN 배치 1쿼리·썸네일 presigned 배치</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 기록 187개 프로필의 타임라인 첫 페이지 = 인덱스 쿼리 1방 + 미디어 배치 1방. 상담사 가정 기록 열람 = 3~4쿼리 상한.</td></tr>
+        <tr><th>예외 처리</th><td><ol class="fl"><li>GC는 (status,updated_at) 인덱스로 pending/processing만 스캔</li></ol></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>OFFSET 금지</li><li>N+1 금지</li><li>grant 체크 캐시 금지(SLA 즉시 층)</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">디자인 해당 없음(기술 계약)</td></tr>
+        <tr><th>데이터·연동</th><td class="data">partial index 설계(§15-4·§16-3)</td></tr>
+      </table>
+    </div>
+    <div class="fn" id="NFR-05">
+      <div class="fn-head"><span class="fid">NFR-05</span><span class="fname">계측·지표</span><span class="pri p1">P1 · 우선</span><span class="ref">§1·§17-6</span></div>
+      <table>
+        <tr><th>개요</th><td>측정하는 것과 절대 측정하지 않는 것.</td></tr>
+        <tr><th>사전조건</th><td>—</td></tr>
+        <tr><th>동작 명세</th><td><ol class="fl"><li>성공 지표 4: 연동 전환율·W4 리텐션·센터당 연결 보호자·주간 기록 작성률</li><li>+ ① 진입→첫 저장 전환율(상류 깔때기)</li><li>콘텐츠 단위 익명 집계 2종(대본 CTA 수행률·노출 일수 — 비노출·무목표)</li></ol></td></tr>
+        <tr><th>예시</th><td class="ex">💡 수집: "대본 A의 CTA 수행률 34%"(콘텐츠 개선용, 익명). 수집 안 함: 지민맘 개인의 완료율·체류 시간·김 선생님의 열람률.</td></tr>
+        <tr><th>예외 처리</th><td><span class="none">—</span></td></tr>
+        <tr><th>제약사항</th><td><ul class="lm"><li>유저 단위 완료율 금지(UI 역류의 씨앗)</li><li>체류·스크롤 세션 계측 안 함</li><li>읽음률 통계 존재 금지</li></ul></td></tr>
+        <tr><th>화면·문구</th><td class="design">디자인 관련 — 지표·완료율·읽음률은 어떤 화면에도 표시하지 않음</td></tr>
+        <tr><th>데이터·연동</th><td class="data">이벤트 최소 수집</td></tr>
+      </table>
+    </div>
+  </section>
+  </div>
+</div>
+</body>
+</html>

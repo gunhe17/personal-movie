@@ -1,0 +1,63 @@
+# ============================================
+# Stage 1: Builder
+# ============================================
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Install uv (official binary - faster than pip install)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy dependency files first (layer cache)
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies (no dev deps, frozen lockfile)
+RUN uv sync --frozen --no-dev --no-install-project
+
+# Copy application code
+COPY . .
+
+# Install the project itself
+RUN uv sync --frozen --no-dev
+
+# ============================================
+# Stage 2: Runtime
+# ============================================
+FROM python:3.11-slim
+
+# Install system dependencies for weasyprint (PDF generation)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libcairo2 \
+    libffi-dev \
+    shared-mime-info \
+    fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root user
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+
+WORKDIR /app
+
+# Copy virtualenv and app from builder
+# RUN chown -R은 /app 전체를 새 레이어로 복제(이미지 2배) — COPY --chown으로 대체
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:appuser /app/app /app/app
+COPY --from=builder --chown=appuser:appuser /app/migrations /app/migrations
+COPY --from=builder --chown=appuser:appuser /app/alembic.ini /app/alembic.ini
+COPY --from=builder --chown=appuser:appuser /app/scripts /app/scripts
+
+# Set PATH to use virtualenv
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

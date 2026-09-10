@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>케어보드 메인 · 개선 시안 v1</title>
+<style>
+  :root{
+    --brand:#31A4F7; --brand-50:#ECF6FE; --brand-600:#0981D7; --brand-900:#083A5E;
+    --g0:#FFFFFF; --g50:#F5F7F8; --g75:#F0F3F5; --g100:#E9EEF0; --g200:#E3EAEF;
+    --g300:#D1D5DB; --g400:#AAB2BE; --g500:#696F78; --g600:#414C58; --g900:#12161B;
+    --purple:#7C4DFF; --purple-bg:rgba(124,77,255,.06);
+    --teal:#00B5A5; --teal-bg:rgba(0,181,165,.08);
+    --orange:#F88F16; --orange-bg:rgba(248,143,22,.08);
+    --green:#12BA54; --green-bg:rgba(18,186,84,.08);
+    --blue:#2872F8; --blue-bg:rgba(40,114,248,.06);
+    --pink:#F53188;
+    --shadow:0 4px 20px rgba(27,35,48,.07);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    background:#dfe4ec;color:var(--g900);padding:36px 16px 90px;}
+
+  /* ── page head ── */
+  .head{max-width:1240px;margin:0 auto 26px;}
+  .head h1{font-size:23px;margin:0 0 5px;letter-spacing:-.4px;}
+  .head .meta{font-size:13px;color:#46505f;margin:0 0 18px;}
+  .panel{background:#fff;border:1px solid var(--g200);border-left:5px solid var(--brand);
+    border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px;}
+  .panel h2{font-size:14px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+  .panel h2 .tag{background:var(--brand);color:#fff;font-size:11px;font-weight:700;border-radius:8px;padding:2px 9px;}
+  .panel.warn{border-left-color:#FF4545;}
+  .panel.warn h2 .tag{background:#FF4545;}
+  .diag{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:9px 26px;}
+  .diag li{font-size:12.5px;line-height:1.6;color:#36404f;padding-left:22px;position:relative;}
+  .diag li::before{content:"↳";position:absolute;left:4px;top:0;color:#FF4545;font-weight:700;}
+  .diag li b{color:var(--g900);}
+  .guard{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .guard .gr{font-size:11.5px;line-height:1.55;color:#475063;background:#f7f9fc;border:1px solid var(--g200);border-radius:10px;padding:10px 12px;}
+  .guard .gr b{display:block;color:#0d1117;margin-bottom:4px;}
+  .legend{max-width:1240px;margin:0 auto 22px;font-size:11.5px;color:#4a5462;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot-ok{width:9px;height:9px;border-radius:3px;background:var(--green);display:inline-block;}
+  .dot-need{width:9px;height:9px;border-radius:3px;background:var(--orange);display:inline-block;}
+  .dot-block{width:9px;height:9px;border-radius:3px;background:#FF4545;display:inline-block;}
+
+  /* ── rail ── */
+  .rail{display:flex;gap:38px;flex-wrap:wrap;justify-content:center;align-items:flex-start;max-width:2000px;margin:0 auto;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:12px;width:376px;}
+  .cap{text-align:center;}
+  .cap .pill{display:inline-block;font-size:11px;font-weight:800;border-radius:20px;padding:4px 12px;margin-bottom:7px;}
+  .pill-now{background:#fde8e8;color:#c0392b;}
+  .pill-a{background:#e3f0ff;color:#1d5fc4;}
+  .pill-b{background:#ede9fe;color:#6d49c8;}
+  .pill-c{background:#e2f7f3;color:#0c8475;}
+  .cap h2{font-size:16px;margin:0 0 5px;letter-spacing:-.3px;}
+  .cap p{font-size:12px;color:#46505f;line-height:1.65;margin:0;}
+  .cap .rec{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:#0c8475;background:#e2f7f3;border-radius:6px;padding:3px 8px;}
+  .needs{width:100%;background:#fff;border:1px solid var(--g200);border-radius:12px;padding:11px 13px;font-size:11.5px;line-height:1.6;color:#475063;}
+  .needs b{display:block;font-size:11px;color:#0d1117;margin-bottom:5px;}
+  .needs i{font-style:normal;display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  /* ── phone ── */
+  .phone{width:376px;background:var(--g0);border-radius:34px;border:1px solid var(--g200);
+    box-shadow:0 12px 40px rgba(27,35,48,.14);overflow:hidden;}
+  .status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11px;font-weight:700;color:var(--g900);}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;}
+  .nav .t{font-size:19px;font-weight:800;letter-spacing:-.4px;}
+  .kid{display:inline-flex;align-items:center;gap:5px;background:var(--g75);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--g600);}
+  .body{padding:0 16px 14px;display:flex;flex-direction:column;gap:14px;background:var(--g50);min-height:610px;}
+  .body.plain{background:#fff;}
+
+  .sec{font-size:13px;font-weight:800;color:var(--g900);letter-spacing:-.2px;margin:2px 0 -4px;display:flex;align-items:center;justify-content:space-between;}
+  .sec .more{font-size:11.5px;font-weight:600;color:var(--g400);}
+  .card{background:#fff;border:1px solid var(--g100);border-radius:16px;padding:14px;box-shadow:0 1px 3px rgba(27,35,48,.04);}
+  .card.flat{box-shadow:none;}
+  .mut{color:var(--g500);}
+  .xs{font-size:11px;} .sm{font-size:12px;} .md{font-size:13px;} .lg{font-size:15px;}
+  .b7{font-weight:700;} .b8{font-weight:800;}
+  .row{display:flex;align-items:center;gap:8px;}
+  .between{display:flex;align-items:center;justify-content:space-between;}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px;}
+  .c-purple{background:var(--purple-bg);color:var(--purple);}
+  .c-teal{background:var(--teal-bg);color:var(--teal);}
+  .c-orange{background:var(--orange-bg);color:var(--orange);}
+  .c-green{background:var(--green-bg);color:var(--green);}
+  .c-blue{background:var(--blue-bg);color:var(--blue);}
+  .c-gray{background:rgba(96,106,116,.06);color:#606A74;}
+  .btn{display:block;text-align:center;border-radius:10px;padding:10px;font-size:13px;font-weight:700;}
+  .btn-fill{background:var(--brand);color:#fff;}
+  .btn-line{background:#fff;border:1px solid var(--g200);color:var(--g600);}
+  .avatar{width:44px;height:44px;border-radius:999px;background:#FFE1B8;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;}
+  .avatar.sm{width:30px;height:30px;font-size:15px;}
+
+  /* hero */
+  .hero{border-radius:18px;padding:16px;color:#fff;background:linear-gradient(135deg,#31A4F7,#0981D7);box-shadow:0 6px 18px rgba(9,129,215,.28);}
+  .hero .dday{display:inline-block;background:rgba(255,255,255,.22);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:800;}
+  .hero .when{font-size:19px;font-weight:800;margin:9px 0 3px;letter-spacing:-.4px;}
+  .hero .what{font-size:12.5px;opacity:.92;line-height:1.55;}
+  .hero .cta{margin-top:12px;background:rgba(255,255,255,.18);border-radius:10px;padding:9px;text-align:center;font-size:12.5px;font-weight:700;}
+
+  /* 진행 스트립 */
+  .dots{display:flex;gap:5px;margin:9px 0 8px;}
+  .dots i{flex:1;height:7px;border-radius:99px;background:var(--g100);}
+  .dots i.on{background:var(--purple);}
+  .dots i.next{background:var(--purple);opacity:.32;}
+  .dots.teal i.on{background:var(--teal);}
+
+  /* 여정 트레일 */
+  .trail{position:relative;padding-left:26px;}
+  .trail::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--g100);}
+  .tp{position:relative;padding:8px 0;}
+  .tp::before{content:"";position:absolute;left:-22px;top:14px;width:11px;height:11px;border-radius:99px;background:var(--g300);border:2px solid #fff;}
+  .tp.done::before{background:var(--purple);}
+  .tp.asmt::before{background:var(--teal);border-radius:3px;}
+  .tp.mine::before{background:#fff;border:2px solid var(--orange);}
+  .tp.next::before{background:#fff;border:2px dashed var(--brand);}
+  .tp .lb{font-size:12.5px;font-weight:700;}
+  .tp .dt{font-size:11px;color:var(--g400);}
+  .tp.open{background:#fff;border:1px solid var(--g100);border-radius:14px;padding:12px;margin:6px 0;}
+
+  /* 나란히 보기 */
+  .side{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .side .col2{background:#fff;border:1px solid var(--g100);border-radius:14px;padding:12px;}
+  .side .hd{font-size:11px;font-weight:800;color:var(--g400);margin-bottom:8px;}
+  .side .q{font-size:12px;line-height:1.6;color:var(--g600);}
+  .note{font-size:11px;line-height:1.6;color:var(--g500);background:var(--g75);border-radius:10px;padding:9px 11px;}
+
+  .marker{position:relative;}
+  .marker::after{content:attr(data-m);position:absolute;right:-9px;top:-9px;background:#FF4545;color:#fff;
+    font-size:10px;font-weight:800;border-radius:7px;padding:2px 7px;box-shadow:0 2px 6px rgba(255,69,69,.4);white-space:nowrap;z-index:3;}
+
+  .tabbar{display:flex;border-top:1px solid var(--g100);background:#fff;padding:8px 0 16px;}
+  .tabbar div{flex:1;text-align:center;font-size:10px;color:var(--g400);}
+  .tabbar div.on{color:var(--brand);font-weight:800;}
+  .tabbar .ic{font-size:17px;display:block;margin-bottom:2px;filter:grayscale(1);opacity:.55;}
+  .tabbar div.on .ic{filter:none;opacity:1;}
+
+  .utabs{display:flex;gap:18px;border-bottom:1px solid var(--g100);padding:0 2px;margin-bottom:2px;}
+  .utabs div{font-size:14px;font-weight:700;color:var(--g400);padding:10px 0;}
+  .utabs div.on{color:var(--g900);box-shadow:inset 0 -2px 0 var(--g900);}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>케어보드 메인 · 개선 시안 v1</h1>
+  <p class="meta">내담자앱(mobile-client) · 초안 대비 3안 — 2026-08-21</p>
+
+  <div class="panel warn">
+    <h2><span class="tag">진단</span> 왜 내담자 상세처럼 보이는가 — 톤이 아니라 <b>축</b>의 문제</h2>
+    <ul class="diag">
+      <li><b>화면의 축이 "무슨 일이 있었나"</b> — 이벤트 시간 역순은 상담사가 이력을 훑는 축이다. 보호자의 질문은 "지금 어디쯤이고 이번 주에 뭘 하면 되나".</li>
+      <li><b>탭이 내부 도메인 구조</b> — 타임라인/상담/검사는 데이터 출처 구분이다. 보호자는 "상담"과 "검사"를 나눠 생각하지 않고 "우리 아이 치료" 하나로 본다.</li>
+      <li><b>요약이 사실의 재진술</b> — "12회 진행했어요"는 세어 준 것일 뿐 방향이 없다. 그런데 방향을 앱이 말하면 판정 금지에 걸린다(아래 가드레일).</li>
+      <li><b>프로필 카드가 차트 헤더</b> — 생년월일·성별은 내 아이 화면에서 부모가 확인할 일이 없는 값이다. 신원 확인용 = 직원 화면의 요구.</li>
+      <li><b>타임라인이 화면의 80%</b> — 가장 최근 1건이 가장 위·가장 크다. 부모에겐 최신 1건보다 "이 묶음이 어디까지 왔나"가 크다.</li>
+      <li><b>다음에 할 일이 없다</b> — 다음 회기·이번 주 해볼 것이 화면에 없어서, 보고 나서 할 수 있는 행동이 없다(읽고 끝나는 화면).</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2><span class="tag">가드레일</span> "어떻게 되어가고 있지"를 <b>앱이 판정하지 않고</b> 답하는 법</h2>
+    <div class="guard">
+      <div class="gr"><b>§7-2 판정 금지</b>"좋아지고 있어요"·성장 화살표·감정 추이 그래프 전부 금지. 거짓 안심이 최악이라는 원칙. 그래서 <b>앱은 재료만 놓고, 해석은 부모·선생님의 몫</b>으로 남긴다.</div>
+      <div class="gr"><b>G1 — AI 요약 카드는 재검토 필요</b>초안의 "선생님의 기록을 바탕으로 AI가 정리"는 상담일지 원문·AI 분석 비노출 게이트와 충돌한다. 재료를 <b>진행 내역 + 공유 플래그가 붙은 것 + 보호자 기록</b>으로 한정해야 살아남는다.</div>
+      <div class="gr"><b>쓸 수 있는 재료 3가지</b>① 진행의 위치(4/12회기·다음 회기 = 사실) ② 선생님이 <b>공유하기로 표시한 말</b>(사람의 발화라 판정 아님) ③ <b>보호자 자신의 기록</b> — ③은 내담자 상세엔 아예 없는 축이라 여기가 차별점.</div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><i class="dot-ok"></i> 지금 API로 바로 됨</span>
+  <span><i class="dot-need"></i> 서버 계약 신설 필요</span>
+  <span><i class="dot-block"></i> 게이트 충돌 — 설계 판단 먼저</span>
+</div>
+
+<div class="rail">
+
+  <!-- ══════════ 0. 현행 초안 ══════════ -->
+  <div class="col">
+    <div class="cap">
+      <span class="pill pill-now">현행 초안</span>
+      <h2>프로필 + 요약 + 3탭 타임라인</h2>
+      <p>구조가 웹 내담자 상세와 같다 — 신원 헤더 → 요약 → 도메인 탭 → 이벤트 역순 목록.</p>
+    </div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮ ▮</span></div>
+      <div class="nav"><span class="t">케어보드</span></div>
+      <div class="body plain" style="gap:12px;">
+        <div class="marker" data-m="차트 헤더" style="background:#FDF1F8;border-radius:16px;padding:16px;">
+          <div style="text-align:center;">
+            <div class="avatar" style="margin:0 auto 8px;">🧒</div>
+            <div class="lg b8">김은서</div>
+            <div class="sm mut" style="margin-top:3px;">2012. 12. 12 (만 12세) · 여</div>
+          </div>
+          <div style="border-top:1px solid #F0DCE8;margin:12px 0;"></div>
+          <div class="marker" data-m="G1 충돌">
+            <div class="sm b8" style="color:var(--purple);">✦ 은서의 최근 요약</div>
+            <div class="sm" style="line-height:1.65;margin-top:7px;">은서는 최근 3개월간 놀이·언어치료를 12회 진행했어요. 요즘 회기에서는 감정 표현과 순서 지키기를 주로 연습하고 있어요.</div>
+            <div class="row" style="gap:5px;margin-top:10px;flex-wrap:wrap;">
+              <span class="chip c-blue">ADHD</span><span class="chip c-purple">놀이치료</span>
+              <span class="chip c-teal">언어치료</span><span class="chip c-teal">언어치료</span>
+            </div>
+            <div class="xs mut" style="margin-top:9px;">ⓘ 선생님의 기록과 진행 내역을 바탕으로 AI가 정리한 내용</div>
+          </div>
+        </div>
+        <div class="marker" data-m="도메인 축">
+          <div class="utabs"><div class="on">타임라인</div><div>상담</div><div>검사</div></div>
+        </div>
+        <div class="sm b7">2026년 <span class="mut">▾</span></div>
+        <div class="marker" data-m="화면의 80%">
+        <div class="trail" style="padding-left:20px;">
+          <div class="tp done"><div class="between"><div><span class="sm b7">8월 20일 (금)</span></div><span class="mut">›</span></div>
+            <div class="row" style="margin:5px 0 4px;"><span class="chip c-purple">놀이치료-개인 4회기</span></div>
+            <div class="xs mut">어린이마래팍센터 · 김선영 상담사</div>
+            <div class="sm" style="margin-top:6px;line-height:1.6;color:var(--g600);">회기 요약 내용이 들어가는 영역입니다. 회기 요약 내용이 들어가는 영역입니다.</div></div>
+          <div class="tp asmt"><div class="between"><div><span class="sm b7">7월 20일 (금)</span></div><span class="mut">›</span></div>
+            <div class="row" style="margin:5px 0 4px;"><span class="chip c-teal">풀배터리 검사</span><span class="chip c-gray">세트</span></div>
+            <div class="xs mut">어린이마래팍센터 · 김선영 상담사</div>
+            <div class="sm" style="margin-top:6px;line-height:1.6;color:var(--g600);">스마트폰중독검사, 스마트바디체커, HTP 외 6건의 검사 진행</div></div>
+          <div class="tp done"><div class="between"><div><span class="sm b7">6월 20일 (금)</span></div><span class="mut">›</span></div>
+            <div class="row" style="margin:5px 0 4px;"><span class="chip c-purple">놀이치료-개인 3회기</span></div>
+            <div class="xs mut">어린이마래팍센터 · 김선영 상담사</div></div>
+        </div>
+        </div>
+      </div>
+      <div class="tabbar"><div><span class="ic">🏠</span>홈</div><div><span class="ic">📅</span>일정</div><div><span class="ic">📄</span>기록</div><div class="on"><span class="ic">🧸</span>케어보드</div><div><span class="ic">👤</span>마이</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ A ══════════ -->
+  <div class="col">
+    <div class="cap">
+      <span class="pill pill-a">A안</span>
+      <h2>다음 한 걸음</h2>
+      <p>시간 역순 → <b>행동 순서</b>로 축을 바꾼다. 다음 회기 → 이번 주 해볼 것 → 어디쯤 왔나 → (접힌) 지나온 기록.
+      탭 3개를 없애고, 상담·검사를 "여정" 한 덩어리로 합친다.</p>
+      <span class="rec">가장 구현이 가깝다</span>
+    </div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮ ▮</span></div>
+      <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="avatar sm">🧒</span>은서 ▾</span></div>
+      <div class="body">
+        <div class="hero">
+          <span class="dday">D-3 · 다음 상담</span>
+          <div class="when">8월 23일 (금) 오후 4:00</div>
+          <div class="what">놀이치료-개인 5회기 · 김선영 선생님<br/>어린이마래팍센터 · 2층 놀이실</div>
+          <div class="cta">일정 자세히 보기</div>
+        </div>
+
+        <div class="sec">선생님이 함께 해보자고 한 것</div>
+        <div class="card">
+          <div class="row" style="align-items:flex-start;">
+            <span style="font-size:15px;">✦</span>
+            <div>
+              <div class="md b8">순서 지키기 놀이</div>
+              <div class="sm" style="line-height:1.65;color:var(--g600);margin-top:5px;">“집에서 보드게임 한 판씩, 차례를 기다리는 연습을 해보시면 좋겠어요.”</div>
+              <div class="xs mut" style="margin-top:8px;">4회기(8/20)에서 · 김선영 선생님이 공유</div>
+            </div>
+          </div>
+        </div>
+        <div class="note">비어 있을 때 → “아직 선생님이 공유한 내용이 없어요. 회기가 끝나고 남기면 여기에 보여드릴게요.”</div>
+
+        <div class="sec">지금 어디쯤 왔나 <span class="more">전체 ›</span></div>
+        <div class="card">
+          <div class="between"><span class="chip c-purple">놀이치료-개인</span><span class="sm b8" style="color:var(--purple);">4 / 12회기</span></div>
+          <div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="next"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="xs mut">5월 12일 시작 · 김선영 선생님 · 바우처 8회 남음</div>
+        </div>
+        <div class="card">
+          <div class="between"><span class="chip c-teal">풀배터리 검사</span><span class="chip c-green">결과지 도착</span></div>
+          <div class="dots teal"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          <div class="between"><span class="xs mut">6종 모두 완료 · 8월 2일</span><span class="xs b7" style="color:var(--brand);">결과지 열기 ›</span></div>
+        </div>
+
+        <div class="card flat" style="background:transparent;border:1px dashed var(--g200);text-align:center;padding:13px;">
+          <span class="sm b7 mut">지나온 기록 12건 펼치기 ▾</span>
+        </div>
+      </div>
+      <div class="tabbar"><div><span class="ic">🏠</span>홈</div><div><span class="ic">📅</span>일정</div><div><span class="ic">📄</span>기록</div><div class="on"><span class="ic">🧸</span>케어보드</div><div><span class="ic">👤</span>마이</div></div>
+    </div>
+    <div class="needs">
+      <b>필요한 것</b>
+      <i style="background:var(--green)"></i>다음 회기·진행 4/12·검사 상태·결과지 — <code>/app/profiles/{id}/progress</code>로 지금 된다<br/>
+      <i style="background:var(--green)"></i>바우처 잔여 — <code>/app/client-vouchers</code><br/>
+      <i style="background:var(--orange)"></i><b>"선생님이 공유한 것"</b> — 웹에서 상담사가 공유 표시하는 작성 표면이 선행(설계 07-16 ③ 이월). 이 카드가 A안의 심장이라 여기부터 뚫어야 한다
+    </div>
+  </div>
+
+  <!-- ══════════ B ══════════ -->
+  <div class="col">
+    <div class="cap">
+      <span class="pill pill-b">B안</span>
+      <h2>여정 지도</h2>
+      <p>진행 자체를 히어로로 올린다. 상담 회기·검사·내 기록이 <b>한 축</b>에 점으로 얹혀서, 스크롤 없이 "여기까지 왔고 다음은 저기"가 한 눈에 들어온다.
+      회기 점을 누르면 그 자리에서 카드가 펼쳐져 타임라인 탭이 흡수된다.</p>
+      <span class="rec">차별화가 가장 크다</span>
+    </div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮ ▮</span></div>
+      <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="avatar sm">🧒</span>은서 ▾</span></div>
+      <div class="body">
+        <div class="card" style="padding:16px;">
+          <div class="between" style="margin-bottom:12px;">
+            <span class="md b8">은서의 여정</span>
+            <span class="xs mut">5월 12일 시작 · 3개월째</span>
+          </div>
+          <div class="row" style="gap:12px;margin-bottom:12px;">
+            <div style="flex:1;">
+              <div class="between"><span class="xs b7" style="color:var(--purple);">놀이치료</span><span class="xs b8" style="color:var(--purple);">4/12</span></div>
+              <div class="dots" style="margin:6px 0 0;"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="next"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div style="flex:.6;">
+              <div class="between"><span class="xs b7" style="color:var(--teal);">언어치료</span><span class="xs b8" style="color:var(--teal);">2/8</span></div>
+              <div class="dots teal" style="margin:6px 0 0;"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="row" style="gap:6px;flex-wrap:wrap;">
+            <span class="chip c-green">검사 결과지 1건 도착</span>
+            <span class="chip c-orange">내가 남긴 기록 7</span>
+          </div>
+        </div>
+
+        <div class="trail">
+          <div class="tp next">
+            <div class="between"><span class="lb" style="color:var(--brand);">다음 · 놀이치료 5회기</span><span class="chip c-blue">D-3</span></div>
+            <div class="dt">8월 23일 (금) 오후 4:00 · 김선영 선생님</div>
+          </div>
+
+          <div class="tp done open">
+            <div class="between"><span class="lb">놀이치료 4회기</span><span class="chip c-green">출석</span></div>
+            <div class="dt" style="margin-bottom:9px;">8월 20일 (금) · 김선영 선생님</div>
+            <div style="background:var(--g50);border-radius:11px;padding:11px;">
+              <div class="xs b8 mut" style="margin-bottom:5px;">선생님이 공유한 내용</div>
+              <div class="sm" style="line-height:1.65;color:var(--g600);">“블록 쌓기 놀이를 했어요. 이전보다 놀이에 적극적으로 참여했고, 집에서는 순서 지키기를 한 번 해보시면 좋겠어요.”</div>
+            </div>
+          </div>
+
+          <div class="tp mine">
+            <div class="lb">내가 남긴 기록 · 웃음</div>
+            <div class="dt">8월 19일 (화) · “놀이터에서 먼저 친구한테 말을 걸었다”</div>
+          </div>
+
+          <div class="tp asmt">
+            <div class="between"><span class="lb">풀배터리 검사</span><span class="chip c-green">결과지</span></div>
+            <div class="dt">8월 2일 · 6종 완료</div>
+          </div>
+
+          <div class="tp done">
+            <div class="lb">놀이치료 3회기</div>
+            <div class="dt">6월 20일 (금) · 출석</div>
+          </div>
+        </div>
+        <div class="note">점 색이 곧 범례다 — <b style="color:var(--purple)">●</b> 상담 회기 · <b style="color:var(--teal)">■</b> 검사 · <b style="color:var(--orange)">○</b> 내 기록 · <b style="color:var(--brand)">◌</b> 예정</div>
+      </div>
+      <div class="tabbar"><div><span class="ic">🏠</span>홈</div><div><span class="ic">📅</span>일정</div><div><span class="ic">📄</span>기록</div><div class="on"><span class="ic">🧸</span>케어보드</div><div><span class="ic">👤</span>마이</div></div>
+    </div>
+    <div class="needs">
+      <b>필요한 것</b>
+      <i style="background:var(--green)"></i>회기 점·검사 점·다음 회기 — progress API 조합으로 된다<br/>
+      <i style="background:var(--green)"></i>내 기록 점 — <code>ledger_entries</code>(이미 앱 자산)<br/>
+      <i style="background:var(--orange)"></i>세 출처를 한 시간축으로 합치는 <b>통합 피드 응답</b>(클라 병합으로 시작 가능)<br/>
+      <i style="background:var(--orange)"></i>회기 카드 안의 공유 문구 — A안과 같은 선행 조건
+    </div>
+  </div>
+
+  <!-- ══════════ C ══════════ -->
+  <div class="col">
+    <div class="cap">
+      <span class="pill pill-c">C안</span>
+      <h2>그때와 지금</h2>
+      <p>"어떻게 되어가고 있지"에 가장 정면으로 답하는 안. 앱은 <b>두 시점을 나란히 놓기만</b> 하고 화살표를 긋지 않는다 —
+      판정은 부모가 한다. 재료의 절반이 부모 자신의 기록이라 내담자 상세와는 완전히 다른 화면이 된다.</p>
+      <span class="rec">감정적 임팩트 최대 · 원칙 리스크도 최대</span>
+    </div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮ ▮</span></div>
+      <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="avatar sm">🧒</span>은서 ▾</span></div>
+      <div class="body">
+        <div class="card" style="padding:16px;">
+          <div class="md b8">은서와 함께한 3개월</div>
+          <div class="sm mut" style="margin-top:5px;line-height:1.6;">5월 12일에 시작해서 오늘까지 상담 12회, 검사 1건. 내가 남긴 기록은 7개예요.</div>
+          <div class="row" style="gap:5px;margin-top:11px;flex-wrap:wrap;">
+            <span class="chip c-purple">놀이치료</span><span class="chip c-teal">언어치료</span><span class="chip c-gray">풀배터리</span>
+          </div>
+        </div>
+
+        <div class="sec">나란히 보기 <span class="more">시점 바꾸기 ›</span></div>
+        <div class="side">
+          <div class="col2">
+            <div class="hd">5월 · 시작 무렵</div>
+            <div class="row" style="margin-bottom:8px;"><span class="chip c-purple">1회기</span></div>
+            <div class="q">“말을 걸면 등을 돌리고 방으로 들어가 버린다.”</div>
+            <div class="xs mut" style="margin-top:9px;">5월 14일 · 내 기록</div>
+          </div>
+          <div class="col2" style="border-color:var(--brand-50);background:linear-gradient(180deg,#F7FBFF,#fff);">
+            <div class="hd" style="color:var(--brand-600);">지금 · 8월</div>
+            <div class="row" style="margin-bottom:8px;"><span class="chip c-purple">4회기</span></div>
+            <div class="q">“놀이터에서 먼저 친구한테 말을 걸었다.”</div>
+            <div class="xs mut" style="margin-top:9px;">8월 19일 · 내 기록</div>
+          </div>
+        </div>
+        <div class="note">ⓘ 두 시점을 나란히 놓아 드릴 뿐, 앱은 좋아졌다·나빠졌다를 말하지 않아요. 비교할 시점은 직접 고를 수 있어요.</div>
+
+        <div class="sec">이번 주</div>
+        <div class="card">
+          <div class="between">
+            <div><div class="md b8">놀이치료 5회기</div><div class="xs mut" style="margin-top:4px;">8월 23일 (금) 오후 4:00 · 김선영 선생님</div></div>
+            <span class="chip c-blue">D-3</span>
+          </div>
+          <div style="border-top:1px solid var(--g100);margin:12px 0;"></div>
+          <div class="xs b8 mut" style="margin-bottom:5px;">선생님이 함께 해보자고 한 것</div>
+          <div class="sm" style="line-height:1.6;color:var(--g600);">보드게임 한 판씩, 차례를 기다리는 연습</div>
+        </div>
+
+        <div class="row" style="gap:9px;">
+          <div class="btn btn-line" style="flex:1;">지나온 기록 ›</div>
+          <div class="btn btn-fill" style="flex:1;">오늘 기록 남기기</div>
+        </div>
+      </div>
+      <div class="tabbar"><div><span class="ic">🏠</span>홈</div><div><span class="ic">📅</span>일정</div><div><span class="ic">📄</span>기록</div><div class="on"><span class="ic">🧸</span>케어보드</div><div><span class="ic">👤</span>마이</div></div>
+    </div>
+    <div class="needs">
+      <b>필요한 것 · 주의</b>
+      <i style="background:var(--green)"></i>양쪽 카드 재료 = <code>ledger_entries</code> + progress — 데이터는 이미 있다<br/>
+      <i style="background:var(--red,#FF4545)"></i><b>두 시점을 앱이 자동으로 고르면 안 된다</b> — 고르는 순간 "이게 변화다"라는 판정이 된다. 부모가 고르거나, 첫 기록/최근 기록처럼 규칙이 자명해야 한다<br/>
+      <i style="background:var(--red,#FF4545)"></i>기록이 1개뿐이거나 힘든 날만 쌓인 부모에게 이 화면이 어떻게 읽히는지 — 빈/역방향 상태 설계가 필수
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

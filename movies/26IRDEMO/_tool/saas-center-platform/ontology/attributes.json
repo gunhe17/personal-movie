@@ -1,0 +1,517 @@
+{
+  "meta": {
+    "measured_at": "2026-08-12",
+    "class_legend": {
+      "core": "코어 — 본질 정체성 (변환 안 됨)",
+      "record": "역할 기록 — 기관 소유",
+      "variable": "가변 연락·표시",
+      "system": "테넌시·시스템",
+      "record?": "온톨로지 미등재 — 역할기록 후보"
+    }
+  },
+  "concepts": {
+    "person": {
+      "attributes": [
+        {
+          "onto": "이름",
+          "class": "core",
+          "column": "name",
+          "type": "String(100)",
+          "nullable": false
+        },
+        {
+          "onto": "생년월일",
+          "class": "core",
+          "column": "birth",
+          "type": "Date",
+          "nullable": true
+        },
+        {
+          "onto": "성별",
+          "class": "core",
+          "column": "gender",
+          "type": "String(10)",
+          "nullable": true,
+          "note": "male|female"
+        },
+        {
+          "onto": "전화",
+          "class": "core",
+          "column": "phone",
+          "type": "String(20)",
+          "nullable": false
+        },
+        {
+          "onto": "계정 연결",
+          "class": "record",
+          "column": "account_id",
+          "type": "String(36)",
+          "nullable": false,
+          "note": "계정당 활성 person 정확히 1 (partial unique)"
+        },
+        {
+          "onto": "(미분류)",
+          "class": "record?",
+          "column": "is_certified",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "본인인증 여부 — 온톨로지 미등재"
+        }
+      ],
+      "states": {
+        "field": null,
+        "values": [],
+        "note": "상태 컬럼 없음 — 수명주기는 soft delete뿐"
+      },
+      "cardinality": [
+        {
+          "to": "account",
+          "rel": "person 0..1 — 1 account",
+          "evidence": "account_id NOT NULL + 활성 유니크"
+        },
+        {
+          "to": "subject",
+          "rel": "person 1 — 0..N clients",
+          "evidence": "여러 센터에 각각 client 레코드 가능"
+        },
+        {
+          "to": "staff",
+          "rel": "person 1 — 0..N members",
+          "evidence": "센터마다 멤버십 1행"
+        }
+      ],
+      "birth": [
+        "POST /auth/signup (직원 가입)",
+        "POST /app/auth/signup (내담자 앱 가입)",
+        "POST /persons (플랫폼 운영자 전용)"
+      ]
+    },
+    "subject": {
+      "attributes": [
+        {
+          "onto": "이름",
+          "class": "core",
+          "column": "name",
+          "type": "String(100)",
+          "nullable": false
+        },
+        {
+          "onto": "생년월일",
+          "class": "core",
+          "column": "birth_date",
+          "type": "Date",
+          "nullable": true
+        },
+        {
+          "onto": "성별",
+          "class": "core",
+          "column": "gender",
+          "type": "String(10)",
+          "nullable": true
+        },
+        {
+          "onto": "전화",
+          "class": "core",
+          "column": "phone",
+          "type": "String(20)",
+          "nullable": true
+        },
+        {
+          "onto": "역할",
+          "class": "record",
+          "column": "role",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "client|guardian|both — 관계의 요약 캐시 (D3)"
+        },
+        {
+          "onto": "상태",
+          "class": "record",
+          "column": "status",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "active → inactive → archived"
+        },
+        {
+          "onto": "식별 코드",
+          "class": "record",
+          "column": "code",
+          "type": "String(6)",
+          "nullable": false,
+          "note": "서버 자동생성, 센터 내 유일"
+        },
+        {
+          "onto": "사람 연결",
+          "class": "record",
+          "column": "person_id",
+          "type": "String(36)",
+          "nullable": true,
+          "note": "앱 연동 시에만 — 계정 없이 존재가 기본값"
+        },
+        {
+          "onto": "이메일",
+          "class": "variable",
+          "column": "email",
+          "type": "String(100)",
+          "nullable": true
+        },
+        {
+          "onto": "주소",
+          "class": "variable",
+          "column": "address",
+          "type": "String(500)",
+          "nullable": true
+        },
+        {
+          "onto": "(미분류)",
+          "class": "record?",
+          "column": "memo",
+          "type": "String(2000)",
+          "nullable": true,
+          "note": "자유 메모 — 역할기록 후보"
+        },
+        {
+          "onto": "(미분류)",
+          "class": "record?",
+          "column": "profile_image_url",
+          "type": "String(500)",
+          "nullable": true,
+          "note": "미지정 시 기본 아바타 자동"
+        }
+      ],
+      "states": {
+        "field": "status",
+        "values": [
+          "active",
+          "inactive",
+          "archived"
+        ],
+        "note": "active(활성) → inactive(상담 종료) → archived(6개월+ 장기 미방문, inactive에서만). 복원은 activate. 전이 위반 시 서비스가 거부"
+      },
+      "cardinality": [
+        {
+          "to": "person",
+          "rel": "client N — 0..1 person",
+          "evidence": "person_id nullable — 연동 선택"
+        },
+        {
+          "to": "org",
+          "rel": "client N — 1 center",
+          "evidence": "center_id NOT NULL"
+        },
+        {
+          "to": "guardianRel",
+          "rel": "client 1 — 0..N relations",
+          "evidence": "양방향 각 1행"
+        }
+      ],
+      "birth": [
+        "POST /clients (단건)",
+        "POST /clients/batch (가구 — 보호자+관계 자동)",
+        "POST /clients/import-from-excel (엑셀 — 보호자 열 동반)"
+      ]
+    },
+    "guardianRel": {
+      "attributes": [
+        {
+          "onto": "관계 유형",
+          "class": "record",
+          "column": "relation_type",
+          "type": "String(20)",
+          "nullable": false,
+          "note": "guardian|child — 방향 표기"
+        },
+        {
+          "onto": "관계 상세",
+          "class": "record",
+          "column": "relation_detail",
+          "type": "String(50)",
+          "nullable": true,
+          "note": "10종: mother·father·grandmother·grandfather·aunt·uncle·social_worker·foster_parent·legal_guardian·caregiver"
+        },
+        {
+          "onto": "주 보호자",
+          "class": "record",
+          "column": "is_primary",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "주 보호자 관계는 단독 삭제 가드"
+        },
+        {
+          "onto": "주체·상대",
+          "class": "record",
+          "column": "client_id · related_client_id",
+          "type": "String(36)",
+          "nullable": false
+        },
+        {
+          "onto": "형제 상세",
+          "class": "record",
+          "column": "sibling_relations.relation_detail",
+          "type": "String(50)",
+          "nullable": true,
+          "note": "5종 + 역방향 자동 반전(older_brother↔younger_brother)"
+        }
+      ],
+      "states": {
+        "field": "relation_type",
+        "values": [
+          "guardian",
+          "child"
+        ],
+        "note": "전이 없음 — 생성/삭제만. 생성 시 항상 방향쌍 2행 자동(guardian + 역방향 child)"
+      },
+      "cardinality": [
+        {
+          "to": "subject",
+          "rel": "relation N — 1 client (양끝)",
+          "evidence": "자기참조·중복 금지는 서비스 검증 (DB 유니크 없음)"
+        },
+        {
+          "to": "subject",
+          "rel": "client 1 — 0..1 주 보호자",
+          "evidence": "find_primary_guardian — 부재 허용"
+        }
+      ],
+      "birth": [
+        "POST /clients/{id}/relations",
+        "POST /clients/batch 내부 자동",
+        "엑셀 import 내부 자동",
+        "PUT /clients/{id}/with-relations"
+      ]
+    },
+    "staff": {
+      "attributes": [
+        {
+          "onto": "이름·생년·전화",
+          "class": "core",
+          "column": "(person 위임)",
+          "type": "—",
+          "nullable": null,
+          "note": "members에 이름 컬럼이 없다 — person_id → persons가 정본"
+        },
+        {
+          "onto": "사람 연결",
+          "class": "core",
+          "column": "person_id",
+          "type": "String(36)",
+          "nullable": false
+        },
+        {
+          "onto": "역할",
+          "class": "record",
+          "column": "role_id",
+          "type": "String(36)",
+          "nullable": false,
+          "note": "권한은 Role에서 동적 조회"
+        },
+        {
+          "onto": "고용 형태",
+          "class": "record",
+          "column": "employment_type",
+          "type": "String(20)",
+          "nullable": true,
+          "note": "FULLTIME|CONTRACT|FREELANCER (스키마 강제)"
+        },
+        {
+          "onto": "입사일",
+          "class": "record",
+          "column": "hire_date",
+          "type": "Date",
+          "nullable": true
+        },
+        {
+          "onto": "상태",
+          "class": "record",
+          "column": "status",
+          "type": "String(20)",
+          "nullable": false
+        },
+        {
+          "onto": "(미분류)",
+          "class": "record?",
+          "column": "color",
+          "type": "String(7)",
+          "nullable": true,
+          "note": "캘린더 표시색 — 초대 수락 시 자동 배정"
+        },
+        {
+          "onto": "(미분류)",
+          "class": "record?",
+          "column": "careers·educations·certifications",
+          "type": "JSONB",
+          "nullable": true,
+          "note": "경력·학력·자격 — 역할기록 후보"
+        }
+      ],
+      "states": {
+        "field": "status",
+        "values": [
+          "active",
+          "inactive"
+        ],
+        "note": "active↔inactive만 (퇴사·휴직). 전이 위반 시 거부"
+      },
+      "cardinality": [
+        {
+          "to": "person",
+          "rel": "member N — 1 person",
+          "evidence": "한 person이 여러 센터 멤버 가능"
+        },
+        {
+          "to": "org",
+          "rel": "member N — 1 center",
+          "evidence": "center_id NOT NULL"
+        }
+      ],
+      "birth": [
+        "POST /invitations/{id}/accept (초대 수락 — 유일한 일반 경로)",
+        "센터 신청 승인 시 관리자 멤버 자동 생성"
+      ]
+    },
+    "org": {
+      "attributes": [
+        {
+          "onto": "이름",
+          "class": "core",
+          "column": "name",
+          "type": "String(100)",
+          "nullable": false
+        },
+        {
+          "onto": "유형 (프로필 포인터)",
+          "class": "core",
+          "column": "(미구현 — center_type 없음)",
+          "type": "—",
+          "nullable": null,
+          "note": "D6 구현 대기 — 프로필 체계의 접점이 아직 스키마에 없다"
+        },
+        {
+          "onto": "사업자등록번호",
+          "class": "core",
+          "column": "business_registration_number",
+          "type": "String(12)",
+          "nullable": true
+        },
+        {
+          "onto": "식별 코드",
+          "class": "record",
+          "column": "code",
+          "type": "String(6)",
+          "nullable": false,
+          "note": "전역 유일 (clients.code와 달리 센터 스코프 아님)"
+        },
+        {
+          "onto": "연락처",
+          "class": "variable",
+          "column": "phone",
+          "type": "String(20)",
+          "nullable": true
+        },
+        {
+          "onto": "주소",
+          "class": "variable",
+          "column": "address",
+          "type": "JSONB",
+          "nullable": true
+        },
+        {
+          "onto": "상태",
+          "class": "record",
+          "column": "is_active",
+          "type": "Boolean",
+          "nullable": false,
+          "note": "enum 없이 bool + deleted_at 조합"
+        }
+      ],
+      "states": {
+        "field": "is_active + deleted_at",
+        "values": [
+          "active",
+          "suspended (is_active=false)",
+          "terminated (+ soft delete)"
+        ],
+        "note": "상태 컬럼 없이 2필드 조합 — suspend/activate/terminate/restore 서비스"
+      },
+      "cardinality": [
+        {
+          "to": "subject",
+          "rel": "center 1 — 0..N clients",
+          "evidence": ""
+        },
+        {
+          "to": "staff",
+          "rel": "center 1 — 0..N members",
+          "evidence": ""
+        }
+      ],
+      "birth": [
+        "센터 개설 신청 승인 (관리자 멤버 동시 생성)",
+        "플랫폼 운영자 직접 생성"
+      ]
+    },
+    "extInst": {
+      "attributes": [
+        {
+          "onto": "이름",
+          "class": "core",
+          "column": "name",
+          "type": "String(100)",
+          "nullable": false
+        },
+        {
+          "onto": "종류",
+          "class": "core",
+          "column": "(없음)",
+          "type": "—",
+          "nullable": null,
+          "note": "D5 요건 미달 — 학교/병원 구분 컬럼 부재"
+        },
+        {
+          "onto": "공적 코드",
+          "class": "core",
+          "column": "(없음)",
+          "type": "—",
+          "nullable": null,
+          "note": "D5 요건 미달 — 고유함의 정본이 스키마에 없다"
+        },
+        {
+          "onto": "연락처",
+          "class": "variable",
+          "column": "phone",
+          "type": "String(20)",
+          "nullable": true
+        },
+        {
+          "onto": "주소",
+          "class": "variable",
+          "column": "address",
+          "type": "JSONB",
+          "nullable": true
+        }
+      ],
+      "states": {
+        "field": null,
+        "values": [],
+        "note": "상태 없음 — 3컬럼 전역 테이블. 7개념 중 유일하게 center_id 없음"
+      },
+      "cardinality": [
+        {
+          "to": "subject",
+          "rel": "참조·의뢰 (설계상)",
+          "evidence": "실제로는 institution_id 마커 0건 — JSONB 스냅샷으로만 소비되는 고립 노드"
+        }
+      ],
+      "birth": [
+        "POST /institutions/ — 로그인만으로 생성 가능 (멤버십 검사 없음)"
+      ]
+    },
+    "orgUnit": {
+      "attributes": [],
+      "states": null,
+      "cardinality": [],
+      "birth": [],
+      "note": "대응 테이블 없음 — 조직 분화는 member.role_id로만. D7 구현 대기"
+    }
+  }
+}

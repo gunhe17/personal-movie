@@ -1,0 +1,67 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_git_guard.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_web_design_read.py'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_web_design_read.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_application_shared_file.py'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fp=$(jq -r '.tool_input.file_path // empty'); case \"$fp\" in *apps/api/scripts/seed/*README.md) ;; *apps/api/scripts/seed/*) printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"시드 파일 수정됨 — scripts/seed/README.md 데이터 표를 코드와 일치시켰는지 확인 (.claude/rules/api/seed.md 동기화 불변식).\"}}' ;; esac; exit 0"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_cross_module_import.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_param_explosion.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_agent_form_tools_sync.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_router_registration.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_skill_frontmatter.py'"
+          },
+          {
+            "type": "command",
+            "command": "python3 '/Users/insighter/project/imomtae/saas-center-platform/.codex/hooks/check_web_design_spec.py'"
+          }
+        ]
+      }
+    ]
+  }
+}

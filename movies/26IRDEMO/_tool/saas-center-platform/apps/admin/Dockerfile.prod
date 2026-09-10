@@ -1,0 +1,72 @@
+# Build context: monorepo root (pnpm-lock.yaml is at root)
+# Usage: docker build -f apps/admin/Dockerfile.prod -t saas-admin .
+
+# ============================================
+# Stage 1: Dependencies
+# ============================================
+FROM node:22-alpine AS deps
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app
+
+# Copy workspace config and lockfile from monorepo root
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/admin/package.json ./apps/admin/
+
+# Install all dependencies (only admin workspace)
+RUN pnpm install --frozen-lockfile --filter admin
+
+# Extract production dependencies as flat node_modules (no symlinks)
+RUN pnpm deploy --filter admin --prod /app/prod_deps
+
+# ============================================
+# Stage 2: Build
+# ============================================
+FROM node:22-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app
+
+# Copy installed node_modules
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/admin/node_modules ./apps/admin/node_modules
+
+# Copy admin app source
+COPY apps/admin/ ./apps/admin/
+
+# Copy root config needed for build
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+
+WORKDIR /app/apps/admin
+
+# Build SvelteKit app (adapter-node outputs to build/)
+RUN pnpm build
+
+# ============================================
+# Stage 3: Runtime
+# ============================================
+FROM node:22-alpine
+
+# Non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Copy build output and production deps with correct ownership (no chown -R needed)
+COPY --chown=appuser:appgroup --from=builder /app/apps/admin/build ./build
+COPY --chown=appuser:appgroup --from=builder /app/apps/admin/package.json ./
+COPY --chown=appuser:appgroup --from=deps /app/prod_deps/node_modules ./node_modules
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+USER appuser
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget -qO- http://localhost:3001/healthz || exit 1
+
+CMD ["node", "build/index.js"]

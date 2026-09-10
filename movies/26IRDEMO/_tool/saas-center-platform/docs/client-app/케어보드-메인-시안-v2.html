@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>케어보드 6축 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   보드 = 도면 세트. 괘선과 활자가 위계를 만든다.
+   라운드·그림자는 폰 목업(실물)에만 쓴다.
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --board:#D5DCD4;
+  --paper:#F6F7F3;
+  --field:#ECEFE8;
+  --rule:#BFC8BE;
+  --rule-2:#8D9A8C;
+  --ink:#171C18;
+  --ink-2:#454F47;
+  --ink-3:#6E7A70;
+  --ink-4:#98A399;
+  --stamp:#A8332A;
+  --stamp-wash:#F1E2E0;
+  --pen:#1F4E79;
+  --pen-wash:#E3EAF1;
+  --drop:0 10px 26px -10px rgba(23,28,24,.42), 0 2px 5px rgba(23,28,24,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --board:#0F1312;
+    --paper:#1A1F1D;
+    --field:#202623;
+    --rule:#2D3531;
+    --rule-2:#4B564F;
+    --ink:#E6EBE5;
+    --ink-2:#B2BDB3;
+    --ink-3:#838F85;
+    --ink-4:#5E6A62;
+    --stamp:#E2786D;
+    --stamp-wash:#2A1B19;
+    --pen:#8FBAE2;
+    --pen-wash:#152029;
+    --drop:0 10px 26px -10px rgba(0,0,0,.85), 0 2px 5px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --board:#0F1312;
+  --paper:#1A1F1D;
+  --field:#202623;
+  --rule:#2D3531;
+  --rule-2:#4B564F;
+  --ink:#E6EBE5;
+  --ink-2:#B2BDB3;
+  --ink-3:#838F85;
+  --ink-4:#5E6A62;
+  --stamp:#E2786D;
+  --stamp-wash:#2A1B19;
+  --pen:#8FBAE2;
+  --pen-wash:#152029;
+  --drop:0 10px 26px -10px rgba(0,0,0,.85), 0 2px 5px rgba(0,0,0,.6);
+}
+
+/* 앱 토큰 미러 — 목업은 기기 스크린샷이라 테마와 무관하게 라이트 고정 */
+:root{
+  --a-brand:#31A4F7; --a-brand-600:#0981D7; --a-brand-50:#ECF6FE; --a-brand-300:#8FCEFB;
+  --a-g0:#FFFFFF; --a-g50:#F5F7F8; --a-g75:#F0F3F5; --a-g100:#E9EEF0; --a-g200:#E3EAEF;
+  --a-g300:#D1D5DB; --a-g400:#AAB2BE; --a-g500:#696F78; --a-g600:#414C58; --a-g900:#12161B;
+  --a-purple:#7C4DFF; --a-purple-bg:rgba(124,77,255,.07);
+  --a-teal:#00B5A5;   --a-teal-bg:rgba(0,181,165,.09);
+  --a-orange:#F88F16; --a-orange-bg:rgba(248,143,22,.09);
+  --a-green:#12BA54;  --a-green-bg:rgba(18,186,84,.09);
+  --a-blue:#2872F8;   --a-blue-bg:rgba(40,114,248,.07);
+  --a-red:#FF4545;
+  --a-gray-bg:rgba(96,106,116,.07); --a-gray-fg:#606A74;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;background:var(--board);color:var(--ink);
+  font-family:"Hahmlet","Noto Serif KR",Georgia,serif;
+  font-size:14.5px;line-height:1.85;font-weight:400;
+  -webkit-font-smoothing:antialiased;padding:0 0 0;
+}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.35;letter-spacing:-.02em;text-wrap:balance;}
+p{margin:0;}
+.m{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+code{font-family:"IBM Plex Mono",monospace;font-size:.84em;color:var(--pen);background:var(--pen-wash);
+  padding:.1em .35em;}
+:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+.sheetwrap{max-width:1580px;margin:0 auto;background:var(--paper);
+  border-left:1px solid var(--rule-2);border-right:1px solid var(--rule-2);}
+
+/* ── 표제란 (title block) ── */
+.titleblock{border-bottom:2px solid var(--ink);}
+.tb-main{display:grid;grid-template-columns:1fr 300px;}
+@media (max-width:820px){.tb-main{grid-template-columns:1fr;}}
+.tb-l{padding:38px 34px 26px;}
+.tb-r{border-left:1px solid var(--rule-2);}
+@media (max-width:820px){.tb-r{border-left:0;border-top:1px solid var(--rule-2);}}
+.tb-l .doc{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;
+  color:var(--stamp);margin-bottom:16px;}
+.tb-l h1{font-size:clamp(28px,3.6vw,44px);font-weight:600;letter-spacing:-.045em;line-height:1.2;max-width:17ch;}
+.tb-l .sub{margin-top:18px;font-size:15px;line-height:1.9;color:var(--ink-2);max-width:56ch;}
+.tb-l .sub b{font-weight:600;color:var(--ink);}
+.tb-r .frow{display:grid;grid-template-columns:88px 1fr;border-bottom:1px solid var(--rule);}
+.tb-r .frow:last-child{border-bottom:0;}
+.tb-r .fl{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:var(--ink-4);
+  padding:9px 12px;border-right:1px solid var(--rule);display:flex;align-items:center;}
+.tb-r .fv{padding:9px 12px;font-size:12px;line-height:1.55;color:var(--ink-2);display:flex;align-items:center;}
+.tb-r .fv.m{font-size:11.5px;}
+
+/* ── 도면 목록 ── */
+.index{border-bottom:2px solid var(--ink);}
+.cap{display:flex;align-items:baseline;gap:14px;padding:20px 34px 12px;}
+.cap h2{font-size:17px;font-weight:600;letter-spacing:-.02em;}
+.cap .hint{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-4);}
+.cap .hint.r{margin-left:auto;}
+table.idx{width:100%;border-collapse:collapse;}
+table.idx th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;
+  color:var(--ink-4);font-weight:500;text-align:left;padding:8px 12px;
+  border-top:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);}
+table.idx th:first-child,table.idx td:first-child{padding-left:34px;}
+table.idx th:last-child,table.idx td:last-child{padding-right:34px;}
+table.idx td{padding:11px 12px;border-bottom:1px solid var(--rule);font-size:13.5px;
+  color:var(--ink-2);vertical-align:baseline;}
+table.idx tr:last-child td{border-bottom:0;}
+table.idx td.c{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink);width:34px;}
+table.idx td.nm{font-weight:600;color:var(--ink);white-space:nowrap;}
+table.idx td.ax{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--pen);white-space:nowrap;}
+.verd{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;padding:2px 7px;
+  border:1px solid currentColor;white-space:nowrap;}
+.v-go{color:var(--ink);}
+.v-hold{color:var(--ink-4);}
+.v-kill{color:var(--stamp);background:var(--stamp-wash);}
+.v-key{color:var(--pen);background:var(--pen-wash);}
+
+/* ── 전제 2단 ── */
+.premise{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--ink);}
+@media (max-width:820px){.premise{grid-template-columns:1fr;}}
+.premise > div{padding:24px 34px 28px;}
+.premise > div:first-child{border-right:1px solid var(--rule-2);}
+@media (max-width:820px){.premise > div:first-child{border-right:0;border-bottom:1px solid var(--rule-2);}}
+.premise h3{font-size:15px;font-weight:600;padding-bottom:11px;border-bottom:1px solid var(--rule-2);
+  margin-bottom:4px;display:flex;align-items:baseline;gap:10px;}
+.premise h3 span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:var(--ink-4);}
+.plist{list-style:none;margin:0;padding:0;}
+.plist li{font-size:13.5px;line-height:1.8;color:var(--ink-2);padding:11px 0;
+  border-bottom:1px solid var(--rule);display:grid;grid-template-columns:22px 1fr;gap:10px;}
+.plist li:last-child{border-bottom:0;}
+.plist li .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-4);padding-top:5px;}
+.plist li b{font-weight:600;color:var(--ink);}
+
+/* ── 마크 ── */
+.mk{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+  border:1px solid currentColor;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  font-weight:600;line-height:1;flex:none;}
+.mk-ok{color:var(--ink-3);}
+.mk-new{color:var(--pen);background:var(--pen-wash);}
+.mk-risk{color:var(--stamp);background:var(--stamp-wash);}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 20 20"><path d="M3 8.6 10 3l7 5.6V17H12v-5H8v5H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8.5h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 20 20"><path d="M5 2.5h7l3 3V17.5H5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7.5 9.5h5M7.5 12.5h5" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-board" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h8M6 11.5h5" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 17c.6-3.2 3-4.8 6-4.8s5.4 1.6 6 4.8" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+</svg>
+
+<div class="sheetwrap">
+
+<header class="titleblock">
+  <div class="tb-main">
+    <div class="tb-l">
+      <p class="doc m">MINDSCOPE / CAREBOARD / 화면 축 탐색</p>
+      <h1>케어보드,<br/>축을 여섯 개로 벌려보기</h1>
+      <p class="sub">
+        v1은 “시간 역순 이벤트 목록”이 왜 내담자 상세처럼 읽히는지를 진단하고 세 방향을 냈다.
+        v2는 <b>같은 재료·같은 가드레일</b>을 유지한 채 <b>화면의 축</b>만 여섯 갈래로 더 벌린 것이다.
+        톤이나 색의 변주가 아니라, 부모가 이 탭을 여는 이유 자체를 다르게 잡은 여섯 장이다.
+      </p>
+    </div>
+    <div class="tb-r">
+      <div class="frow"><div class="fl">SHEET</div><div class="fv m">CB-V2 · 6 + 1</div></div>
+      <div class="frow"><div class="fl">DATE</div><div class="fv m">2026-08-25</div></div>
+      <div class="frow"><div class="fl">SCOPE</div><div class="fv">mobile-client / 케어보드 탭</div></div>
+      <div class="frow"><div class="fl">BASIS</div><div class="fv">케어보드-아키텍처-v1.md</div></div>
+      <div class="frow"><div class="fl">PRIOR</div><div class="fv">시안 v1 (A · B · C)</div></div>
+      <div class="frow"><div class="fl">STATUS</div><div class="fv">검토용 초안 — 미착수</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="index">
+  <div class="cap">
+    <h2>도면 목록</h2>
+    <span class="hint m">6 SHEETS + 1 COMBINED</span>
+    <span class="hint r m">판정은 하단 §결정에 근거</span>
+  </div>
+  <table class="idx">
+    <thead>
+      <tr><th>SHT</th><th>명칭</th><th>화면의 축</th><th>한 줄</th><th style="text-align:right">판정</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="c">D</td><td class="nm">이번 주</td><td class="ax">시간 창 · 주 단위</td>
+        <td>월~일 일곱 칸이 화면의 뼈대. 매주 리셋되니 다시 열 이유가 생긴다</td>
+        <td style="text-align:right"><span class="verd v-hold">부품으로</span></td></tr>
+      <tr><td class="c">E</td><td class="nm">편지함</td><td class="ax">도달 · 읽음</td>
+        <td>진행률을 버리고 “나에게 온 것”만. 탭에 배지가 붙는 유일한 안</td>
+        <td style="text-align:right"><span class="verd v-hold">부품으로</span></td></tr>
+      <tr><td class="c">F</td><td class="nm">카드 덱</td><td class="ax">한 번에 한 장</td>
+        <td>스크롤을 없애고 넉 장으로. 새 계약 없이 오늘 만들 수 있다</td>
+        <td style="text-align:right"><span class="verd v-go">지금 세운다</span></td></tr>
+      <tr><td class="c">G</td><td class="nm">질문에 답하기</td><td class="ax">부모의 질문</td>
+        <td>섹션 제목이 곧 질문 문장. 답마다 출처가 붙는다</td>
+        <td style="text-align:right"><span class="verd v-key">축으로 채택</span></td></tr>
+      <tr><td class="c">H</td><td class="nm">두 손</td><td class="ax">주체 · 센터/우리 집</td>
+        <td>보호자 기록이 회기와 대등한 열로 올라간다</td>
+        <td style="text-align:right"><span class="verd v-key">축으로 채택</span></td></tr>
+      <tr><td class="c">I</td><td class="nm">리듬 달력</td><td class="ax">주기</td>
+        <td>격자에 회기·검사·기록을 점으로. 일정 탭과 겹친다</td>
+        <td style="text-align:right"><span class="verd v-kill">기각</span></td></tr>
+      <tr><td class="c">J</td><td class="nm">합본안</td><td class="ax">G의 목차 + A의 순서 + H의 축</td>
+        <td>네 섹션 중 셋은 오늘 API로 그대로 선다</td>
+        <td style="text-align:right"><span class="verd v-go">제안</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="premise">
+  <div>
+    <h3>여섯 장이 공통으로 지키는 것 <span>고정 조건</span></h3>
+    <ul class="plist">
+      <li><span class="n">01</span><span><b>앱은 판정하지 않는다.</b> “좋아지고 있어요”, 성장 화살표, 감정 추이 그래프 없음. 거짓 안심이 최악이라는 원칙(§7-2).</span></li>
+      <li><span class="n">02</span><span><b>상담일지 원문과 AI 분석은 어떤 안에도 나오지 않는다</b>(G1). 회기에 붙는 문장은 선생님이 보호자를 향해 따로 쓴 것뿐이다.</span></li>
+      <li><span class="n">03</span><span><b>발행된 것만 보인다</b>(G3). 초안 공유·미공개 결과지는 화면에 존재하지 않는다.</span></li>
+      <li><span class="n">04</span><span><b>탭은 다섯 개로 고정</b>이며 케어보드가 기존 ‘활동’ 탭을 대체한다. 여섯 안 모두 탭 하나 안에 들어간다.</span></li>
+    </ul>
+  </div>
+  <div>
+    <h3>쓸 수 있는 재료는 셋뿐 <span>재료 목록</span></h3>
+    <ul class="plist">
+      <li><span class="n">가</span><span><b>진행의 위치.</b> 4/12회기, 다음 회기 날짜, 검사 6종 중 6종 완료. 세어 준 사실이라 판정이 아니다.</span></li>
+      <li><span class="n">나</span><span><b>선생님이 공유하기로 한 말.</b> 사람의 발화라 판정이 아니다. 여섯 중 다섯이 이걸 심장으로 쓰며, 웹의 작성 표면이 선행한다.</span></li>
+      <li><span class="n">다</span><span><b>보호자 자신의 기록.</b> 내담자 상세에는 아예 없는 축. 여기가 “직원 화면의 축소판”과 갈라지는 지점이다.</span></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+/* ── 시트 세트 ── */
+.set{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:2px solid var(--ink);}
+@media (max-width:1180px){.set{grid-template-columns:1fr;}}
+.sheet{border-right:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);}
+.sheet:nth-child(2n){border-right:0;}
+.sheet:nth-child(n+5){border-bottom:0;}
+@media (max-width:1180px){
+  .sheet{border-right:0;}
+  .sheet:nth-child(n+5){border-bottom:1px solid var(--rule-2);}
+  .sheet:last-child{border-bottom:0;}
+}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:12px 22px;
+  background:var(--field);border-bottom:1px solid var(--rule-2);}
+.sh .no{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;color:var(--ink-4);}
+.sh .cd{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--ink);
+  border:1px solid var(--ink);padding:0 6px;line-height:1.5;}
+.sh h3{font-size:17px;font-weight:600;letter-spacing:-.03em;}
+.sh .ax{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--pen);margin-left:auto;}
+.sb{display:grid;grid-template-columns:376px minmax(0,1fr);gap:26px;padding:24px 22px 28px;}
+@media (max-width:1180px){.sb{grid-template-columns:1fr;justify-items:center;}}
+.fx{min-width:0;}
+@media (max-width:1180px){.fx{max-width:560px;width:100%;}}
+.fx .lead{font-size:13.5px;line-height:1.85;color:var(--ink-2);padding-bottom:15px;
+  border-bottom:1px solid var(--rule-2);}
+.fx .lead b{font-weight:600;color:var(--ink);}
+.fx .frow{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--rule);}
+.fx .frow:last-child{border-bottom:0;padding-bottom:0;}
+.fx .fl{font-size:11px;font-weight:600;color:var(--ink-4);letter-spacing:.04em;padding-top:2px;}
+.fx ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.fx li{display:grid;grid-template-columns:17px minmax(0,1fr);gap:10px;align-items:start;
+  font-size:12.5px;line-height:1.72;color:var(--ink-2);}
+.fx li b{font-weight:600;color:var(--ink);}
+.fx li .mk{margin-top:2px;}
+
+/* ── 폰 목업 (실물 — 유일하게 라운드와 그림자를 쓴다) ── */
+.ph{width:376px;background:var(--a-g0);border-radius:34px;border:1px solid #C6CFC6;
+  box-shadow:var(--drop);overflow:hidden;justify-self:start;
+  font-family:"Pretendard","Pretendard Variable","Noto Sans KR",-apple-system,sans-serif;
+  color:var(--a-g900);letter-spacing:-.01em;line-height:1.55;font-weight:400;}
+@media (max-width:1180px){.ph{justify-self:center;}}
+.ph .st{height:32px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;font-size:11px;font-weight:700;}
+.ph .nav{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 12px;}
+.ph .nav .t{font-size:19px;font-weight:800;letter-spacing:-.04em;}
+.ph .kid{display:inline-flex;align-items:center;gap:6px;background:var(--a-g75);border-radius:999px;
+  padding:4px 11px 4px 5px;font-size:12px;font-weight:700;color:var(--a-g600);}
+.ph .kid .av{width:22px;height:22px;border-radius:999px;background:var(--a-brand-50);
+  color:var(--a-brand-600);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+.ph .bd{padding:0 16px 16px;display:flex;flex-direction:column;gap:13px;background:var(--a-g50);min-height:600px;}
+.ph .bd.plain{background:var(--a-g0);}
+.ph .tabbar{display:flex;border-top:1px solid var(--a-g100);background:var(--a-g0);padding:9px 0 15px;}
+.ph .tabbar div{flex:1;text-align:center;font-size:10px;color:var(--a-g400);font-weight:600;}
+.ph .tabbar div.on{color:var(--a-brand);font-weight:800;}
+.ph .tabbar .ic{display:block;width:19px;height:19px;margin:0 auto 3px;}
+.ph .tabbar .bdg{display:inline-block;background:var(--a-red);color:#fff;font-size:8.5px;font-weight:800;
+  border-radius:99px;padding:0 4px;vertical-align:top;margin-left:2px;}
+
+.ph .sec{font-size:13px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;
+  justify-content:space-between;margin:3px 0 -3px;}
+.ph .sec .more{font-size:11.5px;font-weight:600;color:var(--a-g400);}
+.ph .cd2{background:var(--a-g0);border:1px solid var(--a-g100);border-radius:16px;padding:14px;
+  box-shadow:0 1px 3px rgba(27,35,48,.04);}
+.ph .xs{font-size:11px;} .ph .sm{font-size:12px;} .ph .md{font-size:13px;}
+.ph .b7{font-weight:700;} .ph .b8{font-weight:800;}
+.ph .mut{color:var(--a-g500);} .ph .mut2{color:var(--a-g400);}
+.ph .row{display:flex;align-items:center;gap:8px;}
+.ph .btw{display:flex;align-items:center;justify-content:space-between;}
+.ph .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px;}
+.ph .c-pu{background:var(--a-purple-bg);color:var(--a-purple);}
+.ph .c-te{background:var(--a-teal-bg);color:var(--a-teal);}
+.ph .c-or{background:var(--a-orange-bg);color:var(--a-orange);}
+.ph .c-gr{background:var(--a-green-bg);color:var(--a-green);}
+.ph .c-bl{background:var(--a-blue-bg);color:var(--a-blue);}
+.ph .btn{display:block;text-align:center;border-radius:10px;padding:11px;font-size:13px;font-weight:700;}
+.ph .btn-f{background:var(--a-brand);color:#fff;}
+.ph .btn-l{background:var(--a-g0);border:1px solid var(--a-g200);color:var(--a-g600);}
+.ph .note{font-size:11px;line-height:1.6;color:var(--a-g500);background:var(--a-g75);
+  border-radius:10px;padding:9px 11px;}
+.ph .hero{border-radius:18px;padding:16px;color:#fff;
+  background:linear-gradient(135deg,#31A4F7,#0981D7);box-shadow:0 6px 18px rgba(9,129,215,.26);}
+.ph .hero .dd{display:inline-block;background:rgba(255,255,255,.22);border-radius:8px;
+  padding:3px 9px;font-size:11px;font-weight:800;}
+.ph .hero .wh{font-size:19px;font-weight:800;margin:9px 0 3px;letter-spacing:-.04em;}
+.ph .hero .wt{font-size:12.5px;opacity:.93;line-height:1.55;}
+.ph .hero .cta{margin-top:12px;background:rgba(255,255,255,.18);border-radius:10px;padding:9px;
+  text-align:center;font-size:12.5px;font-weight:700;}
+.ph .dots{display:flex;gap:5px;}
+.ph .dots i{flex:1;height:7px;border-radius:99px;background:var(--a-g100);}
+.ph .dots i.on{background:var(--a-purple);}
+.ph .dots i.nx{background:var(--a-purple);opacity:.3;}
+.ph .dots.te i.on{background:var(--a-teal);}
+
+.ph .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.ph .wk .d{display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 0 8px;border-radius:11px;}
+.ph .wk .d.today{background:var(--a-brand-50);}
+.ph .wk .wd{font-size:10.5px;font-weight:700;color:var(--a-g400);}
+.ph .wk .dn{font-size:13px;font-weight:800;color:var(--a-g600);}
+.ph .wk .d.today .wd,.ph .wk .d.today .dn{color:var(--a-brand-600);}
+.ph .wk .pips{display:flex;gap:3px;height:6px;align-items:center;}
+.ph .wk .pips b{width:5px;height:5px;border-radius:99px;display:block;}
+.ph .pip-s{background:var(--a-purple);}
+.ph .pip-r{background:var(--a-orange);}
+.ph .pip-a{background:var(--a-teal);border-radius:2px;}
+.ph .pip-p{background:transparent;border:1.5px dashed var(--a-brand);width:6px;height:6px;}
+
+.ph .mrow{display:grid;grid-template-columns:9px minmax(0,1fr);gap:11px;padding:10px 0;
+  border-top:1px solid var(--a-g100);}
+.ph .mrow:first-child{border-top:0;padding-top:2px;}
+.ph .mdot{width:9px;height:9px;border-radius:99px;margin-top:6px;}
+
+.ph .lt{border:1px solid var(--a-g100);border-radius:14px;padding:13px 14px;background:var(--a-g0);
+  border-left:3px solid var(--a-brand);}
+.ph .lt.read{border-left-color:var(--a-g200);opacity:.6;}
+.ph .lt.te{border-left-color:var(--a-teal);}
+.ph .lt .hd{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.ph .lt .un{width:7px;height:7px;border-radius:99px;background:var(--a-brand);flex:none;}
+.ph .lt .un.te{background:var(--a-teal);}
+.ph .lt .from{font-size:12.5px;font-weight:800;}
+.ph .lt .when{font-size:11px;color:var(--a-g400);margin-left:auto;}
+.ph .lt .tx{font-size:12.5px;line-height:1.65;color:var(--a-g600);}
+.ph .lt .todo{margin-top:9px;background:var(--a-g50);border-radius:10px;padding:9px 11px;}
+.ph .divider{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--a-g400);}
+.ph .divider::after{content:"";flex:1;height:1px;background:var(--a-g100);}
+
+.ph .deck{position:relative;padding:10px 0 2px;}
+.ph .deck .front{position:relative;border-radius:20px;padding:20px 18px 18px;color:#fff;
+  background:linear-gradient(140deg,#31A4F7,#0981D7);box-shadow:0 10px 24px -6px rgba(9,129,215,.45);
+  min-height:250px;display:flex;flex-direction:column;}
+.ph .deck .front .sp{flex:1;}
+.ph .pgdots{display:flex;gap:6px;justify-content:center;padding:11px 0 1px;}
+.ph .pgdots i{width:6px;height:6px;border-radius:99px;background:var(--a-g300);}
+.ph .pgdots i.on{background:var(--a-brand);width:18px;}
+.ph .deckmap{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.ph .deckmap div{border-radius:9px;background:var(--a-g0);border:1px solid var(--a-g100);
+  padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--a-g400);}
+.ph .deckmap div.on{border-color:var(--a-brand);color:var(--a-brand-600);background:var(--a-brand-50);}
+</style>
+
+<div class="set">
+
+  <!-- ─────────── SHT 01 · D ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 01</span><span class="cd">D</span><h3>이번 주</h3><span class="ax">축 = 시간 창 · 주 단위</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd">
+          <div class="cd2" style="padding:12px 10px;">
+            <div class="btw" style="padding:0 4px 9px;">
+              <span class="md b8">8월 셋째 주</span><span class="xs mut2 b7">8.18 – 8.24</span>
+            </div>
+            <div class="wk">
+              <div class="d"><span class="wd">월</span><span class="dn">18</span><span class="pips"></span></div>
+              <div class="d"><span class="wd">화</span><span class="dn">19</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="d"><span class="wd">수</span><span class="dn">20</span><span class="pips"><b class="pip-s"></b></span></div>
+              <div class="d"><span class="wd">목</span><span class="dn">21</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="d today"><span class="wd">금</span><span class="dn">22</span><span class="pips"></span></div>
+              <div class="d"><span class="wd">토</span><span class="dn">23</span><span class="pips"><b class="pip-p"></b></span></div>
+              <div class="d"><span class="wd">일</span><span class="dn">24</span><span class="pips"></span></div>
+            </div>
+          </div>
+
+          <div class="sec">이번 주 일정</div>
+          <div class="cd2" style="border-left:3px solid var(--a-brand);">
+            <div class="btw">
+              <div>
+                <div class="md b8">놀이치료 5회기</div>
+                <div class="xs mut" style="margin-top:4px;">내일 (토) 오후 4:00 · 김선영 선생님</div>
+                <div class="xs mut2" style="margin-top:2px;">어린이마래팍센터 · 2층 놀이실</div>
+              </div>
+              <span class="chip c-bl">D-1</span>
+            </div>
+          </div>
+
+          <div class="sec">이번 주 해볼 것</div>
+          <div class="cd2">
+            <div class="md b8">순서 지키기 놀이</div>
+            <div class="sm" style="line-height:1.65;color:var(--a-g600);margin-top:5px;">“집에서 보드게임 한 판씩, 차례를 기다리는 연습을 해보시면 좋겠어요.”</div>
+            <div class="xs mut2" style="margin-top:8px;">4회기(8/20)에서 · 김선영 선생님이 공유</div>
+          </div>
+
+          <div class="sec">이번 주 내 기록 <span class="more">+ 남기기</span></div>
+          <div class="cd2" style="padding:12px 14px;">
+            <div class="mrow"><span class="mdot" style="background:var(--a-orange)"></span>
+              <div><div class="sm b7">놀이터에서 먼저 친구한테 말을 걸었다</div>
+              <div class="xs mut2" style="margin-top:2px;">8월 19일 (화) · 웃음</div></div></div>
+            <div class="mrow"><span class="mdot" style="background:var(--a-green)"></span>
+              <div><div class="sm b7">잘 시간에 떼 없이 방으로 들어갔다</div>
+              <div class="xs mut2" style="margin-top:2px;">8월 21일 (목) · 편안</div></div></div>
+          </div>
+
+          <div class="note">지난주엔 상담 1회, 내가 남긴 기록 3개였어요.</div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">화면을 <b>이번 주 한 장</b>으로 자른다. 부모가 실제로 쓰는 단위가 “이번 주에 뭐 있지”라서, 전체 이력 대신 월~일 일곱 칸이 화면의 뼈대가 된다. 매주 리셋되므로 <b>다시 열 이유</b>가 구조적으로 생긴다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-ok">✓</span><span>주간 일정·기록 점 — <code>/app/schedules</code>·<code>/app/records/dates</code>로 지금 된다</span></li>
+            <li><span class="mk mk-new">+</span><span>“이번 주 해볼 것” = <b>선생님 공유 축</b> 신설분</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>조용한 주엔 화면이 텅 빈다. “이번 주 기록 0개”가 <b>결핍</b>으로 읽히지 않게 하는 빈 상태 카피가 이 안 설계의 절반이다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-ok">→</span><span>단독 축으로는 “어디쯤 왔나”를 통째로 잃는다. <b>주간 스트립만 부품으로</b> 다른 안 위에 얹는다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ─────────── SHT 02 · E ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 02</span><span class="cd">E</span><h3>편지함</h3><span class="ax">축 = 도달 · 읽음</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd plain" style="gap:10px;">
+          <div class="btw" style="padding-top:2px;">
+            <span class="md b8">센터에서 온 것</span><span class="chip c-bl">읽지 않음 2</span>
+          </div>
+
+          <div class="lt">
+            <div class="hd"><span class="un"></span><span class="from">김선영 선생님</span><span class="when">8월 20일</span></div>
+            <div class="xs mut2" style="margin:-3px 0 7px;">놀이치료 4회기 · 어린이마래팍센터</div>
+            <div class="tx">“블록 쌓기 놀이를 했어요. 이전보다 놀이에 적극적으로 참여했고, 마무리도 스스로 했어요.”</div>
+            <div class="todo">
+              <div class="xs b8 mut2" style="margin-bottom:4px;">집에서 해볼 것</div>
+              <div class="sm b7">보드게임 한 판씩, 차례를 기다리는 연습</div>
+            </div>
+          </div>
+
+          <div class="lt te">
+            <div class="hd"><span class="un te"></span><span class="from">풀배터리 검사</span><span class="when">8월 2일</span></div>
+            <div class="xs mut2" style="margin:-3px 0 7px;">6종 모두 완료 · 어린이마래팍센터</div>
+            <div class="tx">결과지가 도착했어요. 상담사 선생님의 설명과 함께 보시길 권해요.</div>
+            <div style="margin-top:10px;"><span class="btn btn-l" style="padding:9px;">결과지 열기</span></div>
+          </div>
+
+          <div class="divider">읽음</div>
+
+          <div class="lt read">
+            <div class="hd"><span class="from">일정 확정</span><span class="when">7월 30일</span></div>
+            <div class="tx">5회기가 8월 23일 (토) 오후 4:00으로 잡혔어요.</div>
+          </div>
+          <div class="lt read">
+            <div class="hd"><span class="from">김선영 선생님</span><span class="when">6월 20일</span></div>
+            <div class="tx">“3회기에는 그림으로 하루를 설명해 봤어요.”</div>
+          </div>
+
+          <div class="note">여기는 읽기 전용이에요. 답장이나 문의는 센터로 연락해 주세요.</div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드<span class="bdg">2</span></div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">센터에서 <b>온 것</b>만 모은다 — 선생님 쪽지, 결과지 도착, 일정 확정. 진행률과 통계를 아예 버리고 “나에게 도착한 것”만 남긴 안이다. ②의 <b>도달률 문제를 정면으로</b> 푼다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-new">+</span><span><b>공유 축</b>과 <b>읽음 상태</b> — 신설 계약 두 개. 여섯 중 가장 무겁다</span></li>
+            <li><span class="mk mk-ok">✓</span><span>결과지 도착·일정 확정은 이미 알림 생산자가 있다. 편지함은 그 사건을 <b>보관</b>하는 표면</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>알림 목록과 <b>역할이 겹친다</b>. 알림은 휘발·푸시, 편지함은 본문 보관 — 이 선이 안 그어지면 화면 두 개가 같은 말을 한다</span></li>
+            <li><span class="mk mk-risk">!</span><span>진행 위치(4/12)가 화면에서 사라진다. “어디까지 왔나”엔 답하지 않는 안</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-ok">→</span><span><b>안 읽은 것 배지</b>만 부품으로 살린다. 편지함 자체는 알림 화면과의 경계가 정리되기 전엔 세우지 않는다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ─────────── SHT 03 · F ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 03</span><span class="cd">F</span><h3>카드 덱</h3><span class="ax">축 = 한 번에 한 장</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd" style="gap:10px;">
+          <div class="deck">
+            <div class="front">
+              <span class="dd">D-1 · 다음 상담</span>
+              <div class="wh" style="margin-top:14px;">내일 (토)<br/>오후 4:00</div>
+              <div class="wt" style="margin-top:8px;">놀이치료-개인 5회기 · 김선영 선생님<br/>어린이마래팍센터 · 2층 놀이실</div>
+              <div class="sp"></div>
+              <div class="cta">일정 자세히 보기</div>
+            </div>
+          </div>
+          <div class="pgdots"><i class="on"></i><i></i><i></i><i></i></div>
+
+          <div class="deckmap">
+            <div class="on">다음 상담</div><div>선생님 말</div><div>어디쯤</div><div>오늘 기록</div>
+          </div>
+
+          <div class="cd2" style="padding:12px 14px;">
+            <div class="xs b8 mut2" style="margin-bottom:8px;">다음 장 미리보기</div>
+            <div class="row" style="align-items:flex-start;gap:9px;">
+              <span class="chip c-pu" style="flex:none;">2 / 4</span>
+              <div class="sm" style="line-height:1.6;color:var(--a-g600);">순서 지키기 놀이 — “보드게임 한 판씩, 차례를 기다리는 연습”</div>
+            </div>
+          </div>
+
+          <div class="note">넘기지 않아도 손해가 없게 <b>첫 장에 가장 급한 것</b>을 둔다. 순서는 D-day와 새 소식 유무로 매번 다시 정해진다.</div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">스크롤을 없앤다. 한 화면에 카드 한 장, 넘기면 다음 한 장 — <b>다음 상담 → 선생님 말 → 진행 → 오늘 기록</b> 넉 장이 전부다. 바우처 홈에 이미 쓰는 카드 스택 언어를 그대로 재사용한다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-ok">✓</span><span>카드 넉 장의 재료가 전부 기존 API다 — <b>새 계약 없이 오늘 만들 수 있는 유일한 안</b></span></li>
+            <li><span class="mk mk-ok">✓</span><span>스택 인터랙션은 바우처 홈 구현분 재사용</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>넘기지 않는 사용자에겐 <b>2~4장이 존재하지 않는다</b>. 도달률이 카드 순서 규칙 하나에 걸린다</span></li>
+            <li><span class="mk mk-risk">!</span><span>“전체를 훑는” 요구(지나온 회기)를 이 안만으로는 못 받는다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-ok">→</span><span>Phase 0의 질문 — <b>“② 공유 카드 없이도 화면이 서는가”</b> — 을 실제로 확인할 수 있는 가장 싼 안. 여기서 출발한다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+<style>
+.ph .qa{background:var(--a-g0);border:1px solid var(--a-g100);border-radius:16px;padding:14px;}
+.ph .qa .q{font-size:15px;font-weight:800;letter-spacing:-.03em;margin-bottom:9px;}
+.ph .qa .a{font-size:13px;line-height:1.7;color:var(--a-g600);}
+.ph .qa .a b{color:var(--a-g900);font-weight:800;}
+.ph .src{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:10.5px;
+  font-weight:700;color:var(--a-g400);}
+.ph .src i{width:6px;height:6px;border-radius:2px;display:block;}
+
+.ph .twowrap{position:relative;}
+.ph .twowrap::before{content:"";position:absolute;left:50%;margin-left:-1px;top:26px;bottom:4px;
+  width:2px;background:var(--a-g100);}
+.ph .two{display:grid;grid-template-columns:1fr 14px 1fr;position:relative;}
+.ph .two .hdl,.ph .two .hdr{font-size:11px;font-weight:800;padding-bottom:8px;}
+.ph .two .hdl{text-align:right;color:var(--a-brand-600);}
+.ph .two .hdr{color:var(--a-orange);}
+.ph .two .l{text-align:right;padding:6px 12px 6px 0;}
+.ph .two .r{padding:6px 0 6px 12px;}
+.ph .two .ev{display:inline-block;border-radius:11px;padding:9px 11px;background:var(--a-g0);
+  border:1px solid var(--a-g100);text-align:left;max-width:100%;}
+.ph .two .ev.pl{border-style:dashed;border-color:var(--a-brand-300);background:transparent;}
+.ph .two .ev .t{font-size:12px;font-weight:800;}
+.ph .two .ev .s{font-size:10.5px;color:var(--a-g400);margin-top:2px;}
+.ph .two .day{grid-column:1 / -1;text-align:center;font-size:10px;font-weight:700;
+  color:var(--a-g400);padding:7px 0 2px;}
+
+.ph .cal{display:grid;grid-template-columns:repeat(7,1fr);}
+.ph .cal .wd{text-align:center;font-size:10px;font-weight:700;color:var(--a-g400);padding-bottom:7px;}
+.ph .cal .c{height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.ph .cal .c span{font-size:12px;font-weight:600;color:var(--a-g600);}
+.ph .cal .c.off span{color:var(--a-g300);}
+.ph .cal .c.today span{color:#fff;background:var(--a-g900);border-radius:99px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;}
+.ph .cal .c.plan span{color:var(--a-brand-600);border:1.5px dashed var(--a-brand);border-radius:99px;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.ph .cal .c.pick span{color:#fff;background:var(--a-brand);border-radius:99px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;}
+.ph .cal .pips{display:flex;gap:2.5px;height:5px;}
+.ph .cal .pips b{width:4px;height:4px;border-radius:99px;display:block;}
+.ph .legend2{display:flex;gap:13px;justify-content:center;padding:11px 0 3px;}
+.ph .legend2 span{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+  color:var(--a-g400);}
+.ph .legend2 b{width:6px;height:6px;border-radius:99px;display:block;}
+.ph .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.ph .stats > div{background:var(--a-g0);border:1px solid var(--a-g100);border-radius:12px;
+  padding:9px 6px;text-align:center;}
+.ph .stats .v{font-size:17px;font-weight:800;}
+.ph .stats .k{font-size:10.5px;color:var(--a-g400);font-weight:600;}
+</style>
+
+  <!-- ─────────── SHT 04 · G ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 04</span><span class="cd">G</span><h3>질문에 답하기</h3><span class="ax">축 = 부모의 질문</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd" style="gap:10px;">
+          <div class="qa">
+            <div class="q">다음엔 언제 가요?</div>
+            <div class="a"><b>8월 23일 토요일 오후 4시</b>, 놀이치료 5회기예요.<br/>김선영 선생님 · 2층 놀이실.</div>
+            <div style="margin-top:11px;"><span class="btn btn-l" style="padding:9px;">일정 자세히 보기</span></div>
+            <span class="src"><i style="background:var(--a-brand)"></i>센터가 잡은 일정</span>
+          </div>
+
+          <div class="qa">
+            <div class="q">집에서 뭘 하면 되나요?</div>
+            <div class="a">“보드게임 한 판씩, 차례를 기다리는 연습을 해보시면 좋겠어요.”</div>
+            <span class="src"><i style="background:var(--a-purple)"></i>김선영 선생님이 8월 20일에 남긴 말</span>
+          </div>
+
+          <div class="qa">
+            <div class="q">지금 어디까지 왔어요?</div>
+            <div class="a" style="margin-bottom:10px;">놀이치료 <b>12회 중 4회</b>를 했어요.</div>
+            <div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="nx"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="a" style="margin-top:11px;">풀배터리 검사는 <b>6종 모두 끝났고</b> 결과지가 도착했어요.</div>
+            <span class="src"><i style="background:var(--a-teal)"></i>센터가 기록한 진행</span>
+          </div>
+
+          <div class="qa">
+            <div class="q">제가 본 건 어디에 남기죠?</div>
+            <div class="a">지금까지 <b>7개</b>를 남기셨어요. 마지막은 8월 21일.</div>
+            <div style="margin-top:11px;"><span class="btn btn-f" style="padding:10px;">오늘 기록 남기기</span></div>
+            <span class="src"><i style="background:var(--a-orange)"></i>내가 남긴 기록</span>
+          </div>
+
+          <div class="note">답은 전부 센터가 넣은 사실이거나 선생님이 직접 남긴 말이에요. 앱이 해석하거나 요약하지 않아요.</div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">섹션 제목을 <b>질문 문장 그대로</b> 쓴다. 판정 금지 안에서 “어떻게 되어가고 있지”에 답하는 가장 정직한 형태다 — 답이 전부 사실이거나 사람의 말이고, <b>각 답에 출처가 붙는다</b>. 도메인 용어(케이스·회기·태스크)가 한 번도 나오지 않는 유일한 안이기도 하다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-ok">✓</span><span>첫·셋째·넷째 답 — <code>/app/profiles/{id}/progress</code>와 <code>/app/records</code>로 지금 된다</span></li>
+            <li><span class="mk mk-new">+</span><span>둘째 답이 <b>공유 축</b>. 없으면 “아직 선생님이 남긴 말이 없어요”로 서고, 그 빈 상태가 곧 이 기능의 존재 증명이 된다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>질문 목록이 <b>고정</b>이라 상황과 어긋날 수 있다(검사만 하는 가족, 종결한 가족). 질문 자체를 상태별로 갈아끼우는 규칙이 필요하다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-ok">→</span><span>네 질문에 모두 정면으로 답하는 유일한 안. <b>합본안의 목차</b>로 채택한다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ─────────── SHT 05 · H ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 05</span><span class="cd">H</span><h3>두 손</h3><span class="ax">축 = 주체 · 센터/우리 집</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd" style="gap:11px;">
+          <div class="cd2" style="padding:13px 14px;">
+            <div class="btw"><span class="md b8">은서와 함께한 3개월</span><span class="xs mut2">5월 12일부터</span></div>
+            <div class="row" style="gap:6px;margin-top:9px;flex-wrap:wrap;">
+              <span class="chip c-pu">상담 4회</span><span class="chip c-te">검사 1건</span><span class="chip c-or">내 기록 7개</span>
+            </div>
+          </div>
+
+          <div class="twowrap">
+            <div class="two"><div class="hdl">센터에서</div><div></div><div class="hdr">우리 집에서</div></div>
+            <div class="two">
+              <div class="day">8월 23일 (토)</div>
+              <div class="l"><span class="ev pl"><span class="t" style="color:var(--a-brand-600)">놀이치료 5회기</span><span class="s">오후 4:00 · 예정</span></span></div>
+              <div></div><div class="r"></div>
+
+              <div class="day">8월 21일 (목)</div>
+              <div class="l"></div><div></div>
+              <div class="r"><span class="ev"><span class="t">기록 · 편안</span><span class="s">“잘 시간에 떼 없이 들어갔다”</span></span></div>
+
+              <div class="day">8월 20일 (수)</div>
+              <div class="l"><span class="ev"><span class="t">놀이치료 4회기</span><span class="s">출석 · 김선영 선생님</span></span></div>
+              <div></div>
+              <div class="r"><span class="ev" style="border-color:var(--a-orange);"><span class="t" style="color:var(--a-orange)">해봤어요</span><span class="s">순서 지키기 놀이</span></span></div>
+
+              <div class="day">8월 19일 (화)</div>
+              <div class="l"></div><div></div>
+              <div class="r"><span class="ev"><span class="t">기록 · 웃음</span><span class="s">“먼저 친구한테 말을 걸었다”</span></span></div>
+
+              <div class="day">8월 2일 (토)</div>
+              <div class="l"><span class="ev"><span class="t">풀배터리 검사</span><span class="s">6종 완료 · 결과지 도착</span></span></div>
+              <div></div><div class="r"></div>
+            </div>
+          </div>
+
+          <div class="row" style="gap:8px;">
+            <span class="btn btn-l" style="flex:1;">지난 기록 전체</span>
+            <span class="btn btn-f" style="flex:1;">오늘 기록 남기기</span>
+          </div>
+
+          <div class="note">오른쪽이 비어 있어도 괜찮아요. 여기는 숙제 검사가 아니라, 두 곳에서 무슨 일이 있었는지 나란히 두는 자리예요.</div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">한 시간축을 <b>좌우로 가른다</b> — 왼쪽은 센터가 한 것, 오른쪽은 우리 집이 한 것. 보호자 기록이 회기와 <b>대등한 열</b>로 올라오는 순간, 이 화면은 내담자 상세에서 가장 멀어진다. “치료는 센터에서만 일어나지 않는다”가 레이아웃 자체로 말해진다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-ok">✓</span><span>양쪽 재료 — 회기·검사(progress)와 <code>ledger_entries</code>가 이미 다 있다</span></li>
+            <li><span class="mk mk-new">+</span><span>“해봤어요” 체크는 <b>보호자 쪽 쓰기</b>. 상담사 노동은 0이지만 계약이 하나 는다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>오른쪽 열이 계속 비면 <b>부모 책임 프레임</b>이 된다. 빈 열 카피와 “해봤어요”의 선택성이 이 안의 생사를 가른다</span></li>
+            <li><span class="mk mk-risk">!</span><span>폭 375에 2열이라 인용이 한 줄 이상 들어가지 않는다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-ok">→</span><span>축은 채택하되 <b>2열은 버린다</b>. 합본안에서 ‘우리 집’을 섹션으로 접어 폭 문제를 피한다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ─────────── SHT 06 · I ─────────── -->
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 06</span><span class="cd">I</span><h3>리듬 달력</h3><span class="ax">축 = 주기</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd" style="gap:11px;">
+          <div class="cd2" style="padding:12px 10px 8px;">
+            <div class="btw" style="padding:0 6px 10px;">
+              <span class="md b8">2026년 8월</span><span class="mut2 b7" style="font-size:13px;letter-spacing:6px;">‹ ›</span>
+            </div>
+            <div class="cal">
+              <div class="wd" style="color:var(--a-red)">일</div><div class="wd">월</div><div class="wd">화</div><div class="wd">수</div><div class="wd">목</div><div class="wd">금</div><div class="wd" style="color:#4D94FF">토</div>
+
+              <div class="c off"><span>27</span><span class="pips"></span></div>
+              <div class="c off"><span>28</span><span class="pips"></span></div>
+              <div class="c off"><span>29</span><span class="pips"></span></div>
+              <div class="c off"><span>30</span><span class="pips"></span></div>
+              <div class="c off"><span>31</span><span class="pips"></span></div>
+              <div class="c"><span>1</span><span class="pips"></span></div>
+              <div class="c"><span>2</span><span class="pips"><b class="pip-a"></b></span></div>
+
+              <div class="c"><span>3</span><span class="pips"></span></div>
+              <div class="c"><span>4</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="c"><span>5</span><span class="pips"></span></div>
+              <div class="c"><span>6</span><span class="pips"><b class="pip-s"></b></span></div>
+              <div class="c"><span>7</span><span class="pips"></span></div>
+              <div class="c"><span>8</span><span class="pips"></span></div>
+              <div class="c"><span>9</span><span class="pips"><b class="pip-r"></b></span></div>
+
+              <div class="c"><span>10</span><span class="pips"></span></div>
+              <div class="c"><span>11</span><span class="pips"></span></div>
+              <div class="c"><span>12</span><span class="pips"></span></div>
+              <div class="c"><span>13</span><span class="pips"></span></div>
+              <div class="c"><span>14</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="c"><span>15</span><span class="pips"></span></div>
+              <div class="c"><span>16</span><span class="pips"></span></div>
+
+              <div class="c"><span>17</span><span class="pips"></span></div>
+              <div class="c"><span>18</span><span class="pips"></span></div>
+              <div class="c"><span>19</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="c pick"><span>20</span><span class="pips"><b class="pip-s"></b></span></div>
+              <div class="c"><span>21</span><span class="pips"><b class="pip-r"></b></span></div>
+              <div class="c today"><span>22</span><span class="pips"></span></div>
+              <div class="c plan"><span>23</span><span class="pips"></span></div>
+
+              <div class="c"><span>24</span><span class="pips"></span></div>
+              <div class="c"><span>25</span><span class="pips"></span></div>
+              <div class="c"><span>26</span><span class="pips"></span></div>
+              <div class="c"><span>27</span><span class="pips"></span></div>
+              <div class="c"><span>28</span><span class="pips"></span></div>
+              <div class="c"><span>29</span><span class="pips"></span></div>
+              <div class="c"><span>30</span><span class="pips"></span></div>
+            </div>
+            <div class="legend2">
+              <span><b style="background:var(--a-purple)"></b>상담</span>
+              <span><b style="background:var(--a-teal);border-radius:2px"></b>검사</span>
+              <span><b style="background:var(--a-orange)"></b>내 기록</span>
+            </div>
+          </div>
+
+          <div class="cd2">
+            <div class="btw"><span class="chip c-pu">놀이치료 4회기</span><span class="chip c-gr">출석</span></div>
+            <div class="xs mut" style="margin-top:9px;">8월 20일 (수) 오후 4:00 · 김선영 선생님</div>
+            <div style="background:var(--a-g50);border-radius:11px;padding:11px;margin-top:10px;">
+              <div class="xs b8 mut2" style="margin-bottom:5px;">선생님이 공유한 내용</div>
+              <div class="sm" style="line-height:1.65;color:var(--a-g600);">“블록 쌓기 놀이를 했어요. 집에서는 순서 지키기를 한 번 해보시면 좋겠어요.”</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div><div class="v">2</div><div class="k">이번 달 상담</div></div>
+            <div><div class="v">0</div><div class="k">이번 달 검사</div></div>
+            <div><div class="v">5</div><div class="k">내 기록</div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">달력 격자에 회기·검사·내 기록을 점으로 찍는다. <b>“2주에 한 번씩 가고 있구나”</b>가 사실만으로 보이고, 해석은 부모가 한다. 일정 탭과 다른 점은 <b>지난 것과 내 기록이 같은 격자에 찍힌다</b>는 것 하나다.</p>
+        <div class="frow"><div class="fl">필요</div><div>
+          <ul>
+            <li><span class="mk mk-ok">✓</span><span>격자와 점 — <code>/app/schedules</code>·<code>/app/records/dates</code>. 달력 컴포넌트는 일정 탭 구현분 재사용</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">리스크</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span><b>일정 탭과 정면으로 겹친다.</b> 탭 두 개가 같은 격자를 보여주면 케어보드가 존재할 이유를 잃는다</span></li>
+            <li><span class="mk mk-risk">!</span><span>드문드문 오는 가족에겐 빈 격자가 화면의 90%다 — 리듬이 없는 가족에게 리듬을 묻는 화면이 된다</span></li>
+          </ul></div></div>
+        <div class="frow"><div class="fl">판정</div><div>
+          <ul>
+            <li><span class="mk mk-risk">×</span><span>차이가 “지난 것과 내 기록도 찍힌다” 하나뿐이다. <b>일정 탭에 필터를 하나 더 다는 편이 싸다</b> — 탭을 쓰면서 얻는 게 없다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+<style>
+/* ── 비교표 ── */
+.compare{border-bottom:2px solid var(--ink);}
+.tblscroll{overflow-x:auto;}
+table.cmp{width:100%;min-width:900px;border-collapse:collapse;}
+table.cmp th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;color:var(--ink-4);
+  font-weight:500;text-align:left;padding:8px 10px;border-top:1px solid var(--rule-2);
+  border-bottom:1px solid var(--rule-2);white-space:nowrap;}
+table.cmp th.ct,table.cmp td.ct{text-align:center;}
+table.cmp th:first-child,table.cmp td:first-child{padding-left:34px;}
+table.cmp th:last-child,table.cmp td:last-child{padding-right:34px;}
+table.cmp td{padding:12px 10px;border-bottom:1px solid var(--rule);font-size:13px;line-height:1.65;
+  color:var(--ink-2);vertical-align:top;}
+table.cmp tr:last-child td{border-bottom:0;}
+table.cmp td.nm{font-weight:600;color:var(--ink);white-space:nowrap;}
+table.cmp td.nm em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:11px;
+  color:var(--ink-4);margin-right:7px;}
+table.cmp td.ax{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--pen);white-space:nowrap;}
+.meter{display:inline-flex;gap:2px;}
+.meter i{width:9px;height:9px;border:1px solid var(--rule-2);display:block;}
+.meter i.f{background:var(--ink);border-color:var(--ink);}
+.mlegend{display:flex;gap:22px;flex-wrap:wrap;padding:12px 34px 22px;font-size:11.5px;color:var(--ink-3);}
+.mlegend span{display:inline-flex;align-items:center;gap:8px;}
+
+/* ── 결정 ── */
+.decide{border-bottom:2px solid var(--ink);}
+.drow{display:grid;grid-template-columns:126px minmax(0,1fr) 150px;gap:22px;padding:20px 34px;
+  border-bottom:1px solid var(--rule);align-items:start;}
+.drow:last-child{border-bottom:0;}
+@media (max-width:760px){.drow{grid-template-columns:1fr;gap:12px;}}
+.drow .lft{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
+.drow .cc{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--ink);
+  border:1px solid var(--ink);padding:1px 8px;}
+.drow h4{font-size:15px;font-weight:600;margin-bottom:6px;}
+.drow p{font-size:13px;line-height:1.8;color:var(--ink-2);}
+.drow p b{font-weight:600;color:var(--ink);}
+.killstamp{justify-self:end;transform:rotate(-7deg);border:2px solid var(--stamp);color:var(--stamp);
+  font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;letter-spacing:.22em;
+  padding:7px 12px 7px 16px;box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 3px var(--stamp);
+  text-align:center;line-height:1.2;}
+@media (max-width:760px){.killstamp{justify-self:start;}}
+
+/* ── 합본 ── */
+.set.one{grid-template-columns:1fr;}
+.set.one .sheet{border-right:0;border-bottom:0;}
+.jgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;}
+@media (max-width:900px){.jgrid{grid-template-columns:1fr;}}
+.jgrid .jr{padding:14px 0;border-bottom:1px solid var(--rule);display:grid;
+  grid-template-columns:26px minmax(0,1fr);gap:12px;}
+.jgrid .jr:nth-child(odd){border-right:1px solid var(--rule);padding-right:24px;}
+.jgrid .jr:nth-child(even){padding-left:24px;}
+@media (max-width:900px){
+  .jgrid .jr:nth-child(odd){border-right:0;padding-right:0;}
+  .jgrid .jr:nth-child(even){padding-left:0;}
+}
+.jgrid .jn{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-4);padding-top:4px;}
+.jgrid h4{font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:baseline;gap:8px;
+  flex-wrap:wrap;}
+.jgrid h4 .from{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:500;color:var(--pen);
+  background:var(--pen-wash);padding:1px 6px;letter-spacing:.06em;}
+.jgrid p{font-size:12.5px;line-height:1.75;color:var(--ink-2);}
+.jgrid p b{font-weight:600;color:var(--ink);}
+
+footer{display:grid;grid-template-columns:1fr 300px;border-top:2px solid var(--ink);}
+@media (max-width:820px){footer{grid-template-columns:1fr;}}
+footer .fl2{padding:22px 34px 26px;font-size:12.5px;line-height:1.85;color:var(--ink-3);}
+footer .fl2 b{font-weight:600;color:var(--ink-2);}
+footer .fr2{border-left:1px solid var(--rule-2);padding:22px 22px 26px;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;line-height:2;color:var(--ink-4);}
+@media (max-width:820px){footer .fr2{border-left:0;border-top:1px solid var(--rule-2);}}
+</style>
+
+<section class="compare">
+  <div class="cap">
+    <h2>여섯 축이 각각 무엇에 답하는가</h2>
+    <span class="hint m">4 QUESTIONS × 6 SHEETS</span>
+    <span class="hint r m">■■■ 뼈대 / ■□□ 곁가지 / □□□ 없음</span>
+  </div>
+  <div class="tblscroll">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th style="min-width:118px">안</th>
+          <th style="min-width:132px">화면의 축</th>
+          <th class="ct">언제 가나</th>
+          <th class="ct">뭘 하면 되나</th>
+          <th class="ct">어디쯤 왔나</th>
+          <th class="ct">내 기록</th>
+          <th style="min-width:112px">새 계약</th>
+          <th style="min-width:240px">가장 큰 리스크</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="nm"><em>D</em>이번 주</td><td class="ax">시간 창 · 주</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td>공유 축</td>
+          <td>조용한 주엔 빈 화면. 빈 상태가 결핍으로 읽힐 위험</td>
+        </tr>
+        <tr>
+          <td class="nm"><em>E</em>편지함</td><td class="ax">도달 · 읽음</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i></i><i></i><i></i></span></td>
+          <td>공유 축 + 읽음</td>
+          <td>알림 목록과 역할 중복. 진행 위치가 화면에서 사라짐</td>
+        </tr>
+        <tr>
+          <td class="nm"><em>F</em>카드 덱</td><td class="ax">한 번에 한 장</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td>없음</td>
+          <td>안 넘기면 2~4장은 존재하지 않는 것과 같다</td>
+        </tr>
+        <tr>
+          <td class="nm"><em>G</em>질문에 답하기</td><td class="ax">부모의 질문</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td>공유 축</td>
+          <td>질문이 고정이라 상황과 어긋남(검사만 하는 가족·종결 가족)</td>
+        </tr>
+        <tr>
+          <td class="nm"><em>H</em>두 손</td><td class="ax">주체</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td>해봤어요 체크</td>
+          <td>오른쪽 열이 비면 부모 책임 프레임. 375폭 2열이라 인용이 잘림</td>
+        </tr>
+        <tr>
+          <td class="nm"><em>I</em>리듬 달력</td><td class="ax">주기</td>
+          <td class="ct"><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span></td>
+          <td class="ct"><span class="meter"><i></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td class="ct"><span class="meter"><i class="f"></i><i></i><i></i></span></td>
+          <td>없음</td>
+          <td><b style="color:var(--stamp)">일정 탭과 정면 중복</b> — 탭이 존재할 이유를 잃는다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mlegend">
+    <span><span class="meter"><i class="f"></i><i class="f"></i><i class="f"></i></span> 화면의 뼈대로 답한다</span>
+    <span><span class="meter"><i class="f"></i><i></i><i></i></span> 곁가지로 답한다</span>
+    <span><span class="meter"><i></i><i></i><i></i></span> 이 안에는 없다</span>
+    <span style="margin-left:auto" class="m">부모가 들고 오는 질문은 넷 — 어떤 안도 넷 다 뼈대로 삼지는 못한다</span>
+  </div>
+</section>
+
+<section class="decide">
+  <div class="cap"><h2>결정</h2><span class="hint m">§ VERDICT</span></div>
+
+  <div class="drow">
+    <div class="lft"><span class="cc">F</span><span class="verd v-go">지금 세운다</span></div>
+    <div>
+      <h4>새 계약 없이 오늘 만들 수 있는 유일한 안</h4>
+      <p>카드 넉 장의 재료가 전부 기존 API다. 공유 카드는 빈 상태로 두고, <b>“② 없이도 화면이 서는가”</b>를 실제로 확인하는 데 이만한 안이 없다 — Phase 0의 질문이 정확히 그것이다.</p>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="drow">
+    <div class="lft"><span class="cc">G</span><span class="verd v-key">축으로 채택</span></div>
+    <div>
+      <h4>공유 축이 뚫리는 순간 완성되는 안</h4>
+      <p>네 질문 모두에 뼈대로 답하는 유일한 안이고, 답마다 <b>출처가 붙어</b> 판정 금지와 구조적으로 충돌하지 않는다. 도메인 용어가 한 번도 나오지 않는 것도 이 안뿐이다.</p>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="drow">
+    <div class="lft"><span class="cc">H</span><span class="verd v-key">축으로 채택</span></div>
+    <div>
+      <h4>내담자 상세와 가장 멀어지는 구조</h4>
+      <p>보호자 기록이 회기와 <b>대등한 열</b>로 올라가는 건 직원 화면이 절대 할 수 없는 배치다. 다만 2열 레이아웃은 375폭에서 무리라, 축만 가져오고 형태는 섹션으로 바꾼다.</p>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="drow">
+    <div class="lft"><span class="cc">D · E</span><span class="verd v-hold">부품으로</span></div>
+    <div>
+      <h4>좋은 조각이지만 탭 전체의 축은 아니다</h4>
+      <p>D의 <b>주간 스트립</b>과 E의 <b>안 읽은 것 배지</b>는 다른 안 위에 얹을 수 있는 부품이다. 단독 축으로 쓰면 각각 “어디쯤 왔나”와 “진행”을 통째로 잃는다.</p>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="drow">
+    <div class="lft"><span class="cc">I</span><span class="verd v-kill">기각</span></div>
+    <div>
+      <h4>일정 탭이 이미 하는 일</h4>
+      <p>차이가 “지난 것과 내 기록도 찍힌다” 하나뿐인데, 그건 <b>일정 탭에 필터를 하나 더 다는 편</b>이 싸다. 탭을 하나 쓰면서 얻는 게 없다.</p>
+    </div>
+    <div class="killstamp">기각<br/>권고</div>
+  </div>
+</section>
+
+<div class="set one">
+  <article class="sheet">
+    <div class="sh"><span class="no">SHT 07</span><span class="cd">J</span><h3>합본안</h3><span class="ax">G의 목차 + v1 A의 순서 + H의 축</span></div>
+    <div class="sb">
+      <div class="ph">
+        <div class="st"><span>9:41</span><span class="m">▮▮▮ ▮</span></div>
+        <div class="nav"><span class="t">케어보드</span><span class="kid"><span class="av">은</span>은서 ▾</span></div>
+        <div class="bd" style="gap:12px;">
+          <div class="sec">다음엔 언제 가요?</div>
+          <div class="hero">
+            <span class="dd">D-1 · 다음 상담</span>
+            <div class="wh">내일 (토) 오후 4:00</div>
+            <div class="wt">놀이치료-개인 5회기 · 김선영 선생님<br/>어린이마래팍센터 · 2층 놀이실</div>
+            <div class="cta">일정 자세히 보기</div>
+          </div>
+
+          <div class="sec">집에서 뭘 하면 되나요?</div>
+          <div class="cd2">
+            <div class="md b8">순서 지키기 놀이</div>
+            <div class="sm" style="line-height:1.65;color:var(--a-g600);margin-top:5px;">“보드게임 한 판씩, 차례를 기다리는 연습을 해보시면 좋겠어요.”</div>
+            <div class="xs mut2" style="margin-top:8px;">4회기(8/20)에서 · 김선영 선생님이 공유</div>
+          </div>
+
+          <div class="sec">지금 어디까지 왔어요? <span class="more">전체 ›</span></div>
+          <div class="cd2">
+            <div class="btw"><span class="chip c-pu">놀이치료-개인</span><span class="sm b8" style="color:var(--a-purple);">4 / 12회기</span></div>
+            <div class="dots" style="margin:10px 0 8px;"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="nx"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="xs mut2">5월 12일 시작 · 김선영 선생님 · 바우처 8회 남음</div>
+          </div>
+          <div class="cd2">
+            <div class="btw"><span class="chip c-te">풀배터리 검사</span><span class="chip c-gr">결과지 도착</span></div>
+            <div class="dots te" style="margin:10px 0 8px;"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+            <div class="btw"><span class="xs mut2">6종 모두 완료 · 8월 2일</span><span class="xs b7" style="color:var(--a-brand-600);">결과지 열기 ›</span></div>
+          </div>
+
+          <div class="sec">우리 집에선 무슨 일이 있었나요? <span class="more">+ 남기기</span></div>
+          <div class="cd2" style="padding:12px 14px;">
+            <div class="mrow"><span class="mdot" style="background:var(--a-orange)"></span>
+              <div><div class="sm b7">놀이터에서 먼저 친구한테 말을 걸었다</div>
+              <div class="xs mut2" style="margin-top:2px;">8월 19일 (화) · 웃음</div></div></div>
+            <div class="mrow"><span class="mdot" style="background:var(--a-green)"></span>
+              <div><div class="sm b7">잘 시간에 떼 없이 방으로 들어갔다</div>
+              <div class="xs mut2" style="margin-top:2px;">8월 21일 (목) · 편안</div></div></div>
+          </div>
+
+          <div class="cd2" style="border-style:dashed;border-color:var(--a-g200);text-align:center;padding:13px;box-shadow:none;background:transparent;">
+            <span class="sm b7 mut2">지나온 기록 12건 펼치기 ▾</span>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div><svg class="ic"><use href="#i-home"/></svg>홈</div>
+          <div><svg class="ic"><use href="#i-cal"/></svg>일정</div>
+          <div><svg class="ic"><use href="#i-doc"/></svg>기록</div>
+          <div class="on"><svg class="ic"><use href="#i-board"/></svg>케어보드</div>
+          <div><svg class="ic"><use href="#i-user"/></svg>마이</div>
+        </div>
+      </div>
+
+      <div class="fx">
+        <p class="lead">채택한 두 축(G·H)을 v1 A의 <b>행동 순서</b> 위에 얹은 것. 위에서 아래로 읽으면 부모가 할 일이 끝나고, 네 섹션 중 셋은 <b>오늘 API로 그대로 선다</b>. 공유 축이 필요한 건 두 번째 섹션 하나뿐이라, Phase 0에서 이 형태로 출발해 Phase 1에서 그 섹션만 채워진다.</p>
+        <div class="jgrid">
+          <div class="jr"><span class="jn">01</span><div>
+            <h4>질문을 섹션 제목으로 <span class="from">G</span></h4>
+            <p>케이스·회기 같은 도메인 용어 대신 부모의 문장이 목차가 된다. 제목만 읽어도 이 탭이 무엇에 답하는 화면인지 알 수 있다.</p>
+          </div></div>
+          <div class="jr"><span class="jn">02</span><div>
+            <h4>순서는 행동 순 <span class="from">v1 A</span></h4>
+            <p>다음 일정 → 해볼 것 → 어디쯤 → 우리 집. 시간 역순이 아니라 <b>할 일 순</b>이라, 읽고 나서 할 수 있는 행동이 남는다.</p>
+          </div></div>
+          <div class="jr"><span class="jn">03</span><div>
+            <h4>‘우리 집’을 대등한 섹션으로 <span class="from">H</span></h4>
+            <p>2열 대신 섹션으로 접어 375폭 문제를 피하면서 축은 살린다. 보호자 기록이 진행 스트립 바로 아래, 같은 크기로 온다.</p>
+          </div></div>
+          <div class="jr"><span class="jn">04</span><div>
+            <h4>공유가 없으면 그 섹션만 빈 상태</h4>
+            <p>“아직 선생님이 남긴 말이 없어요” 한 줄. 나머지 세 섹션은 그대로 서므로, <b>화면이 서는지</b>를 Phase 1 착수 전에 확인할 수 있다.</p>
+          </div></div>
+        </div>
+        <div class="frow" style="border-top:1px solid var(--rule-2);margin-top:4px;"><div class="fl">확인</div><div>
+          <ul>
+            <li><span class="mk mk-risk">!</span><span>질문형 제목이 반복 방문 시 잔소리처럼 읽히는지 — 사용성 확인 항목</span></li>
+            <li><span class="mk mk-new">+</span><span>D의 주간 스트립과 E의 안 읽은 배지를 얹을 자리는 각각 최상단·탭 배지로 비워 둔다</span></li>
+          </ul></div></div>
+      </div>
+    </div>
+  </article>
+</div>
+
+<footer>
+  <div class="fl2">
+    이 보드는 <b>화면 축 탐색</b>이고, 데이터 계약과 게이트 판정은 케어보드-아키텍처-v1.md가 정본이다.
+    일곱 장 모두 그 문서의 §2 데이터 출처 표와 §3-4 게이트 적용 지점을 그대로 전제한다 —
+    <b>어느 안을 고르든 신설되는 쓰기 축은 “선생님 공유” 하나</b>이고, H의 ‘해봤어요’를 채택할 때만 하나가 더 는다.
+  </div>
+  <div class="fr2">
+    docs/client-app/<br/>케어보드-메인-시안-v2.html<br/>
+    2026-08-25 · REV 2<br/>
+    목업 데이터 전부 가상<br/>(은서 · 김선영 · 어린이마래팍센터)
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

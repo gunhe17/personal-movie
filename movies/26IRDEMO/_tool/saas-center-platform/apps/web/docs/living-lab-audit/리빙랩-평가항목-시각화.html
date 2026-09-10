@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mindSCOPE 평가 항목 준비도 — 시각화 대시보드</title>
+<style>
+  :root{
+    --ink:#181b22; --sub:#5b6472; --line:#e6e9ee; --bg:#f6f7f9; --card:#fff;
+    --green:#1d8a4e; --green-bg:#e9f6ee; --amber:#c98a10; --amber-bg:#fdf6e8;
+    --red:#d94141; --red-bg:#fdeeee; --violet:#7c5cd6; --violet-bg:#f1ecfc;
+    --blue:#2f6fed; --blue-bg:#eaf1fe; --mint:#0e9488; --mint-bg:#e6f5f3;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.55;}
+  .wrap{max-width:1180px; margin:0 auto; padding:44px 36px 120px;}
+  h1{font-size:25px; font-weight:800; letter-spacing:-0.7px;}
+  .meta{font-size:13px; color:var(--sub); margin:6px 0 24px;}
+
+  /* ===== 히어로: 도넛 + 요약 ===== */
+  .hero{display:flex; gap:26px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px 30px; flex-wrap:wrap;}
+  .donut-box{position:relative; width:190px; height:190px; flex-shrink:0;}
+  .donut-box svg{transform:rotate(-90deg);}
+  .donut-box circle{fill:none; stroke-width:22; stroke-linecap:butt;
+    stroke-dasharray:0 999; transition:stroke-dasharray 1.1s cubic-bezier(.4,0,.2,1);}
+  .donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .donut-center .big{font-size:34px; font-weight:800; letter-spacing:-1.5px;}
+  .donut-center .sml{font-size:11.5px; color:var(--sub); font-weight:700;}
+  .hero-right{flex:1; min-width:280px;}
+  .hero-right h2{font-size:17px; font-weight:800; margin-bottom:10px; border:none; padding:0;}
+  .kbars{display:flex; flex-direction:column; gap:9px;}
+  .kbar{display:flex; align-items:center; gap:10px;}
+  .kbar .lb{width:120px; font-size:12.5px; font-weight:800;}
+  .kbar .tr{flex:1; height:12px; background:#eef0f4; border-radius:8px; overflow:hidden;}
+  .kbar .fill{height:100%; border-radius:8px; width:0; transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .kbar .n{width:26px; font-size:13px; font-weight:800; text-align:right;}
+  .hero-note{font-size:12.5px; color:var(--sub); margin-top:12px; line-height:1.6;}
+  .hero-note b{color:var(--red);}
+
+  /* ===== 필터 ===== */
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin:26px 0 6px; position:sticky; top:0; z-index:40; background:rgba(246,247,249,0.93); backdrop-filter:blur(8px); padding:12px 0;}
+  .fbtn{font-family:inherit; font-size:12.5px; font-weight:800; padding:8px 16px; border-radius:20px; border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer; transition:all .15s;}
+  .fbtn:hover{transform:translateY(-1px);}
+  .fbtn.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  /* ===== 보드 ===== */
+  h3.board-title{font-size:16.5px; font-weight:800; margin:26px 0 4px;}
+  h3.board-title .cnt{font-size:12.5px; color:var(--sub); font-weight:700; margin-left:6px;}
+  .board-desc{font-size:12.5px; color:var(--sub); margin-bottom:12px;}
+  .board{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:12px;}
+  .tile{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px 13px; cursor:pointer; position:relative;
+    opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease, box-shadow .18s, border-color .18s;}
+  .tile.visible{opacity:1; transform:translateY(0);}
+  .tile:hover{box-shadow:0 8px 24px rgba(20,30,50,.10); border-color:#c9d2e0; transform:translateY(-2px);}
+  .tile.dim{opacity:.22 !important; pointer-events:none;}
+  .tile .top{display:flex; align-items:center; gap:7px; margin-bottom:8px;}
+  .tile .no{font-size:11px; font-weight:800; color:var(--sub); background:#eef0f4; border-radius:6px; padding:1px 7px;}
+  .tile .apps{display:flex; gap:4px; margin-left:auto;}
+  .tile .app{font-size:9.5px; font-weight:800; padding:1px 7px; border-radius:10px;}
+  .app.web{background:var(--blue-bg); color:var(--blue);}
+  .app.mob{background:var(--mint-bg); color:var(--mint);}
+  .tile .name{font-size:14.5px; font-weight:800; line-height:1.35; margin-bottom:9px; min-height:38px;}
+  .tile .foot{display:flex; align-items:center; justify-content:space-between;}
+  .tile .st{font-size:11px; font-weight:800; padding:3px 10px; border-radius:14px;}
+  .st.s-ok{background:var(--green-bg); color:var(--green);}
+  .st.s-part{background:var(--amber-bg); color:var(--amber);}
+  .st.s-no{background:var(--red-bg); color:var(--red);}
+  .st.s-q{background:var(--violet-bg); color:var(--violet);}
+  .tile .more{font-size:11px; color:var(--sub); font-weight:700;}
+  .tile .sideline{position:absolute; left:0; top:12px; bottom:12px; width:4px; border-radius:4px;}
+  .tile[data-st="ok"] .sideline{background:var(--green);}
+  .tile[data-st="part"] .sideline{background:var(--amber);}
+  .tile[data-st="no"] .sideline{background:var(--red); animation:blink 1.8s infinite;}
+  .tile[data-st="q"] .sideline{background:var(--violet);}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+  /* 참조 타일 (A와 동일 항목 — 압축 표시) */
+  .tile.ref{padding:10px 16px; cursor:default; background:#fbfcfd;}
+  .tile.ref:hover{box-shadow:none; transform:none; border-color:var(--line);}
+  .tile.ref .name{min-height:auto; font-size:13px; color:var(--sub); margin-bottom:0; display:flex; align-items:center; gap:8px;}
+  .tile.ref .refgo{font-size:11px; font-weight:800; color:var(--blue); background:var(--blue-bg); padding:2px 9px; border-radius:12px; margin-left:auto;}
+
+  /* ===== 누락 기능 제안 ===== */
+  .wish-board{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:12px;}
+  .wish{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:15px 18px 14px; position:relative;
+    opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease;}
+  .wish.visible{opacity:1; transform:translateY(0);}
+  .wish .wtop{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+  .wish .wname{font-size:14.5px; font-weight:800;}
+  .wish .when{font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:12px; margin-left:auto; white-space:nowrap;}
+  .when.w1{background:var(--red-bg); color:var(--red);}
+  .when.w2{background:var(--amber-bg); color:var(--amber);}
+  .when.w3{background:#eef0f3; color:var(--sub);}
+  .wish .wgr{font-size:12px; color:var(--sub); margin-bottom:6px; line-height:1.55;}
+  .wish .wgr b{color:var(--ink);}
+  .wish .weff{font-size:12.5px; color:#2c333e; line-height:1.55; padding-left:18px; position:relative;}
+  .wish .weff::before{content:"→"; position:absolute; left:0; color:var(--blue); font-weight:800;}
+  @media (prefers-reduced-motion:reduce){ .tile{transition:none; opacity:1; transform:none;} .tile[data-st="no"] .sideline{animation:none;} .donut-box circle{transition:none;} .kbar .fill{transition:none;} }
+
+  /* ===== 모달 ===== */
+  #ovl{position:fixed; inset:0; background:rgba(18,21,28,.45); z-index:98; opacity:0; pointer-events:none; transition:opacity .18s;}
+  #ovl.show{opacity:1; pointer-events:auto;}
+  #mdl{position:fixed; left:50%; top:50%; transform:translate(-50%,-46%) scale(.97); width:min(520px, calc(100vw - 40px)); max-height:82vh; overflow-y:auto; background:#fff; border-radius:18px; z-index:99; opacity:0; pointer-events:none; transition:all .18s; box-shadow:0 20px 60px rgba(0,0,0,.28);}
+  #mdl.show{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1);}
+  #mdl .mh{display:flex; align-items:center; gap:10px; padding:18px 22px 10px;}
+  #mdl .mh .st{font-size:12px; padding:4px 12px;}
+  #mdl .mx{margin-left:auto; width:32px; height:32px; border:none; background:#f0f2f5; border-radius:50%; font-size:15px; color:var(--sub); cursor:pointer;}
+  #mdl .mt{padding:2px 22px 0; font-size:18.5px; font-weight:800; letter-spacing:-0.4px;}
+  #mdl .msec{padding:12px 22px 0;}
+  #mdl .msec .k{font-size:11px; font-weight:800; color:var(--sub); text-transform:uppercase; letter-spacing:.3px; margin-bottom:4px;}
+  #mdl .msec .v{font-size:14px; line-height:1.65; color:#2c333e;}
+  #mdl .mlimit{margin:14px 22px 20px; background:var(--amber-bg); border-radius:10px; padding:10px 14px; font-size:13px;}
+  #mdl .mlimit.hard{background:var(--red-bg);}
+  #mdl code{font-family:"SF Mono",Menlo,monospace; font-size:11.5px; background:#eef0f4; padding:1px 6px; border-radius:5px;}
+  @media (max-width:700px){ .wrap{padding:24px 16px 80px;} .hero{padding:20px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>평가 항목 준비도 — 시각화 대시보드</h1>
+<div class="meta">「mind scope 프로그램 평가 및 보완계획」의 공식 평가 항목 24종 × 구현 준비도 · 타일 클릭 = 상세 · 평가 진행용: <a href="./리빙랩-평가항목-가이드.html" style="color:var(--blue); font-weight:700;">기능 항목 가이드 보기</a></div>
+
+<div class="hero">
+  <div class="donut-box">
+    <svg width="190" height="190" viewBox="0 0 190 190">
+      <circle cx="95" cy="95" r="76" stroke="#eef0f4" stroke-dasharray="999 0"></circle>
+      <circle id="seg-ok"   cx="95" cy="95" r="76" stroke="#1d8a4e"></circle>
+      <circle id="seg-part" cx="95" cy="95" r="76" stroke="#e0a52a"></circle>
+      <circle id="seg-no"   cx="95" cy="95" r="76" stroke="#d94141"></circle>
+      <circle id="seg-q"    cx="95" cy="95" r="76" stroke="#7c5cd6"></circle>
+    </svg>
+    <div class="donut-center"><div class="big">24</div><div class="sml">평가 항목</div></div>
+  </div>
+  <div class="hero-right">
+    <h2>준비도 한눈에</h2>
+    <div class="kbars">
+      <div class="kbar"><span class="lb" style="color:var(--green)">✅ 완성</span><div class="tr"><div class="fill" data-w="41.7" style="background:var(--green)"></div></div><span class="n">10</span></div>
+      <div class="kbar"><span class="lb" style="color:var(--amber)">🟡 부분·조건부</span><div class="tr"><div class="fill" data-w="33.3" style="background:#e0a52a"></div></div><span class="n">8</span></div>
+      <div class="kbar"><span class="lb" style="color:var(--red)">🔴 미노출·미연결</span><div class="tr"><div class="fill" data-w="16.7" style="background:var(--red)"></div></div><span class="n">4</span></div>
+      <div class="kbar"><span class="lb" style="color:var(--violet)">❓ 의도 확인</span><div class="tr"><div class="fill" data-w="8.3" style="background:var(--violet)"></div></div><span class="n">2</span></div>
+    </div>
+    <div class="hero-note">🔴 4건 중 3건이 AI(검사 해석·바우처 서류·에이전트) — <b>리빙랩 환경에서 AI 활성화 결정</b>이 성패를 가른다. 2차 평가 문안 "중복 일정 확인"은 현재 최대 결함(이중 배정 무검사)을 정조준.</div>
+  </div>
+</div>
+
+<div class="filters">
+  <button class="fbtn on" data-f="all">전체 24</button>
+  <button class="fbtn" data-f="ok">✅ 완성 10</button>
+  <button class="fbtn" data-f="part">🟡 부분 8</button>
+  <button class="fbtn" data-f="no">🔴 미노출 4</button>
+  <button class="fbtn" data-f="q">❓ 확인 2</button>
+</div>
+
+<h3 class="board-title">A. 내담자 관리 프로그램<span class="cnt">7종 · 1차 검증 중점</span></h3>
+<div class="board-desc">내담자 등록 · 검사 발송 · 센터 운영 등 기본 준비 과정</div>
+<div class="board" id="board-a"></div>
+
+<h3 class="board-title">B. 관리자 / 전문가 프로그램<span class="cnt">17종 · A와 동일 항목은 압축 표시</span></h3>
+<div class="board-desc">센터 운영 · 상담 진행 · 기록 · AI 보조 전반</div>
+<div class="board" id="board-b"></div>
+
+<h3 class="board-title" id="wish">＋ 누락 기능 제안<span class="cnt">평가 항목엔 없지만, 전수조사에서 드러난 "있었으면 좋겠는 것" 10건</span></h3>
+<div class="board-desc">각 제안은 조사에서 확인된 실제 갭이 근거. 시기 태그: <span class="when w1" style="position:static">1차 보완</span> = 지금 기간(~7.31) 내 경량 대응 가능 · <span class="when w2" style="position:static">2차 보완</span> = 8월 · <span class="when w3" style="position:static">출시 후</span></div>
+<div class="wish-board" id="wish-board">
+
+  <div class="wish"><div class="wtop"><span class="wname">센터 초기 세팅 체크리스트</span><span class="when w1">1차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 센터 승인 직후 빈 캘린더에 떨어짐 — 상담실→프로그램→단가→멤버 순서 안내가 전혀 없음</div>
+    <div class="weff">평가자(신규 센터 입장)의 첫 10분 경험을 좌우. 빈 캘린더에 세팅 카드 4개만 띄워도 해결</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">관리자 아침 브리핑 (할 일 모아보기)</span><span class="when w1">1차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 미청구 세션·미처리 회기·연장/종결 확인·바우처 임박 신호가 4개 화면에 분산 — 대시보드는 역할 구분 없이 동일</div>
+    <div class="weff">"오늘 뭐가 밀렸나"에 답하는 화면. 기존 신호들을 대시보드 관리자 분기로 모으기만 하면 됨</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">검사 완료 → 상담 연계 버튼</span><span class="when w1">1차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 2차 평가 중점이 "검사 결과 확인부터 상담 진행까지"인데, 검사 상세에서 상담 접수로 이어지는 동선이 없음(메뉴로 돌아가야 함)</div>
+    <div class="weff">검사 상세에 "이 내담자로 상담 접수" 버튼 하나로 2차 평가 시나리오가 매끄러워짐</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">데이터 범위 라벨 ("내 담당만 보는 중")</span><span class="when w1">1차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 상담사 데이터 격리를 백엔드가 조용히 처리 — 화면엔 표시가 없어 전체를 보고 있다고 오해 가능</div>
+    <div class="weff">목록 헤더에 문구 한 줄. 평가자 5명이 서로 다른 데이터를 보고 혼란스러워할 상황 예방</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">환불 · 납부 기록 정정</span><span class="when w2">2차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 청구 도메인(~125 기능)에서 유일하게 없는 것 — 납부는 추가만 가능, 잘못 입력하면 되돌릴 수 없음</div>
+    <div class="weff">실운영·평가 중 오입력은 반드시 발생. 정정 경로가 없으면 보완요구 1순위로 올라올 것</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">통합 신규문의 인입점</span><span class="when w2">2차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 접수가 상담/검사/운영 3곳 분산 — "아직 상담인지 검사인지 모르는" 첫 전화 문의를 기록할 곳이 없음</div>
+    <div class="weff">문의 → 배정 → 접수 전환의 앞단이 생겨 센터 인입 관리가 완결됨</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">모바일 간이 회기 예약</span><span class="when w2">2차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 모바일은 조회·상태변경만 — 세션 직후 "다음 주 같은 시간 잡기"가 안 돼 웹으로 가야 함</div>
+    <div class="weff">"같은 조건으로 다음 회기 추가" 버튼 하나면 현장 분업 갭의 80%가 해소</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">상담사 가용 시간 추천</span><span class="when w2">2차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 이중 배정 검사(즉시 수정 항목)의 다음 단계 — 충돌을 막는 것을 넘어 빈 슬롯을 제안</div>
+    <div class="weff">접수 시 "이 상담사의 가장 빠른 가능 시간" 제시 — 2차 평가 문안(예약·변경·중복 확인)에서 차별점</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">바우처 증빙 PDF 출력</span><span class="when w2">2차 보완</span></div>
+    <div class="wgr"><b>근거:</b> 평가 항목 B-12 "납부 증빙" — 사용 내역 조회는 있으나 기관 제출용 출력물이 없음 (의도 확인 후)</div>
+    <div class="weff">사용 내역 → 기관 양식 PDF 한 번에. 바우처 센터의 월말 업무 직결</div></div>
+
+  <div class="wish"><div class="wtop"><span class="wname">퇴사자 담당 이관 + 내담자 예약 신청 채널</span><span class="when w3">출시 후</span></div>
+    <div class="wgr"><b>근거:</b> 멤버 비활성화 시 담당 케이스·일정 처리 미정의 / 예약현황·예약설정 화면 껍데기가 가리키는 방향(내담자가 직접 예약 신청)</div>
+    <div class="weff">장기 운영 완결성 — 리빙랩 피드백으로 우선순위 재검증 후 진행</div></div>
+
+</div>
+
+</div>
+
+<div id="ovl"></div>
+<div id="mdl" role="dialog" aria-modal="true">
+  <div class="mh"><span class="st" id="m-st"></span><button class="mx" id="m-x">✕</button></div>
+  <div class="mt" id="m-t"></div>
+  <div class="msec"><div class="k">구현 위치</div><div class="v" id="m-where"></div></div>
+  <div class="msec"><div class="k">상태 요약</div><div class="v" id="m-sum"></div></div>
+  <div class="mlimit" id="m-limit"></div>
+</div>
+
+<script>
+const ST = {
+  ok:  {label:'✅ 완성',        cls:'s-ok'},
+  part:{label:'🟡 부분·조건부', cls:'s-part'},
+  no:  {label:'🔴 미노출·미연결', cls:'s-no'},
+  q:   {label:'❓ 의도 확인',   cls:'s-q'}
+};
+const ITEMS_A = [
+ {no:1, name:'주간/월간 스케줄 관리 + 스케줄 통계', st:'part', apps:['web','mob'],
+  where:'웹 캘린더 3뷰(월/주/일·장소/담당자 타임라인) · 모바일 일정 탭 3뷰(월간/주간/통계)',
+  sum:'캘린더·모바일 통계는 완성. 웹 통계 화면(대시보드>분석)은 전부 더미("-") — 평가자가 웹에서 통계를 찾으면 빈 화면을 보게 됨.',
+  limit:'보완: 웹 통계 최소 구현 or "준비 중" 명시 or 진입 차단. 평가는 모바일 통계 뷰 기준으로 안내.'},
+ {no:2, name:'내담자 조회 / 관계 관리', st:'ok', apps:['web','mob'],
+  where:'웹 내담자 목록·상세(관계 표시·클릭 이동)·보호자 배치 등록 · 모바일 목록(초성·즐겨찾기·전화/문자)·상세(Attention 신호)',
+  sum:'아동+보호자 동시 등록·관계 연결·양방향 이동까지 완성. 모바일 고유 편의(빠른 연락·즐겨찾기 캐러셀) 강점.',
+  limit:'참고: 관계 수정은 웹 수정 폼 경유(모바일은 조회). role=both(내담자이자 보호자)는 미지원.'},
+ {no:3, name:'검사 진행 현황 조회', st:'ok', apps:['web','mob'],
+  where:'웹 검사 현황(탭·필터·행 액션) + 이력(벌크 선택) + 전송 내역 · 모바일 검사 목록·상세',
+  sum:'상태 추적·전송 이력·재전송까지 완성.', limit:''},
+ {no:4, name:'검사의 시작부터 결과까지 (바로링크)', st:'part', apps:['web'],
+  where:'접수 → 링크 발송(SMS/카카오/이메일/QR) → 내담자 로그인+본인확인 → 수행 → 제출 알림 → 결과 링크 → 인증번호 4자리 다운로드',
+  sum:'end-to-end 흐름은 실제로 닫혀 있음.',
+  limit:'보완 필수: 바로링크 화면 centerId 하드코딩(P0-1, 한 줄) · 검사/결과 링크 라벨 분리 · 내담자 2단 인증 실전 리허설.'},
+ {no:5, name:'푸시 알림', st:'part', apps:['mob'],
+  where:'모바일 FCM 푸시 + 앱 아이콘 뱃지 + 딥링크 + 알림 설정(항목 토글) · 웹은 인앱 알림(30초 폴링)',
+  sum:'모바일 완성. 웹은 브라우저 푸시가 아님 — 평가 기대치 조정 or 알림톡 채널 활성화 결정 필요.',
+  limit:'안내: "푸시"는 모바일 기준으로 평가. 웹은 화면 내 알림.'},
+ {no:6, name:'청구 관리', st:'ok', apps:['web','mob'],
+  where:'웹: 미청구 배너·생성 3경로(자유/세션/패키지)·부분 납부·단가표 · 모바일: 본인 담당 발행·납부·영수증',
+  sum:'가장 조밀한 도메인(~125 기능). 바우처 연동 검증(회기 부족=차단·금액 초과=경고)까지.',
+  limit:'사전 고지: 환불·납부 기록 정정 미구현 — 평가 중 정정 요구 시 보완사항으로 기록.'},
+ {no:7, name:'최신 바우처 정보 알림', st:'q', apps:['web'],
+  where:'대시보드 바우처 신호 3종: 신규·수정(7일) / 소진 임박(≤2회) / 만료 임박(14일) → 클릭 시 내담자 목록',
+  sum:'"보유 바우처 상태 알림"이면 완성. "최신 바우처 제도/사업 정보 알림"이면 해당 기능 없음.',
+  limit:'확인 필요: 기획 의도(상태 알림 vs 제도 정보) 확정 후 평가 안내 문구 결정.'}
+];
+const ITEMS_B = [
+ {no:1, name:'일간/주간/월간 스케줄 관리', st:'ok', apps:['web'],
+  where:'웹 캘린더 — 일간은 장소별/담당자별 타임라인, 빈 슬롯 클릭 등록, 충돌 배지',
+  sum:'완성. 사소한 잔결함: 상세 모달 "취소" 핸들러 미구현(삭제는 동작).', limit:''},
+ {no:2, name:'내담자 조회/관계 관리', st:'ok', apps:['web','mob'], ref:'A-2', where:'', sum:'', limit:''},
+ {no:3, name:'내담자의 모든 기록 (케어보드)', st:'part', apps:['web'],
+  where:'내담자 상세 4탭(진행현황·사전기록지·문서·바우처) + 상담 상세의 세션·일지',
+  sum:'기록 통합 기능은 존재. 단 "케어보드"라는 이름의 단일 화면은 없어 평가자가 못 찾을 수 있음.',
+  limit:'보완: 평가 양식에 항목명↔화면명 매핑표 첨부("케어보드"=내담자 상세).'},
+ {no:4, name:'스마트 일괄 회기 추가', st:'ok', apps:['web'],
+  where:'상담 접수 멀티 날짜 피커(간격 패턴 자동 반복·소요시간 자동 계산) + 상담 상세 회기 추가·연장 배너',
+  sum:'10회기 세팅이 짧은 흐름으로 완결. 충돌 경고(차단 없음) 정책 포함.', limit:''},
+ {no:5, name:'AI 기반 상담일지 초안', st:'part', apps:['mob','web'],
+  where:'모바일 필드노트 녹음→분석→"상담일지 초안 만들기"→일지 prefill(서식 5종) · 웹 상담 상세에서 동일 일지 열람',
+  sum:'기능 자체는 완성. 크레딧·플랜 게이팅 연동.',
+  limit:'결정 선행: "AI 프로덕션 미배포" 방침과 충돌 — 리빙랩 환경 AI 활성화 확정 필요.'},
+ {no:6, name:'검사 결과 통합 관리 (18종)', st:'ok', apps:['web'],
+  where:'설정>검사 관리(취급 검사 활성화·세트 구성) + 검사 상세(점수·의견·보고서 업로드)',
+  sum:'완성. 운영 준비: 평가 센터에 검사 18종 시드·활성 세팅.', limit:''},
+ {no:7, name:'AI 기반 검사 해석 보조', st:'no', apps:['web'],
+  where:'프로덕션 진입 화면 없음 — 백엔드 ai_lab(실험 인프라: experiment/prompt_version) 단계',
+  sum:'평가 항목인데 평가자가 볼 화면이 없음. 1차 보완 최대 갭.',
+  limit:'결정 필수: 평가 범위 재협의(차수 연기) or 최소 노출 구현.'},
+ {no:8, name:'AI 기반 검사 보고서 작성', st:'part', apps:['web'],
+  where:'자기보고식 자동 채점+PDF 보고서 생성 엔진(백엔드 scoring/generate_report_pdf) + 보고서 수동 업로드',
+  sum:'자기보고식 자동 보고서는 동작. "AI 작성"(LLM)으로 평가받을 범위인지 확인 필요.',
+  limit:'확인: 평가 기대 범위 정의(자동 채점·생성 vs LLM 서술 작성).'},
+ {no:9, name:'바로링크', st:'part', apps:['web'], ref:'A-4', where:'', sum:'', limit:''},
+ {no:10, name:'전문가 학력/경력/자격 · 인증 뱃지', st:'ok', apps:['web'],
+  where:'내 정보>자격·학력·경력 — 인증 신청(증빙 첨부)→승인/반려 알림→뱃지',
+  sum:'완성. 운영 준비: 승인 주체(플랫폼 관리자) 처리 리허설.', limit:''},
+ {no:11, name:'결제 / 청구 관리', st:'ok', apps:['web','mob'], ref:'A-6', where:'', sum:'', limit:''},
+ {no:12, name:'바우처 납부 증빙', st:'q', apps:['web'],
+  where:'바우처 상세 — 사용 내역 테이블·월별 usage 통계',
+  sum:'조회는 존재. "증빙"으로 제출할 서류·출력 형식은 미확인.',
+  limit:'확인 필요: 기관 제출용 증빙의 기대 산출물 정의 → 형식 결정.'},
+ {no:13, name:'바우처 서류 자동 생성', st:'no', apps:['web'],
+  where:'백엔드 모듈 존재(voucher_document·draft·extraction·form) — 프론트 미연결',
+  sum:'진행 중 과제. 평가자가 사용할 화면이 없음.',
+  limit:'결정: 1차 보완 내 프론트 연결 완료 여부 or 차수 연기 협의.'},
+ {no:14, name:'운영 업무 자동화 (AI 에이전트)', st:'no', apps:['web'],
+  where:'웹 /agent — 대화형 채팅 + 페이지 도구 5종(상담 접수·검사 접수·내담자 등록·운영 일정·센터 정보 원격 조작)',
+  sum:'기능 완성. 그러나 프로덕션 메뉴 숨김 — 평가자 진입 불가.',
+  limit:'결정 필수: 리빙랩 빌드 노출 + AI 배포 방침.'},
+ {no:15, name:'AI 기반 현장 비서 (필드노트)', st:'part', apps:['mob'],
+  where:'모바일 필드노트 sub-app — 녹음(일시정지/재개/충돌 해소)→청크 업로드(재시도)→전사·화자분리→분석(상담/검사 렌즈)→초안',
+  sum:'가드레일까지 완성(이어녹음 제한·1:1 연결 409·task별 녹음).',
+  limit:'준비: 실기기 리허설(백그라운드·권한·네트워크) + AI 방침 + 웹 열람 경로 확정.'},
+ {no:16, name:'푸시 알림', st:'part', apps:['mob'], ref:'A-5', where:'', sum:'', limit:''},
+ {no:17, name:'다중센터 전환', st:'ok', apps:['web','mob'],
+  where:'웹 상단 센터 전환·/welcome · 모바일 내 센터(디바이스 등록 해제→권한 재로드)',
+  sum:'완성. 운영 준비: 평가자 계정에 복수 센터 세팅.', limit:''}
+];
+
+function tile(it, group){
+  const el = document.createElement('div');
+  el.dataset.st = it.st;
+  if(it.ref){
+    el.className = 'tile ref';
+    el.innerHTML = `<span class="sideline"></span>
+      <div class="name"><span class="no">${group}-${it.no}</span>${it.name}<span class="refgo">${it.ref} 참조</span></div>`;
+    return el;
+  }
+  el.className = 'tile';
+  el.innerHTML = `<span class="sideline"></span>
+    <div class="top"><span class="no">${group}-${it.no}</span><span class="apps">${it.apps.map(a=>`<span class="app ${a}">${a==='web'?'웹':'모바일'}</span>`).join('')}</span></div>
+    <div class="name">${it.name}</div>
+    <div class="foot"><span class="st ${ST[it.st].cls}">${ST[it.st].label}</span><span class="more">상세 →</span></div>`;
+  el.addEventListener('click', ()=> openModal(it, group));
+  return el;
+}
+const boardA = document.getElementById('board-a');
+const boardB = document.getElementById('board-b');
+ITEMS_A.forEach(it=> boardA.appendChild(tile(it,'A')));
+ITEMS_B.forEach(it=> boardB.appendChild(tile(it,'B')));
+
+// 모달
+const ovl=document.getElementById('ovl'), mdl=document.getElementById('mdl');
+function openModal(it, group){
+  document.getElementById('m-st').className='st '+ST[it.st].cls;
+  document.getElementById('m-st').textContent=ST[it.st].label;
+  document.getElementById('m-t').textContent=`${group}-${it.no}. ${it.name}`;
+  document.getElementById('m-where').innerHTML=it.where;
+  document.getElementById('m-sum').innerHTML=it.sum;
+  const lim=document.getElementById('m-limit');
+  if(it.limit){ lim.style.display='block'; lim.className='mlimit'+((it.st==='no')?' hard':''); lim.innerHTML='<b>'+(it.st==='no'?'🔴 ':'⚠ ')+'</b>'+it.limit; }
+  else lim.style.display='none';
+  ovl.classList.add('show'); mdl.classList.add('show');
+}
+function closeModal(){ ovl.classList.remove('show'); mdl.classList.remove('show'); }
+ovl.addEventListener('click', closeModal);
+document.getElementById('m-x').addEventListener('click', closeModal);
+window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// 필터
+document.querySelectorAll('.fbtn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    const f=b.dataset.f;
+    document.querySelectorAll('.tile').forEach(t=>{
+      t.classList.toggle('dim', f!=='all' && t.dataset.st!==f);
+    });
+  });
+});
+
+// 도넛 애니메이션 (10/8/4/2 = 24)
+const C = 2*Math.PI*76;
+function seg(id, frac, offsetFrac){
+  const el=document.getElementById(id);
+  el.style.strokeDashoffset = -(offsetFrac*C);
+  requestAnimationFrame(()=> setTimeout(()=>{ el.style.strokeDasharray = `${frac*C-2} ${C-frac*C+2}`; }, 150));
+}
+seg('seg-ok', 10/24, 0); seg('seg-part', 8/24, 10/24); seg('seg-no', 4/24, 18/24); seg('seg-q', 2/24, 22/24);
+document.querySelectorAll('.kbar .fill').forEach(f=> setTimeout(()=> f.style.width=f.dataset.w+'%', 250));
+
+// 타일·제안 카드 등장 애니메이션
+const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){
+  const tiles=[...e.target.querySelectorAll('.tile, .wish')];
+  tiles.forEach((t,i)=> setTimeout(()=> t.classList.add('visible'), i*60));
+  io.unobserve(e.target);
+}});},{threshold:0.1});
+io.observe(boardA); io.observe(boardB); io.observe(document.getElementById('wish-board'));
+</script>
+</body>
+</html>

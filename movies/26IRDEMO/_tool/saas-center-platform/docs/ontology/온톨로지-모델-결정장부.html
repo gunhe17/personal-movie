@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온톨로지 모델 결정 장부 — 사람·기관 축 (v1)</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb;
+    --accent:#4486FF; --accent-soft:#EAF1FF;
+    --p:#6d3fc0; --p-bg:#f1ecfb; --p-line:#d8c9f2;
+    --o:#0e7490; --o-bg:#e8f6fa; --o-line:#b8e0ec;
+    --ok:#15803d; --ok-soft:#e7f6ec;
+    --warn:#b45309; --warn-soft:#fef3e2;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:44px 24px 100px; line-height:1.7; }
+  .wrap { max-width:960px; margin:0 auto; }
+  h1 { font-size:25px; margin-bottom:8px; }
+  .subtitle { color:var(--sub); font-size:14px; margin-bottom:30px; max-width:840px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+  section { margin-bottom:56px; }
+  h2 { font-size:19px; margin-bottom:4px; }
+  h3 { font-size:14.5px; margin:16px 0 8px; }
+  p, li { font-size:13.5px; }
+  ul { padding-left:22px; margin-bottom:10px; }
+  li { margin-bottom:5px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+  .sec-desc { color:var(--sub); font-size:13.5px; margin-bottom:18px; max-width:840px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); margin:10px 0 18px; }
+  th { background:#f0f3f8; text-align:left; padding:7px 12px; font-size:11.5px; color:var(--sub); border-bottom:1px solid var(--line); }
+  td { padding:7px 12px; border-bottom:1px solid #eef1f6; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  td.k { font-weight:700; white-space:nowrap; }
+  .none { color:var(--warn); font-weight:700; }
+
+  .axioms { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:800px){ .axioms { grid-template-columns:1fr; } }
+  .axiom { background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:14px 18px; }
+  .axiom .n { display:inline-block; background:var(--ink); color:#fff; font-size:11px; font-weight:700; border-radius:8px; padding:0 8px; margin-bottom:6px; }
+  .axiom b { display:block; font-size:13.5px; margin-bottom:4px; }
+  .axiom p { font-size:12.5px; color:var(--sub); }
+
+  .round { border:2px solid; border-radius:16px; padding:18px 22px; margin-bottom:20px; background:#fff; }
+  .round.p { border-color:var(--p-line); } .round.p > h2 { color:var(--p); }
+  .round.o { border-color:var(--o-line); } .round.o > h2 { color:var(--o); }
+  .round .q { font-size:12px; color:var(--sub); margin-bottom:14px; }
+
+  .decision { display:grid; grid-template-columns:26px 1fr; gap:10px; margin-bottom:10px; align-items:start; }
+  .decision .dn { background:var(--ok); color:#fff; border-radius:7px; font-size:11px; font-weight:700; text-align:center; padding:1px 0; margin-top:3px; }
+  .decision b { font-size:13px; }
+  .decision p { font-size:12.5px; color:var(--sub); }
+
+  .pin { font-size:13px; border-radius:10px; padding:10px 14px; margin:8px 0; }
+  .pin.warn { background:var(--warn-soft); }
+  .pin.ok { background:var(--ok-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>온톨로지 모델 결정 장부 <span style="font-size:14px;color:var(--sub)">사람·기관 축 v1</span></h1>
+<p class="subtitle">
+  2026-08-12 확정. 질문 6개(고유함 → 필드 → 기관별 변환 → 화면 표현 → 멘탈 모델 → 제품별 분화)를
+  사람 축 · 기관 축 두 라운드로 하나씩 짚어 합의한 결과. <b>이 장부가 최종 산출물 두 개
+  (① 온톨로지 graph explorer ② UI/UX 통일성 개선)의 유일한 입력이다.</b>
+  목적: 비즈니스 대상(학교·병원·군대)이 바뀔 때마다 서비스를 새로 수정하지 않고, 프로필 추가만으로 적용되게 하는 것.
+</p>
+
+<!-- 공리 -->
+<section>
+  <div class="sec-head"><span class="sec-num">1</span><h2>공리 7 — 모든 후속 판단의 기준</h2></div>
+  <div class="axioms">
+    <div class="axiom"><span class="n">A1</span><b>고유함 = 기관 스코프 + 식별자 수명</b><p>사람의 전역 통합은 하지 않는다(개인정보). 계정 연결(person)이 유일한 전역 고리 — 옵션이지 전제가 아님. 단 <b>기관은 전역 디렉터리</b> — 공개 정보라 리스크 구조가 반대(학교코드·요양기관번호 등 공적 코드가 정본).</p></div>
+    <div class="axiom"><span class="n">A2</span><b>필드 3분류: 코어 / 역할 기록 / 가변</b><p>코어 = 모든 기관에서 의미가 같은 최소(변환되지 않는 것). 역할 기록 = 기관이 값을 소유(개명해도 차트 표기는 불변). 가변 = 프로필이 선언.</p></div>
+    <div class="axiom"><span class="n">A3</span><b>변환 3종: 어휘 / 존재 / 속성</b><p>어휘=사전 한 장. <b>존재=제거(번역 아님)</b> — 프로필에 없는 개념은 화면·입력·관계에서 아예 안 생긴다. 속성=프로필이 선언.</p></div>
+    <div class="axiom"><span class="n">A4</span><b>온톨로지는 '순간'으로만 노출</b><p>화면에 명사(Person·계정 등)로 노출 금지. 허용 순간 화이트리스트: 중복 경고·병합 제안 / 앱 연결 배지 / 외부 기관 자동완성 제안 / 관리자 병합 화면. graph explorer는 내부 도구로서 예외.</p></div>
+    <div class="axiom"><span class="n">A5</span><b>프로필은 주입 시점 중립</b><p>독립 정의(파일/데이터)로 만들어 SaaS에선 런타임 로드, 납품에선 빌드타임 주입(기관 에디션 생성 — 군 격리 배포 대비). DB 설정 전용으로 만들면 납품의 문이 닫힌다.</p></div>
+    <div class="axiom"><span class="n">A6</span><b>화면 분화의 정본 축 = 코어 루프(용도), 기관 아님</b><p>기관 차이는 프로필(어휘·존재·속성)로 흡수. 새 화면군은 일하는 방식이 다를 때만 — v1의 신규 루프는 검사용(명단→발송→집계→소수 개별 관리) 하나.</p></div>
+    <div class="axiom"><span class="n">A7</span><b>새 개념 도입 = 기존 고객 무영향</b><p>센터 프로필이 선언하지 않은 것(조직 위계 등)은 현행 센터 화면에 생기지 않는다. 확장 작업이 기존 제품을 건드리지 않음을 구조로 보장.</p></div>
+  </div>
+</section>
+
+<!-- 사람 축 -->
+<section>
+  <div class="sec-head"><span class="sec-num">2</span><h2>사람 축 확정</h2></div>
+  <div class="round p">
+    <h2 style="font-size:15px">개념: 자연인 · 대상자 · 보호자(=관계) · 직원</h2>
+    <p class="q">현재 저장: persons(계정 1:1) / clients(person_id nullable — 계정 없이 존재가 기본값) / members(person 필수) / 보호자=clients 행+관계 테이블</p>
+
+    <div class="decision"><span class="dn">D1</span><div><b>고유함: 기관 내 유일까지만</b><p>내부 코드(정본) + 이름+생년(중복 방지 휴리스틱). 크로스 기관 신원 통합 안 함. 외부 식별자는 수명이 있다 — 학번=번호+연도(매년 재사용), 군번·환자등록번호=평생.</p></div></div>
+    <div class="decision"><span class="dn">D2</span><div><b>코어 4개: 이름 · 생년월일 · 성별 · 전화</b><p>이메일·주소는 역할 기록으로(학교·군에서 비수집). 생년은 전 기관 공통 중복 방지 키 + 연령 정책 입력. clients의 name/phone 중복 저장은 버그가 아니라 "기관은 자기 기록의 표기를 소유한다"는 규칙.</p></div></div>
+    <div class="decision"><span class="dn">D3</span><div><b>role(client/guardian/both)은 관계의 요약 캐시</b><p>모델의 정본은 관계("대상자다/보호한다"). both가 화면에서 뭉개지는 현상은 캐시를 정본처럼 쓴 결과 — 라벨은 관계에서 파생한다.</p></div></div>
+    <div class="decision"><span class="dn">D4</span><div><b>보호자의 화면 정본 = 관계</b><p>목록 기본은 대상자만, 보호자는 대상자 행의 부속 정보 + 검색 시 "누구의 보호자"로 부상. 등록 화면의 현재 은유("함께 저장돼요")가 정본, 목록이 따라온다. 저장 구조는 불변.</p></div></div>
+
+    <h3>기관별 변환표 (사람 축)</h3>
+    <table>
+      <tr><th></th><th>센터</th><th>학교</th><th>병원</th><th>군대</th></tr>
+      <tr><td class="k">자연인 코어</td><td colspan="4" style="text-align:center">이름·생년·성별·전화 — 변환 없음 (코어의 정의)</td></tr>
+      <tr><td class="k">대상자</td><td>내담자</td><td>학생</td><td>환자</td><td>장병</td></tr>
+      <tr><td class="k">↳ 가변 속성</td><td>바우처 자격·주호소</td><td>학년·반·번호(매년)·담임</td><td>등록번호(평생)·진료과·주치의</td><td>군번(평생)·계급·소속·입대일</td></tr>
+      <tr><td class="k">보호자</td><td>보호자(주 보호자 1)</td><td>학부모 — 동의·통지 주체 성격</td><td>보호자·법정대리인</td><td class="none">없음 → 화면에서 제거</td></tr>
+      <tr><td class="k">직원</td><td>상담사·관리자</td><td>전문상담교사/전문상담사(신분이 권한 가름)</td><td>임상심리사·치료사</td><td>병영생활전문상담관(파견 성격)</td></tr>
+    </table>
+
+    <h3>멘탈 모델 갭 4개와 흡수 장치</h3>
+    <table>
+      <tr><th>사용자 생각</th><th>모델</th><th>흡수 장치 ('순간' 패턴)</th></tr>
+      <tr><td>"김지우는 한 명"</td><td>자연인 1 + 기관별 기록 N (서로 모름)</td><td>등록 시 중복 경고 → 병합/연결 제안 버튼</td></tr>
+      <tr><td>"보호자는 아이 정보의 일부"</td><td>별도 기록 + 관계</td><td>D4 — 화면 정본을 관계로 통일</td></tr>
+      <tr><td>"그 사람은 보호자야" (역할=신분)</td><td>역할 = 관계의 요약</td><td>라벨을 관계에서 파생 ("지우 보호자" + "본인 상담 중" 병기)</td></tr>
+      <tr><td>"계정? 몰라"</td><td>계정 층 별도, 연결은 선택</td><td>"앱 연결됨" 배지 + 초대 액션만</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 기관 축 -->
+<section>
+  <div class="sec-head"><span class="sec-num">3</span><h2>기관 축 확정</h2></div>
+  <div class="round o">
+    <h2 style="font-size:15px">개념: 테넌트 · 외부 기관 · 조직 단위 · 계약 조직</h2>
+    <p class="q">현재 저장: centers(유형 필드 없음) / institutions(이름·주소뿐, 역할 미정의) / directory_centers(공공 명단 — 전역 디렉터리 선례) / 조직 단위·계약 조직 없음</p>
+
+    <div class="decision"><span class="dn">D5</span><div><b>외부 기관 = 전역 디렉터리</b><p>공적 코드(학교코드·요양기관번호)가 고유함의 정본, 없으면 이름+주소. 센터는 참조만. 사람과 반대인 이유: 기관은 공개 정보 + 교육청 단위 사업에서 전역 식별이 필수.</p></div></div>
+    <div class="decision"><span class="dn">D6</span><div><b>테넌트의 유형 필드 = 프로필 포인터</b><p>기관 축과 프로필 체계가 만나는 유일한 접점. 테넌트에 유형별 가변 필드를 두지 않는다 — 차이는 프로필이 담당.</p></div></div>
+    <div class="decision"><span class="dn">D7</span><div><b>조직 위계의 모양은 프로필이 선언</b><p>학교=학년&gt;반, 군=대대&gt;중대&gt;소대, 병원=진료과&gt;병동, 센터=없음. 테넌트는 틀 안에서 칸(3-2, 1중대)만 생성. 칸은 기간을 가진다 — 2026년 3-2 ≠ 2027년 3-2 (사람 축 식별자 수명과 대칭).</p></div></div>
+    <div class="decision"><span class="dn">D8</span><div><b>외부 기관 입력 = 자유 입력 + 디렉터리 제안</b><p>강제 선택 금지. 타이핑하면 제안이 뜨고, 무시하면 텍스트로 남되 뒤에서 매칭 — 사람 축 중복 경고와 대칭인 '순간' 패턴 (A4 화이트리스트 등재).</p></div></div>
+
+    <h3>기관별 변환표 (기관 축)</h3>
+    <table>
+      <tr><th></th><th>센터</th><th>학교</th><th>병원</th><th>군대</th></tr>
+      <tr><td class="k">테넌트 어휘</td><td>센터</td><td>학교(Wee클래스)</td><td>병원·상담실</td><td>부대(상담관실)</td></tr>
+      <tr><td class="k">조직 위계</td><td class="none">없음 (A7 — 무영향 보장)</td><td>학년&gt;반</td><td>진료과&gt;병동</td><td>대대&gt;중대&gt;소대</td></tr>
+      <tr><td class="k">외부 기관의 쓰임</td><td>소속 학교 참조</td><td>의뢰처</td><td>의뢰 의원</td><td>군병원·민간 연계</td></tr>
+      <tr><td class="k">계약 조직</td><td class="none">없음(자기 계약)</td><td>교육청</td><td class="none">없음</td><td>사단</td></tr>
+    </table>
+
+    <h3>필드 3분류 (기관 축)</h3>
+    <table>
+      <tr><th></th><th>코어</th><th>역할 기록</th><th>가변</th></tr>
+      <tr><td class="k">테넌트</td><td>이름·유형·사업자번호·연락처</td><td>로고·소개·운영시간</td><td>없음 — 프로필이 대신</td></tr>
+      <tr><td class="k">외부 기관</td><td>이름·종류·공적 코드·주소</td><td>연락처·출처(공공/수기)</td><td>종류별 부가(학교급 등)</td></tr>
+      <tr><td class="k">조직 단위</td><td>이름·단계 종류·소속 테넌트·상위·<b>기간</b></td><td>담당자·정원</td><td>—</td></tr>
+      <tr><td class="k">계약 조직</td><td colspan="3">개념 정의만 — 구현 보류</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 제품 매트릭스 -->
+<section>
+  <div class="sec-head"><span class="sec-num">4</span><h2>제품별 화면 매트릭스 (A6의 귀결)</h2></div>
+  <table>
+    <tr><th></th><th>상담용 (현행 루프)</th><th>검사용 (신규 루프: 명단→발송→집계→개별 관리)</th></tr>
+    <tr><td class="k">센터</td><td>현행 그대로 (기준점)</td><td>현행 검사 기능 + 신규 루프 축소판</td></tr>
+    <tr><td class="k">병원</td><td>현행 + 병원 프로필 — 코드 무변</td><td>좌동</td></tr>
+    <tr><td class="k">학교</td><td>(수요 적음)</td><td><b>신규 루프 화면</b> + 학교 프로필</td></tr>
+    <tr><td class="k">군대</td><td>(수요 적음)</td><td><b>같은 신규 루프</b> + 군 프로필 + 격리 배포 가능성(A5)</td></tr>
+  </table>
+  <p class="sec-desc">세로(기관)로는 화면이 갈라지지 않고 가로(용도)로만 갈라진다. 학교와 군대는 다른 제품이 아니라 같은 검사용 화면군에 다른 프로필을 꽂은 것. 신규 루프는 "개별 관리 시작" 이후 기존 상담용 화면으로 합류하며, 합류 지점의 신원 판단은 A4의 병합 제안이 담당.</p>
+</section>
+
+<!-- 미결 + 산출물 연결 -->
+<section>
+  <div class="sec-head"><span class="sec-num">5</span><h2>미결 (별도 트랙) · 산출물 연결</h2></div>
+  <div class="pin warn"><b>미결:</b> ① 기관별 배포 모드 — 사업 결정 + 군 국방망 요건 외부 확인 (A5 덕에 모델 작업을 막지 않음) ② 계약 조직 구현 시점 — 교육청·사단 계약이 실물일 때</div>
+  <div class="pin ok"><b>이 장부 → 산출물:</b>
+  <b>graph explorer</b> = §2·§3의 개념·관계·바인딩(개념↔실제 테이블)을 그대로 그리는 내부 도구(A4의 예외 공간). 카탈로그에 개념을 추가하면 코드 수정 없이 그래프에 나타나야 한다.
+  <b>UI/UX 통일성 개선</b> = D3·D4(role 파생·보호자 관계 통일) + 어휘 하드코딩 제거(A3 어휘 변환의 전제) + A4 화이트리스트 밖 노출 제거 — 수정 목록이 이 장부에서 기계적으로 도출된다.</div>
+</section>
+
+</div>
+</body>
+</html>

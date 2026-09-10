@@ -1,0 +1,25 @@
+{
+  "name": "mindbom",
+  "version": "0.1.0",
+  "private": true,
+  "description": "마인드봄 — 투사적 심리검사 해석 보조 시스템 (SaMD 2등급)",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:api": "cd apps/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 4502",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "cd apps/api && uv run alembic upgrade head"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

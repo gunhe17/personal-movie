@@ -1,0 +1,19 @@
+<script lang="ts">
+  let { class: className = '' }: { class?: string } = $props()
+</script>
+
+<svg
+  class={className}
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M3 5H17M3 10H17M3 15H17"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+</svg>

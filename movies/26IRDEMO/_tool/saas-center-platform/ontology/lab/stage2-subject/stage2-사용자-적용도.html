@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab — 2단계(정의→생성)를 사람 축에 적용하면</title>
+<style>
+  :root {
+    --ink:#1a2333; --sub:#5b6577; --line:#dfe4ec; --bg:#f6f8fb;
+    --accent:#4486FF; --accent-soft:#EAF1FF;
+    --gen:#0e7490; --gen-bg:#e8f6fa; --gen-line:#b8e0ec;
+    --cus:#b0387a; --cus-bg:#fdeef6; --cus-line:#f3c6dd;
+    --ok:#15803d; --ok-soft:#e7f6ec; --warn:#b45309; --warn-soft:#fef3e2;
+    --danger:#b91c1c; --danger-soft:#fdeaea;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,"Noto Sans KR",sans-serif;
+         background:var(--bg); color:var(--ink); padding:44px 24px 100px; line-height:1.7; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  h1 { font-size:24px; margin-bottom:8px; }
+  .subtitle { color:var(--sub); font-size:14px; margin-bottom:32px; max-width:840px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.85em; background:#eef1f6; border-radius:4px; padding:1px 5px; }
+  pre { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:11.5px; line-height:1.6; background:#fff;
+        border:1px solid var(--line); border-radius:12px; padding:14px 18px; overflow-x:auto; margin:10px 0 16px; }
+  pre .c { color:#8a94a6; } pre .k { color:var(--gen); font-weight:700; } pre .h { color:var(--cus); font-weight:700; }
+  section { margin-bottom:60px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .sec-num { background:var(--ink); color:#fff; font-size:12px; font-weight:700; border-radius:6px; padding:2px 8px; }
+  h2 { font-size:19px; }
+  h3 { font-size:14px; margin:16px 0 8px; }
+  .sec-desc { color:var(--sub); font-size:13.5px; margin-bottom:18px; max-width:840px; }
+  .sec-desc b { color:var(--ink); }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); margin:10px 0 16px; }
+  th { background:#f0f3f8; text-align:left; padding:8px 12px; font-size:11.5px; color:var(--sub); border-bottom:1px solid var(--line); }
+  td { padding:7px 12px; border-top:1px solid #f0f3f8; vertical-align:top; }
+  .tag { display:inline-block; font-size:10px; font-weight:700; border-radius:7px; padding:1px 8px; white-space:nowrap; }
+  .tag.gen { background:var(--gen-bg); color:var(--gen); }
+  .tag.hook { background:var(--cus-bg); color:var(--cus); }
+  .tag.spi { background:#f1ecfb; color:#6d3fc0; }
+  .tag.override { background:var(--warn-soft); color:var(--warn); }
+  .tag.keep { background:#eef1f6; color:var(--sub); }
+
+  /* 흐름도 */
+  .flow { display:grid; grid-template-columns:1fr 46px 1fr 46px 1.2fr; gap:0; align-items:stretch; margin:14px 0; }
+  @media (max-width:860px){ .flow { grid-template-columns:1fr; } .far { transform:rotate(90deg); } }
+  .fbox { border:2px solid; border-radius:14px; padding:14px 16px; background:#fff; }
+  .fbox h4 { font-size:13.5px; margin-bottom:5px; }
+  .fbox p { font-size:11.5px; color:var(--sub); line-height:1.6; }
+  .fbox.onto { border-color:#d8c9f2; } .fbox.onto h4 { color:#6d3fc0; }
+  .fbox.har { border-color:var(--line); }
+  .fbox.out { border-color:var(--gen-line); } .fbox.out h4 { color:var(--gen); }
+  .far { display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:18px; }
+  .lanes { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  @media (max-width:760px){ .lanes { grid-template-columns:1fr; } }
+  .lane { border:2px solid; border-radius:14px; padding:13px 16px; background:#fff; }
+  .lane.gen { border-color:var(--gen-line); } .lane.gen h4 { color:var(--gen); }
+  .lane.cus { border-color:var(--cus-line); } .lane.cus h4 { color:var(--cus); }
+  .lane h4 { font-size:13.5px; margin-bottom:6px; }
+  .lane li { font-size:12px; margin-left:18px; margin-bottom:4px; }
+  .tree { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12px; line-height:1.8; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 20px; }
+  .tree .g { color:var(--gen); font-weight:700; } .tree .cu { color:var(--cus); font-weight:700; } .tree .d { color:var(--sub); }
+  .pin { font-size:13px; border-radius:10px; padding:10px 14px; margin:8px 0; }
+  .pin.ok { background:var(--ok-soft); } .pin.warn { background:var(--warn-soft); }
+  .cols2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:860px){ .cols2 { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Lab — 2단계(정의 → 생성)를 사람 축에 적용하면</h1>
+<p class="subtitle">
+  harness가 <code>ontology/</code>를 입력으로 대상자(subject → clients) 도메인의 표준 코드를 생성한다고 가정한
+  <b>구조 시뮬레이션</b>. 실측 코드(<code>create_client.py</code> 등)가 실제로 하는 일을 전수 분류해서
+  "무엇이 생성되고, 무엇이 사람 몫으로 남는가"를 그렸다.
+  실물 lab: <code>ontology/lab/stage2-subject/</code> · 정렬 회의 안건 3(handler layer 범위)의 입력.
+</p>
+
+<!-- 1. 전체 흐름 -->
+<section>
+  <div class="sec-head"><span class="sec-num">1</span><h2>전체 그림 — 정의가 흐르고, 코드가 남는다</h2></div>
+  <div class="flow">
+    <div class="fbox onto">
+      <h4>ontology/ (정본)</h4>
+      <p>attributes#subject — 필드·3분류·nullable<br>
+         catalog#subject — 고유함 규칙 (D1)<br>
+         states — active→inactive→archived<br>
+         + <code>input/subject.actions.yaml</code> (액션 선언 — 온톨로지를 참조만)</p>
+    </div>
+    <div class="far">→</div>
+    <div class="fbox har">
+      <h4>harness (생성기)</h4>
+      <p>같은 정의 → 같은 출력 (멱등)<br>수제 파일이 있으면 그 use-case 스킵<br>생성물에 source-hash 각인</p>
+    </div>
+    <div class="far">→</div>
+    <div class="fbox out">
+      <h4>generated/ — 눈에 보이는 코드</h4>
+      <p>git에 커밋 · 재생성 diff가 리뷰 대상<br>런타임 엔진이 아니라 <b>보통의 파이썬 파일</b> —
+      콜스택이 그대로 보이는 것이 3단계와의 결정적 차이(탈출구)</p>
+    </div>
+  </div>
+  <div class="lanes">
+    <div class="lane gen"><h4>🤖 온톨로지가 아는 것 → 생성</h4>
+      <ul><li>파라미터 목록 (코어+역할기록 — 3분류에서 유도)</li>
+          <li>필수 검증 (D2: 이름 필수)</li>
+          <li><b>중복 차단</b> (D1: person_id 기연동 / 이름+생년 휴리스틱)</li>
+          <li><b>상태 전이 가드</b> (states: "archive는 inactive에서만")</li></ul></div>
+    <div class="lane cus"><h4>✋ 온톨로지가 모르는 것 → 커스텀 3경로</h4>
+      <ul><li>훅 — 전후 처리 (아바타 배정)</li>
+          <li>SPI — 알고리즘 (code 발번기)</li>
+          <li>오버라이드/수제 — 복합 use-case (가구 배치 등록)</li></ul></div>
+  </div>
+</section>
+
+<!-- 2. 전수 분류 -->
+<section>
+  <div class="sec-head"><span class="sec-num">2</span><h2>현행 대상자 도메인 전수 분류 — 실측 기준</h2></div>
+  <p class="sec-desc">현재 clients 도메인이 실제로 가진 로직 하나하나를 "2단계라면 어디 속하나"로 판정. <b>생성 비중이 높은 이유는 그 로직들이 이미 온톨로지에 정의로 존재하기 때문</b>이다 — 정의가 없으면 생성도 없다.</p>
+  <table>
+    <tr><th style="width:230px">현행 로직 (실측)</th><th style="width:110px">판정</th><th>근거</th></tr>
+    <tr><td>create/update 뼈대 (파라미터·repo 호출)</td><td><span class="tag gen">🤖 생성</span></td><td>attributes 3분류에서 파라미터 유도 — agent-query 필터 유도와 같은 원리</td></tr>
+    <tr><td>이름 필수 등 코어 검증</td><td><span class="tag gen">🤖 생성</span></td><td>D2 + nullable 실측이 이미 온톨로지에 있음</td></tr>
+    <tr><td>name+birth / person_id 중복 차단</td><td><span class="tag gen">🤖 생성</span></td><td>D1(기관 내 유일)이 온톨로지의 identity 규칙 — 규칙이 정의니 코드도 유도 가능</td></tr>
+    <tr><td>상태 전이 3종 (activate/deactivate/archive + 가드)</td><td><span class="tag gen">🤖 생성</span></td><td>states 정의("archived는 inactive에서만")에서 전이표 생성 — lab의 <code>archive_client.py</code></td></tr>
+    <tr><td>role 재계산 (관계 변경 시 캐시 동기화)</td><td><span class="tag gen">🤖 생성 후보(2차)</span></td><td>D3(role=관계의 요약 캐시)가 규칙 — 단 관계 이벤트 배선이 필요해 2차</td></tr>
+    <tr><td>code 6자 발번 (secrets.choice·충돌 재시도)</td><td><span class="tag spi">SPI</span></td><td>온톨로지는 "내부 코드, 자체 발번"까지만 안다 — 알고리즘은 코드 소유</td></tr>
+    <tr><td>기본 아바타 자동 배정</td><td><span class="tag hook">훅</span></td><td>표준 흐름과 무관한 after_create 부수 처리</td></tr>
+    <tr><td>배치 가구 등록 (보호자+자녀+형제 관계 자동)</td><td><span class="tag override">오버라이드/수제</span></td><td>복합 use-case — 생성 뼈대의 변형이 아님. 현행 코드 그대로 유지</td></tr>
+    <tr><td>엑셀 임포트 (검증·중복 리포트)</td><td><span class="tag override">오버라이드/수제</span></td><td>파이프라인성 로직 — 수제</td></tr>
+    <tr><td>바우처 차감·검사 채점 (타 도메인 연쇄)</td><td><span class="tag keep">불가침</span></td><td>비즈니스 코어 — "안 뒤집음" 방어선. 생성 코드는 이들을 호출만</td></tr>
+  </table>
+  <div class="pin ok"><b>수치로:</b> 대상자 도메인 use-case 10종 중 5종이 즉시 생성(＋1종 2차), 커스텀은 4종 — 그리고 그 4종이 정확히 "제품의 개성"이 있는 부분이다. 생성이 뻔한 것을 가져가고 사람이 다른 것에 집중하는 구도.</div>
+</section>
+
+<!-- 3. 파일 구조 -->
+<section>
+  <div class="sec-head"><span class="sec-num">3</span><h2>파일에서 어떻게 공존하나 — lab 구조</h2></div>
+  <div class="cols2">
+    <div>
+      <div class="tree">
+modules/client/profile/<br>
+├── models.py <span class="d">← 정본 유지 (바인딩 대상)</span><br>
+├── repository.py <span class="d">← 수제 (기존)</span><br>
+├── services/<br>
+│   ├── <span class="g">_generated/</span> <span class="d">🤖 재생성 대상</span><br>
+│   │   ├── <span class="g">create_client.py</span><br>
+│   │   ├── <span class="g">update_client.py</span><br>
+│   │   └── <span class="g">archive_client.py</span><br>
+│   ├── <span class="cu">create_client_hooks.py</span> <span class="d">✋ 훅</span><br>
+│   ├── <span class="cu">create_clients.py</span> <span class="d">✋ 가구 배치 (수제 유지)</span><br>
+│   └── <span class="cu">import_from_excel.py</span> <span class="d">✋ 수제</span><br>
+└── router.py <span class="d">← 수제 유지 (main.py 계약 보존)</span>
+      </div>
+      <h3>규칙 3개</h3>
+      <table>
+        <tr><td><b>경계는 파일 단위</b></td><td>한 파일에 생성+수제 혼합 금지</td></tr>
+        <tr><td><b>생성물도 git 커밋</b></td><td>diff 리뷰 + 최후의 손 수정 가능 = 탈출구</td></tr>
+        <tr><td><b>승격은 단방향</b></td><td>generated → services/로 복사하면 생성기가 영구 스킵. 되돌리지 않음</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>생성물 헤더 — 계약이 파일 안에</h3>
+      <pre><span class="c"># ═══════════════════════════════════════════</span>
+<span class="k"># 🤖 GENERATED</span> — ontology/attributes.json#subject
+<span class="c"># source-hash: 3f9ac41e · 재생성: pnpm ontology:gen</span>
+<span class="c"># DO NOT EDIT — 수정이 필요하면:</span>
+<span class="c">#   전후 처리만 → create_client_hooks.py</span>
+<span class="c">#   흐름 자체   → services/로 복사(승격) — 생성기 스킵</span>
+<span class="c"># ═══════════════════════════════════════════</span></pre>
+      <h3>상태 정의 → 전이 가드 생성 (데모의 핵심)</h3>
+      <pre><span class="c"># ontology/attributes.json#subject.states:</span>
+<span class="c">#  "archived(장기 미방문)는 inactive에서만 허용"</span>
+
+<span class="k">ALLOWED_FROM</span> = ("inactive",)  <span class="c"># ← 정의에서 생성</span>
+
+if client.status not in ALLOWED_FROM:
+    raise InvalidOperationException(...)</pre>
+      <h3>훅 — 생성 코드가 여는 확장점</h3>
+      <pre><span class="h">async def issue_code</span>(center_id):   <span class="c"># SPI: 발번 알고리즘</span>
+    return generate_unique_code(center_id)
+
+<span class="h">async def after_create</span>(client):    <span class="c"># 부수 처리</span>
+    await assign_default_avatar(client)</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 이득과 한계 -->
+<section>
+  <div class="sec-head"><span class="sec-num">4</span><h2>무엇이 좋아지고, 무엇은 아니게 되나</h2></div>
+  <div class="cols2">
+    <div>
+      <h3>이득 — 다음 확장에서 즉시</h3>
+      <table>
+        <tr><td><b>쉼터 도입 시</b></td><td>대상자 가변 속성(입소일·연계 경로)이 프로필 선언 → create/update 파라미터·검증에 자동 반영. 코드 0줄</td></tr>
+        <tr><td><b>신규 모듈 (예: roster)</b></td><td>온톨로지에 개념 정의 + actions 몇 줄 → CRUD·상태 전이 뼈대가 하루가 아니라 분 단위로. 사람은 반입 파이프라인(수제)만 작성</td></tr>
+        <tr><td><b>규칙 변경 시</b></td><td>"archive 조건 변경" = states 정의 수정 → 재생성. 코드·문서·explorer가 동시에 갱신 — 드리프트 원천 차단</td></tr>
+        <tr><td><b>감사</b></td><td>source-hash 불일치(생성물 손 편집)·커버리지 갭을 <code>audit_stage2</code>가 검출 — agent-query 감사 문화 그대로</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>한계 — 정직하게</h3>
+      <table>
+        <tr><td>기존 622 핸들러</td><td>소급 재생성 <b>안 한다</b> — 신규·변경분부터. 기존 코드는 이미 검증된 자산</td></tr>
+        <tr><td>복합 use-case</td><td>가구 배치·엑셀·인테이크류는 영원히 수제 — 생성 욕심내면 yaml이 프로그래밍 언어가 됨(3단계의 뒷문)</td></tr>
+        <tr><td>훅 남용</td><td>훅 3개 초과 시 승격 강제 — 아니면 "생성 반, 훅 반"의 추적 불가 상태</td></tr>
+      </table>
+      <div class="pin warn"><b>미결 (정렬 회의 안건 3):</b> 이 그림은 제안이다. 백엔드 동료의 harness가 이 형태(정의→생성·멱등·승격 스킵)인지, 다른 그림(런타임 해석)인지 — 회의에서 확인할 핵심. yaml 분기는 <code>input/*.actions.yaml</code>처럼 "온톨로지를 참조하는 선언"으로 수렴 가능한지 논의.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

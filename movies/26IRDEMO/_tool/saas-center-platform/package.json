@@ -1,0 +1,40 @@
+{
+  "name": "saas-center-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "상담센터 SaaS 플랫폼",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:planning": "node apps/web/tools/planning-pilot/server.mjs",
+    "dev:admin": "turbo run dev --filter=admin",
+    "dev:landing": "turbo run dev --filter=landing",
+    "dev:mobile": "cd apps/mobile && APP_VARIANT=development npx expo start --dev-client --lan",
+    "dev:mobile:tunnel": "cd apps/mobile && APP_VARIANT=development npx expo start --dev-client --tunnel",
+    "dev:mobile:staging": "cd apps/mobile && APP_VARIANT=development API_URL=https://api.staging.mindscope.kr npx expo start --dev-client --tunnel",
+    "dev:client": "cd apps/mobile-client && npx expo start --dev-client --lan",
+    "dev:client:tunnel": "cd apps/mobile-client && npx expo start --dev-client --tunnel",
+    "build:mobile:ios": "cd apps/mobile && eas build --profile development --platform ios",
+    "build:mobile:android": "cd apps/mobile && eas build --profile development --platform android",
+    "build:mobile:ios:sim": "cd apps/mobile && eas build --profile development-simulator --platform ios",
+    "build:mobile:preview": "cd apps/mobile && eas build --profile preview --platform ios",
+    "submit:mobile:preview": "cd apps/mobile && eas submit --profile preview --platform ios --latest",
+    "dev:api": "cd apps/api && trap 'kill 0' EXIT; uv run python -m app.worker.stream & uv run python -m app.worker.batch & uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 3502 --timeout-graceful-shutdown 1",
+    "dev:api:worker": "cd apps/api && uv run python -m app.worker.event",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:up": "docker compose up -d postgres redis",
+    "db:down": "docker compose down",
+    "db:migrate": "cd apps/api && uv run alembic upgrade head"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

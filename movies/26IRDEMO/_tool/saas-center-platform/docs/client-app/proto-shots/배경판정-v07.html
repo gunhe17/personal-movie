@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>배경 판정 — v0.7 (A ↔ B+ 토글 · C 병치)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: #17150F; color: #EDE9E0; padding: 28px 24px 80px; }
+  h1 { font-size: 20px; letter-spacing: -0.4px; margin-bottom: 4px; }
+  .sub { color: #9B958A; font-size: 13px; margin-bottom: 20px; line-height: 1.7; }
+  .panel { max-width: 1200px; margin: 0 auto; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  button { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 10px; border: 1px solid #3E3A2F; background: #221F17; color: #CFC9BC; cursor: pointer; }
+  button.on { background: #4486FF; border-color: #4486FF; color: #fff; }
+  .hint { font-size: 12px; color: #7C766A; }
+  .stage { display: flex; gap: 24px; align-items: flex-start; }
+  .main { flex: 0 0 440px; }
+  .main img { width: 440px; border-radius: 16px; display: block; background: #000; }
+  .tag { margin-top: 10px; font-size: 14px; font-weight: 700; }
+  .tag small { display: block; font-weight: 400; color: #9B958A; font-size: 12px; margin-top: 4px; line-height: 1.6; }
+  .side { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .side figure { margin: 0; }
+  .side img { width: 100%; border-radius: 12px; display: block; background: #000; cursor: pointer; }
+  .side figcaption { font-size: 12px; color: #9B958A; margin-top: 6px; text-align: center; }
+  .live { margin-top: 28px; border-top: 1px solid #343026; padding-top: 18px; font-size: 13px; line-height: 1.9; color: #CFC9BC; }
+  .live a { color: #7FADFF; }
+  kbd { background: #2A2720; border-radius: 5px; padding: 1px 7px; font-size: 12px; border: 1px solid #3E3A2F; }
+</style>
+</head>
+<body>
+<div class="panel">
+  <h1>배경 판정 — v0.7</h1>
+  <p class="sub">
+    <b>먼저 큰 화면에서 <kbd>스페이스</kbd>(또는 클릭)로 A ↔ B+를 토글</b>하면서 크림 기운이 걷히는 게 느껴지는지 보세요.
+    첫 번째(B+)로 그 느낌이 사라졌으면 그걸로, 남았으면 두 번째(C)로 — 하린 프로토콜.
+  </p>
+  <div class="row" id="shots"></div>
+  <div class="row" id="bgs"><span class="hint" style="margin-left:8px">토글: 스페이스 = A ↔ B+</span></div>
+  <div class="stage">
+    <div class="main">
+      <img id="big" src="" alt="">
+      <div class="tag" id="tag"></div>
+    </div>
+    <div class="side" id="side"></div>
+  </div>
+  <div class="live">
+    실제 렌더(캡처 아티팩트 없음)로 보려면 — 프로토타입을 파라미터로 직접:
+    <a href="../내담자앱-프로토타입.html?bg=a" target="_blank">A 현행</a> ·
+    <a href="../내담자앱-프로토타입.html?bg=bp" target="_blank">B+ 누런기 제거</a> ·
+    <a href="../내담자앱-프로토타입.html?bg=c" target="_blank">C 판 교체</a>
+  </div>
+</div>
+<script>
+  const BGS = [
+    ["a",  "A — 현행 (웜 스톤 크림)", "base #F5F1E8 · 지금 그대로"],
+    ["bp", "B+ — 누런기만 제거", "base #F3F1EE · 바래 보이던 기운만 걷어내고 나머지 그대로 — 즉시 적용 가능 (하린·유나·소이 표)"],
+    ["c",  "C — 판 교체 (도구 앱 문법)", "base #FBFAF7 + 옅은 묶음색 · 은행 앱처럼 '믿고 확인하는' 인상 — 구조가 바뀌는 안, 하루 더 소요 (재하 표)"],
+  ];
+  const SHOTS = [["home_watch","홈 ①"],["my","마이"],["home_empty","빈 홈"],["s3","홈 ③ (히어로)"]];
+  const src = (bg, shot) => shot === "s3" ? `r7/aux_bg_${bg}_home_s3.png` : `r7/bg_${bg}_${shot}.png`;
+  let shot = "home_watch", bg = "a";
+  const $ = (id) => document.getElementById(id);
+  function render() {
+    $("big").src = src(bg, shot);
+    const [, name, desc] = BGS.find(([k]) => k === bg);
+    $("tag").innerHTML = `${name}<small>${desc}</small>`;
+    $("side").innerHTML = BGS.map(([k, name]) =>
+      `<figure><img src="${src(k, shot)}" onclick="setBg('${k}')"><figcaption>${name.split(" — ")[0]}</figcaption></figure>`).join("");
+    for (const el of document.querySelectorAll("#shots button")) el.classList.toggle("on", el.dataset.k === shot);
+    for (const el of document.querySelectorAll("#bgs button")) el.classList.toggle("on", el.dataset.k === bg);
+  }
+  window.setBg = (k) => { bg = k; render(); };
+  $("shots").innerHTML = SHOTS.map(([k, l]) => `<button data-k="${k}" onclick="shot='${k}';render()">${l}</button>`).join("");
+  $("bgs").insertAdjacentHTML("afterbegin", BGS.map(([k, name]) => `<button data-k="${k}" onclick="setBg('${k}')">${name.split(" — ")[0]}</button>`).join(""));
+  document.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); bg = bg === "a" ? "bp" : "a"; render(); } });
+  render();
+</script>
+</body>
+</html>

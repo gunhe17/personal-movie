@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.uv/
+
+# Testing
+coverage/
+*.cover
+.pytest_cache/
+
+# Build outputs
+build/
+dist/
+.svelte-kit/
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# Storage (local dev)
+/tmp/mindbom-storage/
+
+# Sample data
+sample/
+
+.reference/
+.lab/
+
+/docs/reference
+# DB 롤백 지점 — 로컬에만 둔다.
+# 로르샤하 관계 역전(§4-1) 전후 덤프이고, downgrade()로는 되돌릴 수 없어
+# (영역 0개 반응이 삭제된다) SQL 덤프로 남겨야 한다. 커밋하기엔 크다.
+.backup/
+
+# 원전 자료 — 임상 규칙의 출처로 참조만 한다(§14-16).
+# 수백 MB 스캔본이라 저장소에 넣지 않는다. 경로는 docs/로르샤하-피드백-v2.md에 적혀 있다.
+docs/*.pdf

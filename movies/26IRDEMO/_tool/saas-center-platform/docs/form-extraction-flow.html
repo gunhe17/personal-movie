@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Form Extraction — 서식 PDF → form_template (설계)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'sans-serif'] } } },
+    // violet=form_extraction, blue=form_template, emerald=global_document(png), slate=보조
+    safelist: [
+      'bg-violet-50','ring-violet-200','text-violet-600',
+      'bg-blue-50','ring-blue-200','text-blue-600',
+      'bg-emerald-50','ring-emerald-200','text-emerald-600',
+      'bg-orange-50','ring-orange-200','text-orange-600',
+      'bg-slate-100','ring-slate-200','text-slate-600','text-slate-500','text-slate-400',
+      'bg-amber-100','text-amber-700','bg-sky-100','text-sky-700','bg-violet-100','text-violet-700',
+      'bg-emerald-100','text-emerald-700','bg-blue-100','text-blue-700','bg-rose-100','text-rose-700',
+      'bg-orange-100','text-orange-700',
+    ],
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  [id] { scroll-margin-top: 5rem; }
+  .canvas { background-image: radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0); background-size: 22px 22px; }
+  .code { tab-size: 2; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+      <div class="flex items-center gap-2 font-semibold text-slate-900">
+        <span class="text-violet-600" id="brand-icon"></span>
+        Form Extraction <span class="font-normal text-slate-300">/ 서식 → form_template 설계</span>
+      </div>
+      <nav id="nav" class="hidden items-center gap-1 text-sm md:flex"></nav>
+    </div>
+  </header>
+
+  <main id="app" class="mx-auto max-w-5xl space-y-16 px-6 py-12"></main>
+
+<script>
+/* =========================================================================
+   1) ICONS (Heroicons outline 24)
+   ========================================================================= */
+const ICONS = {
+  'sparkles':'<path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />',
+  'rectangle-stack':'<path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />',
+  'globe-alt':'<path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />',
+  'photo':'<path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />',
+  'document-text':'<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+  'computer-desktop':'<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />',
+  'server-stack':'<path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />',
+  'document-arrow-up':'<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+  'link':'<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />',
+  'map-pin':'<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />',
+  'arrow-long-right':'<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />',
+  'arrow-down':'<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />',
+  'check-circle':'<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />',
+  'exclamation-triangle':'<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />',
+  'pencil-square':'<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />',
+};
+function icon(name, cls='w-6 h-6'){ return `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">${ICONS[name]||''}</svg>`; }
+
+const VIOLET  = { bg:'bg-violet-50',  ring:'ring-violet-200',  text:'text-violet-600' };
+const BLUE    = { bg:'bg-blue-50',    ring:'ring-blue-200',    text:'text-blue-600' };
+const EMERALD = { bg:'bg-emerald-50', ring:'ring-emerald-200', text:'text-emerald-600' };
+const ORANGE  = { bg:'bg-orange-50',  ring:'ring-orange-200',  text:'text-orange-600' };
+const SLATE   = { bg:'bg-slate-100',  ring:'ring-slate-200',   text:'text-slate-600' };
+
+/* =========================================================================
+   2) GUIDE NODES — 등장 요소
+   ========================================================================= */
+const NODES = {
+  extraction:    { name:'Form Extraction', iconName:'sparkles',          accent:VIOLET,  kind:'domain' },
+  png:           { name:'서식 PNG',         iconName:'photo',             accent:EMERALD, kind:'domain' },
+  template:      { name:'Form Template',    iconName:'rectangle-stack',   accent:BLUE,    kind:'domain' },
+  admin:         { name:'관리자',           iconName:'computer-desktop',  accent:SLATE,   kind:'aux' },
+  server:        { name:'서버',             iconName:'server-stack',      accent:SLATE,   kind:'aux' },
+  upload_file:   { name:'서식 파일',        iconName:'document-arrow-up', accent:SLATE,   kind:'aux' },
+  voucher_doc:   { name:'Voucher 문서',     iconName:'globe-alt',         accent:ORANGE,  kind:'aux' },
+};
+
+function tile(node, tag){
+  const a=node.accent;
+  const iconArea = node.kind==='domain'
+    ? `<div class="flex h-16 w-16 items-center justify-center rounded-2xl ${a.bg} ${a.text} ring-1 ${a.ring}">${icon(node.iconName,'w-8 h-8')}</div>`
+    : `<div class="flex h-16 w-16 items-center justify-center ${a.text}">${icon(node.iconName,'w-10 h-10')}</div>`;
+  return `<figure class="flex w-24 flex-col items-center gap-2">${iconArea}
+    <figcaption class="text-center text-sm font-medium text-slate-700">${node.name}</figcaption>
+    ${tag?`<span class="rounded-full bg-violet-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-violet-700">${tag}</span>`:''}</figure>`;
+}
+function arrow(label){
+  return `<div class="flex flex-col items-center justify-center gap-1 px-1 md:h-16">
+    ${label?`<span class="text-xs font-semibold text-violet-600">${label}</span>`:''}
+    <span class="text-slate-300"><span class="hidden md:inline">${icon('arrow-long-right','w-10 h-10')}</span><span class="md:hidden">${icon('arrow-down','w-6 h-6')}</span></span></div>`;
+}
+function frameTab(text){ return `<div class="absolute -top-3 left-5 rounded-md border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-500">${text}</div>`; }
+
+/* =========================================================================
+   3) GUIDE
+   ========================================================================= */
+function renderGuide(){
+  return `<section id="guide">
+    <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-8 py-12">
+      ${frameTab('Guide')}
+      <div class="flex flex-wrap items-start justify-center gap-x-10 gap-y-8">
+        ${Object.values(NODES).map(n=>tile(n)).join('')}
+      </div>
+      <p class="mt-8 text-center text-sm text-slate-500">
+        <b class="text-violet-600">Form Extraction</b> 한 건 = 서식 1장 → <b class="text-emerald-600">PNG 1장(독립 global_document)</b> 산출 → 좌표 추정 → 확정 시 <b class="text-blue-600">Form Template</b> 1개. <span class="text-slate-400">voucher_extractions 패턴의 평행 이식.</span>
+      </p>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   4) CONCEPT — voucher_extractions ⟂ form_extractions 평행 대응
+   ========================================================================= */
+const PARALLELS = [
+  { label:'입력',   v:'업로드한 자료 (PDF·HWPX 변형 N개)',          f:'서식 1장 — 직접 업로드 <b>또는</b> 기존 voucher 문서(+page_range)' },
+  { label:'산출물', v:'voucher 후보 N개 (completed.vouchers)',       f:'<b>PNG 1장</b> = 독립 global_document + FormSchema draft 1개' },
+  { label:'가공',   v:'PDF→MD→voucher 추출 (LLM 2단)',               f:'페이지→PNG 렌더 → 멀티모달 OCR → fields/elements 좌표 추정' },
+  { label:'확정',   v:'Voucher upsert + voucher_documents 링크 (1:N)', f:'Form Template 1개 생성 (status=draft) — <b>1 : 1</b>' },
+  { label:'다중성', v:'한 자료 → voucher 여러 건',                    f:'<b>여러 이미지면 가공 단계 에러</b> (다중 페이지 서식 미뤄둠)' },
+];
+function renderConcept(){
+  const row = (p)=>`<tr class="border-t border-slate-100">
+    <td class="px-4 py-2.5 align-top"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">${p.label}</span></td>
+    <td class="px-4 py-2.5 align-top text-[12.5px] leading-relaxed text-slate-500">${p.v}</td>
+    <td class="px-4 py-2.5 align-top text-[12.5px] leading-relaxed text-slate-700">${p.f}</td>
+  </tr>`;
+  return `<section id="concept">
+    <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">개념.</span> voucher_extractions ⟂ form_extractions</h2>
+    <p class="mb-4 text-sm text-slate-500">같은 <b>업로드 → 워커 → 검토 → 확정</b> 골격, 출력만 다르다. extraction 은 출력과 <b>디커플링</b>(confirmed_*_id 없음) — 확정은 결과만 신뢰하고 form_templates 를 독립 생성.</p>
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full text-left">
+        <thead><tr class="bg-slate-50/60 text-[11px] uppercase tracking-wide text-slate-400">
+          <th class="px-4 py-2 font-semibold"></th>
+          <th class="px-4 py-2 font-semibold">voucher_extractions <span class="font-normal normal-case text-slate-300">(기존)</span></th>
+          <th class="px-4 py-2 font-semibold text-violet-500">form_extractions <span class="font-normal normal-case text-slate-300">(신규)</span></th>
+        </tr></thead>
+        <tbody>${PARALLELS.map(row).join('')}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   5) FLOW
+   ========================================================================= */
+const FLOW_STEPS = [
+  { n:1, title:'시작 — 진입점 2개', badge:'POST /form-extractions · /from-document → 202',
+    body:'<b>(a) 직접 업로드</b>: 서식 파일(multipart) 업로드. <b>(b) 기존 voucher 문서</b>: <b>source_document_id</b> + <b>page_range</b> 로 voucher_form/voucher_document 가 가리키는 PDF 지정. 둘 다 <b>form_extractions</b> 1건(status=<b>started</b>, started_at=now, center_id?) 생성 + batch 워커 디스패치.' },
+  { n:2, title:'가공 (비동기 워커)', badge:'@register("form_extract") · started → completed / failed',
+    body:'① 입력 1페이지를 <b>PNG 1장</b>으로 렌더/변환 → <b>독립 global_document 로 선언</b>(image_document_id). ② 멀티모달 OCR 로 <b>fields</b>(의미 키) + <b>elements</b>(정규화 좌표·z) 추정. ③ <b>completed</b>=FormSchema draft 저장, status=<b>completed</b>. <span class="text-rose-600">여러 이미지(다중 페이지)면 status=failed</span> — 우선 미뤄둠.' },
+  { n:3, title:'검토 (화면 전용 편집)', badge:'GET /form-extractions/{id}',
+    body:'completed(FormSchema)를 폼 에디터에 미리 채워 PNG 배경 위에 위젯 오버레이로 보여줌. 사용자는 <b>브라우저에서</b> 좌표·필드를 정정 — 서버 저장 안 함(completed 는 읽기 전용).' },
+  { n:4, title:'확정', badge:'POST /form-extractions/{id}/confirm',
+    body:'body = { <b>schema: 편집된 FormSchema</b> } — 서버는 화면 편집 결과를 그대로 받는다. <b>form_templates</b> 1개 생성(status=<b>draft</b>, version=1, schema, center_id). form_extractions 는 <b>completed 유지</b>(이력·재추출용).' },
+  { n:5, title:'생명주기 진입', badge:'POST /form-templates/{id}/publish',
+    body:'생성된 draft 는 form 모듈의 <b>draft↔published</b> 생명주기로 인계(이미 구현된 publish_template). draft 는 in-place 편집, published 만 immutable version 동결 → instance 바인딩.' },
+];
+function flowStep(s){
+  return `<div class="flex gap-4">
+    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 font-mono text-sm font-bold text-violet-600 ring-1 ring-violet-200">${s.n}</div>
+    <div class="flex-1 pb-6">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="font-semibold text-slate-900">${s.title}</span>
+        <span class="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-500">${s.badge}</span>
+      </div>
+      <p class="mt-1.5 text-sm leading-relaxed text-slate-600">${s.body}</p>
+    </div></div>`;
+}
+function renderFlow(){
+  return `<section id="flow">
+    <h2 class="mb-4 text-lg font-bold text-slate-900"><span class="text-violet-600">Flow.</span> 시작 → 가공 → 검토 → 확정 → 생명주기</h2>
+    <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-6 py-8">
+      ${frameTab('Flow')}
+      <div class="relative"><div class="absolute bottom-6 left-4 top-2 w-px bg-slate-200"></div>
+        ${FLOW_STEPS.map(flowStep).join('')}
+      </div>
+    </div>
+    <p class="mt-3 text-xs text-slate-400">확정 규약: confirm 은 <b>편집된 FormSchema</b> 하나를 받아 form_template 1개를 만든다(편집은 화면 전용, 서버는 결과만 신뢰). form_extractions 는 확정 후에도 <b>completed 로 유지</b>(이력·재추출).</p>
+  </section>`;
+}
+
+/* =========================================================================
+   6) SCENARIOS — 두 진입점
+   ========================================================================= */
+function renderScenarios(){
+  return `<section id="scenarios">
+    <h2 class="mb-4 text-lg font-bold text-slate-900"><span class="text-violet-600">Scenarios.</span> 두 진입점</h2>
+    <div class="space-y-4">
+      <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-6 py-10">
+        ${frameTab('(a) 직접 업로드')}
+        <div class="flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-1">
+          ${tile(NODES.admin)} ${arrow('업로드')}
+          ${tile(NODES.upload_file)} ${arrow('가공')}
+          ${tile(NODES.png,'global_doc')} ${arrow('OCR·확정')}
+          ${tile(NODES.template,'draft')}
+        </div>
+      </div>
+      <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-6 py-10">
+        ${frameTab('(b) 기존 voucher 문서')}
+        <div class="flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-1">
+          ${tile(NODES.voucher_doc,'+page_range')} ${arrow('지정')}
+          ${tile(NODES.server)} ${arrow('가공')}
+          ${tile(NODES.png,'global_doc')} ${arrow('OCR·확정')}
+          ${tile(NODES.template,'draft')}
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   7) TABLES
+   ========================================================================= */
+function col(name,type,o={}){ return {name,type,...o}; }
+const TABLES = [
+  {
+    name:'form_extractions', iconName:'sparkles', accent:VIOLET, owner:'form/extraction', badge:'신규',
+    note:'서식 1장 → form_template 까지의 과정 1건 = 1 row. voucher_extractions 의 평행 이식이되 단순화: document_ids 배열 대신 산출 PNG 단일 참조(image_document_id), completed 는 FormSchema 1개. voucher_extractions 와 동일하게 출력(form_templates)과 디커플링.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('status','String(20)',{note:'started · completed · failed'}),
+      col('started_at','DateTime',{note:'가공 시작 (NOT NULL)'}),
+      col('completed_at','DateTime',{nullable:1,note:'latency = completed_at − started_at'}),
+      col('failed_at','DateTime',{nullable:1}),
+      col('source_document_id','String(36)',{nullable:1,note:'[voucher 경로] 원본 global_document'}),
+      col('page_range','INT4RANGE',{nullable:1,note:'[voucher 경로] 서식 위치 (단일 페이지)'}),
+      col('center_id','String(36)',{nullable:1,note:'만들 template 귀속 (NULL=시스템)'}),
+      col('image_document_id','String(36)',{hot:1,nullable:1,note:'산출 서식 PNG 1장 = 독립 global_document'}),
+      col('completed','JSONB',{nullable:1,note:'성공 결과 = FormSchema draft {pages:[1장], fields, elements}'}),
+      col('failed','Text',{nullable:1,note:'실패 사유 (다중 이미지 등)'}),
+      col('created_at·updated_at·deleted_at','',{ellipsis:1}),
+    ],
+    extra:'IDX(status) · IDX(deleted_at)',
+  },
+  {
+    name:'global_documents', iconName:'globe-alt', accent:EMERALD, owner:'document', badge:'재사용',
+    note:'기존 그대로. 가공이 만든 서식 PNG 한 장이 file_type="png" 로 여기 1 row 로 선언된다 — form_extractions.image_document_id 가 이를 가리키고, FormSchema.pages[0].image 가 그 storage_path 를 배경으로 깐다.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('name · storage_path · file_type','',{ellipsis:1,}),
+      col('file_type','String(100)',{note:'여기선 png'}),
+      col('… (변경 없음)','',{ellipsis:1}),
+    ],
+  },
+  {
+    name:'form_templates', iconName:'rectangle-stack', accent:BLUE, owner:'form/template', badge:'재사용',
+    note:'기존 그대로(이미 status·schema 보유). confirm 산출물 = 이 테이블 draft 1 row. schema = 검토 단계에서 편집된 FormSchema(pages 1장 + fields + elements). 이후 draft↔published 생명주기.',
+    fields:[
+      col('id','UUID',{pk:1}),
+      col('center_id','String(36)',{nullable:1,note:'NULL = 시스템 템플릿'}),
+      col('name','String(100)'),
+      col('version','Integer',{note:'default 1'}),
+      col('schema','JSONB',{note:'FormSchema = pages + fields + elements'}),
+      col('status','String(20)',{note:'draft | published'}),
+      col('is_active · created_at·updated_at·deleted_at','',{ellipsis:1}),
+    ],
+    extra:'UNIQUE(center_id, name, version)',
+  },
+];
+function badge(t,c){ return `<span class="rounded ${c} px-1 py-px text-[9.5px] font-bold leading-none">${t}</span>`; }
+function tableBadge(label){
+  const map={'신규':'bg-emerald-100 text-emerald-700','재정의':'bg-blue-100 text-blue-700','재사용':'bg-slate-100 text-slate-500','기존':'bg-slate-100 text-slate-500','제거':'bg-rose-100 text-rose-700'};
+  return `<span class="rounded-md ${map[label]||'bg-slate-100 text-slate-500'} px-1.5 py-0.5 text-[10px] font-semibold">${label}</span>`;
+}
+function fieldRow(f){
+  if(f.ellipsis) return `<div class="px-4 py-1.5 text-[11px] text-slate-400">${f.name}</div>`;
+  let b='';
+  if(f.pk) b+=badge('PK','bg-amber-100 text-amber-700');
+  if(f.fk) b+=badge('FK→'+f.fk,'bg-sky-100 text-sky-700');
+  if(f.uq) b+=badge('UQ','bg-violet-100 text-violet-700');
+  if(f.nullable) b+=badge('NULL','bg-slate-100 text-slate-400');
+  const muted=f.base?'text-slate-400':(f.hot?'text-violet-700 font-semibold':'text-slate-700');
+  return `<div class="flex items-center gap-1.5 px-4 py-1.5 ${f.hot?'bg-violet-50/40':''}">
+    <span class="font-mono text-[12.5px] ${muted}">${f.name}</span>${b}
+    ${f.note?`<span class="truncate text-[11px] text-slate-400">${f.note}</span>`:''}
+    <span class="ml-auto shrink-0 font-mono text-[11px] text-slate-400">${f.type}</span></div>`;
+}
+function tableCard(t){
+  const a=t.accent;
+  return `<div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50/60 px-3 py-2">
+      <span class="flex h-7 w-7 items-center justify-center rounded-lg ${a.bg} ${a.text} ring-1 ${a.ring}">${icon(t.iconName,'w-4 h-4')}</span>
+      <span class="font-mono text-sm font-semibold text-slate-800">${t.name}</span>
+      ${t.badge?tableBadge(t.badge):''}
+      <span class="ml-auto text-[11px] text-slate-400">${t.owner||''}</span>
+    </div>
+    <div class="divide-y divide-slate-100">${t.fields.map(fieldRow).join('')}</div>
+    ${t.extra?`<div class="border-t border-slate-200 px-4 py-1.5 font-mono text-[10.5px] text-violet-600">${t.extra}</div>`:''}
+    ${t.note?`<div class="border-t border-slate-200 bg-slate-50/60 px-4 py-2 text-[11px] leading-relaxed text-slate-500">${t.note}</div>`:''}
+  </div>`;
+}
+function renderTables(){
+  return `<section id="tables">
+    <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">Tables.</span> 신규 1 · 재사용 2</h2>
+    <p class="mb-4 text-sm text-slate-500">신규 테이블은 <code class="text-[12px]">form_extractions</code> 하나. <code class="text-[12px]">global_documents</code>(PNG 선언)·<code class="text-[12px]">form_templates</code>(확정 산출)은 변경 없이 재사용.</p>
+    <div class="grid grid-cols-1 items-start gap-4 md:grid-cols-2">${TABLES.map(tableCard).join('')}</div>
+  </section>`;
+}
+
+/* =========================================================================
+   8) COMPLETED 계약 (FormSchema draft)
+   ========================================================================= */
+const COMPLETED = `<span class="text-slate-400">// form_extractions.completed — 성공 시 (FormSchema draft 1개)</span>
+{
+  <span class="text-emerald-600">"pages"</span>: [
+    { "no": 1, "image": "s3://…/form-extractions/&lt;id&gt;/page.png", "w": 2480, "h": 3508 }
+  ],                                <span class="text-slate-400">// PNG 1장 = image_document_id 의 storage_path</span>
+
+  <span class="text-blue-600">"fields"</span>: {                  <span class="text-slate-400">// OCR 추정 — 사람이 검토에서 정정</span>
+    "applicant_name":   { "type":"text",      "label":"성명", "required": true },
+    "rrn":              { "type":"text",      "label":"주민등록번호" },
+    "applicant_sign":   { "type":"signature", "label":"신청인 서명" }
+  },
+
+  <span class="text-blue-600">"elements"</span>: [               <span class="text-slate-400">// 정규화 좌표 [x,y,w,h] + z, PNG 위 오버레이</span>
+    { "id":"e1", "page":1, "rect":[0.12,0.08,0.30,0.03], "z":1, "widget":"text",
+      "field_refs":["applicant_name"] },
+    { "id":"e2", "page":1, "rect":[0.50,0.08,0.02,0.03], "z":1, "widget":"char_box",
+      "field_refs":["rrn"], "slot":0 }
+  ]
+}`;
+function renderContract(){
+  return `<section id="contract">
+    <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">계약.</span> completed = FormSchema draft</h2>
+    <p class="mb-4 text-sm text-slate-500">워커 산출(<code class="text-[12px]">completed</code>)과 확정 입력(<code class="text-[12px]">confirm.schema</code>)·확정 산출(<code class="text-[12px]">form_templates.schema</code>)이 모두 <b>동일한 FormSchema 계약</b>(voucher-form-design 의 pages+fields+elements). 검토 단계 편집은 이 JSON 을 화면에서 정정하는 것.</p>
+    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-900 p-5">
+      <pre class="code font-mono text-[12px] leading-relaxed text-slate-200"><code>${COMPLETED}</code></pre>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   9) DECISIONS
+   ========================================================================= */
+function relCard(b){
+  return `<div class="flex gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${b.accent.bg} ${b.accent.text} ring-1 ${b.accent.ring}">${icon(b.icon,'w-4 h-4')}</span>
+    <div><div class="font-semibold text-slate-900 text-sm">${b.title}</div>
+    <p class="mt-1 text-[12.5px] leading-relaxed text-slate-600">${b.body}</p></div></div>`;
+}
+const DECISIONS = [
+  { icon:'photo', accent:EMERALD, title:'서식 = PNG 1장 (독립 global_document)',
+    body:'가공 산출은 단일 PNG 로 단순화. document_ids 배열·group 묶음 불필요 — image_document_id 단일 참조면 충분하고, FormSchema.pages 도 1장. 배경에 깔고 그 위에 좌표 오버레이.' },
+  { icon:'exclamation-triangle', accent:ORANGE, title:'다중 이미지 = 가공 에러 (미뤄둠)',
+    body:'한 입력이 여러 이미지(다중 페이지 서식)를 내면 status=failed 로 마킹. 다중 페이지 form_template 은 MVP 범위 밖 — 단일 페이지 서식부터.' },
+  { icon:'link', accent:VIOLET, title:'출력과 디커플링',
+    body:'form_extractions 는 confirmed_template_id 를 갖지 않는다(voucher_extractions 가 confirmed_voucher_id 를 안 갖는 것과 동일). 확정 시 form_templates 가 독립 생성, extraction 은 이력으로 completed 유지.' },
+  { icon:'check-circle', accent:BLUE, title:'재추출·재확정 가능',
+    body:'completed 는 status 가 진실(started 시점에 비어 있음). 재배달된 completed 잡은 멱등 skip. 확정 후에도 completed 유지 → 같은 서식으로 새 draft 재생성 가능.' },
+];
+function renderDecisions(){
+  return `<section id="decisions">
+    <h2 class="mb-4 text-lg font-bold text-slate-900"><span class="text-violet-600">Decisions.</span> 설계 결정</h2>
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">${DECISIONS.map(relCard).join('')}</div>
+  </section>`;
+}
+
+/* =========================================================================
+   10) RUNTIME / 모듈 배치
+   ========================================================================= */
+function renderLayout(){
+  const code = `app/modules/form/extraction/          <span class="text-emerald-600"># 신규 서브모듈</span>
+  ├── models.py            <span class="text-slate-400"># FormExtraction (+ FormExtractionStatus)</span>
+  ├── repository.py        <span class="text-slate-400"># 순수 쿼리 (get_for_update · list_paginated)</span>
+  ├── schemas.py
+  ├── router.py            <span class="text-slate-400"># POST / · /from-document · GET · /confirm</span>
+  ├── handlers/            <span class="text-slate-400"># upload · from_document · get · confirm · list</span>
+  └── services/            <span class="text-slate-400"># confirm_extraction (→ form_templates)</span>
+
+app/runtime/form_template/             <span class="text-emerald-600"># 신규 워커 런타임 (voucher_document 평행)</span>
+  ├── executor.py          <span class="text-slate-400"># @register("form_extract")</span>
+  ├── render_page/         <span class="text-slate-400"># 입력 1페이지 → PNG (구 render_form_pages 재활용)</span>
+  └── image_to_schema/     <span class="text-slate-400"># 멀티모달 OCR → FormSchema(fields·elements)</span>`;
+  return `<section id="layout">
+    <h2 class="mb-1 text-lg font-bold text-slate-900"><span class="text-violet-600">Layout.</span> 모듈·런타임 배치</h2>
+    <p class="mb-4 text-sm text-slate-500">모듈 <code class="text-[12px]">form/extraction</code> + 워커 런타임 <code class="text-[12px]">runtime/form_template</code>. voucher 의 <code class="text-[12px]">voucher_extraction</code> + <code class="text-[12px]">runtime/voucher_document</code> 와 1:1 대응.</p>
+    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-900 p-5">
+      <pre class="code font-mono text-[12px] leading-relaxed text-slate-200"><code>${code}</code></pre>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   11) MOUNT
+   ========================================================================= */
+const SECTIONS = [
+  { id:'guide',     label:'Guide',     render:renderGuide },
+  { id:'concept',   label:'개념',      render:renderConcept },
+  { id:'flow',      label:'Flow',      render:renderFlow },
+  { id:'scenarios', label:'Scenarios', render:renderScenarios },
+  { id:'tables',    label:'Tables',    render:renderTables },
+  { id:'contract',  label:'계약',      render:renderContract },
+  { id:'decisions', label:'Decisions', render:renderDecisions },
+  { id:'layout',    label:'Layout',    render:renderLayout },
+];
+document.getElementById('brand-icon').innerHTML = icon('sparkles','w-5 h-5');
+document.getElementById('nav').innerHTML = SECTIONS.map(s=>`<a href="#${s.id}" class="rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">${s.label}</a>`).join('');
+document.getElementById('app').innerHTML = SECTIONS.map(s=>s.render()).join('');
+</script>
+</body>
+</html>

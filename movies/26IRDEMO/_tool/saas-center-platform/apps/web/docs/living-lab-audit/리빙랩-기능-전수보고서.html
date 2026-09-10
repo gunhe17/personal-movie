@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 웹 기능 전수 보고서</title>
+<style>
+  :root{
+    --ink:#1a1d24; --sub:#5b6472; --line:#e6e9ee; --bg:#f7f8fa; --card:#fff;
+    --red:#d94141; --red-bg:#fdf0f0; --amber:#b57a10; --amber-bg:#fdf6e8;
+    --green:#1d8a4e; --green-bg:#eef8f1; --blue:#2f6fed; --blue-bg:#eef3fe;
+    --violet:#7c5cd6; --violet-bg:#f3effc; --mint:#0e9488; --mint-bg:#e9f7f5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.62;}
+  .layout{display:flex; max-width:1320px; margin:0 auto;}
+  nav{width:225px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; padding:36px 14px 36px 22px; border-right:1px solid var(--line);}
+  nav .nav-title{font-size:12.5px; font-weight:700; color:var(--sub); text-transform:uppercase; margin-bottom:12px; letter-spacing:0.4px;}
+  nav a{display:block; font-size:13px; color:var(--sub); text-decoration:none; padding:4px 10px; border-radius:6px; margin-bottom:1px;}
+  nav a:hover{background:var(--blue-bg); color:var(--blue);}
+  main{flex:1; padding:38px 42px 100px; min-width:0;}
+  h1{font-size:25px; font-weight:800; letter-spacing:-0.6px; margin-bottom:6px;}
+  .meta{font-size:13px; color:var(--sub); margin-bottom:24px;}
+  h2{font-size:18.5px; font-weight:800; margin:48px 0 14px; padding-top:18px; border-top:2px solid var(--ink); scroll-margin-top:16px;}
+  h2 .n{color:var(--blue); margin-right:6px;}
+  p{font-size:14px; margin-bottom:10px;}
+  .tldr{background:var(--card); border:1px solid var(--line); border-left:4px solid var(--blue); border-radius:12px; padding:18px 22px; margin-bottom:12px;}
+  table{width:100%; border-collapse:collapse; font-size:13px; background:var(--card); border-radius:10px; overflow:hidden; margin:10px 0 16px;}
+  th{background:#f0f2f5; text-align:left; padding:8px 12px; font-weight:700; font-size:12px; color:var(--sub); border-bottom:1px solid var(--line); white-space:nowrap;}
+  td{padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.c, th.c{text-align:center;}
+  .badge{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; vertical-align:1px;}
+  .b-red{background:var(--red-bg); color:var(--red);}
+  .b-amber{background:var(--amber-bg); color:var(--amber);}
+  .b-green{background:var(--green-bg); color:var(--green);}
+  .b-blue{background:var(--blue-bg); color:var(--blue);}
+  .b-violet{background:var(--violet-bg); color:var(--violet);}
+  .b-mint{background:var(--mint-bg); color:var(--mint);}
+  .b-gray{background:#eef0f3; color:var(--sub);}
+  code{font-family:"SF Mono",Menlo,monospace; font-size:11.5px; background:#eef0f4; padding:1px 6px; border-radius:5px; color:#3a4150;}
+  details.screen{background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden;}
+  details.screen > summary{list-style:none; cursor:pointer; padding:13px 20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; user-select:none;}
+  details.screen > summary::-webkit-details-marker{display:none;}
+  details.screen > summary:hover{background:#fbfcfd;}
+  details.screen > summary .route{font-family:"SF Mono",Menlo,monospace; font-size:13px; font-weight:700; color:var(--ink);}
+  details.screen > summary .title{font-size:13.5px; font-weight:700; color:var(--sub);}
+  details.screen > summary .chev{margin-left:auto; color:var(--sub); font-size:11px; transition:transform .15s;}
+  details.screen[open] > summary .chev{transform:rotate(90deg);}
+  details.screen[open] > summary{border-bottom:1px solid var(--line); background:#fbfcfd;}
+  .screen-body{padding:14px 20px 16px;}
+  .fgroup{margin-bottom:11px;}
+  .fgroup .glabel{font-size:11.5px; font-weight:800; color:var(--violet); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px;}
+  .fgroup ul{padding-left:18px;}
+  .fgroup li{font-size:13.5px; margin-bottom:3px; color:#2c333e;}
+  .fgroup li b{color:var(--ink);}
+  .warn-inline{background:var(--red-bg); border-radius:8px; padding:9px 14px; font-size:13px; margin-top:10px;}
+  .warn-inline b{color:var(--red);}
+  .flow{background:#f0f2f5; border-radius:9px; padding:10px 16px; font-family:"SF Mono",Menlo,monospace; font-size:11.5px; line-height:1.9; color:#3a4150; margin:8px 0 14px; overflow-x:auto; white-space:nowrap;}
+  .area-note{font-size:13px; color:var(--sub); margin-bottom:12px;}
+  .controls{margin:0 0 14px; display:flex; gap:8px;}
+  .controls button{font-family:inherit; font-size:12px; font-weight:700; color:var(--blue); background:var(--blue-bg); border:none; border-radius:8px; padding:6px 14px; cursor:pointer;}
+  .controls button:hover{filter:brightness(0.96);}
+  @media (max-width:900px){ nav{display:none;} main{padding:24px 18px 80px;} }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <div class="nav-title">목차</div>
+  <a href="#tldr">요약</a>
+  <a href="#stats">완성도 지도</a>
+  <a href="#a1">1. 스케줄</a>
+  <a href="#a2">2. 상담</a>
+  <a href="#a3">3. 검사</a>
+  <a href="#a4">4. 내담자·바우처</a>
+  <a href="#a5">5. 청구</a>
+  <a href="#a6">6. 센터 설정</a>
+  <a href="#a7">7. 구성원·내정보·설정</a>
+  <a href="#a8">8. 대시보드·알림·AI</a>
+  <a href="#a9">9. 온보딩·글로벌 UI</a>
+  <a href="#a10">10. 웹 2차 정밀(누락분)</a>
+  <a href="#a11">11. 전문가 앱(모바일)</a>
+  <a href="#a12">12. 웹↔모바일 패리티</a>
+  <a href="#new-issues">신규·정정 이슈</a>
+</nav>
+
+<main>
+<h1>관리자 웹 기능 전수 보고서</h1>
+<div class="meta">2026-07-09 · 웹 8영역 + 웹 2차 정밀(라우트 전수 대조) + <b>전문가 앱(모바일) 3파트</b> 전수조사 · 원본: <code>02-기능-전수목록.md</code>(웹) · <code>03-전문가앱-전수목록.md</code>(모바일+패리티) · 시나리오 관점은 리빙랩-점검-보고서.html · <a href="./리빙랩-흐름-시각화.html" style="color:var(--blue); font-weight:700;">▶ 핵심 흐름 시각화(인포그래픽) 보기</a></div>
+
+<div class="tldr" id="tldr">
+  <p style="font-size:14.5px; margin-bottom:8px;"><b>이 문서는 웹에 존재하는 모든 기능의 인벤토리다.</b> 총 <b>~650개 기능/액션, 55+ 화면, 40+ 모달</b>. 이전 보고서에서 요약됐던 것 — 상담 상세의 인라인 일지·출석 관리, 필드노트 AI 파이프라인, 청구 3경로, 문서양식 빌더, 권한 매트릭스, AI 페이지 도구 — 를 전부 펼쳤다.</p>
+  <p style="font-size:13px; color:var(--sub); margin:0;">각 화면을 클릭하면 상세가 펼쳐집니다. 상태 뱃지: <span class="badge b-green">완성</span> <span class="badge b-amber">부분/숨김</span> <span class="badge b-red">더미/미완</span></p>
+</div>
+
+<h2 id="stats">완성도 지도 (영역 × 기능 수)</h2>
+<table>
+  <tr><th>영역</th><th class="c">화면</th><th class="c">기능/액션</th><th>상태</th></tr>
+  <tr><td><b>청구</b></td><td class="c">2+모달5</td><td class="c">~125</td><td><span class="badge b-green">완성</span> 가장 조밀. 환불·납부수정만 없음</td></tr>
+  <tr><td><b>내담자·바우처</b></td><td class="c">7</td><td class="c">~91</td><td><span class="badge b-green">완성</span> 사전기록지·문서·관계·마스터 바우처까지</td></tr>
+  <tr><td><b>구성원·내정보·설정</b></td><td class="c">13</td><td class="c">~90</td><td><span class="badge b-green">완성</span> 단 settings/profile "준비 중"</td></tr>
+  <tr><td><b>검사</b></td><td class="c">9+6</td><td class="c">~70</td><td><span class="badge b-amber">부분</span> 현황·상세·접수 완성 / 통계·바로링크·구매 더미</td></tr>
+  <tr><td><b>센터 설정</b></td><td class="c">7</td><td class="c">~70</td><td><span class="badge b-green">완성</span> 양식 빌더·권한 매트릭스 포함</td></tr>
+  <tr><td><b>상담</b></td><td class="c">3</td><td class="c">~67</td><td><span class="badge b-green">완성</span> 상담 상세 = 웹에서 가장 깊은 화면</td></tr>
+  <tr><td><b>대시보드·알림·AI</b></td><td class="c">8</td><td class="c">~80</td><td><span class="badge b-amber">부분</span> AI는 완성이나 숨김 / analytics 더미</td></tr>
+  <tr><td><b>스케줄</b></td><td class="c">6</td><td class="c">~57</td><td><span class="badge b-amber">부분</span> 캘린더 완성 / <b>예약현황·예약설정 미완</b></td></tr>
+  <tr><td><b>전문가 앱(모바일)</b> §11</td><td class="c">~25(프로덕션)</td><td class="c">~150</td><td><span class="badge b-amber">부분</span> 상담·필드노트·청구 완성 / <b>홈 전환 중</b>·등록류 웹 위임</td></tr>
+</table>
+
+<!-- ============ 1. 스케줄 ============ -->
+<h2 id="a1"><span class="n">1.</span>스케줄</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/schedule/calendar</span><span class="title">캘린더 — 기본 진입 화면</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">뷰</div><ul>
+    <li><b>월간 / 주간 / 일간</b> 토글 — 일간은 <b>장소별 ↔ 담당자별</b> 타임라인 전환(관리자만)</li>
+    <li>이전/다음 기간, "오늘" 점프, 보이는 일정 건수 표시</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">필터</div><ul>
+    <li>프로그램(검사/상담/운영) · 담당자(관리자 전용·검색) · 내담자(검색) · 장소(일간+담당자별 모드만) · 모바일 필터 패널+초기화</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">일정 칩 표시</div><ul>
+    <li>담당자 색상, 타입 아이콘(운영/상담/검사), 세션 상태(예정/완료/취소/노쇼), <b>충돌 경고 배지</b>, 운영시간 외 앰버 배지, 시크릿 모드 마스킹</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">액션</div><ul>
+    <li>신규 등록 버튼 / 날짜 셀 클릭 / 타임라인 빈 슬롯 클릭 → <b>ScheduleRegisterModal</b>: 내담자 등록 · 상담 접수 · 검사 접수 3분기 (날짜·시간·장소·담당자 프리필해 접수 페이지로 이동)</li>
+    <li>일정 클릭 → ScheduleDetailModal: 수정 / 취소(확인 모달) / 삭제(확인 모달 — 검사는 "검사는 유지" 안내)</li>
+    <li>세션 상태 인라인 드롭다운 변경 (예정→완료/취소/노쇼)</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 상세 모달의 "취소" 확인 후 실제 API 핸들러가 <b>미구현 주석</b>으로 남아있음(calendar-service.ts) — 삭제는 동작.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/schedule/reservations</span><span class="title">예약 현황</span><span class="badge b-red">더미</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">UI (완성)</div><ul>
+    <li>탭: 예약 대기 / 확정 / 취소 · 검색(예약자·담당자) · 예약 카드(신규예약/변경/취소 유형, 회차, 변경 전후 날짜)</li>
+  </ul></div>
+  <div class="warn-inline">⚠ <b>데이터가 하드코딩 더미</b> (+page.svelte:25-59). 내담자 예약 신청을 받는 미래 기능의 껍데기 — 아래 예약 설정과 세트로 미완.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/schedule/settings</span><span class="title">예약 설정</span><span class="badge b-red">저장 미확인</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">설정 항목 (UI 완성)</div><ul>
+    <li>예약 승인 유형(직접 승인/자동 확정) · 변경 횟수 제한(토글+스테퍼 max10) · 예약금(고정액/퍼센트+금액 입력) · 센터 계좌번호·예금주 변경 · 입금 마감(1일/2일/1시간/2시간) · 환불 규정(토글+문구 설정 모달)</li>
+  </ul></div>
+  <div class="warn-inline">⚠ "저장하기" 버튼의 <b>API 연결 미확인</b> — 예약 기능군 전체가 리빙랩 노출 여부 결정 필요.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/schedule/field-notes</span><span class="title">필드노트 목록·상세</span><span class="badge b-amber">완성·메뉴 숨김</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">목록</div><ul>
+    <li>필터: 처리 상태(대기/처리중/완료/실패) · 연결 여부(연결됨/미연결) · 초기화 · 리스트/그리드</li>
+    <li>컬럼: 날짜·작성자·녹음시간·상태·처리(색상)·연결·요약·삭제</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">상세</div><ul>
+    <li>처리 중 <b>3초 폴링</b>, 연결된 스케줄·케이스 카드, 사이드바 목록(100개·검색)</li>
+    <li><b>일지 서식 선택: default / SOAP / DAP / BIRP / family_center</b></li>
+    <li>처리 완료 감지 → 세션 노트 자동 갱신. AI 기능은 크레딧·플랜(ai_field_note) 게이팅</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/operation/receive</span><span class="title">운영 일정 등록</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">필드·동작</div><ul>
+    <li>제목(필수·200자) · 장소(선택) · 날짜·시작/종료(운영시간 외 앰버 경고) · 메모(사이드 패널·토글) · 알림 발송 체크</li>
+    <li>요약 패널("아래 내용으로 접수할게요") · 종료≤시작 시 다음날 자동 조정 · Pydantic 필드 에러 인라인 매핑</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 2. 상담 ============ -->
+<h2 id="a2"><span class="n">2.</span>상담</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/counseling/status</span><span class="title">상담 현황</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">필터·표시</div><ul>
+    <li>탭(전체/진행중/종결) · 검색 · 날짜(어제/1주/1개월) · 담당자(관리자만) · 유형(개별/그룹) · 정렬 · 리스트/그리드</li>
+    <li>컬럼: 내담자(그룹 "외 N명" 툴팁) · 담당자 · 프로그램(케이스코드 태그) · <b>진행률 3구간 바(완료/예약/취소)</b> · "청구 필요" 표시 · <b>다음 상담일(D-Day 색상, 미처리 N건 / 연장·종결 확인 경고)</b> · 접수일</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">액션</div><ul>
+    <li>상담 접수하기(권한) · 행/카드 클릭→상세 · 케밥: 종결 처리 / 종결 되돌리기 / 삭제 (각 확인 모달)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/counseling/status/[id]</span><span class="title">상담 상세 — 웹에서 가장 깊은 화면</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">연장 배너</div><ul>
+    <li>예약 세션 1~2개 + 마지막 세션 D-7 이내에 노출 → "회기 추가" / "나중에"(7일 dismiss)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">좌측 프로그램 패널</div><ul>
+    <li>케이스 정보 · 상담 정보 수정 · 내담자 카드(클릭→내담자 상세) · <b>패키지 청구 pill</b>(미청구→생성 / 미납·완료→보기) · 세션 목록(상태 아이콘 + <b>필드노트 상태 닷</b>) · 회기 추가</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">세션 헤더 액션</div><ul>
+    <li><b>회기 완료</b>(미확정 내담자 일괄 참석 확인) · <b>진행 안 됨</b> 드롭다운: 사전 취소(사유+보충회기 옵션) / 노쇼(사유+회기 차감 토글) · 되돌리기 · 회기 수정 · 회기 삭제(마지막 회기 경고) · <b>필드노트 버튼</b>(처리중/완료/실패 뱃지)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">내담자 탭 (그룹상담)</div><ul>
+    <li>출석 상태별 색(미확인 회색/참석 연두/불참 빨강/노쇼 주황) · 일지 진행률 "N/M 작성" · <b>일괄 참석 처리</b> · 내담자 추가 · 탭 전환 시 일지 자동 저장</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">인라인 일지 에디터</div><ul>
+    <li>상담 목표(3000자) / 진행 내용(5000자) / 다음 상담(3000자) / 개인 메모(본인만·3000자) — <b>자동 저장(blur·이탈·전환) + 명시 저장</b>, "저장됨" 체크 애니메이션</li>
+    <li>출석 드롭다운(미확인→참석/불참/노쇼, 확정 후 미확인 복귀 불가, 변경 시 회기 상태 자동 제안 모달)</li>
+    <li>청구 버튼: 미청구→세션 청구 생성 / 미납·완료→청구서 보기</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">필드노트 뷰 (세션 내)</div><ul>
+    <li>분석 시작/재시도 · 요약 재생성 · <b>AI 상담일지 초안 생성 → 일지에 주입</b> · 화자명 수정 · 회기 연결 · 전사 내보내기(text/json) — 크레딧 차감·플랜 게이팅</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/counseling/receive</span><span class="title">상담 접수 — 5단 스테퍼</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="flow">①프로그램(+개별/그룹) → ②내담자(다중, 인라인 신규 등록) → ③담당자(다중+왕관=대표, 상담사는 본인만) → ④장소(선택) → ⑤일정(멀티 날짜+시간) + 메모 → 등록</div>
+  <div class="fgroup"><div class="glabel">특기</div><ul>
+    <li>프로그램 소요시간으로 종료시간 자동 계산 · <b>충돌 사전 검증(사유: room/member/both 표시)</b> + 제출 시 충돌 확인 모달 — 경고하되 차단 안 함</li>
+    <li>URL 프리필 <code>?date&time&room_id&member_ids</code> — 캘린더에서 진입 시 · 우측 스테퍼에 단계별 미리보기</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 3. 검사 ============ -->
+<h2 id="a3"><span class="n">3.</span>검사</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+<div class="flow">접수 → [검사 링크 발송: SMS/카카오/이메일/QR] → 내담자: 전용계정 로그인→센터 선택→이름·생년월일 본인확인→검사 수행 → 제출 알림 → 상담사 결과 확인·보고서 업로드 → [결과 링크 발송] → 내담자 인증번호 4자리 → 다운로드(1시간)</div>
+
+<details class="screen"><summary><span class="route">/assessment/status</span><span class="title">검사 현황</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">필터·액션</div><ul>
+    <li>탭(전체/진행전/진행중/완료) · 검색 · 접수일 · 담당자(관리자만) · 정렬 · 리스트/그리드</li>
+    <li>행 액션: 링크 발송 / 결과 전송 / 취소·취소 되돌리기 / 완료·완료 되돌리기 / 삭제 · 행 클릭→상세</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/assessment/status/[id]</span><span class="title">검사 상세</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">사이드바</div><ul>
+    <li>내담자 정보(마스킹) · 검사 목록(세트·상태 태그) · 일정(추가/수정/취소/취소 되돌리기 — ScheduleAddModal) · <b>최종 보고서 토글</b> · 청구 정보(생성/보기 — 권한)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">태스크별 액션</div><ul>
+    <li>점수 입력(자기보고식) · 의견 · 상태 변경: 완료 / 미실시(거부 사유 모달) / 중단 / 삭제 / 되돌리기</li>
+    <li><b>보고서 파일 업로드(전문가용/내담자용, 드래그앤드롭)</b> · 링크 발송/재발송/복사 · 검사 정보 수정(검사·담당·보조·세트) · 필드노트 패널</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/assessment/receive</span><span class="title">검사 접수 — 스테퍼</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">단계</div><ul>
+    <li>검사(단일/세트 — 세트 내 검사 제외 선택, 세트 신규 생성) · 내담자(개인/단체) · 담당자(+대표 왕관, 상담사는 본인만) · 방문 여부 토글(ON: 장소+일정 스텝 활성) · 최종 보고서 여부 · 메모</li>
+    <li><b>단체 모드: 엑셀 업로드 → 중복 검사(high/low 레벨) → 프리뷰 확인 → 일괄 등록</b> ("X명 등록, Y명은 기존 내담자로 처리")</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/assessment/transmission-history</span><span class="title">전송 내역</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>탭(바로 링크/검사 결과) · 날짜 · 정렬 · 페이지크기(6/10/20/50)</li>
+    <li>컬럼: 일시 · 방식(카카오/이메일/문자) · 내담자 · 수신자(관계·이름·번호) · 검사명 · 상태(전송완료/실패/링크만료) · <b>재전송</b></li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/assessment/{quick-links, statistics, purchase}</span><span class="title">바로링크 · 통계 · 구매</span><span class="badge b-red">더미</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">현황</div><ul>
+    <li><b>quick-links</b>: 탭(미전송/전송됨)·QR·재전송 UI 존재하나 <b>centerId 하드코딩</b>(:21) — P0</li>
+    <li><b>statistics</b>: 기간 필터·요약 카드 4종·바/도넛 차트·다운로드 버튼 — <b>전부 더미 데이터 + TODO 주석</b></li>
+    <li><b>purchase</b>: 패키지 카드 3종(로르샤흐/MMPI/HTP)·구매 버튼 — <b>하드코딩 배열, API 없음</b> (정정: "라우트만"이 아니라 더미 페이지)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/center/manage</span><span class="title">설정 &gt; 검사 관리</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>탭(단일 검사/검사 세트) · 검색 · 유형 필터(투사/지능/객관/발달) · 활성 필터</li>
+    <li><b>검사 활성/비활성 토글</b>(센터 취급 검사 결정) · 세트 생성/수정/삭제(권한별)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/assessment-flow/*</span><span class="title">내담자측 검사 수행 (공개+전용 인증)</span><span class="badge b-amber">완성·리허설 필요</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">2단 인증 (확정)</div><ul>
+    <li>① 검사 전용 계정 JWT 로그인(<code>+layout.server.ts</code> — 미인증 시 /assessment-flow/login 리다이렉트) → ② 센터 선택 → ③ <b>identify: 이름+생년월일 본인확인, 동명이인 선택 UI</b></li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">수행</div><ul>
+    <li>케이스 목록: 세트 아코디언(상태 배지·진행도 N/M) 또는 평면 카드 · 검사 카드(소요시간·문항수·만료일) · 시작/완료/만료 상태</li>
+    <li>태스크 진행(워크플로별 분기) · 로르샤흐 스텝 진행+결과 업로드 · 내담자 변경 · 검사 종료 확인 모달</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">/verify-result (공개)</div><ul>
+    <li>인증번호 4자리 → 다운로드 가능 보고서 + 진행 중 검사 표시, 링크 1시간 유효</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 4. 내담자·바우처 ============ -->
+<h2 id="a4"><span class="n">4.</span>내담자 · 바우처</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/clients</span><span class="title">내담자 목록</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>역할 탭(전체/보호자/아동) · 검색(300ms) · 상태(활동/휴면) · 성별 · 정렬(<b>회기임박순</b>/최신/오래된/이름) · 리스트/그리드 · URL 동기화</li>
+    <li>컬럼: 이름+코드 · 생일(나이) · 연락처 · 메모 · 바우처(활성 1건 잔여/전체) · 등록일 · <b>상태 토글</b></li>
+    <li>시크릿 모드: 이름("김*원")·생일("****-**-**")·연락처("010-****-****")·사진 마스킹</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/clients/register</span><span class="title">내담자 등록/수정 — 스테퍼</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">단계</div><ul>
+    <li>①내담자: 이름*·생일*(유효성+미래 불가)·성별·이메일·연락처(자동 포맷)·<b>카카오 주소검색</b></li>
+    <li>②보호자: 다중 행(이름·관계(엄마/아빠/조부모/기타)·생일·성별·연락처) — <b>배치 API로 동시 생성+관계 자동 연결</b></li>
+    <li>③바우처: 다중 행(센터바우처 선택 → 회기·유효기간 자동 채움, 수정 가능) — 등록 후 순차 발급</li>
+    <li>수정 모드(<code>?editClient=</code>): prefill + 보호자만 수정 분기</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 중복 체크 API(<code>/duplicate-check</code>)는 <b>단체 엑셀 등록에서만</b> 사용 — 개별 등록 폼은 미사용 (P1).</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/clients/[clientId]</span><span class="title">내담자 상세 — 4탭</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">좌측 프로필</div><ul>
+    <li>사진 변경(형식·10MB 검증) · 기본 정보 · <b>관계 표시(보호자/자녀) → 클릭 시 해당 내담자로 이동</b> · 상담/검사 카운트</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">탭</div><ul>
+    <li><b>진행 현황</b>: 상담·검사 이력 요약</li>
+    <li><b>사전기록지</b>: empty→"템플릿으로 작성 요청"/"종이 기록지 업로드" · draft→"재요청" · submitted→답변 열람·다운로드·미리보기</li>
+    <li><b>문서</b>: 업로드(최대 10개) · 다운로드 · 미리보기(PDF/이미지 뷰어) · 삭제(확인)</li>
+    <li><b>바우처</b>: 발급 · 카드 선택→상세(회기 진행바·금액·사용 내역·작성 필요 서류)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/vouchers → /[clientId] → /[voucherId]</span><span class="title">바우처 (내담자 현황 → 상세)</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">3단 구조</div><ul>
+    <li>목록: 탭(전체/진행중/완료) · 검색(이름 or 프로그램) · 발급일 범위 · 리스트/그리드 — 실체는 "바우처 보유 내담자 목록"</li>
+    <li>내담자별: 이용중/만료 그룹 카드</li>
+    <li>상세: 회기 진행바 · 금액 현황(잔액 음수 하이라이트) · 사용 내역 테이블 · <b>작성 필요 서류(서식 검색 모달로 연결)</b> · 청구서 보기→/billing</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/settings/vouchers</span><span class="title">센터 바우처 마스터 (설정)</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">마스터-디테일</div><ul>
+    <li>목록(<b>종료 사업 숨기기 토글</b>+만료 수) · 등록/수정 모달(카탈로그·단가·기본 회기·활성·메모) · 활성 토글 · 삭제(<b>사용중 내담자 수 경고</b>) · 탭(정보/관련 자료) · 바우처별 활성 내담자 통계</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 발급된 내담자 바우처의 <b>차감 시 만료일 검증 없음</b>(P0-7) · 1뎁스 "바우처" 메뉴와 용어 중복(P1-8).</div>
+</div></details>
+
+<!-- ============ 5. 청구 ============ -->
+<h2 id="a5"><span class="n">5.</span>청구 — 최다 기능 영역 (~125)</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/billing</span><span class="title">청구 목록 + 미청구 배너</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">목록</div><ul>
+    <li>탭(전체/발행/완납) · 검색 · 정렬 · 리스트(8컬럼: 내담자·청구자·내역(패키지 뱃지+케이스코드)·총액·납부액·<b>미수금(빨강)</b>·상태·생성일)/그리드</li>
+    <li>상태 뱃지: draft 회색 / issued 파랑 / paid 초록 / overdue 빨강</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">미청구 세션 배너 (write 권한)</div><ul>
+    <li>오늘까지 미청구 상담·검사 세션 카운트 → 펼침 그리드(케이스코드·시간·내담자·제목) → 항목별 <b>"청구하기" → 단가표 자동 매칭 → 세션 청구 모달</b></li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">모달 3종</span><span class="title">청구 생성 3경로</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">공통 (바우처 연동)</div><ul>
+    <li>내담자 선택 시 사용 가능 바우처만 조회(잔여&gt;0 + 유효기간 내) · 선택 시 전 항목에 자동 부착 · 해제 시 지원금 0 리셋</li>
+    <li>검증: <b>지원금&gt;정가 = 차단</b> · <b>바우처 회기 부족 = 차단</b> · 바우처 금액 초과 = 경고(진행 가능) · 0원 청구 = "발행과 동시에 완납 처리" 경고</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">경로별</div><ul>
+    <li><b>① 자유 생성</b>(BillableCreateModal): 내담자 선택 · 연동 대상 선택(오늘 미청구 세션→항목 자동) · 항목 추가(단가표/수동)+삭제 · 묶음 할인(%·원 토글) · 메모</li>
+    <li><b>② 세션 청구</b>(SessionBillingModal): 내담자·항목 prefill(잠금), 수량/단가만 수정 — 배너·상담 상세·검사 상세에서 진입</li>
+    <li><b>③ 패키지 선결제</b>(PackageBillingModal): 케이스의 전 세션(취소 제외·시간순)마다 항목 자동 + 세션별 연결, 할인 지원</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">BillableDetailModal + PaymentModal</span><span class="title">청구서 상세 · 납부</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">상세</div><ul>
+    <li>항목별: 케이스코드 · <b>관련 상담/검사로 이동 버튼</b> · 수량×단가 · 바우처 뱃지(mint) · "지원금 -N원 → 본인부담 M원"</li>
+    <li>금액 요약(정가·지원금·할인·조건부 라벨) · 납부 기록 목록(수단·일시·영수증번호·메모) · 메모 수정 저장 · 삭제(draft만)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">납부 등록</div><ul>
+    <li>금액(<b>과오납 차단</b>, 미수금 실시간 표시, <b>25/50/75/100% 빠른 선택</b>) · 수단(카드/계좌이체) · 일시(5분 단위) · 메모</li>
+  </ul></div>
+  <div class="warn-inline">미구현: 환불 · 납부 기록 수정/삭제 · 발행/완납 수동 전환 · 발행 시 알림 발송(주석 잔존) · 영수증 출력.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/billing/price-list</span><span class="title">단가표</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>필터(유형: 상담/검사/패키지 · 활성 · 검색) · 컬럼(서비스명·단가·메모·생성/수정일·<b>출처(수동/자동)</b>·상태 토글·케밥)</li>
+    <li>CRUD(생성 모달은 기존 검사/프로그램에서 <b>이름·가격 자동 채우기</b>) · <b>동기화 버튼</b>: 검사·프로그램·패키지 3소스 매칭 → "N건 추가, M건 업데이트" 집계 토스트</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 6. 센터 설정 ============ -->
+<h2 id="a6"><span class="n">6.</span>센터 설정 (/center/*)</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/center/info</span><span class="title">센터 정보 (뷰/수정 모드)</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기본 정보</div><ul>
+    <li>로고 업로드(80×80·10MB) · 센터명 · 대표자 · 사업자번호 · 주소(<b>카카오 검색</b>) · 전화(지역번호 Select+본체) · 소개</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">운영시간·휴무</div><ul>
+    <li>요일별(월~일) 운영/휴무 토글 + 개점·폐점 시간 Select</li>
+    <li><b>정기휴일: 월주차(첫째~마지막주)+요일 조합</b> 추가/삭제 · 임시휴무 별도 테이블</li>
+    <li>저장 시 일괄 처리(로고 업로드→정보 패치→운영시간 PUT→휴일 추가/삭제)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/center/program · /center/room</span><span class="title">프로그램 · 상담실</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">프로그램</div><ul>
+    <li>통계 대시보드 · 카드(이름·담당·단가·유형·소요시간) · 등록/수정/삭제 · <b>?action=create URL 자동 모달(프리필)</b> — AI 에이전트 연계 지점</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">상담실</div><ul>
+    <li>통계 대시보드 · 카드(썸네일·설명·메모·활성·오늘/주간 예약 수) · 등록/수정 · <b>선택 방의 주간 활용 간트 차트</b> · URL 자동 모달</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/center/form-templates (+/edit)</span><span class="title">문서 양식 + 풀스크린 빌더</span><span class="badge b-amber">완성·프로덕션 숨김</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">목록</div><ul>
+    <li>검색 · 리스트(양식명·버전·상태 토글·생성일)/그리드(<b>A4 비율 카드 6열</b>) · 시스템 양식 토글 비활성</li>
+    <li><b>새 양식 3방식: 직접 생성 / AI 초안 생성(generate-draft) / 템플릿 복제</b></li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">빌더 (풀스크린)</div><ul>
+    <li>A4 캔버스(640×906) · <b>필드 16종</b>(텍스트/이메일/전화/숫자/장문/단일선택/드롭다운/다중선택/날짜/시간/일시/파일/이미지/서명/구분선/제목)</li>
+    <li>D&amp;D 이동·리사이즈 · 다중 선택 · 우클릭 메뉴 · 필드 인스펙터(라벨·필수·선택지) · 저장 시 <b>버전 자동 증가</b> · 시스템/비활성 양식 편집 차단</li>
+    <li>발송: FormSendModal(내담자 선택) — 사전기록지·바우처 서류와 연결</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/center/message-templates</span><span class="title">문자 양식</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>좌 목록(대표 뱃지) / 우 편집: 내용(2000자) + <b>변수 삽입 버튼</b>(센터명·수신자명·예약일·결과 링크·인증번호·청구 요약·금액·기한·문서명·링크 — 타입별) + <b>실시간 미리보기([Web발신]+변수 치환)</b></li>
+    <li>대표 설정 · 이름 변경 · 삭제 · 시스템 양식은 읽기 전용</li>
+    <li>UI 노출 3타입: 검사 결과 전송 / 청구서 발행 / 문서 작성 요청 (내부 5타입 비노출)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/center/authorization</span><span class="title">권한 설정 (super_admin)</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">역할 관리</div><ul>
+    <li>역할 목록(구성원 수 뱃지·접근 범위: 전체/담당만) · 생성 · <b>복사</b> · 수정 · 삭제(프리셋 불가) · <b>자기 역할 잠금(권한 자살 방지)</b></li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">권한 매트릭스</div><ul>
+    <li>3그룹(상담·검사 관리 / 운영 관리 / 센터 관리) × <b>15카테고리 × 조회/편집</b> — 조회 제한 시 편집 자동 제한, "메뉴에서 숨겨집니다" 안내</li>
+    <li><b>사이드바 미리보기</b>: 이 권한 조합에서 실제 보일 메뉴 시뮬레이션</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">구성원 탭</div><ul>
+    <li>검색(이름/이메일) · 전체/개별 선택 · 구성원 추가(다중) · 역할 변경(본인·ADMIN 제외) · 최근 로그인·활성 표시</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 7. 구성원·내정보·설정 ============ -->
+<h2 id="a7"><span class="n">7.</span>구성원 · 내 정보 · 개인 설정</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/member (+/[memberId], /invite)</span><span class="title">구성원</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">목록</div><ul>
+    <li>탭(전체/수락 대기) · 검색 · 역할(ADMIN/MANAGER/COUNSELOR/STAFF) · 고용형태(정규/계약/프리랜서) · 정렬 · 리스트/그리드 · 상태 토글 · 삭제(delete:member)</li>
+    <li>초대: 단일 모달(이름·이메일·역할·고용형태) + <b>엑셀 일괄 → /member/invite 검토 테이블(행 선택·삭제·일괄 확정)</b> · 대기 탭에서 D-day(D-3/만료)·재전송</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">구성원 상세</div><ul>
+    <li>프로필 카드(아바타 변경·정보 수정) · 탭: <b>근무일정</b>(주간 시간+휴게 편집, 월 캘린더에 상담/검사 건수) / <b>담당 상담·검사</b> / <b>학력·경력·자격증</b> 편집</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/myInfo</span><span class="title">내 정보 — 4탭</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">탭</div><ul>
+    <li><b>자격·학력·경력</b>: 신규 자격 인증 신청(승인/반려 알림 연동) + 레거시 데이터 편집</li>
+    <li><b>근무일정</b>: 주간 근무시간+휴게 편집</li>
+    <li><b>상담이력</b>: KPI 4종(총·최근·개별·그룹) + /myInfo/counselingLogs 상세</li>
+    <li><b>구독</b>(관리자만): 플랜 요약 카드 — 설정 구독과 3중 진입(P1-7)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/settings/*</span><span class="title">개인 설정 9종</span><span class="badge b-amber">대부분 완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">계정·보안·기록</div><ul>
+    <li><b>account-info</b>: 계정 수정 · 비밀번호 변경(8자+·확인 모달·변경 후 재로그인) · 로그아웃 · <b>센터별 탈퇴</b> · 회원 탈퇴</li>
+    <li><b>activity-log</b>: 검색·카테고리·액션·날짜 필터 · 상세 모달 · <b>엑셀 내보내기(XLSX)</b></li>
+    <li><b>notifications</b>: 카테고리/이벤트그룹/개별 <b>3단 토글</b> · 채널(인앱·푸시·알림톡) · <b>FCM 푸시 권한 요청+토큰 등록</b></li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">구독·AI</div><ul>
+    <li><b>subscription</b>: 현황(크레딧 진행바·기간·리셋) · 플랜 비교 카드 + <b>사용량 기반 적합도 인사이트</b> · 업그레이드(즉시)/다운그레이드(만료 후 적용·예약 취소)/해지 · 승인 대기 배너</li>
+    <li><b>ai-usage</b>: 크레딧 카드·소진 경고+예상 일수·KPI 바·추이 차트(크레딧/호출 탭)·<b>기능별 도넛+테이블(호버 동기화)</b>·상담사별 사용 바·타임라인 · Free 플랜은 안내만</li>
+    <li><b>billing</b>: SaaS 결제 이력(읽기 전용)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">기타</div><ul>
+    <li><b>about</b>: 버전·빌드ID·환경 뱃지·체인지로그 모달·오픈소스 라이선스 · <b>vouchers</b>: §4 · <b>profile</b>: <span class="badge b-red">"준비 중"</span></li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 8. 대시보드·알림·AI ============ -->
+<h2 id="a8"><span class="n">8.</span>대시보드 · 알림 · 공지 · 지원 · AI</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">/dashboard (+analytics)</span><span class="title">대시보드</span><span class="badge b-amber">본체 완성 / analytics 더미</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">위젯·클릭 동작</div><ul>
+    <li>시간대별 인사 · <b>히어로 회기</b>(다음/진행 중 + "N분 후" 속삭임 → 클릭 시 스케줄) · 오늘 일정 더보기 · <b>바우처 신호 3종</b>(신규·수정 7일 / 소진 임박 ≤2회 / 만료 임박 14일 → 클릭 시 /clients) · 공지 4건(→상세)</li>
+    <li>역할 분기 없음(관리자·상담사 동일) · analytics: 카드 4종 전부 "-" + "차트 준비 중"</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/notifications · /notice · /support</span><span class="title">알림 · 공지 · 고객센터</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">알림</div><ul>
+    <li>카테고리 탭(검사/상담/소식) · 읽음 필터 · 미읽음 파란 점 · "모두 읽음" · 30초 폴링</li>
+    <li><b>클릭 딥링크</b>: 검사→검사 상세 / 상담→상담 상세(?session=) / 공지→공지 / 문의 답변→고객센터 / 자격 인증→내 정보</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">공지·지원</div><ul>
+    <li>공지: 유형·날짜·검색 필터 · 읽음 표시 · 상세(HTML·<b>첨부 다운로드</b>·이전/다음 글)</li>
+    <li>지원: 이메일·전화 안내 · <b>1:1 문의 모달</b>(유형 5종+200자) · 내 문의 아코디언(상태·답변) · FAQ 카테고리 탭</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">/agent + 플로팅 아이콘</span><span class="title">AI 에이전트</span><span class="badge b-amber">완성·프로덕션 숨김</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">채팅</div><ul>
+    <li>세션 사이드바(목록·새 대화·제목 변경·삭제) · SSE 스트리밍(진행 단계 표시·도구 결과 테이블·선택지·폼 체크포인트)</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">페이지 도구 5종 — AI가 실제 폼을 원격 조작</div><ul>
+    <li><b>상담 접수 / 운영 일정 / 검사 접수 / 내담자 등록 / 센터 정보 수정</b> — 각각 get_form_state / set_field(s) / submit + "다음 빈 필드" 가이드. 센터 정보는 자동 편집 모드 진입</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">플로팅 아이콘</div><ul>
+    <li>드래그 이동 · 클릭 팝업 · 말풍선(assistant 메시지, 5초) · 플랜(ai_agent)+크레딧 게이팅 · 소진 시 비활성 · /agent에서 숨김</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 9. 온보딩·글로벌 ============ -->
+<h2 id="a9"><span class="n">9.</span>온보딩 · 글로벌 UI</h2>
+<details class="screen" open><summary><span class="route">전역</span><span class="title">가입 · 초대 · 헤더 · 시크릿 모드</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">흐름</div><ul>
+    <li>/signup(약관) → /welcome(센터 목록·신청 대기·새 센터 생성) → /welcome/register(센터 기본 정보) → /schedule/calendar</li>
+    <li>/accept-invitation: 토큰 → 로그인 → 수락 → 센터 자동 선택 → 캘린더</li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">글로벌 UI</div><ul>
+    <li>센터 전환 드롭다운 · 알림 벨(미읽음 배지) · 프로필 메뉴(내 정보/계정 설정/로그아웃) · <b>시크릿 모드</b>(활성화 모달 → 이름·생일·연락처·사진 마스킹) · 사이드바 축소(72px)+호버 플라이아웃 · 권한 확정 후 메뉴 렌더(깜빡임 방지)</li>
+  </ul></div>
+</div></details>
+
+<!-- ============ 10. 웹 2차 정밀 ============ -->
+<h2 id="a10"><span class="n">10.</span>웹 2차 정밀 — 라우트 전수 대조로 발견한 누락분</h2>
+<p class="area-note">전체 +page.svelte 목록과 조사 커버리지를 기계적으로 대조해 찾아낸 화면들. "대충 찾았던" 부분의 정정.</p>
+<table>
+  <tr><th>라우트</th><th style="width:90px;" class="c">판정</th><th>내용</th></tr>
+  <tr><td><code>/assessment/status/history</code></td><td class="c"><span class="badge b-green">완성</span></td><td><b>이전 조사 통누락.</b> 검사 이력: 탭 5종·검색·날짜·담당자·개인/단체 필터 + <b>체크박스 벌크 선택 → 일괄 취소/삭제</b>, 결과/링크 발송. 실데이터</td></tr>
+  <tr><td><code>/settings</code> (인덱스)</td><td class="c"><span class="badge b-red">더미</span></td><td>이메일·SMS 토글이 <b>저장 안 됨</b>, 비밀번호 변경·2FA 버튼 링크 없음. 실제 설정 서브페이지와 미연결 — URL 접근 가능한 더미</td></tr>
+  <tr><td><code>…/lab</code> 3종 (ai-usage·subscription·billing)</td><td class="c"><span class="badge b-amber">시안</span></td><td>레이아웃 A/B/C 비교용 디자인 실험, 전부 mock. 메뉴 미연결</td></tr>
+  <tr><td><code>/center/form-templates/[id]</code></td><td class="c"><span class="badge b-green">완성</span></td><td>양식 상세: 스냅샷 미리보기(다중 페이지)·상태 토글·시스템 양식 복제·<b>발급 내역 테이블 + 재전송</b>·발급하기 모달</td></tr>
+  <tr><td><code>/myInfo/counselingLogs</code></td><td class="c"><span class="badge b-green">완성</span></td><td>상담 이력: 요약 4카드 + 프로그램별 테이블(행 클릭→상담 상세)</td></tr>
+  <tr><td><code>/assessment-flow/…/info</code></td><td class="c"><span class="badge b-green">완성</span></td><td>내담자 공개 검사 1단계(이름+생년월일). QR/링크 진입</td></tr>
+  <tr><td><code>/assessment/login</code>, <code>/assessment/rorschach/*</code></td><td class="c"><span class="badge b-gray">레거시</span></td><td>assessment-flow 버전과 중복(구식). 진입점 없음 — 삭제 대상</td></tr>
+  <tr><td><code>/schedule/settings</code> 저장</td><td class="c"><span class="badge b-red">미완 확정</span></td><td>저장 버튼에 <b>onclick 핸들러 자체가 없음</b>. API 액션·mutation 부재</td></tr>
+  <tr><td><code>/schedule/reservations</code></td><td class="c"><span class="badge b-red">더미 확정</span></td><td>하드코딩 3건 + action 파일 없음 + <b>백엔드 reservation API 미존재</b></td></tr>
+  <tr><td><code>/welcome/register/success</code></td><td class="c"><span class="badge b-green">완성</span></td><td>센터 등록 = <b>관리자 승인제</b>(즉시 사용 아님) 확인 — 리빙랩 온보딩 일정에 반영 필요</td></tr>
+</table>
+
+<!-- ============ 11. 전문가 앱 ============ -->
+<h2 id="a11"><span class="n">11.</span>전문가 앱 (apps/mobile · 상담사 전용)</h2>
+<div class="controls"><button onclick="toggleArea(this,true)">전체 펼치기</button><button onclick="toggleArea(this,false)">전체 접기</button></div>
+
+<details class="screen"><summary><span class="route">구조·인증</span><span class="title">로그인 · 센터 선택 · 탭 · FAB</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>로그인(필드 검증·에러 유형 분리) → 센터 1개 자동 선택 / 복수면 선택 화면 → 권한 로드 → 탭 홈. 401 자동 refresh(대기 큐)</li>
+    <li>탭: <b>홈 / 일정 / 내담자 / 내 정보</b> + 실험실(<code>__DEV__</code> 전용 — <b>프로덕션 완전 숨김</b>). 플로팅 pill 탭바 + 우측 <b>필드노트 FAB(전역)</b></li>
+    <li>실험실: 시안 레지스트리(최종/Agentic/이전), 파일 1개=탭 N시안, mock 전용</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">(tabs)/index</span><span class="title">홈 탭</span><span class="badge b-red">전환 중</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">현황</div><ul>
+    <li>데이터: 오늘 일정(다음 세션 도출), 주간 요약, 미읽음 알림, 미연결 필드노트, Agentic 신호(일지 미작성·연장 필요)</li>
+    <li>현재 BriefStackHome 렌더. 이전 SoftTasksHome(할 일 중심)은 lab에 보존</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 코드 주석상 <b>"음성 우선 에이전트로 기획 변경, 상세 구현 보류"</b> — 리빙랩 전에 홈 형태 확정 필요.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">(tabs)/schedule + /schedule/[id]</span><span class="title">일정 탭 — 3뷰 + 자동 리다이렉트</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>3뷰: 월간 캘린더 / 주간 타임라인(WeekStrip) / <b>통계 대시보드</b> — 웹보다 뷰가 많음</li>
+    <li>일정 카드 → 리다이렉터: 상담→세션 상세, 검사→케이스 상세 자동 이동, meeting/block은 폴백 안내</li>
+  </ul></div>
+  <div class="warn-inline">⚠ <b>일정/접수 신규 등록 UI 없음</b> — 조회·상태변경만. "현장에서 다음 회기 잡기" 불가. 웹 위임이 의도인지 확정 필요.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">내담자</span><span class="title">목록 · 상세 · 케이스 · 문서 · 등록 위저드</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">모바일 고유</div><ul>
+    <li><b>관심 내담자 캐러셀</b>(즐겨찾기) · <b>초성 자동 그룹</b> · 행 내 <b>전화·문자 바로 연결</b> · 상세의 <b>Attention 신호 카드</b> + <b>출석 패턴 점 시각화(●○●○●)</b></li>
+  </ul></div>
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>상세: 프로필+하트, 다가오는 일정, 상담/검사 케이스 탭(상태 필터), 메모, 사전기록지·문서(조회), 미수금 카드(권한)</li>
+    <li>등록: <b>7단계 위저드</b>(이름→생일·성별→연락처→보호자 분기→보호자 다중+주 보호자 배지→추가 정보→확인), 409 중복 Alert</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 등록에 바우처 스텝 없음(웹 전용) · 내담자 <b>편집 불가</b>(조회만) · 문서 다운로드/공유 URL <b>임시 구현</b> · 사전기록지 재요청 불가.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">상담</span><span class="title">목록 · 상세(회기 바텀시트) · 세션 · 일지</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>목록: 검색·상태 필터(카운트)·<b>D-day 임박순 자동 정렬</b>, 카드(연장필요 라벨·진행바)</li>
+    <li>상세: <b>히어로</b>(다가오는 회기 + 직전 회기 1줄 요약 + 다음 회기), 회기 리스트 → <b>회기 바텀시트</b>(일정·내담자별 출결·일지·청구 통합)</li>
+    <li>세션: 상태 변경(완료=전원 참석 default / 노쇼 / 취소=사유 enum), 출석(불참 사유 시트), 일지(웹과 동일 필드)</li>
+    <li>일지 목록: 작성/미작성 필터 · 날짜 그룹 · 무한 스크롤 → 시트에서 작성/조회</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">검사</span><span class="title">목록 · 상세(소견·상태·필드노트)</span><span class="badge b-amber">부분(의도적 축소)</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>상세: 진행도·내담자 정보·항목별(<b>소견 작성 시트</b>·결과 보기·<b>중단/거부(사유 필수)+되돌리기</b>)·<b>task별 필드노트 상태</b>(온라인 검사는 숨김)·청구 버튼</li>
+    <li>웹 전용: 접수·링크 발송·채점·보고서 생성. ⚠ report.tsx는 진입 경로 불명(미완 의심)</li>
+  </ul></div>
+</div></details>
+
+<details class="screen"><summary><span class="route">필드노트 sub-app</span><span class="title">녹음 → 전사·분석 → 일지 초안 (모바일 차별화)</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="flow">FAB → 다크 몰입 홈(온보딩/오늘 회기) → 녹음(회기·task 선택 or blind) → 일시정지/재개/종료 → 자동 전사·화자분리·AI 분석 → 상담일지/검사 소견 초안 prefill</div>
+  <div class="fgroup"><div class="glabel">가드레일 (구현 확인됨)</div><ul>
+    <li>다른 회기 녹음 진행 중 충돌 해소("멈추고 새로?" = finish 저장, 폐기 아님) · 시작 30분+ 전 확인 모달 · <b>이어녹음은 분석 시작 전까지만</b> · 회기/task <b>1:1 연결(중복 409 토스트)</b> · 청크 업로드 재시도(백오프)</li>
+    <li><b>task별 녹음</b>: 투사검사(HTP·SCT·로르샤흐) inquiry를 검사 항목 단위로 분리 녹음</li>
+    <li>분석 렌즈 분리: 상담=요약·키워드·이슈·정서·하이라이트 / 검사=질문↔반응·관찰·인용(<b>해석성 출력 금지</b>)</li>
+    <li>상세: 전사 싱크(탭→해당 지점 재생), 다시 분석, 서식 선택</li>
+  </ul></div>
+  <div class="warn-inline">⚠ 리빙랩 리허설 필수: 백그라운드 전환·마이크 권한, 네트워크 불안정 시 청크 재시도, 분석 실패 fallback.</div>
+</div></details>
+
+<details class="screen"><summary><span class="route">청구·알림·설정</span><span class="title">청구(본인 담당) · 알림 · 공지 · 내 정보</span><span class="badge b-green">완성</span><span class="chev">▶</span></summary><div class="screen-body">
+  <div class="fgroup"><div class="glabel">기능</div><ul>
+    <li>청구: 목록(결제 대기/완료, 미수금 빨강) · 발행(상담 회기/검사/패키지) · 납부 등록 · 완납 영수증 시트. <b>환불·삭제·단가표=웹 전용</b>. 권한 없으면 "접근 권한이 없어요"</li>
+    <li>알림: 4탭+카운트, 클릭=읽음+딥링크, <b>푸시+앱 아이콘 뱃지 자동 리셋</b> · 알림 설정: 항목 토글(인앱+푸시 동시)</li>
+    <li>내 정보: 프로필(조회만), 센터 전환(디바이스 등록 해제→권한 재로드), 업무 바로가기 2×2(청구는 권한), 로그아웃(디바이스 해제)</li>
+  </ul></div>
+  <div class="warn-inline">⚠ "내 워크스페이스" = placeholder("준비중" Alert)가 <b>프로덕션에 노출</b> · 내 정보 편집·자격 인증은 웹 위임.</div>
+</div></details>
+
+<!-- ============ 12. 패리티 ============ -->
+<h2 id="a12"><span class="n">12.</span>웹(counselor 시점) ↔ 모바일 패리티</h2>
+<table>
+  <tr><th>기능</th><th class="c" style="width:60px;">웹</th><th class="c" style="width:70px;">모바일</th><th>비고</th></tr>
+  <tr><td>일정 조회</td><td class="c">O</td><td class="c">O</td><td>모바일이 통계 뷰 추가(3뷰)</td></tr>
+  <tr><td><b>일정/접수 등록</b></td><td class="c">O</td><td class="c"><b>X</b></td><td>모바일은 조회·상태변경만 — 의도 확정 필요</td></tr>
+  <tr><td>회기 상태·출석·일지</td><td class="c">O</td><td class="c">O</td><td>동일 로직, 모바일은 바텀시트</td></tr>
+  <tr><td>내담자 등록 / 편집</td><td class="c">O / O</td><td class="c">O / X</td><td>모바일 등록엔 바우처 없음</td></tr>
+  <tr><td>사전기록지 재요청·발송</td><td class="c">O</td><td class="c">X</td><td>모바일은 조회만</td></tr>
+  <tr><td>검사 접수·링크·채점·보고서</td><td class="c">O</td><td class="c">X</td><td>모바일=소견·상태·필드노트만</td></tr>
+  <tr><td><b>녹음(필드노트 파이프라인)</b></td><td class="c"><b>X</b></td><td class="c"><b>O</b></td><td>모바일 차별화 — 웹은 결과 조회 중심</td></tr>
+  <tr><td>청구 발행·납부</td><td class="c">O</td><td class="c">O</td><td>본인 담당. 환불·삭제·단가표=웹</td></tr>
+  <tr><td>즐겨찾기·빠른연락·Attention 신호</td><td class="c">X</td><td class="c">O</td><td>모바일 고유</td></tr>
+  <tr><td>알림</td><td class="c">O (30초 폴링)</td><td class="c">O (푸시)</td><td></td></tr>
+  <tr><td>내 정보 편집·자격 인증</td><td class="c">O</td><td class="c">X</td><td></td></tr>
+</table>
+<p class="area-note"><b>실제 분업 원칙(코드로 확인)</b>: 모바일 = 현장 기록·1차 입력(녹음·상태·일지·소견·본인 청구) / 웹 = 접수·관리·운영(등록·편집·채점·환불·설정). 이 경계 자체는 일관성 있음 — 단 "현장에서 다음 회기 잡기" 부재가 리빙랩에서 어떻게 느껴질지가 관건.</p>
+
+<!-- ============ 이슈 ============ -->
+<h2 id="new-issues">전수조사로 새로 드러난 이슈 (기존 P0/P1에 추가·정정)</h2>
+<table>
+  <tr><th style="width:70px;">구분</th><th>내용</th></tr>
+  <tr><td><span class="badge b-blue">정정</span></td><td><code>/assessment/purchase</code>는 "미구현"이 아니라 <b>하드코딩 더미</b>(패키지 3종·가격 고정·API 없음) → P0-4 더미 화면군에 편입</td></tr>
+  <tr><td><span class="badge b-red">신규</span></td><td><code>/schedule/reservations</code> <b>전체 더미 데이터</b> — 예약 대기/확정 카드가 하드코딩. 리빙랩 노출 차단 필요</td></tr>
+  <tr><td><span class="badge b-red">신규</span></td><td><code>/schedule/settings</code> 예약금·환불 규정 등 UI는 완성이나 <b>저장 API 연결 미확인</b> — 예약 기능군(현황과 세트) 통째로 미완</td></tr>
+  <tr><td><span class="badge b-red">신규</span></td><td><code>/subscription/billing</code> 결제 이력 <b>mock 데이터</b> (설정&gt;billing은 실데이터)</td></tr>
+  <tr><td><span class="badge b-amber">신규</span></td><td>캘린더 일정 "취소" 확인 모달의 실제 API 핸들러 미구현 주석 — 삭제만 동작</td></tr>
+  <tr><td><span class="badge b-blue">확정</span></td><td>내담자 검사 수행 = <b>2단 인증</b>(검사 전용 계정 로그인 → 이름·생년월일 본인확인+동명이인 선택) — 리빙랩 전 실전 리허설 대상</td></tr>
+  <tr><td><span class="badge b-blue">확정</span></td><td>중복 체크 API는 <b>단체 엑셀 등록에서만</b> 사용 중 — 개별 등록 폼 미연결(P1-6 유지)</td></tr>
+  <tr><td><span class="badge b-red">2차 신규</span></td><td>웹 <code>/settings</code> 인덱스 = <b>또 하나의 더미</b>(토글 저장 안 됨·버튼 링크 없음), URL 접근 가능</td></tr>
+  <tr><td><span class="badge b-blue">2차 정정</span></td><td><code>/assessment/status/history</code>는 <b>완성 화면</b>(벌크 취소/삭제 포함) — 이전 조사 통누락이었음. "고아 화면" 아님</td></tr>
+  <tr><td><span class="badge b-red">모바일</span></td><td><b>홈 탭이 기획 전환 중</b>("음성 우선 에이전트로 변경, 구현 보류" 주석) — 리빙랩 전 홈 확정 필요</td></tr>
+  <tr><td><span class="badge b-amber">모바일</span></td><td>"내 워크스페이스" placeholder 프로덕션 노출 · 문서 다운로드 URL 임시 구현 · report.tsx 진입 경로 불명 · 일정/접수 등록 부재(의도 확정 필요)</td></tr>
+  <tr><td><span class="badge b-amber">모바일</span></td><td>녹음 인프라 실전 리허설 필수(백그라운드·권한·청크 재시도·연결 409·분석 실패 fallback) — 리빙랩 핵심 기능이므로 최우선 검증</td></tr>
+  <tr><td><span class="badge b-blue">확정</span></td><td>센터 생성 = <b>관리자 승인제</b>(/welcome/register/success 타임라인) — 리빙랩 센터 온보딩 일정에 승인 리드타임 반영</td></tr>
+</table>
+
+<p class="area-note" style="margin-top:20px;">우선순위 이슈 전체(P0 7건 + P1 10건)는 이전 보고서(리빙랩-점검-보고서.html)의 §D 참조 — 이 문서의 신규 발견을 반영하면 <b>P0 더미 화면군에 reservations·settings(예약)·purchase가 추가</b>된다.</p>
+
+</main>
+</div>
+<script>
+function toggleArea(btn, open){
+  let el = btn.closest('.controls').nextElementSibling;
+  while(el && el.tagName === 'DETAILS'){ el.open = open; el = el.nextElementSibling; }
+}
+</script>
+</body>
+</html>

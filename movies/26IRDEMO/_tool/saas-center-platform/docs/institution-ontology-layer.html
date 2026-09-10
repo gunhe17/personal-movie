@@ -1,0 +1,3939 @@
+<title>기관 온톨로지 레이어</title>
+
+<style>
+  :root {
+    --ground: #FAF9F7;
+    --surface: #FFFFFF;
+    --surface-sunk: #F2F0EC;
+    --ink: #1C1A17;
+    --ink-mid: #4A463E;
+    --ink-soft: #7C766A;
+    --rule: #DFDBD2;
+    --rule-soft: #ECE9E3;
+
+    --school: #2D6A4F;
+    --military: #566B36;
+    --clinic: #2C5282;
+    --eap: #7B4B94;
+    --common: #8A6D3B;
+
+    --school-wash: #E8F1EC;
+    --military-wash: #EDF0E6;
+    --clinic-wash: #E7EEF7;
+    --eap-wash: #F1EAF5;
+    --common-wash: #F5EFE4;
+
+    --warn: #A94422;
+    --warn-wash: #FBEDE7;
+    --ok: #2D6A4F;
+
+    --measure: 44rem;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+            "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #161513;
+      --surface: #1E1C19;
+      --surface-sunk: #262320;
+      --ink: #EDEAE3;
+      --ink-mid: #BDB7AC;
+      --ink-soft: #8B8578;
+      --rule: #35322D;
+      --rule-soft: #2A2724;
+
+      --school: #6FBF95;
+      --military: #A3BC72;
+      --clinic: #7BAEE0;
+      --eap: #C295DB;
+      --common: #C9A05E;
+
+      --school-wash: #1B2A22;
+      --military-wash: #24291B;
+      --clinic-wash: #1A242F;
+      --eap-wash: #271E2D;
+      --common-wash: #2A2318;
+
+      --warn: #E08862;
+      --warn-wash: #2E1E17;
+      --ok: #6FBF95;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #161513;
+    --surface: #1E1C19;
+    --surface-sunk: #262320;
+    --ink: #EDEAE3;
+    --ink-mid: #BDB7AC;
+    --ink-soft: #8B8578;
+    --rule: #35322D;
+    --rule-soft: #2A2724;
+
+    --school: #6FBF95;
+    --military: #A3BC72;
+    --clinic: #7BAEE0;
+    --eap: #C295DB;
+    --common: #C9A05E;
+
+    --school-wash: #1B2A22;
+    --military-wash: #24291B;
+    --clinic-wash: #1A242F;
+    --eap-wash: #271E2D;
+    --common-wash: #2A2318;
+
+    --warn: #E08862;
+    --warn-wash: #2E1E17;
+    --ok: #6FBF95;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.75;
+    margin: 0;
+    padding: 0 1.5rem 8rem;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  .wrap { max-width: var(--measure); margin: 0 auto; }
+  .wide { max-width: 64rem; margin-left: auto; margin-right: auto; }
+
+  /* ── masthead ─────────────────────────────── */
+  header.masthead {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 5rem 0 2.5rem;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 1.25rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 2.9rem);
+    line-height: 1.2;
+    letter-spacing: -.022em;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.075rem;
+    line-height: 1.7;
+    color: var(--ink-mid);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: .73rem;
+    color: var(--ink-soft);
+  }
+  .meta-strip b { color: var(--ink-mid); font-weight: 500; }
+
+  /* ── sections ─────────────────────────────── */
+  section { margin-top: 4.5rem; }
+
+  .sec-head {
+    max-width: var(--measure);
+    margin: 0 auto 1.75rem;
+    display: grid;
+    grid-template-columns: 2.75rem 1fr;
+    align-items: baseline;
+    column-gap: .5rem;
+  }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--ink-soft);
+    letter-spacing: .02em;
+  }
+  .sec-head h2 {
+    font-size: 1.45rem;
+    line-height: 1.35;
+    letter-spacing: -.014em;
+    font-weight: 660;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .sec-head .dek {
+    grid-column: 2;
+    margin: .45rem 0 0;
+    color: var(--ink-soft);
+    font-size: .92rem;
+    line-height: 1.65;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 660;
+    letter-spacing: -.005em;
+    margin: 2.75rem 0 .85rem;
+    text-wrap: balance;
+  }
+  h3 .h3-tag {
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 400;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-right: .5rem;
+  }
+
+  p { margin: 0 0 1.05rem; text-wrap: pretty; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 640; }
+  em { font-style: normal; background: var(--common-wash); padding: 0 .18em; border-radius: 2px; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .845em;
+    background: var(--surface-sunk);
+    padding: .1em .38em;
+    border-radius: 3px;
+    color: var(--ink-mid);
+    word-break: break-all;
+  }
+
+  ul, ol { margin: 0 0 1.05rem; padding-left: 1.3rem; }
+  li { margin-bottom: .45rem; }
+  li::marker { color: var(--ink-soft); }
+
+  a { color: var(--clinic); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--clinic);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ── callouts ─────────────────────────────── */
+  .note {
+    border-left: 2px solid var(--rule);
+    padding: .1rem 0 .1rem 1.15rem;
+    margin: 1.5rem 0;
+    color: var(--ink-mid);
+    font-size: .935rem;
+  }
+  .note.flag { border-left-color: var(--warn); }
+  .note.flag .note-label { color: var(--warn); }
+  .note.find { border-left-color: var(--common); }
+  .note.find .note-label { color: var(--common); }
+  .note-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: .3rem;
+  }
+
+  /* ── tables ───────────────────────────────── */
+  .tbl-wrap {
+    overflow-x: auto;
+    margin: 1.5rem auto 2rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .855rem;
+    line-height: 1.55;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: .8rem 1rem .55rem;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  th, td {
+    text-align: left;
+    padding: .58rem .8rem;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  thead th {
+    font-weight: 600;
+    font-size: .74rem;
+    letter-spacing: .04em;
+    color: var(--ink-mid);
+    background: var(--surface-sunk);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { background: transparent; padding: 0; color: var(--ink-soft); font-size: .82em; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .rowhead { font-weight: 600; color: var(--ink); white-space: nowrap; }
+
+  /* org-tinted header cells */
+  th.c-school   { color: var(--school);   background: var(--school-wash); }
+  th.c-military { color: var(--military); background: var(--military-wash); }
+  th.c-clinic   { color: var(--clinic);   background: var(--clinic-wash); }
+  th.c-eap      { color: var(--eap);      background: var(--eap-wash); }
+  th.c-common   { color: var(--common);   background: var(--common-wash); }
+
+  /* ── chips ────────────────────────────────── */
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .67rem;
+    letter-spacing: .05em;
+    padding: .12em .5em;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: 1.6;
+  }
+  .chip.core  { color: var(--common);   background: var(--common-wash); }
+  .chip.ext   { color: var(--ink-soft); background: var(--surface-sunk); }
+  .chip.gone  { color: var(--warn);     background: var(--warn-wash); }
+  .chip.keep  { color: var(--ok);       background: var(--school-wash); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    max-width: var(--measure);
+    margin: -.7rem auto 1.75rem;
+    font-size: .8rem;
+    color: var(--ink-soft);
+  }
+  .legend span.item { display: inline-flex; align-items: center; gap: .4rem; }
+
+  /* ── spec blocks ──────────────────────────── */
+  .spec {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    margin: 1.5rem auto;
+    overflow: hidden;
+  }
+  .spec-head {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    padding: .6rem .95rem;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--surface-sunk);
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .spec-head .tag { font-size: .68rem; }
+  .spec-head.t-school   { color: var(--school);   background: var(--school-wash);   border-bottom-color: var(--school); }
+  .spec-head.t-military { color: var(--military); background: var(--military-wash); border-bottom-color: var(--military); }
+  .spec-head.t-clinic   { color: var(--clinic);   background: var(--clinic-wash);   border-bottom-color: var(--clinic); }
+  .spec-head.t-eap      { color: var(--eap);      background: var(--eap-wash);      border-bottom-color: var(--eap); }
+  pre {
+    margin: 0;
+    padding: .95rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    tab-size: 2;
+  }
+  pre b { color: var(--ink); font-weight: 600; }
+  pre i { color: var(--ink-soft); font-style: normal; }
+  pre .k { color: var(--common); }
+
+  /* ── fidelity mock (§9) ───────────────────── */
+  .fid-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    margin: 1.5rem auto 2rem;
+  }
+  .fid {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .fid-cap {
+    padding: .5rem .8rem;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+    align-items: center;
+  }
+  .fid-cap.t-base     { color: var(--ink-soft); background: var(--surface-sunk); }
+  .fid-cap.t-school   { color: var(--school);   background: var(--school-wash); }
+  .fid-cap.t-military { color: var(--military); background: var(--military-wash); }
+  .fid-cap.t-clinic   { color: var(--clinic);   background: var(--clinic-wash); }
+  .fid-cap.t-eap      { color: var(--eap);      background: var(--eap-wash); }
+
+  /* 카드 내부 — 실제 ClientCard 순서 재현 */
+  .cc { padding: 1rem; display: flex; flex-direction: column; align-items: center; }
+  .cc-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 1.25rem;
+    margin-bottom: .5rem;
+  }
+  .cc-badge {
+    font-size: .64rem;
+    font-family: var(--mono);
+    padding: .1em .45em;
+    border-radius: 3px;
+    background: var(--surface-sunk);
+    color: var(--ink-soft);
+  }
+  .cc-badge.on { background: var(--common-wash); color: var(--common); }
+  .cc-kebab { color: var(--ink-soft); font-size: .8rem; letter-spacing: .1em; }
+  .cc-av {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: .95rem;
+    background: var(--surface-sunk); color: var(--ink-mid);
+  }
+  .cc-name { margin-top: .7rem; font-weight: 620; font-size: .92rem; text-align: center; }
+  .cc-name .code { color: var(--ink-soft); font-weight: 400; font-size: .82rem; }
+  .cc-sub { margin-top: .2rem; font-size: .76rem; color: var(--ink-soft); text-align: center; }
+  .cc-line {
+    margin-top: .65rem; width: 100%;
+    display: flex; align-items: center; gap: .4rem;
+    font-size: .78rem; color: var(--ink-mid);
+  }
+  .cc-ico { color: var(--ink-soft); font-size: .72rem; flex: none; }
+  .cc-box {
+    margin-top: .65rem; width: 100%;
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: .45rem .6rem;
+    display: flex; align-items: center; gap: .4rem;
+    font-size: .76rem; color: var(--ink-mid);
+  }
+  .cc-box .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cc-box .cnt { color: var(--ink-soft); flex: none; font-variant-numeric: tabular-nums; }
+  .cc-memo {
+    margin-top: .65rem; width: 100%;
+    background: var(--surface-sunk); border-radius: 6px;
+    padding: .5rem .6rem; min-height: 3.9rem;
+  }
+  .cc-memo .h { font-size: .68rem; color: var(--ink-soft); display: block; }
+  .cc-memo .b { font-size: .76rem; color: var(--ink-mid); display: block; margin-top: .2rem; line-height: 1.5; }
+
+  .fid-note {
+    border-top: 1px dashed var(--rule);
+    padding: .5rem .7rem;
+    font-size: .72rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    background: var(--ground);
+  }
+  .fid-note b { color: var(--ink-mid); font-weight: 600; }
+
+  /* 상세 좌측 패널 슬롯 목록 */
+  .slots { display: flex; flex-direction: column; }
+  .slot {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: .1rem .5rem;
+    padding: .5rem .7rem;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: .8rem;
+    align-items: start;
+  }
+  .slot:last-child { border-bottom: none; }
+  .slot .n {
+    font-family: var(--mono); font-size: .66rem;
+    color: var(--ink-soft); padding-top: .18rem;
+  }
+  .slot .t { font-weight: 600; }
+  .slot .v { grid-column: 2; color: var(--ink-mid); font-size: .76rem; line-height: 1.55; }
+  .slot.dim { background: var(--warn-wash); }
+  .slot.dim .t, .slot.dim .v { color: var(--warn); }
+  .slot.new { background: var(--common-wash); }
+  .slot.new .t { color: var(--common); }
+
+  /* ── screen mock ──────────────────────────── */
+  .mocks {
+    display: grid;
+    gap: 1.1rem;
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+    margin: 1.5rem auto 2rem;
+  }
+  .mock {
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    background: var(--surface);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-bar {
+    padding: .5rem .8rem;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .mock-bar.t-school   { color: var(--school);   background: var(--school-wash); }
+  .mock-bar.t-military { color: var(--military); background: var(--military-wash); }
+  .mock-bar.t-clinic   { color: var(--clinic);   background: var(--clinic-wash); }
+  .mock-bar.t-eap      { color: var(--eap);      background: var(--eap-wash); }
+  .mock-body { padding: .8rem; font-size: .8rem; flex: 1; }
+  .mock-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .6rem;
+    padding: .34rem 0;
+    border-bottom: 1px dotted var(--rule-soft);
+  }
+  .mock-row:last-child { border-bottom: none; }
+  .mock-row .lbl { color: var(--ink-soft); font-size: .76rem; white-space: nowrap; }
+  .mock-row .val { font-weight: 550; text-align: right; }
+  .mock-cols {
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--ink-soft);
+    padding: .55rem .8rem;
+    background: var(--surface-sunk);
+    border-top: 1px solid var(--rule-soft);
+    line-height: 1.7;
+  }
+
+  /* ── diagram ──────────────────────────────── */
+  figure { margin: 2rem auto; }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: .8rem;
+    color: var(--ink-soft);
+    margin-top: .75rem;
+    line-height: 1.6;
+    max-width: var(--measure);
+  }
+
+  /* ── details ──────────────────────────────── */
+  details {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0;
+    margin: 1.25rem 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  summary {
+    cursor: pointer;
+    padding: .7rem .95rem;
+    font-size: .88rem;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    gap: .55rem;
+    align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+";
+    font-family: var(--mono);
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  details[open] summary::before { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid var(--rule-soft); }
+  .details-body { padding: .95rem; font-size: .9rem; }
+  .details-body > :last-child { margin-bottom: 0; }
+
+  /* ── decision list ────────────────────────── */
+  .qlist { counter-reset: q; list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .qlist li {
+    counter-increment: q;
+    display: grid;
+    grid-template-columns: 1.9rem 1fr;
+    gap: .1rem .5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule-soft);
+    margin: 0;
+  }
+  .qlist li::before {
+    content: "Q" counter(q);
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--ink-soft);
+    padding-top: .18rem;
+  }
+  .qlist .q { font-weight: 620; }
+  .qlist .a { grid-column: 2; color: var(--ink-mid); font-size: .9rem; margin-top: .2rem; }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 4rem auto;
+    max-width: var(--measure);
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 0 1.1rem 5rem; font-size: 15.5px; }
+    header.masthead { padding-top: 3rem; }
+    .sec-head { grid-template-columns: 2.2rem 1fr; }
+    .qlist li { grid-template-columns: 1.7rem 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<header class="masthead">
+  <p class="eyebrow">설계 논의 · 2026-08-12</p>
+  <h1>기관 온톨로지 레이어</h1>
+  <p class="standfirst">
+    같은 데이터를 학교·군대·병원이 각자의 언어로 본다. 프론트와 백엔드 사이에
+    <strong>기관 타입별 표현 계약</strong>을 두어, 모델을 쪼개지 않고 멘탈모델을 갈아끼우는 설계.
+  </p>
+  <div class="meta-strip">
+    <span><b>범위</b> 표현 + 확장속성</span>
+    <span><b>1차 대상</b> 학교 · 군대 · 병원</span>
+    <span><b>보류</b> 기업 EAP (§13)</span>
+    <span><b>상태</b> 논의용 초안</span>
+  </div>
+</header>
+
+<!-- ══════════ 1 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <h2>지금 무엇이 센터에 묶여 있나</h2>
+    <p class="dek">추정이 아니라 코드 실측. 어디까지 얽혀 있는지 알아야 레이어의 위치가 정해진다.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      결론부터: <strong>용어는 UI 문자열 문제가 아니다.</strong> 도메인 어휘가 URL·권한코드·화면 축까지
+      내려가 있어서, 라벨만 바꾸는 접근은 세 군데에서 막힌다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>도메인 어휘 결합도 — apps/web 실측</caption>
+      <thead>
+        <tr>
+          <th>층</th>
+          <th>실측</th>
+          <th>치환 가능성</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">UI 문자열</td>
+          <td>내담자 600회 / 196파일 · 검사 1098회 / 188파일 · 회기 360회 · 케이스 151회.
+              <strong>68%가 Svelte 컴포넌트 인라인.</strong> i18n 라이브러리 0, 용어 사전 0.</td>
+          <td><span class="chip keep">레이어로 해결</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">화면 축</td>
+          <td>목록 탭 <code>GUARDIAN</code>/<code>CHILD</code>, 배지, 상세 앱연결 게이팅,
+              등록폼 4스텝(내담자·보호자·형제·바우처)이 전부 <em>보호자/아동 이분법</em> 위에 서 있음.</td>
+          <td><span class="chip gone">라벨로 안 됨</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">URL</td>
+          <td><code>/clients</code> <code>/counseling</code> <code>/assessment</code> <code>/vouchers</code>,
+              파라미터도 <code>[clientId]</code> <code>[centerId]</code></td>
+          <td><span class="chip ext">범위 밖 — 유지</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">권한 코드</td>
+          <td><code>read:client</code> <code>write:counseling</code> <code>read:center_assessment</code>
+              등 22종. 정의처가 <strong>3곳에 중복</strong>(core/permissions.py · role_permission/config.py ·
+              seed/common/role.py) + 마이그레이션 4개에 산재.</td>
+          <td><span class="chip ext">범위 밖 — 유지</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">Center 모델</td>
+          <td>기관 타입 필드 <strong>없음</strong>. settings JSONB 같은 확장 지점도 <strong>없음</strong>.
+              JSONB는 <code>address</code>·<code>image_urls</code> 둘뿐이고 용도 고정.</td>
+          <td><span class="chip gone">신규 필요</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">가장 큰 함정</span>
+      <strong>보호자/아동 축은 군대에서 텅 빈다.</strong> 성인 단독 이용자라 대응물이 없다.
+      라벨만 갈아끼우면 「보호자 0명」 탭과 「형제 함께 등록」 스텝이 화면에 남는다.
+      그래서 온톨로지는 <em>용어 사전</em>이 아니라 <em>축 정의</em>여야 한다 — 이게 이 문서의 핵심 주장이다.
+    </div>
+
+    <div class="note find">
+      <span class="note-label">이름 충돌 — 먼저 정리 필요</span>
+      <code>institutions</code> 테이블이 <strong>이미 존재한다.</strong> 단 우리가 원하는 의미가 아니라
+      「단체검사 의뢰기관」 마스터다(<code>name·phone·address</code> 3필드, <code>center_id</code> 없는 전역 테이블,
+      assessment 핸들러에서만 소비되고 결과는 <code>assessment_case.institution_summary</code>에 스냅샷 복사).
+      온톨로지의 "기관 타입"을 이 이름에 얹으면 충돌한다. <strong>§7 Q1에서 결정 필요.</strong>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 2 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <h2>레이어의 위치와 책임</h2>
+    <p class="dek">Microsoft Graph의 발상 — 하나의 리소스, 여러 표현. 무엇을 소유하고 무엇을 소유하지 않는가.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      MS Graph에서 <code>/users/{id}</code>는 언제나 같은 리소스지만, 요청하는 애플리케이션과
+      스키마 확장(<code>extensions</code>)에 따라 다른 필드 집합으로 응답한다. 리소스는 하나,
+      투영은 여럿이다. 우리가 빌려올 것은 정확히 이 구조다.
+    </p>
+    <p>
+      다만 Graph와 다른 점이 하나 있다. Graph의 확장은 <em>임의 키-값</em>이지만, 우리는
+      <strong>기관 타입이 곧 스키마</strong>다. 학교를 선택하면 확장 속성이 자동으로
+      「학년·반·담임」으로 결정된다. 센터가 마음대로 키를 만드는 게 아니라, 온톨로지가
+      정의한 집합을 받는다.
+    </p>
+  </div>
+
+  <figure class="wide">
+    <svg viewBox="0 0 880 400" role="img" aria-labelledby="d1t d1d">
+      <title id="d1t">온톨로지 레이어의 위치</title>
+      <desc id="d1d">
+        DB와 코어 API는 기관과 무관하게 하나로 유지되고, 그 위에 놓인 온톨로지 레이어가
+        기관 타입별 정의를 얹어 학교·군대·병원·기업 EAP 네 종류의 화면 표현으로 갈라진다.
+      </desc>
+
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+
+      <g font-family="ui-monospace, monospace" font-size="11">
+
+        <!-- layer 1: DB -->
+        <rect x="150" y="330" width="580" height="46" rx="4"
+              fill="var(--surface-sunk)" stroke="var(--rule)"/>
+        <text x="440" y="350" text-anchor="middle" fill="var(--ink)"
+              font-size="12.5" font-weight="600" font-family="var(--sans)">단일 데이터 모델</text>
+        <text x="440" y="366" text-anchor="middle" fill="var(--ink-soft)">
+          clients · members · centers · counseling_cases · sessions
+        </text>
+        <text x="138" y="357" text-anchor="end" fill="var(--ink-soft)" font-size="10">DB</text>
+
+        <!-- layer 2: core api -->
+        <rect x="150" y="256" width="580" height="46" rx="4"
+              fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="440" y="276" text-anchor="middle" fill="var(--ink)"
+              font-size="12.5" font-weight="600" font-family="var(--sans)">코어 API — 기관 무관</text>
+        <text x="440" y="292" text-anchor="middle" fill="var(--ink-soft)">
+          중립 키로 응답 · attributes 통과 · 라벨 모름
+        </text>
+        <text x="138" y="283" text-anchor="end" fill="var(--ink-soft)" font-size="10">API</text>
+
+        <line x1="440" y1="330" x2="440" y2="306" stroke="var(--rule)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+
+        <!-- layer 3: ontology -->
+        <rect x="150" y="176" width="580" height="52" rx="4"
+              fill="var(--common-wash)" stroke="var(--common)" stroke-width="1.5"/>
+        <text x="440" y="197" text-anchor="middle" fill="var(--common)"
+              font-size="12.5" font-weight="700" font-family="var(--sans)">온톨로지 레이어</text>
+        <text x="440" y="214" text-anchor="middle" fill="var(--common)">
+          라벨 · 확장속성 스키마 · 축 정의 · 화면 투영
+        </text>
+        <text x="138" y="205" text-anchor="end" fill="var(--ink-soft)" font-size="10">ONT</text>
+
+        <line x1="440" y1="256" x2="440" y2="232" stroke="var(--common)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+
+        <!-- layer 4: four screens -->
+        <g>
+          <rect x="150" y="60" width="128" height="80" rx="4"
+                fill="var(--school-wash)" stroke="var(--school)"/>
+          <text x="214" y="88" text-anchor="middle" fill="var(--school)"
+                font-size="12.5" font-weight="600" font-family="var(--sans)">학교</text>
+          <text x="214" y="107" text-anchor="middle" fill="var(--school)">학생 · 학년반</text>
+          <text x="214" y="122" text-anchor="middle" fill="var(--school)">담임 · 학기</text>
+
+          <rect x="296" y="60" width="128" height="80" rx="4"
+                fill="var(--military-wash)" stroke="var(--military)"/>
+          <text x="360" y="88" text-anchor="middle" fill="var(--military)"
+                font-size="12.5" font-weight="600" font-family="var(--sans)">군대</text>
+          <text x="360" y="107" text-anchor="middle" fill="var(--military)">장병 · 계급</text>
+          <text x="360" y="122" text-anchor="middle" fill="var(--military)">소속부대 · 전역일</text>
+
+          <rect x="442" y="60" width="128" height="80" rx="4"
+                fill="var(--clinic-wash)" stroke="var(--clinic)"/>
+          <text x="506" y="88" text-anchor="middle" fill="var(--clinic)"
+                font-size="12.5" font-weight="600" font-family="var(--sans)">병원</text>
+          <text x="506" y="107" text-anchor="middle" fill="var(--clinic)">환자 · 등록번호</text>
+          <text x="506" y="122" text-anchor="middle" fill="var(--clinic)">주치의 · 진단코드</text>
+
+          <rect x="588" y="60" width="142" height="80" rx="4"
+                fill="var(--eap-wash)" stroke="var(--eap)"/>
+          <text x="659" y="88" text-anchor="middle" fill="var(--eap)"
+                font-size="12.5" font-weight="600" font-family="var(--sans)">기업 EAP</text>
+          <text x="659" y="107" text-anchor="middle" fill="var(--eap)">임직원 · 부서</text>
+          <text x="659" y="122" text-anchor="middle" fill="var(--eap)">고객사 · 익명</text>
+        </g>
+
+        <line x1="214" y1="176" x2="214" y2="146" stroke="var(--school)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+        <line x1="360" y1="176" x2="360" y2="146" stroke="var(--military)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+        <line x1="506" y1="176" x2="506" y2="146" stroke="var(--clinic)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+        <line x1="659" y1="176" x2="659" y2="146" stroke="var(--eap)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+
+        <text x="745" y="205" fill="var(--ink-soft)" font-size="10.5">← 여기서만 갈라진다</text>
+        <text x="745" y="283" fill="var(--ink-soft)" font-size="10.5">← 하나로 유지</text>
+        <text x="745" y="357" fill="var(--ink-soft)" font-size="10.5">← 하나로 유지</text>
+      </g>
+    </svg>
+    <figcaption>
+      갈라지는 지점을 한 층으로 고정한다. 아래 두 층이 기관을 모르는 것이 이 설계의 전제 조건이고,
+      동시에 가장 지키기 어려운 규율이다.
+    </figcaption>
+  </figure>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">경계</span>레이어가 소유하는 것 / 소유하지 않는 것</h3>
+  </div>
+
+  <div class="tbl-wrap wrap">
+    <table>
+      <thead>
+        <tr><th>소유한다</th><th>소유하지 않는다</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>엔티티·필드·상태값의 <strong>표시 라벨</strong></td>
+          <td>DB 컬럼명, 테이블명</td>
+        </tr>
+        <tr>
+          <td>기관별 <strong>확장 속성 스키마</strong>(키·타입·검증·라벨)</td>
+          <td>코어 필드의 존재 여부 — 항상 있다</td>
+        </tr>
+        <tr>
+          <td>목록 <strong>컬럼 구성·순서</strong>, 상세 섹션 구성</td>
+          <td>API 응답 필드 집합 — 항상 전부 준다</td>
+        </tr>
+        <tr>
+          <td>탭·필터의 <strong>분류 축</strong>이 무엇인지</td>
+          <td>권한 코드 (<code>read:client</code> 유지)</td>
+        </tr>
+        <tr>
+          <td>등록폼 <strong>스텝 구성</strong>과 각 스텝의 표시 여부</td>
+          <td>URL 경로 (<code>/clients</code> 유지)</td>
+        </tr>
+        <tr>
+          <td>관계 유형 어휘(가족 8종 → 기관별 교체)</td>
+          <td>비즈니스 규칙·계산 로직</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">불변 규칙</span>
+      온톨로지는 <strong>보여주는 방식만</strong> 바꾼다. 어떤 기관 타입에서도 API 응답 필드는 동일하고,
+      권한 검사 결과도 동일하다. 이 규칙이 깨지는 순간 「표현 레이어」가 아니라 「제품 분기」가 되고,
+      그건 우리가 선택하지 않은 길이다.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 3 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <h2>Person · Account · Client · 기관 — 개념 재정의</h2>
+    <p class="dek">네 개념이 이미 잘 분리돼 있다. 기관 확장 시 각각의 역할이 어떻게 달라지는지.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      다행히 현재 구조가 확장에 유리하다. <code>Account</code>(로그인)와 <code>Person</code>(사람)이
+      분리돼 있고, <code>Client</code>는 센터별 레코드다. 실측한 연결 구조는
+      <code>Account → Person → Member → Center</code>이며, <code>Client</code>는
+      <code>person_id</code>가 nullable이라 계정 없는 대상자도 존재할 수 있다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>네 개념의 역할 — 기관 확장 후</caption>
+      <thead>
+        <tr>
+          <th>개념</th>
+          <th>불변 정의</th>
+          <th>기관 확장 시 달라지는 것</th>
+          <th>온톨로지 관여</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">Account</td>
+          <td>로그인 자격증명. 이메일·비밀번호·소셜.<br><code>accounts</code></td>
+          <td><strong>없음.</strong> 기관과 무관하게 동일. 신원은 도메인 중립.</td>
+          <td><span class="chip ext">무관</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">Person</td>
+          <td>실존 인물 1명 = 1레코드. 계정당 1개(부분 unique).<br><code>persons</code></td>
+          <td><strong>거의 없음.</strong> 이름·전화·생년월일·성별은 전 기관 공통.</td>
+          <td><span class="chip ext">라벨만</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">Client</td>
+          <td>센터 안에서의 <em>대상자 레코드</em>. 같은 Person이 여러 센터에 각각 존재.<br><code>clients</code></td>
+          <td><strong>여기가 핵심.</strong> 호칭(학생/장병/환자/임직원)과 고유 속성(학년반/군번/등록번호/사번)이 붙는 자리.</td>
+          <td><span class="chip core">라벨 + 확장</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">Member</td>
+          <td>센터에 소속된 실무자. <code>person_id</code>로 Person 참조.<br><code>members</code></td>
+          <td>호칭(상담교사/병영상담관/임상심리사/EAP상담사)과 자격 표시 기준.</td>
+          <td><span class="chip core">라벨 + 확장</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">Center</td>
+          <td>테넌트. 모든 데이터의 격리 단위.<br><code>centers</code></td>
+          <td>기관 타입 보유 주체. 사업자번호 → 학교코드/부대기호/요양기관번호로 치환.</td>
+          <td><span class="chip core">타입 소유</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">확인 필요</span>Person 중복이라는 진짜 문제</h3>
+    <p>
+      <code>Client.person_id</code>가 nullable이라, 실무에서는 <strong>Person 없는 Client</strong>가
+      대량으로 생긴다. 심리센터에서는 이게 괜찮았다 — 내담자가 앱을 안 쓰면 그만이니까.
+      그런데 학교·군대에서는 다르다. 학생·장병은 <em>기관이 이미 명부를 갖고 있는</em> 사람들이고,
+      전입·전출·진급이 일어난다.
+    </p>
+    <p>
+      즉 기관 확장의 실제 난점은 온톨로지가 아니라 <strong>명부 동기화</strong>일 수 있다.
+      이 문서는 표현 레이어를 다루지만, 이 지점은 별도 과제로 떼어놔야 한다 → §7 Q4.
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 4 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <h2>공통 필드와 기관별 확장</h2>
+    <p class="dek">화면이 실제로 요구하는 정보를 실측한 뒤, 무엇이 코어이고 무엇이 확장인지 가른 결과.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      판정 기준은 하나다. <strong>1차 세 기관 전부에서 의미가 성립하면 코어, 하나라도 비면 확장.</strong>
+      "있으면 좋은 것"이 아니라 "없으면 화면이 깨지는 것"이 코어다.
+      EAP 열은 <span class="chip ext">보류</span> 표시로 남겨둔다 — 재개 시 판정을 다시 하지 않기 위한 기록이다(§13).
+    </p>
+  </div>
+
+  <div class="legend">
+    <span class="item"><span class="chip core">코어</span> 전 기관 공통 · 컬럼으로 존재</span>
+    <span class="item"><span class="chip ext">확장</span> 기관별 · attributes JSONB</span>
+    <span class="item"><span class="chip gone">축 교체</span> 심리센터 전용 · 축 자체를 갈아끼움</span>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">4-1</span>Client — 대상자</h3>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>Client 필드 분해 — 현재 컬럼 기준</caption>
+      <thead>
+        <tr>
+          <th>현재 필드</th>
+          <th>판정</th>
+          <th class="c-school">학교</th>
+          <th class="c-military">군대</th>
+          <th class="c-clinic">병원</th>
+          <th class="c-eap">EAP <span style="font-weight:400;opacity:.75">(보류)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead"><code>name</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">전 기관 동일 — 이름</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>code</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">센터 내 6자리 자동발번. 표시 라벨만 다름 (§6-2)</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>birth_date</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td>학년 검증용</td>
+          <td>병역 산정</td>
+          <td>필수</td>
+          <td>선택</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>gender</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--warn)">
+            현재 <code>MALE</code>/<code>FEMALE</code> 2값 강제 + 아바타 색 결정 + 매핑 실패 시 FEMALE 폴백 — 확장 전 정리 필요
+          </td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>phone</code> <code>email</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td>본인/보호자</td>
+          <td>부대 연락처</td>
+          <td>필수</td>
+          <td>사내메일</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>address</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">전 기관 유지 (군·EAP는 표시 우선순위 하향)</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>status</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">active/inactive/archived — 라벨만 교체(재학/휴학 · 복무중/전역 …)</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>memo</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">자유서술 — 전 기관 동일</td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead"><code>role</code><br>
+              <span style="font-weight:400;color:var(--ink-soft)">client/guardian/both</span></td>
+          <td><span class="chip gone">축 교체</span></td>
+          <td>학생 / 학부모</td>
+          <td style="color:var(--warn)">대응물 없음 — 성인 단독</td>
+          <td>환자 / 보호자</td>
+          <td style="color:var(--ink-soft)">보류</td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--common)">신규 <code>attributes</code></td>
+          <td><span class="chip ext">확장</span></td>
+          <td>학년 · 반 · 번호<br>담임 · 학적상태</td>
+          <td>군번 · 계급<br>소속부대 · 전역예정일</td>
+          <td>등록번호 · 주치의<br>진단코드 · 병동</td>
+          <td>사번 · 부서<br>직급 · 고객사</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">축 교체가 필요한 이유</span>
+      <code>role</code>은 단순 필드가 아니라 <strong>목록의 1차 분류 축</strong>이다. 심리센터에선 「전체 / 보호자 / 아동」
+      탭이었다. 학교(학생/학부모)·병원(환자/보호자)은 그대로 대응되지만, <strong>군대엔 이 축이 없다</strong> —
+      성인 단독이라 <em>빈 탭을 지우는</em> 게 아니라 <em>다른 축을 꽂아야</em> 한다(소속부대).
+      그래서 온톨로지는 「1차 분류 축이 무엇인가」를 선언해야 하고, 이게 라벨 사전과의 결정적 차이다.
+      1차 세 기관 중 <strong>군대 하나만 축 교체가 필요</strong>하다는 점이 범위를 크게 줄여준다.
+    </div>
+
+    <h3><span class="h3-tag">4-2</span>Center — 기관</h3>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>Center 필드 분해</caption>
+      <thead>
+        <tr>
+          <th>현재 필드</th>
+          <th>판정</th>
+          <th class="c-school">학교</th>
+          <th class="c-military">군대</th>
+          <th class="c-clinic">병원</th>
+          <th class="c-eap">EAP <span style="font-weight:400;opacity:.75">(보류)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead"><code>name</code> <code>code</code> <code>phone</code> <code>address</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">전 기관 동일. 라벨만 교체(센터명 → 학교명/부대명/기관명)</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>logo_url</code> <code>description</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">동일</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>business_registration_number</code></td>
+          <td><span class="chip ext">확장</span></td>
+          <td>표준학교코드</td>
+          <td>부대기호</td>
+          <td>요양기관번호</td>
+          <td>사업자번호 유지</td>
+        </tr>
+        <tr>
+          <td class="rowhead"><code>representative_name</code></td>
+          <td><span class="chip core">코어</span></td>
+          <td>교장</td>
+          <td>지휘관</td>
+          <td>병원장</td>
+          <td>대표자</td>
+        </tr>
+        <tr>
+          <td class="rowhead">운영시간 · 정기휴무</td>
+          <td><span class="chip core">코어</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">기관 무관하게 통용 — 변경 불필요</td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--common)">신규 <code>org_type</code></td>
+          <td><span class="chip core">신규</span></td>
+          <td colspan="4" style="color:var(--ink-soft)">
+            온톨로지 선택 키. <code>counseling_center</code> 기본값으로 기존 센터 전부 커버
+          </td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--common)">신규 <code>attributes</code></td>
+          <td><span class="chip ext">확장</span></td>
+          <td>교육청 · 학교급<br>학기 경계</td>
+          <td>상급부대<br>보안등급</td>
+          <td>진료과 · 병상수</td>
+          <td>고객사 목록<br>계약기간</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">4-3</span>바우처 — 구조는 범용, 지원 여부는 별개</h3>
+    <p>
+      바우처는 <code>사업명 + 잔여회기 + 잔여금액 + 유효기간</code> 구조인데,
+      이건 사실 <strong>"누가 비용을 대고 몇 회 남았나"</strong>라는 범용 축이다.
+      아래 표처럼 네 기관 전부 <em>개념적으로는</em> 이 구조에 들어간다.
+    </p>
+    <div class="note flag">
+      <span class="note-label">단, 1차에서는 심리센터 전용 (2026-08-12 결정)</span>
+      구조가 범용인 것과 <strong>그 기능을 지금 지원하는 것은 다른 문제다.</strong>
+      학교 예산·군 지원횟수·병원 급여인정은 각각 소관 부처·정산 체계가 달라
+      「바우처」 하나로 뭉뚱그리면 오히려 오해를 만든다. 1차에서는
+      <strong>바우처 관리 지원을 심리센터에만 두고</strong> 나머지 기관은
+      <code>capabilities.voucher: false</code>로 끈다 — 목록 컬럼과 상세 블록이 함께 사라진다.
+      아래 표는 <strong>나중에 켤 때의 매핑 근거</strong>로 남긴다.
+    </div>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>바우처 구조의 기관별 대응 — 나중에 켤 때의 매핑 근거</caption>
+      <thead>
+        <tr>
+          <th>구조 슬롯</th>
+          <th class="c-school">학교</th>
+          <th class="c-military">군대</th>
+          <th class="c-clinic">병원</th>
+          <th class="c-eap">EAP <span style="font-weight:400;opacity:.75">(보류)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">사업명</td>
+          <td>지원사업 (Wee 예산)</td>
+          <td>부대 지원 프로그램</td>
+          <td>급여/보험 항목</td>
+          <td>고객사 계약</td>
+        </tr>
+        <tr>
+          <td class="rowhead">잔여 회기</td>
+          <td>배정 상담 횟수</td>
+          <td>지원 상담 횟수</td>
+          <td>급여 인정 횟수</td>
+          <td>연간 세션 쿼터</td>
+        </tr>
+        <tr>
+          <td class="rowhead">잔여 금액</td>
+          <td>예산 잔액</td>
+          <td style="color:var(--ink-soft)">미사용</td>
+          <td>본인부담 상한</td>
+          <td>계약 한도</td>
+        </tr>
+        <tr>
+          <td class="rowhead">유효기간</td>
+          <td>학기/학년도</td>
+          <td>복무기간 내</td>
+          <td>진료 에피소드</td>
+          <td>계약연도</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">시사점</span>
+      바우처 <em>구조</em>가 라벨 교체만으로 네 기관에 대응된다는 건, <strong>다른 영역도 구조를 잘 보면
+      이미 중립일 수 있다</strong>는 뜻이다. Case·Session·Schedule 실측에서도
+      <code>center_id / status / start·end / participant_type</code> 등 대부분이 중립이었다.
+      실제로 특화된 건 <code>chief_complaint</code>(주호소), <code>session_number</code>(회기),
+      <code>is_consumed</code>(회기 차감), <code>schedule_type</code>의 assessment·counseling 2값 정도다.
+      <strong>확장이 필요한 지점은 생각보다 좁다.</strong>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 5 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <h2>같은 모델, 다른 화면</h2>
+    <p class="dek">동일한 clients 행이 네 기관에서 어떻게 다르게 읽히는지 — 목록·상세·등록폼.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      아래 네 화면은 <strong>같은 DB 행</strong>을 그린 것이다. 이름·생년월일·연락처는 동일하고,
+      온톨로지 정의만 다르다. 무엇이 1차 축이 되고 어떤 컬럼이 목록에 오르는지가 갈린다.
+    </p>
+  </div>
+
+  <div class="mocks wide">
+    <div class="mock">
+      <div class="mock-bar t-school">학교 — 학생 목록</div>
+      <div class="mock-body">
+        <div class="mock-row"><span class="lbl">이름</span><span class="val">박지우</span></div>
+        <div class="mock-row"><span class="lbl">학년반</span><span class="val">2학년 3반 14번</span></div>
+        <div class="mock-row"><span class="lbl">담임</span><span class="val">김선영</span></div>
+        <div class="mock-row"><span class="lbl">지원사업</span><span class="val">잔여 6회</span></div>
+        <div class="mock-row"><span class="lbl">상태</span><span class="val">재학</span></div>
+      </div>
+      <div class="mock-cols">
+        1차 축 · 학년<br>
+        보조 축 · 담임
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar t-military">군대 — 장병 목록</div>
+      <div class="mock-body">
+        <div class="mock-row"><span class="lbl">이름</span><span class="val">박지우</span></div>
+        <div class="mock-row"><span class="lbl">계급</span><span class="val">일병</span></div>
+        <div class="mock-row"><span class="lbl">소속</span><span class="val">1대대 2중대</span></div>
+        <div class="mock-row"><span class="lbl">전역예정</span><span class="val">2027-03-14</span></div>
+        <div class="mock-row"><span class="lbl">상태</span><span class="val">복무중</span></div>
+      </div>
+      <div class="mock-cols">
+        1차 축 · 소속부대<br>
+        보조 축 · 계급
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar t-clinic">병원 — 환자 목록</div>
+      <div class="mock-body">
+        <div class="mock-row"><span class="lbl">이름</span><span class="val">박지우</span></div>
+        <div class="mock-row"><span class="lbl">등록번호</span><span class="val">2026-0114</span></div>
+        <div class="mock-row"><span class="lbl">주치의</span><span class="val">이현우</span></div>
+        <div class="mock-row"><span class="lbl">급여인정</span><span class="val">잔여 6회</span></div>
+        <div class="mock-row"><span class="lbl">상태</span><span class="val">외래</span></div>
+      </div>
+      <div class="mock-cols">
+        1차 축 · 주치의<br>
+        보조 축 · 진료구분
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar t-eap">기업 EAP — 임직원 목록</div>
+      <div class="mock-body">
+        <div class="mock-row"><span class="lbl">이름</span><span class="val">익명 A-114</span></div>
+        <div class="mock-row"><span class="lbl">고객사</span><span class="val">○○전자</span></div>
+        <div class="mock-row"><span class="lbl">부서</span><span class="val">비공개</span></div>
+        <div class="mock-row"><span class="lbl">연간쿼터</span><span class="val">잔여 6회</span></div>
+        <div class="mock-row"><span class="lbl">상태</span><span class="val">이용중</span></div>
+      </div>
+      <div class="mock-cols">
+        1차 축 · 고객사<br>
+        보조 축 · 없음 (익명)
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">EAP가 드러낸 것</span>
+      EAP 열의 「익명 A-114」는 라벨 교체로 안 되는 사례다. <strong>이름을 가리는 것은 표현이지만,
+      누가 볼 수 있는지는 권한이다.</strong> 온톨로지가 「이 기관은 이름을 마스킹한다」를 선언할 수는 있어도,
+      그 강제는 API에서 일어나야 한다. §2의 불변 규칙(응답 필드 동일)과 충돌하는 유일한 케이스 —
+      <strong>§7 Q3에서 결정 필요.</strong>
+    </div>
+
+    <h3><span class="h3-tag">5-2</span>등록폼 — 스텝 구성의 분기</h3>
+    <p>
+      현재 등록폼은 <strong>내담자 · 보호자 · 형제 · 바우처</strong> 4스텝이다. 이 구성이
+      기관별로 어떻게 되는지가 「축 교체」의 가장 구체적인 모습이다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>등록폼 스텝 — 기관별 구성</caption>
+      <thead>
+        <tr>
+          <th>현재 스텝</th>
+          <th class="c-school">학교</th>
+          <th class="c-military">군대</th>
+          <th class="c-clinic">병원</th>
+          <th class="c-eap">EAP <span style="font-weight:400;opacity:.75">(보류)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">① 내담자 정보</td>
+          <td>학생 정보<br><span style="color:var(--ink-soft)">+ 학년·반·번호</span></td>
+          <td>장병 정보<br><span style="color:var(--ink-soft)">+ 군번·계급·소속</span></td>
+          <td>환자 정보<br><span style="color:var(--ink-soft)">+ 등록번호</span></td>
+          <td>임직원 정보<br><span style="color:var(--ink-soft)">+ 사번·부서</span></td>
+        </tr>
+        <tr>
+          <td class="rowhead">② 보호자 정보</td>
+          <td>학부모 <span style="color:var(--ok)">유지</span></td>
+          <td style="color:var(--warn)">제거</td>
+          <td>보호자 <span style="color:var(--ok)">유지</span></td>
+          <td style="color:var(--warn)">제거</td>
+        </tr>
+        <tr>
+          <td class="rowhead">③ 형제 함께 등록</td>
+          <td>형제 학생 <span style="color:var(--ok)">유지</span></td>
+          <td style="color:var(--warn)">제거</td>
+          <td style="color:var(--warn)">제거</td>
+          <td style="color:var(--warn)">제거</td>
+        </tr>
+        <tr>
+          <td class="rowhead">④ 바우처</td>
+          <td>지원사업 배정</td>
+          <td>지원 횟수</td>
+          <td>급여 인정</td>
+          <td>계약 쿼터</td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--common)">신규</td>
+          <td colspan="4" style="color:var(--ink-soft)">
+            <span class="chip ext">확장</span> 스텝 ①에 기관별 attributes 필드군이 자동 삽입 — 온톨로지 스키마가 폼을 생성
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">5-3</span>관계 어휘 — 통째 교체 대상</h3>
+    <p>
+      현재 보호자 관계는 <strong>엄마·아빠·할머니·할아버지·이모·고모·삼촌·기타</strong> 8종 하드코딩이고,
+      UI 한글 라벨 ↔ API 코드 양방향 맵이 프론트에 있다. 이건 가족 관계 전제라 기관별로 통째 교체된다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wrap">
+    <table>
+      <thead>
+        <tr><th>기관</th><th>관계 어휘</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="rowhead" style="color:var(--school)">학교</td>
+            <td>담임 · 학부모(모/부) · 조부모 · 보호자 · 기타</td></tr>
+        <tr><td class="rowhead" style="color:var(--military)">군대</td>
+            <td>소속 지휘관 · 분대장 · 동료 · 가족 · 기타</td></tr>
+        <tr><td class="rowhead" style="color:var(--clinic)">병원</td>
+            <td>주보호자 · 법정대리인 · 배우자 · 자녀 · 기타</td></tr>
+        <tr><td class="rowhead" style="color:var(--eap)">EAP</td>
+            <td>HR 담당 · 직속상사 · 배우자 · 기타
+                <span style="color:var(--ink-soft)">(익명 정책 시 비활성)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 6 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <h2>온톨로지 정의 스펙</h2>
+    <p class="dek">위 논의를 하나의 선언 형식으로. 이 정의를 프론트가 읽어 화면을 구성한다.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      정의는 <strong>서버가 소유하고 API로 내려준다.</strong> 프론트에 하드코딩하면
+      기관 추가마다 배포가 필요하고, 지금 겪고 있는 문제(200파일 인라인)를 형태만 바꿔
+      반복하게 된다.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head t-school">
+      <span>ontology / school</span>
+      <span class="tag">GET /api/v1/ontology/{org_type}</span>
+    </div>
+<pre>{
+  <span class="k">"org_type"</span>: <b>"school"</b>,
+  <span class="k">"labels"</span>: {
+    <i>// 엔티티 호칭 — 전 화면 공통</i>
+    <span class="k">"center"</span>:   { "one": "학교",     "code_label": "학교코드" },
+    <span class="k">"client"</span>:   { "one": "학생",     "many": "학생", "code_label": "학번" },
+    <span class="k">"member"</span>:   { "one": "상담교사" },
+    <span class="k">"case"</span>:     { "one": "상담 사례" },
+    <span class="k">"session"</span>:  { "one": "상담 회기" },
+    <span class="k">"voucher"</span>:  { "one": "지원사업",  "unit": "회" }
+  },
+
+  <span class="k">"entities"</span>: {
+    <span class="k">"client"</span>: {
+      <i>// 코어는 선언하지 않는다 — 항상 존재</i>
+      <span class="k">"attributes"</span>: [
+        { "key": "grade",    "type": "int", "label": "학년", "required": <b>true</b>, "range": [1, 6] },
+        { "key": "class_no", "type": "int", "label": "반",   "required": <b>true</b> },
+        { "key": "number",   "type": "int", "label": "번호" },
+        { "key": "homeroom", "type": "ref", "label": "담임", "ref": "member" }
+      ],
+
+      <i>// 목록의 분류 축 — role 대체</i>
+      <span class="k">"primary_axis"</span>:   { "attribute": "grade",    "label": "학년별" },
+      <span class="k">"secondary_axis"</span>: { "attribute": "homeroom", "label": "담임별" },
+
+      <i>// status 값의 표시 라벨</i>
+      <span class="k">"status_labels"</span>: { "active": "재학", "inactive": "휴학", "archived": "졸업" },
+
+      <span class="k">"list_columns"</span>:    ["name", "grade+class_no+number", "homeroom", "voucher", "status"],
+      <span class="k">"detail_sections"</span>: ["profile", "school_info", "guardian", "voucher", "history"]
+    }
+  },
+
+  <span class="k">"relations"</span>: {
+    <span class="k">"guardian"</span>: {
+      "enabled": <b>true</b>,
+      "label": "보호자",
+      "kinds": ["담임", "모", "부", "조부모", "보호자", "기타"]
+    }
+  },
+
+  <span class="k">"forms"</span>: {
+    <span class="k">"client_register"</span>: {
+      "steps": ["client", "guardian", "sibling", "voucher"]   <i>// 4스텝 전부 유지</i>
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="wrap">
+    <p>
+      같은 형식으로 군대를 선언하면 축과 스텝이 어떻게 달라지는지가 드러난다.
+      <strong>필드를 지우는 게 아니라 축을 갈아끼운다</strong>는 §4의 주장이 여기서 코드로 보인다.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head t-military">
+      <span>ontology / military</span>
+      <span class="tag">학교와 다른 부분만</span>
+    </div>
+<pre>{
+  <span class="k">"org_type"</span>: <b>"military"</b>,
+  <span class="k">"labels"</span>: {
+    <span class="k">"center"</span>:  { "one": "부대", "code_label": "부대기호" },
+    <span class="k">"client"</span>:  { "one": "장병", "code_label": "군번" },
+    <span class="k">"member"</span>:  { "one": "병영생활전문상담관" },
+    <span class="k">"voucher"</span>: { "one": "지원 프로그램", "unit": "회" }
+  },
+
+  <span class="k">"entities"</span>: {
+    <span class="k">"client"</span>: {
+      <span class="k">"attributes"</span>: [
+        { "key": "service_no", "type": "string", "label": "군번", "required": <b>true</b>, "unique": <b>true</b> },
+        { "key": "rank",       "type": "enum",   "label": "계급",
+          "values": ["이병", "일병", "상병", "병장", "부사관", "장교"] },
+        { "key": "unit",       "type": "string", "label": "소속부대", "required": <b>true</b> },
+        { "key": "discharge_date", "type": "date", "label": "전역예정일" }
+      ],
+
+      <i>// 학교와 다른 축 — 보호자/아동 축은 아예 존재하지 않는다</i>
+      <span class="k">"primary_axis"</span>:   { "attribute": "unit", "label": "소속부대별" },
+      <span class="k">"secondary_axis"</span>: { "attribute": "rank", "label": "계급별" },
+
+      <span class="k">"status_labels"</span>: { "active": "복무중", "inactive": "휴가/파견", "archived": "전역" },
+
+      <span class="k">"list_columns"</span>: ["name", "rank", "unit", "discharge_date", "status"]
+    }
+  },
+
+  <span class="k">"relations"</span>: {
+    <span class="k">"guardian"</span>: { <b>"enabled": false</b> }   <i>// 스텝·탭·배지 전부 사라짐</i>
+  },
+
+  <span class="k">"forms"</span>: {
+    <span class="k">"client_register"</span>: {
+      "steps": ["client", "voucher"]   <i>// 보호자·형제 스텝 제거</i>
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">6-2</span>고유성 — 무엇으로 사람을 특정하나</h3>
+    <p>
+      기관마다 「같은 사람인지」 판정하는 열쇠가 다르다. 현재는 이름+생년월일로 중복 감지 경고를
+      띄우는데(<code>high</code>/<code>medium</code> 배너), 기관 확장 시 더 강한 키가 생긴다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>식별 전략 — 계층별</caption>
+      <thead>
+        <tr>
+          <th>계층</th>
+          <th>키</th>
+          <th>범위</th>
+          <th>기관별 차이</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">시스템</td>
+          <td><code>id</code> UUID</td>
+          <td>전역</td>
+          <td>동일 — 변경 없음</td>
+        </tr>
+        <tr>
+          <td class="rowhead">테넌트</td>
+          <td><code>clients.code</code> 6자리</td>
+          <td>센터 내 unique</td>
+          <td>동일. 표시 라벨만 교체(학번/군번/등록번호/사번)</td>
+        </tr>
+        <tr>
+          <td class="rowhead">신원</td>
+          <td><code>person_id</code></td>
+          <td>계정 연동 시</td>
+          <td>동일. 단 §3의 명부 동기화 이슈</td>
+        </tr>
+        <tr style="background:var(--common-wash)">
+          <td class="rowhead">기관 고유</td>
+          <td><code>attributes.*</code><br>unique 선언</td>
+          <td>센터 내</td>
+          <td><span style="color:var(--school)">학번</span> ·
+              <span style="color:var(--military)">군번</span> ·
+              <span style="color:var(--clinic)">등록번호</span> ·
+              <span style="color:var(--eap)">사번</span> — 온톨로지가 <code>"unique": true</code>로 선언</td>
+        </tr>
+        <tr>
+          <td class="rowhead">휴리스틱</td>
+          <td>이름 + 생년월일</td>
+          <td>중복 <em>경고</em>만</td>
+          <td>기관 고유키가 있으면 그쪽이 우선</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">설계 판단</span>
+      기관 고유키를 <strong>컬럼으로 올리지 않고</strong> attributes 안에 두되, 온톨로지가
+      <code>unique: true</code>를 선언하면 서비스 계층이 검증한다. 컬럼으로 올리면 기관 타입마다
+      마이그레이션이 필요해지고, 그건 「모델을 쪼개지 않는다」는 전제를 어긴다.
+      대신 JSONB 안의 unique는 부분 인덱스로 처리해야 하므로 <strong>성능 확인 필요</strong> — §7 Q5.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 7 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <h2>결정해야 할 것</h2>
+    <p class="dek">이 문서가 답하지 못하는, 팀이 정해야 하는 질문들. 순서는 의존도 순.</p>
+  </div>
+
+  <div class="wrap">
+    <ol class="qlist">
+      <li>
+        <span class="q"><code>institutions</code> 이름 충돌을 어떻게 정리하나</span>
+        <span class="a">
+          기존 테이블은 「단체검사 의뢰기관」이고 우리가 원하는 의미가 아니다. 선택지는
+          ⓐ 기존을 <code>referral_organizations</code>로 개명하고 <code>institutions</code>를 새 의미로 확보,
+          ⓑ 온톨로지는 <code>org_type</code>으로만 부르고 새 테이블을 만들지 않음 — Center에 컬럼 추가로 충분,
+          ⓒ 그대로 두고 이름만 다르게. <strong>ⓑ가 가장 싸다.</strong>
+        </span>
+      </li>
+      <li>
+        <span class="q">온톨로지 정의를 코드로 둘까, DB로 둘까</span>
+        <span class="a">
+          코드(Python 상수 + API 노출)면 리뷰·타입체크가 되지만 기관 추가에 배포가 필요하다.
+          DB면 운영자가 추가할 수 있지만 검증이 약해진다. <strong>초기 3종(+기본값)은 코드,
+          안정화 후 DB 이관</strong>을 제안하지만 결정 필요.
+        </span>
+      </li>
+      <li>
+        <span class="q">EAP 익명 정책을 표현으로 볼 것인가, 권한으로 볼 것인가
+          <span class="chip keep">결정됨 — 1차 제외</span></span>
+        <span class="a">
+          §5에서 드러난 유일한 규칙 충돌이었다. 온톨로지가 마스킹을 선언해도 <strong>강제는 API에서</strong>
+          일어나야 안전하고, 그러면 §2의 「응답 필드는 항상 동일」 규칙에 예외가 생긴다.
+          <strong>EAP를 1차 범위에서 빼기로 결정</strong>했으므로 이 예외는 지금 만들지 않는다 —
+          §2 불변 규칙이 온전히 유지된다. 재개 조건은 §13.
+        </span>
+      </li>
+      <li>
+        <span class="q">명부 동기화를 이 범위에 넣을 것인가</span>
+        <span class="a">
+          학교·군대는 기관이 이미 명부를 갖고 있고 전입·전출·진급이 일어난다. 이건 표현 레이어가
+          아니라 별도 과제다. <strong>1차 범위에서 빼고 수기 등록 전제로 가는 것을 권장</strong>하되,
+          뺐다는 사실을 명시해야 나중에 놀라지 않는다.
+        </span>
+      </li>
+      <li>
+        <span class="q">attributes JSONB의 unique·검색 성능</span>
+        <span class="a">
+          군번·학번으로 검색·중복검사가 일어난다. JSONB 부분 인덱스로 충분한지,
+          아니면 자주 쓰는 키만 <em>생성 컬럼</em>으로 승격할지. <strong>실측 후 결정</strong> —
+          지금 판단하면 「될 것 같다」로 구현하는 것.
+        </span>
+      </li>
+      <li>
+        <span class="q">기존 200파일 인라인 문자열을 언제 걷어내나</span>
+        <span class="a">
+          한 번에 전부는 불가능하다. 온톨로지 레이어를 만들어도 기존 화면은 여전히 하드코딩이다.
+          <strong>신규 화면부터 적용 + 내담자 화면군만 우선 전환</strong>이 현실적이지만,
+          그동안 두 방식이 공존한다는 비용을 감수해야 한다.
+        </span>
+      </li>
+      <li>
+        <span class="q">성별 2값 강제를 먼저 풀 것인가</span>
+        <span class="a">
+          <code>MALE</code>/<code>FEMALE</code>만 있고 매핑 실패 시 FEMALE로 폴백하며 아바타 색까지 결정한다.
+          기관 확장과 독립적인 기존 결함에 가깝다. 온톨로지 작업과 묶을지, 별도로 처리할지.
+        </span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 8 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">08</span>
+    <h2>검증 먼저 — 구현 순서 제안</h2>
+    <p class="dek">"될 것 같다"로 시작하지 않기 위한 최소 실험.</p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      이 설계에서 가장 불확실한 건 <strong>"온톨로지 정의만으로 화면이 정말 구성되는가"</strong>다.
+      전면 착수 전에 이것부터 확인한다.
+    </p>
+
+    <details open>
+      <summary>0단계 — 종이 위 검증 (착수 전)</summary>
+      <div class="details-body">
+        <p>
+          §6 스펙을 <strong>1차 세 기관 전부</strong>에 대해 손으로 다 써본다. 학교·군대만 쓰면
+          잘 맞는 것처럼 보인다. <strong>병원의 진단코드·이중 식별번호가 스펙 형식을 깨는지</strong>가
+          진짜 시험이다. 여기서 형식이 부러지면 스펙을 고치는 게 코드를 고치는 것보다 100배 싸다.
+          (EAP 익명은 1차 범위 밖이라 지금 답하지 않아도 된다 — §13.)
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>1단계 — 내담자 목록 하나만 (실측 실험)</summary>
+      <div class="details-body">
+        <p>
+          <code>/clients</code> 목록 <strong>단 하나</strong>를 온톨로지 기반으로 다시 그린다.
+          <code>org_type</code> 컬럼 추가 + 정의 API + 목록 컬럼·1차 축·라벨 소비까지.
+          기존 화면은 건드리지 않고 병존시킨다.
+        </p>
+        <p style="margin-bottom:0">
+          <strong>확인할 것:</strong> 축 교체가 탭·필터·정렬까지 자연스럽게 전파되는가.
+          여기서 막히면 설계가 틀린 것이다.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>2단계 — attributes 저장·검색</summary>
+      <div class="details-body">
+        <p>
+          <code>clients.attributes</code> JSONB 추가, 등록폼에 온톨로지 기반 필드 생성,
+          군번·학번 unique 검증과 검색 성능 실측(§7 Q5의 답). 실제 데이터 규모로 확인한다 —
+          합성 데이터 통과는 보증이 아니다.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>3단계 — 상세·등록폼 확산, 그 다음 나머지</summary>
+      <div class="details-body">
+        <p style="margin-bottom:0">
+          내담자 화면군을 완성한 뒤 Member·Center로 넓힌다. Case·Session은
+          §4에서 확인했듯 대부분 중립이라 라벨 교체만으로 상당 부분 커버된다 —
+          <strong>가장 나중에 해도 되는 영역</strong>이다.
+        </p>
+      </div>
+    </details>
+
+    <div class="note find" style="margin-top:2rem">
+      <span class="note-label">이 문서의 한계</span>
+      네 기관의 실제 요구사항은 <strong>현장 확인 없이 추정한 것</strong>이다.
+      학년·반·담임은 확실하지만, 군의 보안등급이나 병원의 진단코드 연동이 실제로 필요한지는
+      해당 기관 담당자에게 확인해야 한다. 스펙 형식(§6)은 재사용 가능하되,
+      개별 attributes 목록은 초안으로 읽어야 한다.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 9 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">09</span>
+    <h2>내담자 카드·상세 — 기관별 시나리오</h2>
+    <p class="dek">
+      현재 구현된 <code>ClientCard.svelte</code>와 <code>ProfileSection.svelte</code>의
+      슬롯 순서를 그대로 두고, 온톨로지가 각 슬롯을 어떻게 채우는지.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      §5의 목록 목업이 「이상적으로 이랬으면」이었다면, 여기는 <strong>현재 코드의 실제 구조</strong>에서
+      출발한다. 슬롯을 새로 만들지 않고 <em>지금 있는 자리에 무엇이 들어가는가</em>만 본다 —
+      이게 1단계 구현 범위를 가늠하는 근거가 된다.
+    </p>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">9-1</span>내담자 카드 — 그리드 뷰</h3>
+
+  <div class="wrap">
+    <p>
+      현재 카드의 슬롯 순서는 <strong>배지·케밥 → 아바타 → 이름(코드) → 생년월일·성별 →
+      연락처 → 바우처 박스 → 메모 박스</strong>다. 이 7개 슬롯은 유지하고, 내용만 온톨로지가 정한다.
+    </p>
+  </div>
+
+  <div class="fid-grid wide">
+
+    <!-- 현재 (심리센터) -->
+    <div class="fid">
+      <div class="fid-cap t-base">
+        <span>현재 — 심리센터</span>
+        <span>as-is</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top">
+          <span class="cc-badge on">보호자</span>
+          <span class="cc-kebab">⋯</span>
+        </div>
+        <div class="cc-av">박</div>
+        <div class="cc-name">박지우 <span class="code">(A1B2C3)</span></div>
+        <div class="cc-sub">2014-03-12 (만 12세) · 여</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-1234-5678</div>
+        <div class="cc-box">
+          <span class="cc-ico">VCH</span>
+          <span class="grow">아동청소년 심리지원</span>
+          <span class="cnt">6/12</span>
+        </div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">학교 적응 문제로 의뢰됨. 모 상담 병행 희망.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        배지 = <b>보호자/아동</b> 축.<br>
+        코드 라벨 없음 — 괄호로만 표시.
+      </div>
+    </div>
+
+    <!-- 학교 -->
+    <div class="fid">
+      <div class="fid-cap t-school">
+        <span>학교 — 학생</span>
+        <span>school</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top">
+          <span class="cc-badge on">2학년 3반</span>
+          <span class="cc-kebab">⋯</span>
+        </div>
+        <div class="cc-av">박</div>
+        <div class="cc-name">박지우 <span class="code">(20240314)</span></div>
+        <div class="cc-sub">2014-03-12 (만 12세) · 여</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-1234-5678</div>
+        <div class="cc-box">
+          <span class="cc-ico">VCH</span>
+          <span class="grow">Wee 상담 지원</span>
+          <span class="cnt">6/12</span>
+        </div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">교우관계 어려움. 담임 의뢰.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        배지 = <b>학년·반</b>(1차 축).<br>
+        code에 학번 투입 — 슬롯 그대로.<br>
+        <b>※ 바우처 줄은 1차에서 꺼진다</b>(<code>voucher: false</code>) — §4-3.
+      </div>
+    </div>
+
+    <!-- 군대 -->
+    <div class="fid">
+      <div class="fid-cap t-military">
+        <span>군대 — 장병</span>
+        <span>military</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top">
+          <span class="cc-badge on">1대대 2중대</span>
+          <span class="cc-kebab">⋯</span>
+        </div>
+        <div class="cc-av">박</div>
+        <div class="cc-name">박지우 <span class="code">(23-71000123)</span></div>
+        <div class="cc-sub">일병 · 전역 2027-03-14</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-1234-5678</div>
+        <div class="cc-box">
+          <span class="cc-ico">VCH</span>
+          <span class="grow">부대 상담 지원</span>
+          <span class="cnt">6/12</span>
+        </div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">복무 부적응 호소. 중대장 의뢰.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        배지 = <b>소속부대</b>.<br>
+        생년월일·성별 슬롯을 <b>계급·전역일</b>이 점유 —
+        성인 단독이라 나이·성별 변별력이 낮다.<br>
+        <b>※ 바우처 줄은 1차에서 꺼진다</b> — §4-3.
+      </div>
+    </div>
+
+    <!-- 병원 -->
+    <div class="fid">
+      <div class="fid-cap t-clinic">
+        <span>병원 — 환자</span>
+        <span>clinic</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top">
+          <span class="cc-badge on">외래</span>
+          <span class="cc-kebab">⋯</span>
+        </div>
+        <div class="cc-av">박</div>
+        <div class="cc-name">박지우 <span class="code">(2026-0114)</span></div>
+        <div class="cc-sub">2014-03-12 (만 12세) · 여</div>
+        <div class="cc-line"><span class="cc-ico">DOC</span> 이현우 (주치의)</div>
+        <div class="cc-box">
+          <span class="cc-ico">VCH</span>
+          <span class="grow">급여 인정 상담</span>
+          <span class="cnt">6/12</span>
+        </div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">초진 2026-01-14. 약물 병행.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        배지 = <b>진료구분</b>.<br>
+        연락처 슬롯이 <b>주치의</b>로 교체 —
+        목록에서 전화번호보다 담당의가 먼저 필요.<br>
+        <b>※ 바우처 줄은 1차에서 꺼진다</b> — §4-3.
+      </div>
+    </div>
+
+    <!-- EAP -->
+    <div class="fid">
+      <div class="fid-cap t-eap">
+        <span>기업 EAP — 임직원</span>
+        <span>보류 · §13</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top">
+          <span class="cc-badge on">○○전자</span>
+          <span class="cc-kebab">⋯</span>
+        </div>
+        <div class="cc-av">A</div>
+        <div class="cc-name">익명 A-114 <span class="code">(—)</span></div>
+        <div class="cc-sub">비공개</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 비공개</div>
+        <div class="cc-box">
+          <span class="cc-ico">VCH</span>
+          <span class="grow">연간 상담 쿼터</span>
+          <span class="cnt">6/12</span>
+        </div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">직무 스트레스. 고객사 통계엔 미반영.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        배지 = <b>고객사</b>.<br>
+        이름·생년월일·연락처가 <b>마스킹</b> —
+        표현이 아니라 API 강제 (§7 Q3).
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">카드에서 확인된 것</span>
+      슬롯 7개가 <strong>그대로 버틴다.</strong> 배지·코드·바우처·메모는 라벨 교체만으로 끝나고,
+      실질 변경은 두 군데뿐이다 — ⓐ <code>생년월일·성별</code> 줄이 군에서 <em>계급·전역일</em>로,
+      ⓑ <code>연락처</code> 줄이 병원에서 <em>주치의</em>로 바뀐다.
+      즉 카드는 <strong>「슬롯 3·4·5의 내용을 온톨로지가 지정」</strong>하는 정도로 대응된다.
+      아바타 색이 성별로 결정되는 부분(<code>MALE</code>→blue / else→red)은 EAP 마스킹 시
+      성별이 없어 <strong>red 고정</strong>이 되므로 §7 Q7과 함께 정리해야 한다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">9-2</span>상세 좌측 프로필 — 슬롯 11개</h3>
+
+  <div class="wrap">
+    <p>
+      상세 좌측 패널은 위에서부터 <strong>수정버튼 · 아바타 · 이름(코드) · 생년월일·성별 ·
+      사전기록지 버튼 · 기본정보 3행 · 가족관계 · 바우처 리스트 · 앱연결 · 메모 · 진행현황 2열</strong>
+      순서다. 아래는 각 슬롯이 기관별로 어떻게 되는지 — <span class="chip gone">사라짐</span>과
+      <span class="chip core">신규</span>가 어디서 생기는지가 핵심이다.
+    </p>
+  </div>
+
+  <div class="fid-grid wide">
+
+    <div class="fid">
+      <div class="fid-cap t-school">
+        <span>학교 — 학생 상세</span>
+        <span>school</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름(학번)</span>
+          <span class="v">박지우 (20240314)</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">2014-03-12 (만 12세) · 여</span></div>
+        <div class="slot new"><span class="n">03</span><span class="t">학적 정보 <span class="chip core">신규</span></span>
+          <span class="v">2학년 3반 14번 · 담임 김선영</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">사전기록지</span>
+          <span class="v">상담 신청서 · 보호자 동의서</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">기본정보 3행</span>
+          <span class="v">연락처 · 이메일 · 주소 — 그대로</span></div>
+        <div class="slot"><span class="n">06</span><span class="t">가족관계</span>
+          <span class="v">김미영(모) · 박준호(부)</span></div>
+        <div class="slot dim"><span class="n">07</span><span class="t">바우처 리스트 <span class="chip gone">1차 꺼짐</span></span>
+          <span class="v">Wee 상담 지원 6/12 — <code>voucher: false</code> (§4-3)</span></div>
+        <div class="slot"><span class="n">08</span><span class="t">앱 연결</span>
+          <span class="v">학부모 초대코드 — 유지</span></div>
+        <div class="slot"><span class="n">09</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">10</span><span class="t">진행현황 2열</span>
+          <span class="v">상담 3건 · 검사 1건</span></div>
+      </div>
+      <div class="fid-note">
+        <b>가장 잘 맞는 케이스.</b> 슬롯 하나(학적 정보)만 추가하면 나머지는 라벨 교체.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-military">
+        <span>군대 — 장병 상세</span>
+        <span>military</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름(군번)</span>
+          <span class="v">박지우 (23-71000123)</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">1999-08-02 (만 26세) · 남</span></div>
+        <div class="slot new"><span class="n">03</span><span class="t">복무 정보 <span class="chip core">신규</span></span>
+          <span class="v">일병 · 1대대 2중대 · 전역 2027-03-14</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">사전기록지</span>
+          <span class="v">병영생활 자기보고</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">기본정보 3행</span>
+          <span class="v">연락처 · 이메일 · <b>주소 우선순위 하향</b></span></div>
+        <div class="slot dim"><span class="n">06</span><span class="t">가족관계 <span class="chip gone">사라짐</span></span>
+          <span class="v">보호자 개념 없음 → 「지휘계통」으로 대체 검토</span></div>
+        <div class="slot dim"><span class="n">07</span><span class="t">바우처 리스트 <span class="chip gone">1차 꺼짐</span></span>
+          <span class="v">부대 상담 지원 6/12 — <code>voucher: false</code> (§4-3)</span></div>
+        <div class="slot dim"><span class="n">08</span><span class="t">앱 연결 <span class="chip gone">사라짐</span></span>
+          <span class="v">보호자 role 전용 기능 — 대상 없음</span></div>
+        <div class="slot"><span class="n">09</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">10</span><span class="t">진행현황 2열</span>
+          <span class="v">상담 3건 · 검사 1건</span></div>
+      </div>
+      <div class="fid-note">
+        <b>슬롯 2개가 빈다.</b> 06·08은 숨기는 게 아니라 대체안이 필요 —
+        지휘관 통보 의무가 있다면 06 자리가 그 표시 지점.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-clinic">
+        <span>병원 — 환자 상세</span>
+        <span>clinic</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름(등록번호)</span>
+          <span class="v">박지우 (2026-0114)</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">2014-03-12 (만 12세) · 여</span></div>
+        <div class="slot new"><span class="n">03</span><span class="t">진료 정보 <span class="chip core">신규</span></span>
+          <span class="v">주치의 이현우 · 외래 · 진단코드</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">사전기록지</span>
+          <span class="v">초진기록지</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">기본정보 3행</span>
+          <span class="v">그대로 — 전 항목 필수 성격</span></div>
+        <div class="slot"><span class="n">06</span><span class="t">가족관계</span>
+          <span class="v">김미영(주보호자) · 법정대리인 구분 필요</span></div>
+        <div class="slot dim"><span class="n">07</span><span class="t">바우처 리스트 <span class="chip gone">1차 꺼짐</span></span>
+          <span class="v">급여 인정 6/12 — <code>voucher: false</code> (§4-3)</span></div>
+        <div class="slot"><span class="n">08</span><span class="t">앱 연결</span>
+          <span class="v">보호자 초대코드 — 유지</span></div>
+        <div class="slot"><span class="n">09</span><span class="t">메모</span>
+          <span class="v">그대로 (진료기록과 구분 필요)</span></div>
+        <div class="slot"><span class="n">10</span><span class="t">진행현황 2열</span>
+          <span class="v">상담 3건 · 검사 1건 <b>+ 처방?</b></span></div>
+      </div>
+      <div class="fid-note">
+        <b>2열 고정이 걸린다.</b> 진행현황이 상담·검사 2칸 하드코딩인데
+        병원은 3종 이상이 자연스럽다 — 온톨로지가 항목 배열을 줘야 함.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-eap">
+        <span>기업 EAP — 임직원 상세</span>
+        <span>보류 · §13</span>
+      </div>
+      <div class="slots">
+        <div class="slot dim"><span class="n">01</span><span class="t">아바타 · 이름 <span class="chip gone">마스킹</span></span>
+          <span class="v">익명 A-114 — 이니셜 아바타 불가</span></div>
+        <div class="slot dim"><span class="n">02</span><span class="t">생년월일 · 성별 <span class="chip gone">마스킹</span></span>
+          <span class="v">비공개 — 아바타 색 결정 로직 붕괴</span></div>
+        <div class="slot new"><span class="n">03</span><span class="t">소속 정보 <span class="chip core">신규</span></span>
+          <span class="v">○○전자 · 부서 비공개</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">사전기록지</span>
+          <span class="v">이용 신청서</span></div>
+        <div class="slot dim"><span class="n">05</span><span class="t">기본정보 3행 <span class="chip gone">마스킹</span></span>
+          <span class="v">연락처·이메일·주소 전부 비공개</span></div>
+        <div class="slot dim"><span class="n">06</span><span class="t">가족관계 <span class="chip gone">사라짐</span></span>
+          <span class="v">익명 정책과 정면 충돌</span></div>
+        <div class="slot"><span class="n">07</span><span class="t">바우처 리스트</span>
+          <span class="v">연간 쿼터 6/12</span></div>
+        <div class="slot dim"><span class="n">08</span><span class="t">앱 연결 <span class="chip gone">사라짐</span></span>
+          <span class="v">보호자 개념 없음</span></div>
+        <div class="slot"><span class="n">09</span><span class="t">메모</span>
+          <span class="v">그대로 — 열람 권한 별도 검토</span></div>
+        <div class="slot"><span class="n">10</span><span class="t">진행현황 2열</span>
+          <span class="v">상담 3건 · 검사 1건</span></div>
+      </div>
+      <div class="fid-note">
+        <b>슬롯 절반이 비거나 마스킹된다.</b> 이건 표현 조정이 아니라 다른 화면이다 —
+        <b>1차 제외의 결정적 근거</b> (§13-1).
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">9-3</span>이 그림에서 나온 결론</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>발견</th><th>대응</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>슬롯 03이 공통으로 필요하다</strong> — 학적/복무/진료/소속 정보.
+                네 기관 전부 「이름 아래, 사전기록지 위」에 기관 고유 정보 블록을 원한다.</td>
+            <td>온톨로지의 <code>attributes</code>를 렌더하는 <strong>단일 슬롯 신설</strong>.
+                기관마다 다른 컴포넌트가 아니라 스키마 기반 1개.</td>
+          </tr>
+          <tr>
+            <td><strong>가족관계·앱연결이 함께 사라진다</strong> — 군·EAP에서 둘 다 죽는다.
+                두 슬롯은 사실 <em>같은 축</em>(보호자 존재)에 매달려 있었다.</td>
+            <td><code>relations.guardian.enabled: false</code> 하나로
+                두 슬롯이 동시에 꺼지게 — §6 스펙이 이미 이 형태.</td>
+          </tr>
+          <tr>
+            <td><strong>진행현황 2열이 하드코딩</strong> — 상담·검사 고정.
+                병원은 3종 이상이 자연스럽다.</td>
+            <td>온톨로지가 <code>progress_items</code> 배열을 주고
+                grid 열 수를 길이에서 파생.</td>
+          </tr>
+          <tr>
+            <td><strong>아바타 색이 성별 의존</strong> — <code>MALE</code>이면 blue, 아니면 red.
+                EAP 마스킹 시 성별이 없어 전원 red가 된다.</td>
+            <td>§7 Q7과 묶어 처리. 성별 대신 이름 해시 기반 색 등
+                <strong>기관 무관한 규칙</strong>으로 교체 검토.</td>
+          </tr>
+          <tr>
+            <td><strong>EAP만 성격이 다르다</strong> — 나머지 셋은 「슬롯 채우기」인데
+                EAP는 「슬롯 비우기」다.</td>
+            <td><span class="chip keep">반영됨</span> 1차 범위를
+                <strong>학교·군대·병원</strong>으로 확정. EAP는 §13으로 분리.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note flag">
+      <span class="note-label">1단계 범위에 주는 함의</span>
+      §8의 1단계는 「목록 화면 하나」였다. 이 그림을 그려보니 <strong>카드가 상세보다 훨씬 싸다</strong> —
+      카드는 슬롯 3개 내용 지정으로 끝나지만, 상세는 신규 슬롯 1개 + 조건부 소거 2개 +
+      진행현황 가변화가 함께 필요하다. 1단계를 <strong>목록(카드+테이블)까지만</strong>으로
+      명확히 긋고, 상세는 2단계 attributes 저장이 끝난 뒤로 미루는 게 맞다.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 10 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">10</span>
+    <h2>구성원 카드·상세 — 기관별 시나리오</h2>
+    <p class="dek">
+      같은 방식으로 <code>MemberCard.svelte</code>와 <code>MemberProfileCard.svelte</code>를.
+      내담자와 결정적으로 다른 점이 하나 있다.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">먼저 — 구성원은 조건이 다르다</span>
+      내담자의 <code>role</code>은 프론트 상수(<code>GUARDIAN</code>/<code>CHILD</code>)였지만,
+      구성원의 역할은 <strong>이미 서버가 소유한다.</strong> <code>getCenterRoles</code>가
+      <code>{code, name}</code>를 내려주고 화면은 대부분 <code>role_name</code>을 그대로 출력한다.
+      즉 <strong>「학교면 상담교사, 군이면 병영상담관」은 role 테이블만 갈아끼우면 이미 된다</strong> —
+      온톨로지 없이도. 온톨로지가 할 일은 역할 <em>이름</em>이 아니라 그 주변이다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">10-1</span>구성원 카드 — 슬롯 5개</h3>
+
+  <div class="wrap">
+    <p>
+      현재 카드는 <strong>케밥 → 아바타 → 이름+역할 → 연락 2행(전화·이메일) → 메모 박스</strong>다.
+      내담자 카드보다 슬롯이 적고(7 vs 5), 생년월일·성별 줄도 없다.
+    </p>
+  </div>
+
+  <div class="fid-grid wide">
+
+    <div class="fid">
+      <div class="fid-cap t-base">
+        <span>현재 — 심리센터</span>
+        <span>as-is</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top"><span></span><span class="cc-kebab">⋯</span></div>
+        <div class="cc-av">김</div>
+        <div class="cc-name">김선영</div>
+        <div class="cc-sub">전문가</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-9876-5432</div>
+        <div class="cc-line"><span class="cc-ico">EML</span> sy.kim@center.kr</div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">아동청소년 전담. 화·목 오후 외부 슈퍼비전.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        역할은 <b>서버 role_name</b> 그대로.<br>
+        ADMIN만 왕관 배지, 나머지는 회색 텍스트.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-school">
+        <span>학교 — 상담교사</span>
+        <span>school</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top"><span></span><span class="cc-kebab">⋯</span></div>
+        <div class="cc-av">김</div>
+        <div class="cc-name">김선영</div>
+        <div class="cc-sub">전문상담교사</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-9876-5432</div>
+        <div class="cc-line"><span class="cc-ico">EML</span> sy.kim@school.kr</div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">Wee클래스 담당. 2학년 학년부 겸임.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        <b>슬롯 변경 없음.</b> role 테이블 교체만으로 완성 —
+        온톨로지 개입 불필요.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-military">
+        <span>군대 — 병영상담관</span>
+        <span>military</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top"><span></span><span class="cc-kebab">⋯</span></div>
+        <div class="cc-av">김</div>
+        <div class="cc-name">김선영</div>
+        <div class="cc-sub">병영생활전문상담관</div>
+        <div class="cc-line"><span class="cc-ico">UNT</span> 1대대 담당</div>
+        <div class="cc-line"><span class="cc-ico">TEL</span> 010-9876-5432</div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">주 3회 순회. 대대장 정례보고 담당.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        연락 2행 중 <b>이메일 자리를 담당부대</b>가 점유 —
+        군에선 소속이 이메일보다 먼저 필요.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-clinic">
+        <span>병원 — 임상심리사</span>
+        <span>clinic</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top"><span></span><span class="cc-kebab">⋯</span></div>
+        <div class="cc-av">김</div>
+        <div class="cc-name">김선영</div>
+        <div class="cc-sub">임상심리전문가</div>
+        <div class="cc-line"><span class="cc-ico">DEP</span> 정신건강의학과</div>
+        <div class="cc-line"><span class="cc-ico">LIC</span> 면허 제12345호</div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">심리평가 전담. 수요일 외래 배석.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        연락 2행이 <b>진료과·면허번호</b>로 완전 교체 —
+        의료기관은 자격 식별이 연락처보다 상위.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-eap">
+        <span>기업 EAP — 상담사</span>
+        <span>보류 · §13</span>
+      </div>
+      <div class="cc">
+        <div class="cc-top"><span></span><span class="cc-kebab">⋯</span></div>
+        <div class="cc-av">김</div>
+        <div class="cc-name">김선영</div>
+        <div class="cc-sub">EAP 전문상담사</div>
+        <div class="cc-line"><span class="cc-ico">ACC</span> ○○전자 · △△물산</div>
+        <div class="cc-line"><span class="cc-ico">EML</span> sy.kim@eap.kr</div>
+        <div class="cc-memo">
+          <span class="h">메모</span>
+          <span class="b">고객사 2곳 배정. 야간 상담 가능.</span>
+        </div>
+      </div>
+      <div class="fid-note">
+        <b>구성원은 익명 대상이 아니다.</b> 내담자와 달리
+        EAP에서도 슬롯이 온전히 산다 — 담당 고객사만 추가.
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">카드에서 확인된 것</span>
+      <strong>구성원 카드는 내담자보다 훨씬 안정적이다.</strong> 사라지는 슬롯이 하나도 없고,
+      EAP에서도 마스킹이 없다 — 익명 정책의 대상은 내담자지 실무자가 아니기 때문이다.
+      실질 변경은 <strong>연락 2행(슬롯 4)의 내용 지정 하나뿐</strong>이다:
+      학교는 그대로, 군은 담당부대, 병원은 진료과·면허, EAP는 담당 고객사.
+      역할 슬롯은 서버 role 테이블이 이미 처리한다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">10-2</span>상세 좌측 프로필 — 슬롯 5블록</h3>
+
+  <div class="wrap">
+    <p>
+      구성원 상세 좌측은 <strong>수정버튼 · 아바타 · 이름+인증배지+역할 · 기본정보 dl(6~8행) ·
+      메모 · 활동지표 3종</strong>이다. 내담자와 달리 <code>infoRows</code> 배열 하나가 dl 전체를
+      생성하는 구조(<code>MemberProfileCard.svelte:169-188</code>)라 <strong>확장 지점이 이미 열려 있다.</strong>
+    </p>
+  </div>
+
+  <div class="fid-grid wide">
+
+    <div class="fid">
+      <div class="fid-cap t-school">
+        <span>학교 — 상담교사 상세</span>
+        <span>school</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름 · 역할</span>
+          <span class="v">김선영 · 전문상담교사 · 인증배지</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">이메일 · 연락처</span>
+          <span class="v">그대로</span></div>
+        <div class="slot new"><span class="n">04</span><span class="t">소속 정보 <span class="chip core">신규</span></span>
+          <span class="v">Wee클래스 · 담당학년 2학년</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">고용형태 · 입사일 · 근속</span>
+          <span class="v">정규직 → <b>교원/기간제</b> 라벨 교체</span></div>
+        <div class="slot"><span class="n">06</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">07</span><span class="t">활동지표 3종</span>
+          <span class="v">담당 학생 · 상담 · 검사</span></div>
+      </div>
+      <div class="fid-note">
+        dl에 행 1개 추가 + 고용형태 어휘 교체. <b>구조 변경 없음.</b>
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-military">
+        <span>군대 — 병영상담관 상세</span>
+        <span>military</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름 · 역할</span>
+          <span class="v">김선영 · 병영생활전문상담관</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">이메일 · 연락처</span>
+          <span class="v">그대로</span></div>
+        <div class="slot new"><span class="n">04</span><span class="t">담당 부대 <span class="chip core">신규</span></span>
+          <span class="v">1대대 · 순회 주3회 · 군무원 8급</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">고용형태 · 입사일 · 근속</span>
+          <span class="v">정규직 → <b>군무원/민간위탁</b></span></div>
+        <div class="slot"><span class="n">06</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">07</span><span class="t">활동지표 3종</span>
+          <span class="v">관리 인원 · 면담 · 심리검사</span></div>
+      </div>
+      <div class="fid-note">
+        내담자와 달리 <b>사라지는 슬롯 없음.</b>
+        상담관은 성인 실무자라 보호자 축과 무관.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-clinic">
+        <span>병원 — 임상심리사 상세</span>
+        <span>clinic</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름 · 역할</span>
+          <span class="v">김선영 · 임상심리전문가</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">이메일 · 연락처</span>
+          <span class="v">그대로</span></div>
+        <div class="slot new"><span class="n">04</span><span class="t">면허 · 진료과 <span class="chip core">신규</span></span>
+          <span class="v">정신건강의학과 · 면허 제12345호</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">고용형태 · 입사일 · 근속</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">06</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">07</span><span class="t">활동지표 3종</span>
+          <span class="v">담당 환자 · 진료 · 검사 <b>+ 처방?</b></span></div>
+      </div>
+      <div class="fid-note">
+        <b>자격 탭이 법적 의미를 갖는다</b> — 심리센터에선 참고정보,
+        의료기관에선 면허 유효성이 진료 가능 여부를 결정.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-eap">
+        <span>기업 EAP — 상담사 상세</span>
+        <span>보류 · §13</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">아바타 · 이름 · 역할</span>
+          <span class="v">김선영 · EAP 전문상담사</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">생년월일 · 성별</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">이메일 · 연락처</span>
+          <span class="v">그대로</span></div>
+        <div class="slot new"><span class="n">04</span><span class="t">담당 고객사 <span class="chip core">신규</span></span>
+          <span class="v">○○전자 · △△물산 (다대다)</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">고용형태 · 입사일 · 근속</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">06</span><span class="t">메모</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">07</span><span class="t">활동지표 3종</span>
+          <span class="v">배정 case · 세션 · 검사</span></div>
+      </div>
+      <div class="fid-note">
+        <b>유일한 구조 이슈</b> — 담당 고객사는 1:N이라
+        단순 텍스트 행으로 안 끝날 수 있음.
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h3><span class="h3-tag">10-3</span>내담자와 비교하면</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>축</th><th>내담자 (§9)</th><th>구성원 (§10)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead">사라지는 슬롯</td>
+            <td style="color:var(--warn)">군·EAP에서 2~5개 (가족관계·앱연결·마스킹)</td>
+            <td style="color:var(--ok)"><strong>없음</strong> — 네 기관 전부 온전</td>
+          </tr>
+          <tr>
+            <td class="rowhead">신규 슬롯</td>
+            <td>1개 (학적/복무/진료/소속)</td>
+            <td>1개 (소속/부대/면허/고객사) — dl 행 추가로 흡수</td>
+          </tr>
+          <tr>
+            <td class="rowhead">역할 어휘</td>
+            <td>프론트 상수 하드코딩 → 축 교체 필요</td>
+            <td><strong>서버 role 테이블이 이미 소유</strong> → 온톨로지 불필요</td>
+          </tr>
+          <tr>
+            <td class="rowhead">확장 지점</td>
+            <td>없음 — 슬롯이 컴포넌트에 고정</td>
+            <td><code>infoRows</code> 배열 1곳 — <strong>이미 열려 있음</strong></td>
+          </tr>
+          <tr>
+            <td class="rowhead">난이도</td>
+            <td>높음 — 축 교체 + 조건부 소거</td>
+            <td><strong>낮음</strong> — 라벨 + dl 행 추가</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note flag">
+      <span class="note-label">정작 문제는 다른 곳</span>
+      구성원 화면 자체는 쉽지만, 실측에서 <strong>정리해야 할 중복이 드러났다.</strong>
+      역할 라벨 매핑이 <strong>4곳에 하드코딩</strong>(<code>constants.ts</code> ·
+      <code>invite/+page.svelte</code> 2곳 · <code>members-service.ts</code>)돼 있고,
+      역할 배지 스타일 3분기가 <strong>3곳에 복붙</strong>(목록 테이블 · pending 테이블 ·
+      카드)돼 있다. 게다가 카드는 「ADMIN만 배지」인데 테이블은 「ADMIN·MANAGER 배지」로
+      <strong>규칙이 서로 다르다.</strong> 기관을 늘리면 이 중복이 4곳 × 기관 수로 번진다 —
+      온톨로지 착수 전에 <strong>배지 스타일 맵 1곳 추출 + 하드코딩 4곳 정리</strong>가 선행돼야 한다.
+    </div>
+
+    <div class="note">
+      <span class="note-label">근무일정·자격 탭</span>
+      두 탭은 기관 무관하게 거의 그대로 통용된다. 근무일정(요일별 시간 + 휴식 + 근무외 경고)은
+      조직 형태와 독립적이고, 자격 탭은 학력·경력·자격증 3분류가 이미 범용이다.
+      다만 <strong>병원만 성격이 다르다</strong> — 면허 유효성이 참고정보가 아니라
+      진료 가능 여부를 결정하므로, 만료 경고가 「힌트」에서 「차단」으로 승격될 수 있다.
+      이건 온톨로지가 아니라 업무 규칙이라 §2의 「비즈니스 규칙은 소유하지 않는다」 경계 밖이다.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 11 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">11</span>
+    <h2>기관 정보 화면 — 기관별 시나리오</h2>
+    <p class="dek">
+      <code>CenterProfileCard</code> · <code>CenterOperatingPanel</code> · 대시보드.
+      화면은 셋 중 가장 쉽지만, 여기서 제품 전제 하나가 무너진다.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">먼저 — 여기서 무너지는 것</span>
+      내담자는 <em>축</em>이 문제였고 구성원은 <em>중복</em>이 문제였다면, 기관은
+      <strong>「유상 서비스」라는 전제</strong>가 문제다. 학교·군대는 무상이라
+      사업자번호·금액·청구·바우처가 통째로 의미를 잃는다. 이건 라벨 교체로 안 되고
+      <strong>기능을 끄는 판단</strong>이 필요하다 — §11-3에서 다룬다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">11-1</span>기관 프로필 카드 — 슬롯 5개</h3>
+
+  <div class="wrap">
+    <p>
+      현재 좌측 카드는 <strong>로고+수정 → 기관명+코드뱃지 → 개설일 → 기본정보 4행 →
+      통계 2×2</strong>다. 통계 4종은 카드가 자체 쿼리로 가져온다.
+    </p>
+  </div>
+
+  <div class="fid-grid wide">
+
+    <div class="fid">
+      <div class="fid-cap t-base">
+        <span>현재 — 심리센터</span>
+        <span>as-is</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">로고 · 수정</span>
+          <span class="v">logo_url</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">기관명 + 코드뱃지</span>
+          <span class="v">마음이음 심리상담센터 (A1B2C3)</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">개설일</span>
+          <span class="v">2024-03-01 개설</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">기본정보 4행</span>
+          <span class="v">대표자 · <b>사업자번호</b> · 주소 · 전화</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">통계 2×2</span>
+          <span class="v">구성원 · 내담자 · 상담실 · 프로그램</span></div>
+      </div>
+      <div class="fid-note">
+        코드뱃지 = 클릭 복사(초대·가입 키).
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-school">
+        <span>학교</span>
+        <span>school</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">로고 · 수정</span>
+          <span class="v">교표</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">학교명 + 학교코드</span>
+          <span class="v">한빛중학교 (7530123)</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">개교일</span>
+          <span class="v">라벨만 교체</span></div>
+        <div class="slot dim"><span class="n">04</span><span class="t">기본정보 4행</span>
+          <span class="v">교장 · <b>사업자번호 → 교육청</b> · 주소 · 전화</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">통계 2×2</span>
+          <span class="v">교직원 · 학생 · 상담실 · 프로그램</span></div>
+      </div>
+      <div class="fid-note">
+        슬롯 04의 사업자번호만 교체. <b>나머지 그대로.</b>
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-military">
+        <span>군대</span>
+        <span>military</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">로고 · 수정</span>
+          <span class="v">부대마크</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">부대명 + 부대기호</span>
+          <span class="v">제1보병사단 (12345)</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">창설일</span>
+          <span class="v">라벨만 교체</span></div>
+        <div class="slot dim"><span class="n">04</span><span class="t">기본정보 4행</span>
+          <span class="v">지휘관 · <b>사업자번호 → 상급부대</b> · 주소 · 전화</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">통계 2×2</span>
+          <span class="v">상담관 · 장병 · 상담실 · 프로그램</span></div>
+      </div>
+      <div class="fid-note">
+        주소가 <b>보안 사항</b>일 수 있음 — 표시 여부 확인 필요.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-clinic">
+        <span>병원</span>
+        <span>clinic</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">로고 · 수정</span>
+          <span class="v">병원 로고</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">병원명 + 요양기관기호</span>
+          <span class="v">서울마음병원 (11223344)</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">개원일</span>
+          <span class="v">라벨만 교체</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">기본정보 4행</span>
+          <span class="v">병원장 · <b>사업자번호 유지</b> + 요양기관번호 · 주소 · 전화</span></div>
+        <div class="slot"><span class="n">05</span><span class="t">통계 2×2</span>
+          <span class="v">의료진 · 환자 · 진료실 · 프로그램</span></div>
+      </div>
+      <div class="fid-note">
+        <b>식별번호가 2개</b> — 사업자번호 + 요양기관번호.
+        4행 고정이라 행 추가 필요.
+      </div>
+    </div>
+
+    <div class="fid">
+      <div class="fid-cap t-eap">
+        <span>기업 EAP</span>
+        <span>보류 · §13</span>
+      </div>
+      <div class="slots">
+        <div class="slot"><span class="n">01</span><span class="t">로고 · 수정</span>
+          <span class="v">기관 로고</span></div>
+        <div class="slot"><span class="n">02</span><span class="t">기관명 + 코드</span>
+          <span class="v">마음케어 EAP (C7D8E9)</span></div>
+        <div class="slot"><span class="n">03</span><span class="t">설립일</span>
+          <span class="v">그대로</span></div>
+        <div class="slot"><span class="n">04</span><span class="t">기본정보 4행</span>
+          <span class="v">대표자 · <b>사업자번호 유지</b> · 주소 · 전화</span></div>
+        <div class="slot new"><span class="n">05</span><span class="t">통계 2×2 <span class="chip core">축 추가</span></span>
+          <span class="v">상담사 · 이용자 · 상담실 · <b>고객사 N개</b></span></div>
+      </div>
+      <div class="fid-note">
+        <b>고객사 계층이 없다.</b> EAP는 기관↔고객사 2단 구조인데
+        현재 모델은 1단 — §11-3.
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">프로필 카드에서 확인된 것</span>
+      <strong>사라지는 슬롯이 없고, 신규 슬롯도 없다.</strong> 5개 슬롯 전부 네 기관에서 살아남는다 —
+      셋 중 가장 안정적이다. 실질 이슈는 둘뿐이다: ⓐ 슬롯 04의 <code>business_registration_number</code>가
+      기관별로 다른 식별번호로 교체되고, <strong>병원은 두 개가 필요</strong>해서 4행 고정을 풀어야 한다.
+      ⓑ 통계 4타일의 라벨 교체(내담자→학생/장병/환자)는 그대로 되지만 EAP만 「고객사」 축이 더 필요하다.
+      운영시간 패널(요일별 시간 · 오늘 상태 · 정기휴무 · 다가오는 휴무)은
+      <strong>네 기관 전부 변경 없이 통용</strong>된다 — 학기·훈련일정·진료일정이 같은 구조에 들어간다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">11-2</span>대시보드 — 「처리할 일」 5종의 붕괴</h3>
+
+  <div class="wrap">
+    <p>
+      대시보드는 센터 KPI가 아니라 <strong>개인 to-do 중심</strong>이고, 「처리할 일」 5종이
+      핵심이다. 이 5종이 기관별로 어떻게 되는지가 화면 슬롯보다 중요한 문제다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>대시보드 「처리할 일」 5종 — 기관별 유효성</caption>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th class="c-school">학교</th>
+          <th class="c-military">군대</th>
+          <th class="c-clinic">병원</th>
+          <th class="c-eap">EAP <span style="font-weight:400;opacity:.75">(보류)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">미처리 회기</td>
+          <td colspan="4" style="color:var(--ok)">전 기관 유효 — 도메인 중립</td>
+        </tr>
+        <tr>
+          <td class="rowhead">연장·종결 필요</td>
+          <td colspan="4" style="color:var(--ok)">전 기관 유효</td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead">미청구</td>
+          <td style="color:var(--warn)">무의미 (무상)</td>
+          <td style="color:var(--warn)">무의미 (무상)</td>
+          <td>유효 (급여청구)</td>
+          <td>유효 (고객사 정산)</td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead">소진 임박 바우처</td>
+          <td>예산 잔여로 유효</td>
+          <td style="color:var(--warn)">약함</td>
+          <td>급여 횟수로 유효</td>
+          <td>쿼터로 유효</td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead">만료 임박 바우처</td>
+          <td>학기말로 유효</td>
+          <td style="color:var(--warn)">약함</td>
+          <td>유효</td>
+          <td>계약연도로 유효</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">군대는 5종 중 3종이 빈다</span>
+      학교는 예산·학기 개념으로 바우처 2종이 살지만, <strong>군대는 미청구·소진·만료 3종이 모두 약하다.</strong>
+      대시보드의 절반이 빈 화면이 된다. 이건 라벨 문제가 아니라 <strong>기관마다 「처리할 일」 항목
+      자체가 달라야 한다</strong>는 뜻이다 — 온톨로지가 <code>dashboard_tasks</code> 배열을
+      선언하고, 군대는 대신 「미제출 상담일지」·「지휘관 보고 대기」 같은 항목을 넣는 식.
+      다만 그 항목을 <em>계산</em>하는 건 온톨로지가 아니라 서버 로직이라, §2 경계에 걸린다 —
+      <strong>온톨로지는 「어떤 항목을 보일지」만 고르고, 항목 자체는 서버가 전부 계산해 두는 형태</strong>가
+      경계를 지키는 방법이다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">11-3</span>기관에서만 드러난 구조 문제 3개</h3>
+
+  <div class="wrap">
+    <p>
+      내담자·구성원에서는 안 보였는데 기관 화면을 그리니 드러난 것들이다.
+      셋 다 <strong>온톨로지로 해결되지 않는다</strong> — 별도 결정이 필요하다.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>문제</th><th>성격</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead" style="color:var(--warn)">유상 전제</td>
+            <td>프로그램 등록의 <strong>금액이 필수</strong>(<code>*</code>)다. 학교·군대는 무상이라
+                등록 자체가 막힌다. 청구 메뉴·미청구 지표도 통째로 무의미.
+                <strong>→ 온톨로지가 「과금 사용 여부」를 선언하고 관련 필수·메뉴를 끄는 스위치 필요.</strong></td>
+          </tr>
+          <tr>
+            <td class="rowhead" style="color:var(--warn)">EAP 2단 구조</td>
+            <td>EAP는 <em>기관(상담회사) ↔ 고객사(계약기업)</em> 2단인데 현재 모델은 Center 1단이다.
+                고객사를 Center로 만들면 상담사가 여러 Center에 속해야 하고, attributes로 넣으면
+                고객사별 쿼터·통계가 어렵다.
+                <strong>→ 표현 문제가 아니라 모델 문제. 1차 제외의 두 번째 근거 (§13-1).</strong></td>
+          </tr>
+          <tr>
+            <td class="rowhead" style="color:var(--warn)">기관 전환 UI 부재</td>
+            <td>한 계정이 여러 기관에 속할 때 <strong>인앱 전환 수단이 없다.</strong>
+                <code>/welcome</code> 재진입이 유일한 경로. 심리센터는 1인 1센터가 대부분이라
+                문제가 안 됐지만, 순회 상담(군·학교)·다중 고객사(EAP)에서는 일상 동작이다.
+                <strong>→ 사이드바 기관 블록에 드롭다운 신설 필요. 온톨로지와 독립적인 기능 과제.</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><span class="h3-tag">11-4</span>세 화면군 종합</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>화면군</th>
+            <th>화면 난이도</th>
+            <th>진짜 문제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead">내담자 (§9)</td>
+            <td style="color:var(--warn)">높음 — 축 교체 + 슬롯 소거</td>
+            <td>보호자/아동 축이 군·EAP에서 붕괴</td>
+          </tr>
+          <tr>
+            <td class="rowhead">구성원 (§10)</td>
+            <td style="color:var(--ok)">낮음 — 라벨 + dl 행 추가</td>
+            <td>역할 라벨·배지 하드코딩 7곳 (기존 부채)</td>
+          </tr>
+          <tr>
+            <td class="rowhead">기관 (§11)</td>
+            <td style="color:var(--ok)">낮음 — 식별번호 교체</td>
+            <td><strong>유상 전제 · EAP 2단 구조 · 전환 UI 부재</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note find">
+      <span class="note-label">세 화면을 다 그리고 나서</span>
+      패턴이 분명해졌다. <strong>화면 슬롯은 대체로 잘 버틴다</strong> — 셋 중 둘은 라벨 교체 수준이다.
+      진짜 비용은 슬롯이 아니라 <strong>제품이 암묵적으로 깔고 있던 전제</strong>에서 나온다:
+      「보호자가 있다」(내담자) · 「유상 서비스다」(기관) · 「1인 1기관이다」(전환 UI).
+      온톨로지 레이어는 이 중 <em>첫 번째</em>만 해결한다. 나머지 둘은 별도 과제이며,
+      <strong>§8의 단계 계획에 넣기 전에 범위 밖으로 명시</strong>해야 나중에 놀라지 않는다.
+      <br><br>
+      <strong>EAP를 1차에서 뺀 이유도 여기서 나왔다</strong> — EAP는 위 세 전제 중
+      <em>두 개</em>(보호자·1인 1기관)를 동시에 깨고, 거기에 익명이라는 네 번째를 더한다.
+      학교·군대·병원은 각자 하나씩만 깬다. 상세는 §13.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 12 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">12</span>
+    <h2>프론트 렌더링 전략</h2>
+    <p class="dek">
+      <code>{#if orgType === 'school'}</code>를 뿌리지 않고 화면을 구성하는 법.
+      목표는 <strong>기관 추가 시 화면 코드를 열지 않는 것</strong>이다.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">원칙 한 줄</span>
+      <strong>조건문을 없애는 게 아니라, 한 곳으로 모은다.</strong>
+      기관별 분기는 어딘가에 반드시 존재한다 — 문제는 그게 <em>화면 200곳에 흩어지느냐,
+      정의 파일 1곳에 모이느냐</em>다. 화면에는 「무엇을 그릴지」만 남기고
+      「기관마다 무엇이 다른지」는 전부 정의로 밀어낸다.
+    </div>
+
+    <p>
+      아래 네 기법을 조합하면 화면 코드에서 <code>org_type</code>이라는 단어가
+      <strong>완전히 사라진다.</strong> 순서대로 적용 난이도가 올라간다.
+    </p>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-1</span>라벨 — 조회 함수 하나</h3>
+
+  <div class="wrap">
+    <p>
+      가장 쉽고 가장 많이 쓰인다. 현재 200파일에 흩어진 「내담자」 문자열의 대체재다.
+      <strong>분기 없이 조회만 한다.</strong>
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>ontology / label lookup</span>
+      <span class="tag">조건문 0개</span>
+    </div>
+<pre><i>// ✗ 이렇게 하지 않는다</i>
+{#if orgType === 'school'}학생{:else if orgType === 'military'}장병{:else}내담자{/if}
+
+<i>// ✓ 조회 한 번 — 기관이 몇 개든 코드는 그대로</i>
+{t('client')}                  <i>// "학생" | "장병" | "환자" | "내담자"</i>
+{t('client.code_label')}       <i>// "학번" | "군번" | "등록번호" | "코드"</i>
+{t('status.active')}           <i>// "재학" | "복무중" | "외래" | "활동중"</i>
+
+<i>// 구현 — 스토어에서 정의를 읽어 경로로 꺼낸다</i>
+<b>export function t(path: string, fallback?: string): string {
+  return get(ontology)?.labels?.[path] ?? fallback ?? path
+}</b>
+
+<i>// 화면은 org_type을 모른다. 정의가 바뀌면 문자열이 따라 바뀔 뿐.</i></pre>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">왜 i18n 라이브러리가 아닌가</span>
+      형태는 i18n과 같지만 축이 다르다. i18n은 <em>같은 사용자에게 다른 언어</em>를,
+      온톨로지는 <em>다른 기관에게 다른 어휘</em>를 준다. 나중에 진짜 다국어가 필요해지면
+      두 축이 곱해지므로(<code>ko × school</code>), <strong>지금 i18n 라이브러리를 끌어와
+      기관 축에 써버리면 언어 축을 넣을 자리가 없어진다.</strong> 별도 레이어로 두는 게 맞다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-2</span>반복 영역 — 스키마가 컴포넌트를 고른다</h3>
+
+  <div class="wrap">
+    <p>
+      §9~11에서 확인된 <strong>「N개 반복」 영역</strong>이 여기 해당한다 —
+      attributes 블록, 목록 컬럼, 통계 타일, 등록폼 필드. 이 영역들은
+      <strong>스키마를 순회해 렌더</strong>하면 기관 추가 시 코드가 그대로다.
+    </p>
+    <p>
+      핵심은 <strong>타입 → 컴포넌트 레지스트리</strong>다. 분기가 <code>if</code>가 아니라
+      <em>맵 조회</em>가 된다.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>attribute block — 레지스트리 패턴</span>
+      <span class="tag">기관 추가 시 무수정</span>
+    </div>
+<pre><i>// 레지스트리 — 타입 하나당 컴포넌트 하나. org_type은 등장하지 않는다.</i>
+<b>const FIELD_COMPONENTS = {
+  string: TextField,
+  int:    NumberField,
+  date:   DateField,
+  enum:   SelectField,
+  ref:    RefField,      <i>// ref: "member" → 구성원 검색 드롭다운</i>
+}</b>
+
+<i>// 렌더 — 스키마를 순회할 뿐</i>
+{#each ont.entities.client.attributes as attr (attr.key)}
+  {@const Field = FIELD_COMPONENTS[attr.type]}
+  &lt;Field
+    label={attr.label}
+    required={attr.required}
+    bind:value={form.attributes[attr.key]}
+    {...attr}
+  /&gt;
+{/each}
+
+<i>// 기관을 5번째로 추가해도 이 코드는 열지 않는다.</i>
+<i>// 새 타입(예: "phone")이 생길 때만 레지스트리에 한 줄 추가.</i></pre>
+  </div>
+
+  <div class="wrap">
+    <p>
+      같은 패턴이 목록 컬럼·통계 타일에도 그대로 적용된다. §11에서 나온
+      「병원은 식별번호가 2개라 4행 고정을 풀어야 한다」·「진행현황 2열이 하드코딩」이
+      전부 이 방식으로 해소된다 — <strong>행 수·열 수가 배열 길이에서 파생</strong>되기 때문.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>스키마 주도로 전환할 반복 영역 — §9~11 실측 기준</caption>
+      <thead>
+        <tr>
+          <th>영역</th>
+          <th>현재</th>
+          <th>전환 후</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">기관 고유 속성</td>
+          <td>없음 (신규)</td>
+          <td><code>attributes[]</code> 순회 — §12-2 그대로</td>
+        </tr>
+        <tr>
+          <td class="rowhead">목록 컬럼</td>
+          <td>컴포넌트마다 배열 하드코딩</td>
+          <td><code>list_columns[]</code> 순회 + 셀 렌더러 레지스트리</td>
+        </tr>
+        <tr>
+          <td class="rowhead">진행현황 타일</td>
+          <td><code>grid-cols-2</code> + 상담·검사 고정</td>
+          <td><code>progress_items[]</code> 길이에서 열 수 파생</td>
+        </tr>
+        <tr>
+          <td class="rowhead">기관 기본정보</td>
+          <td>4행 고정 (병원은 5행 필요)</td>
+          <td><code>info_rows[]</code> 순회 — 구성원은 이미 이 형태</td>
+        </tr>
+        <tr>
+          <td class="rowhead">등록폼 스텝</td>
+          <td>4스텝 고정 배열</td>
+          <td><code>forms.client_register.steps[]</code> 순회</td>
+        </tr>
+        <tr>
+          <td class="rowhead">관계 어휘</td>
+          <td>가족 8종 하드코딩 + 양방향 맵</td>
+          <td><code>relations.guardian.kinds[]</code> 순회</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-3</span>구조적 분기 — capability 플래그</h3>
+
+  <div class="wrap">
+    <p>
+      §9~11에서 <strong>「사라지는 슬롯」</strong>으로 나온 것들이다. 이건 반복이 아니라
+      <em>있냐 없냐</em>라서 순회로 안 된다. 하지만 <strong>기관 이름으로 묻지 않는 것</strong>이
+      핵심이다 — <em>능력</em>으로 묻는다.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>capability flag — 기관명으로 묻지 않기</span>
+      <span class="tag">불리언 1개 = 슬롯 N개</span>
+    </div>
+<pre><i>// ✗ 기관을 물으면 기관이 늘 때마다 조건이 늘어난다</i>
+{#if orgType === 'school' || orgType === 'clinic'}
+  &lt;GuardianBlock /&gt;
+{/if}
+
+<i>// ✓ 능력을 묻는다 — 기관이 몇 개든 조건은 하나</i>
+<b>{#if ont.relations.guardian.enabled}
+  &lt;GuardianBlock /&gt;
+  &lt;AppLinkBlock /&gt;      <i>// §10에서 확인: 같은 축에 매달린 두 슬롯</i>
+{/if}</b>
+
+<i>// §11의 유상 전제도 같은 방식</i>
+<b>{#if ont.capabilities.billing}
+  &lt;BillingMenu /&gt;
+{/if}</b>
+&lt;PriceField required={ont.capabilities.billing} /&gt;   <i>// 무상 기관은 필수 해제</i>
+
+<i>// 플래그 목록 — 화면이 아니라 정의가 소유</i>
+<b>capabilities: {
+  billing:  true,   <i>// 과금·청구·금액 필수  (학교·군 = false)</i>
+  guardian: true,   <i>// 보호자 관계·앱연결   (군 = false)</i>
+  voucher:  true,   <i>// 바우처 관리         (심리센터만 true)</i>
+}</b>
+
+<i>// 플래그 하나가 슬롯 여러 개를 동시에 지운다:</i>
+<i>//   guardian=false → 보호자 블록 + 앱연결 블록</i>
+<i>//   voucher=false  → 목록 바우처 컬럼 + 상세 바우처 블록</i>
+
+<i>// 실제로 쓰는 것만 선언한다. 대상자 마스킹(anonymous)은</i>
+<i>// EAP 전용이라 1차 범위 밖 — 착수 시 플래그를 추가한다 (§13).</i></pre>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">왜 이게 결정적인가</span>
+      기관명으로 물으면 조건이 <strong>기관 수만큼</strong> 늘고, 기관을 추가할 때
+      <em>그 조건을 가진 모든 파일</em>을 찾아 열어야 한다. 능력으로 물으면 조건은
+      <strong>영원히 하나</strong>이고, 기관 추가는 정의에 <code>true</code>/<code>false</code>를
+      쓰는 일이 된다. §10에서 「가족관계와 앱연결이 같은 축에 매달려 있었다」고 한 것이
+      바로 이 이야기다 — 플래그 하나가 슬롯 여러 개를 동시에 지운다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-4</span>슬롯 내용 지정 — 이름으로 가리키기</h3>
+
+  <div class="wrap">
+    <p>
+      §9-1의 「군은 생년월일 줄이 계급·전역일로 바뀐다」, §10-1의
+      「병원은 연락 2행이 진료과·면허로 교체된다」가 여기다. 슬롯은 그대로 있고
+      <strong>내용만 다르다.</strong> 정의가 <em>어떤 필드를 넣을지</em>만 이름으로 가리킨다.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>slot binding — 필드 이름으로 지정</span>
+      <span class="tag">슬롯 고정 · 내용 가변</span>
+    </div>
+<pre><i>// 정의</i>
+<b>card_slots: {
+  subline:  ["birth_date", "gender"],           <i>// 군: ["rank", "discharge_date"]</i>
+  contact:  ["phone", "email"],                 <i>// 병원: ["department", "license_no"]</i>
+}</b>
+
+<i>// 화면 — 슬롯은 고정, 내용은 이름으로 해소</i>
+&lt;SubLine fields={ont.card_slots.subline} data={client} /&gt;
+&lt;ContactLines fields={ont.card_slots.contact} data={client} /&gt;
+
+<i>// SubLine 내부 — 값 해소기 하나로 코어·확장 모두 처리</i>
+<b>function resolve(data, key) {
+  return key in data ? data[key] : data.attributes?.[key]
+}</b>
+
+<i>// 코어 필드(birth_date)든 확장 속성(rank)이든 같은 방식으로 꺼낸다.</i>
+<i>// → 화면은 그 필드가 컬럼인지 JSONB인지 알 필요가 없다.</i></pre>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">이 해소기가 §6 스펙을 지탱한다</span>
+      <code>resolve()</code> 한 줄이 「코어는 컬럼, 확장은 JSONB」라는 저장 구조를
+      화면에서 <strong>완전히 감춘다.</strong> §6에서 「기관 고유키를 컬럼으로 올리지 않고
+      attributes에 둔다」고 결정할 수 있었던 근거가 이거다 — 화면이 차이를 모르므로
+      나중에 성능 때문에 특정 키를 컬럼으로 승격해도(§7 Q5) <strong>화면 코드는 그대로다.</strong>
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-5</span>전체 구조</h3>
+
+  <figure class="wide">
+    <svg viewBox="0 0 880 330" role="img" aria-labelledby="d2t d2d">
+      <title id="d2t">렌더링 레이어 구조</title>
+      <desc id="d2d">
+        서버가 내려준 온톨로지 정의를 스토어가 한 번 보유하고, 네 가지 소비 방식
+        (라벨 조회·스키마 순회·capability 플래그·슬롯 바인딩)을 통해 화면 컴포넌트가
+        기관 타입을 모른 채 렌더한다.
+      </desc>
+      <g font-family="ui-monospace, monospace" font-size="11">
+
+        <rect x="300" y="16" width="280" height="42" rx="4"
+              fill="var(--common-wash)" stroke="var(--common)" stroke-width="1.5"/>
+        <text x="440" y="34" text-anchor="middle" fill="var(--common)"
+              font-size="12" font-weight="700" font-family="var(--sans)">서버 — 온톨로지 정의</text>
+        <text x="440" y="49" text-anchor="middle" fill="var(--common)">GET /api/v1/ontology/{org_type}</text>
+
+        <line x1="440" y1="58" x2="440" y2="82" stroke="var(--common)" stroke-width="1.5"
+              marker-end="url(#ar)"/>
+
+        <rect x="300" y="82" width="280" height="42" rx="4"
+              fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="440" y="100" text-anchor="middle" fill="var(--ink)"
+              font-size="12" font-weight="600" font-family="var(--sans)">ontology store</text>
+        <text x="440" y="115" text-anchor="middle" fill="var(--ink-soft)">앱당 1회 로드 · 캐시</text>
+
+        <g stroke="var(--rule)" stroke-width="1.2">
+          <line x1="440" y1="124" x2="440" y2="140"/>
+          <line x1="120" y1="140" x2="760" y2="140"/>
+          <line x1="120" y1="140" x2="120" y2="162" marker-end="url(#ar)"/>
+          <line x1="333" y1="140" x2="333" y2="162" marker-end="url(#ar)"/>
+          <line x1="547" y1="140" x2="547" y2="162" marker-end="url(#ar)"/>
+          <line x1="760" y1="140" x2="760" y2="162" marker-end="url(#ar)"/>
+        </g>
+
+        <g font-size="10.5">
+          <rect x="40" y="162" width="160" height="70" rx="4"
+                fill="var(--school-wash)" stroke="var(--school)"/>
+          <text x="120" y="181" text-anchor="middle" fill="var(--school)"
+                font-size="11.5" font-weight="600" font-family="var(--sans)">라벨 조회</text>
+          <text x="120" y="198" text-anchor="middle" fill="var(--school)">t('client')</text>
+          <text x="120" y="214" text-anchor="middle" fill="var(--school)">조건문 0</text>
+
+          <rect x="253" y="162" width="160" height="70" rx="4"
+                fill="var(--military-wash)" stroke="var(--military)"/>
+          <text x="333" y="181" text-anchor="middle" fill="var(--military)"
+                font-size="11.5" font-weight="600" font-family="var(--sans)">스키마 순회</text>
+          <text x="333" y="198" text-anchor="middle" fill="var(--military)">{#each attributes}</text>
+          <text x="333" y="214" text-anchor="middle" fill="var(--military)">레지스트리 조회</text>
+
+          <rect x="467" y="162" width="160" height="70" rx="4"
+                fill="var(--clinic-wash)" stroke="var(--clinic)"/>
+          <text x="547" y="181" text-anchor="middle" fill="var(--clinic)"
+                font-size="11.5" font-weight="600" font-family="var(--sans)">capability</text>
+          <text x="547" y="198" text-anchor="middle" fill="var(--clinic)">{#if cap.guardian}</text>
+          <text x="547" y="214" text-anchor="middle" fill="var(--clinic)">조건문 1개 고정</text>
+
+          <rect x="680" y="162" width="160" height="70" rx="4"
+                fill="var(--eap-wash)" stroke="var(--eap)"/>
+          <text x="760" y="181" text-anchor="middle" fill="var(--eap)"
+                font-size="11.5" font-weight="600" font-family="var(--sans)">슬롯 바인딩</text>
+          <text x="760" y="198" text-anchor="middle" fill="var(--eap)">fields={...}</text>
+          <text x="760" y="214" text-anchor="middle" fill="var(--eap)">resolve(data, key)</text>
+        </g>
+
+        <g stroke="var(--rule)" stroke-width="1.2">
+          <line x1="120" y1="232" x2="120" y2="252"/>
+          <line x1="333" y1="232" x2="333" y2="252"/>
+          <line x1="547" y1="232" x2="547" y2="252"/>
+          <line x1="760" y1="232" x2="760" y2="252"/>
+          <line x1="120" y1="252" x2="760" y2="252"/>
+          <line x1="440" y1="252" x2="440" y2="272" marker-end="url(#ar)"/>
+        </g>
+
+        <rect x="230" y="272" width="420" height="42" rx="4"
+              fill="var(--surface-sunk)" stroke="var(--rule)"/>
+        <text x="440" y="290" text-anchor="middle" fill="var(--ink)"
+              font-size="12" font-weight="600" font-family="var(--sans)">화면 컴포넌트</text>
+        <text x="440" y="305" text-anchor="middle" fill="var(--ink-soft)">
+          org_type이라는 단어가 등장하지 않는다
+        </text>
+      </g>
+    </svg>
+    <figcaption>
+      네 갈래 전부 <strong>정의를 읽을 뿐 기관을 묻지 않는다.</strong>
+      화면에서 <code>org_type</code>을 검색해 0건이면 이 구조가 지켜지고 있는 것이고,
+      이게 유일하고 가장 확실한 판정 기준이다.
+    </figcaption>
+  </figure>
+
+  <h3 class="wrap"><span class="h3-tag">12-6</span>어디까지 스키마로 밀 것인가</h3>
+
+  <div class="wrap">
+    <p>
+      「궁극적으로 유연하게」가 목표라면 <strong>슬롯 순서까지 정의가 소유</strong>하는 게 종착점이다
+      (<code>detail_sections: [{type, ...}]</code>를 순회). 다만 §9~11 실측이 말해주는 게 있다 —
+      <strong>슬롯 구조 자체는 네 기관에서 잘 버텼다.</strong> 사라지는 슬롯은 capability로 처리되고,
+      순서가 기관마다 달라야 할 근거는 아직 나오지 않았다.
+    </p>
+    <p>
+      그래서 <strong>전면 스키마화를 목표로 두되, 근거가 나온 순서로</strong> 간다.
+      §8의 「될 것 같다로 구현하지 마라」가 여기에도 적용된다 — 처음부터 전 화면을
+      섹션 렌더러로 만들면, 검증 안 된 유연성에 디버깅 난이도와 타입 안전성을 미리 지불하는 셈이다.
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>전환 순서 — 근거가 확보된 것부터</caption>
+      <thead>
+        <tr>
+          <th>단계</th>
+          <th>대상</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">A</td>
+          <td>라벨 <code>t()</code> · capability 플래그</td>
+          <td>즉시. 분기가 안 늘어나는 게 확실하고 되돌리기도 쉽다</td>
+        </tr>
+        <tr>
+          <td class="rowhead">B</td>
+          <td>attributes 블록 · 목록 컬럼 · 통계 타일</td>
+          <td>§9~11에서 「N개 반복」으로 확인된 영역만</td>
+        </tr>
+        <tr>
+          <td class="rowhead">C</td>
+          <td>슬롯 바인딩 (subline · contact)</td>
+          <td>§9-1·§10-1에서 내용 교체가 실제로 필요하다고 확인된 슬롯</td>
+        </tr>
+        <tr style="background:var(--common-wash)">
+          <td class="rowhead">D</td>
+          <td>섹션 순서까지 정의 소유</td>
+          <td><strong>5번째 기관에서 순서가 달라야 하는 사례가 나오면.</strong>
+              그 전까지는 A~C로 충분한지 관찰</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">D단계를 미루되 막지 않는 법</span>
+      A~C를 하면서 <strong>컴포넌트가 정의에서 props를 받는 형태</strong>만 지키면,
+      나중에 D로 갈 때 렌더러로 감싸는 일만 남는다. 반대로 컴포넌트가 스토어를
+      직접 읽어버리면 D 전환 시 전부 뜯어야 한다 —
+      <strong>「정의는 props로 흘려보낸다」가 D를 위한 유일한 사전 준비다.</strong>
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">12-7</span>안티패턴</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <thead>
+        <tr><th>하지 않는다</th><th>대신</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>화면에서 <code>orgType === 'school'</code> 비교</td>
+          <td>capability 플래그로 능력을 묻는다 (§12-3)</td>
+        </tr>
+        <tr>
+          <td>기관별 컴포넌트 분기
+              (<code>SchoolClientCard</code> · <code>MilitaryClientCard</code>)</td>
+          <td>한 컴포넌트 + 정의 주입. 기관 수만큼 파일이 늘면 실패</td>
+        </tr>
+        <tr>
+          <td>정의를 프론트 상수로 복사</td>
+          <td>서버 단일 소유. 복사하면 200파일 인라인을 형태만 바꿔 반복</td>
+        </tr>
+        <tr>
+          <td>컴포넌트가 스토어를 직접 구독</td>
+          <td>props로 흘려보낸다 — D단계 전환의 전제 (§12-6)</td>
+        </tr>
+        <tr>
+          <td>i18n 라이브러리를 기관 축에 사용</td>
+          <td>별도 레이어. 나중에 언어 축과 곱해야 한다 (§12-1)</td>
+        </tr>
+        <tr>
+          <td><code>t()</code> 결과를 조건 비교
+              (<code>if (t('client') === '학생')</code>)</td>
+          <td>라벨은 표시 전용. 판정은 언제나 코드값으로</td>
+        </tr>
+        <tr>
+          <td>정의 없을 때 빈 화면</td>
+          <td><code>counseling_center</code> 정의를 기본값으로 —
+              기존 센터가 그대로 동작해야 한다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">판정 기준 하나</span>
+      이 설계가 지켜지고 있는지는 <strong>한 번의 검색으로 확인된다</strong> —
+      <code>apps/web/src</code>에서 <code>org_type</code>·<code>orgType</code>을 grep해
+      <strong>화면 코드에 0건</strong>이면 성공이다. 온톨로지 스토어와 타입 정의에만
+      등장해야 한다. 이 조건을 CI 검사로 걸어두면 회귀가 원천 차단된다 —
+      §4의 감사 스크립트(<code>audit_query_filters.py</code>)가 백엔드에서 하는 역할과 같다.
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 13 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">13</span>
+    <h2>기업 EAP — 1차 제외 결정</h2>
+    <p class="dek">
+      왜 뺐는지, 뺀 결과로 무엇이 쉬워졌는지, 재개하려면 무엇이 선행돼야 하는지.
+      <strong>분석은 지우지 않고 보존한다</strong> — 재개 시 실측부터 다시 하지 않기 위해.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <p>
+      §9~11에서 EAP는 <strong>세 번 독립적으로 걸렸다.</strong> 한 번이면 예외 처리로 넘어갈 수 있지만,
+      서로 다른 층위에서 세 번 걸린다는 건 신호다 — EAP는 「표현이 다른 기관」이 아니라
+      <strong>「구조가 다른 제품」</strong>에 가깝다.
+    </p>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">13-1</span>제외 근거 3개</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>EAP가 걸린 세 지점 — 각각 다른 층위</caption>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>근거</th>
+          <th>층위</th>
+          <th>출처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">1</td>
+          <td><strong>익명 정책이 §2 불변 규칙을 깬다.</strong>
+              온톨로지가 마스킹을 선언해도 강제는 API에서 일어나야 안전하다.
+              그러면 「어떤 기관에서도 응답 필드는 동일」이라는 전제에 예외가 생긴다.</td>
+          <td>아키텍처 규칙</td>
+          <td>§7 Q3</td>
+        </tr>
+        <tr>
+          <td class="rowhead">2</td>
+          <td><strong>상세 슬롯 10개 중 5개가 죽는다.</strong>
+              이름·생년월일·기본정보 3행이 마스킹되고 가족관계·앱연결이 사라진다.
+              나머지 셋은 「슬롯 채우기」인데 EAP만 「슬롯 비우기」다.</td>
+          <td>화면 구조</td>
+          <td>§9-2</td>
+        </tr>
+        <tr>
+          <td class="rowhead">3</td>
+          <td><strong>기관↔고객사 2단 구조가 모델에 없다.</strong>
+              고객사를 Center로 만들면 상담사가 여러 Center에 속해야 하고,
+              attributes에 넣으면 고객사별 쿼터·통계가 안 나온다.</td>
+          <td>데이터 모델</td>
+          <td>§11-3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">세 근거가 말하는 것</span>
+      근거 1·2는 <strong>익명</strong>에서 나오고, 3은 <strong>2단 구조</strong>에서 나온다.
+      즉 EAP의 문제는 둘로 압축된다 — 그리고 <strong>둘 다 온톨로지 레이어로 풀리지 않는다.</strong>
+      익명은 권한·API 문제고, 2단 구조는 모델 문제다. 표현 레이어를 아무리 잘 만들어도
+      이 둘은 그대로 남는다. <strong>순서를 바꿔 넣을 이유가 없다는 것이 제외의 본질</strong>이다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">13-2</span>빼서 얻은 것</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>EAP 제외로 단순해진 지점</caption>
+      <thead>
+        <tr>
+          <th>영역</th>
+          <th>EAP 포함 시</th>
+          <th>1차 3기관</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">§2 불변 규칙</td>
+          <td style="color:var(--warn)">예외 1개 필요 (응답 필드 가변)</td>
+          <td style="color:var(--ok)"><strong>예외 없음</strong> — 규칙이 온전히 유지</td>
+        </tr>
+        <tr>
+          <td class="rowhead">capability 플래그</td>
+          <td>3개 (billing · guardian · anonymous)</td>
+          <td style="color:var(--ok)"><strong>2개</strong> — anonymous 불필요</td>
+        </tr>
+        <tr>
+          <td class="rowhead">보호자 축 교체</td>
+          <td>군·EAP 2기관</td>
+          <td style="color:var(--ok)"><strong>군대 1기관만</strong> — 학교·병원은 그대로 대응</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Center 모델</td>
+          <td style="color:var(--warn)">2단 계층 설계 선행 필요</td>
+          <td style="color:var(--ok)"><strong>1단 유지</strong> — <code>org_type</code> 컬럼 추가로 충분</td>
+        </tr>
+        <tr>
+          <td class="rowhead">기관 전환 UI</td>
+          <td style="color:var(--warn)">다중 고객사로 필수</td>
+          <td>순회 상담용으로 <em>있으면 좋음</em> — 1차 필수 아님</td>
+        </tr>
+        <tr>
+          <td class="rowhead">마스킹 처리</td>
+          <td style="color:var(--warn)">시크릿 모드와 별개 축 신설</td>
+          <td style="color:var(--ok)"><strong>불필요</strong> — 기존 시크릿 모드로 충분</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">가장 큰 소득</span>
+      <strong>§2의 불변 규칙(「어떤 기관에서도 API 응답 필드는 동일」)에 예외를 만들지 않아도 된다.</strong>
+      이 규칙이 지켜지는 동안은 온톨로지가 「표현 레이어」로 남고, 예외가 하나 생기는 순간
+      「제품 분기」로 미끄러지기 시작한다. EAP를 빼는 것은 <em>기관 하나를 미루는 일</em>이 아니라
+      <strong>레이어의 성격을 지키는 일</strong>이다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">13-3</span>재개 조건 — 무엇이 선행돼야 하나</h3>
+
+  <div class="wrap">
+    <p>
+      EAP를 다시 꺼낼 때 <strong>이 문서의 §9~11 분석은 그대로 유효하다</strong>
+      (EAP 열·목업을 남겨둔 이유). 새로 해야 할 것은 아래 셋이며,
+      <strong>순서가 있다</strong> — 1번이 없으면 2·3번을 설계할 수 없다.
+    </p>
+
+    <ol class="qlist">
+      <li>
+        <span class="q">고객사 계층을 어떻게 모델링할 것인가</span>
+        <span class="a">
+          가장 먼저다. 세 안이 있다 — ⓐ 고객사를 Center로(상담사가 다중 Center 소속),
+          ⓑ Center 하위에 <code>client_organization</code> 테이블 신설,
+          ⓒ Center에 <code>parent_center_id</code>로 자기참조 계층.
+          <strong>ⓑ가 유력</strong>하지만 바우처·통계·권한이 전부 이 결정에 딸려 온다.
+          이건 표현 레이어가 아니라 도메인 설계 과제다.
+        </span>
+      </li>
+      <li>
+        <span class="q">익명을 권한 모델에 어떻게 넣을 것인가</span>
+        <span class="a">
+          「누가 실명을 볼 수 있는가」가 본질이다. 담당 상담사는 보고, 고객사 담당자는
+          통계만 보고, 관리자는? — 현재 <code>access_level</code>(all/own) 2단으로는 부족하다.
+          기존 <strong>시크릿 모드</strong>(화면 마스킹)와는 다른 축이다 — 시크릿 모드는
+          <em>보는 사람이 끄고 켜는</em> 것이고 익명은 <em>서버가 강제</em>하는 것.
+        </span>
+      </li>
+      <li>
+        <span class="q">§2 불변 규칙에 예외를 인정할 것인가</span>
+        <span class="a">
+          1·2번이 정해지면 답이 따라온다. 익명이 권한으로 처리되면 「필드는 늘 오되
+          값이 마스킹된 형태」로 규칙을 지킬 수 있고, 필드 자체를 빼야 한다면 예외가 필요하다.
+          <strong>전자가 규칙을 지키는 길</strong>이므로 그쪽을 먼저 검토한다.
+        </span>
+      </li>
+    </ol>
+
+    <div class="note flag">
+      <span class="note-label">재개 시 주의</span>
+      위 셋은 전부 <strong>온톨로지 레이어 밖</strong>의 과제다. 즉 EAP 재개는
+      「온톨로지에 org_type 하나 추가」가 아니라 <strong>별도 설계 사이클</strong>이다.
+      1차 3기관이 안정화된 뒤 착수 여부를 다시 판단하는 것이 맞고,
+      그때 이 문서의 §9~11 EAP 열이 출발점이 된다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">13-4</span>1차 범위 확정</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>온톨로지 레이어 1차 범위</caption>
+      <thead>
+        <tr><th>구분</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead" style="color:var(--ok)">포함</td>
+          <td>
+            <strong>기관 3종</strong> — 학교 · 군대 · 병원 (+ 기본값 <code>counseling_center</code>)<br>
+            <strong>화면</strong> — 내담자 목록/카드 → attributes 저장 → 상세 (§8 단계 순서)<br>
+            <strong>기법</strong> — 라벨 <code>t()</code> · capability 2개 · 스키마 순회 · 슬롯 바인딩 (§12 A~C)
+          </td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--warn)">제외</td>
+          <td>
+            <strong>기업 EAP</strong> — 근거 §13-1, 재개 조건 §13-3<br>
+            <strong>바우처 관리</strong> — 심리센터 전용. 학교·군·병원은
+            <code>voucher: false</code> (§4-3)<br>
+            <strong>명부 동기화</strong> — 학교·군 전입/전출/진급 (§7 Q4)<br>
+            <strong>기관 전환 UI</strong> — 순회 상담용, 온톨로지와 독립 (§11-3)<br>
+            <strong>섹션 순서 스키마화</strong> — §12 D단계, 근거 확보 후
+          </td>
+        </tr>
+        <tr>
+          <td class="rowhead" style="color:var(--common)">선행</td>
+          <td>
+            <strong>역할 라벨·배지 하드코딩 정리</strong> — 7곳 중복 (§10-3)<br>
+            <strong>성별 2값 강제 정리</strong> — 아바타 색 의존 (§7 Q7)<br>
+            <strong>과금 스위치</strong> — 프로그램 금액 필수 해제 (§11-3)
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">범위를 좁히고 나서</span>
+      1차를 3기관으로 좁히면 <strong>§2 불변 규칙에 예외가 없고, capability는 2개이며,
+      축 교체가 필요한 기관은 군대 하나</strong>다. §8의 0단계(종이 위 검증)에서
+      「병원의 진단코드가 스펙 형식을 깨는가」만 확인하면 되고,
+      EAP 익명이 형식을 깨는지는 지금 답하지 않아도 된다 —
+      <strong>검증해야 할 불확실성이 절반으로 준다.</strong>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ══════════ 14 ══════════ -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">14</span>
+    <h2>전역 확장 — 대상자를 넘어서</h2>
+    <p class="dek">
+      §6 스펙과 lab 프로토타입은 <strong>대상자(Client) 하나만</strong> 다룬다.
+      구성원·기관·사이드바까지 아우르려면 무엇이 더 필요한가.
+    </p>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">먼저 — 지금 정의로는 못 아우른다</span>
+      현재 <code>OntologyDef</code>에는 <code>client</code> 블록 하나뿐이다.
+      구성원 화면을 그리려면 정의 자체를 확장해야 하고,
+      <strong>사이드바는 그보다 더 근본적인 문제</strong>다 — 메뉴 표시를 결정하는 축에
+      「이 기관이 그 기능을 쓰는가」가 아예 없다. 아래는 실측 결과와 확장안이다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">14-1</span>사이드바 실측 — 축이 3개인데 도메인 축은 0개</h3>
+
+  <div class="wrap">
+    <p>
+      메뉴 표시는 <code>canShowSidebarMenu()</code> 하나가 결정한다
+      (<code>sidebar-permissions.ts:71-80</code>). 현재 판정 축:
+    </p>
+  </div>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>사이드바 메뉴 표시 판정 축 — 실측</caption>
+      <thead>
+        <tr><th>#</th><th>축</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">1</td>
+          <td>권한코드 OR 매칭</td>
+          <td><code>SIDEBAR_MENU_PERMISSIONS[menuId]</code> 중 하나라도 보유하면 표시</td>
+        </tr>
+        <tr>
+          <td class="rowhead">2</td>
+          <td>역할 블랙리스트</td>
+          <td><code>ROLE_EXCLUDED_MENUS.counselor</code> 7개 하드코딩.
+              권한이 있어도 무조건 숨김 — 서버 RBAC가 COUNSELOR에게도
+              <code>read:center</code>를 주기 때문에 생긴 땜빵</td>
+        </tr>
+        <tr>
+          <td class="rowhead">3</td>
+          <td>환경/호스트명</td>
+          <td><code>showAiFeatures()</code> · production 판정 —
+              <code>agent</code> 메뉴와 일부 서브탭 전용</td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead" style="color:var(--warn)">—</td>
+          <td style="color:var(--warn)">기관 업태</td>
+          <td style="color:var(--warn)">
+            <strong>없다.</strong> 바우처·청구·검사가 모두 「모든 센터가 한다」는
+            전제로 배열에 박혀 있고, 안 쓰는 기관에서도 그대로 보인다
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">운 좋은 구조 하나</span>
+      <code>canShowSidebarMenu()</code>의 호출부가 <strong>5곳뿐</strong>이고,
+      그중 하나가 라우트 가드 <code>MenuAccessGuard.svelte:25</code>다.
+      즉 <strong>이 함수 하나만 고치면 사이드바 표시와 URL 차단이 동시에</strong>
+      온톨로지를 따르게 된다 — 두 곳이 이미 같은 판정을 공유하도록 설계돼 있다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">14-2</span>확장된 정의 — 엔티티 블록 + capability 파생 메뉴</h3>
+
+  <div class="wrap">
+    <p>
+      <code>client</code>과 같은 형식으로 <code>member</code>·<code>center</code> 블록을 나란히 둔다.
+      <strong>메뉴는 별도로 선언하지 않고 capability에서 파생</strong>시킨다 —
+      이중 관리를 피하고, 「기능이 꺼지면 메뉴도 사라진다」를 구조로 보장하기 위해.
+    </p>
+  </div>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>확장된 OntologyDef — 전역</span>
+      <span class="tag">entities + capabilities</span>
+    </div>
+<pre>{
+  <span class="k">"org_type"</span>: <b>"school"</b>,
+
+  <i>// ── 공통 어휘 (전 화면) ────────────────────────</i>
+  <span class="k">"labels"</span>: {
+    "center": "학교", "client": "학생", "member": "상담교사", …
+  },
+
+  <i>// ── 능력 — 메뉴·필수·블록이 전부 여기서 파생 ──</i>
+  <span class="k">"capabilities"</span>: {
+    "billing":    <b>false</b>,   <i>// 청구 메뉴 · 프로그램 금액 필수</i>
+    "voucher":    <b>false</b>,   <i>// 바우처 메뉴 · 목록 컬럼 · 상세 블록</i>
+    "guardian":   <b>true</b>,    <i>// 보호자 블록 · 앱연결 · 등록폼 스텝</i>
+    "assessment": <b>true</b>     <i>// 검사 메뉴 · 진행현황 타일</i>
+  },
+
+  <i>// ── 엔티티별 블록 — 같은 형식의 반복 ──────────</i>
+  <span class="k">"entities"</span>: {
+    <span class="k">"client"</span>: {   <i>// 현재 구현됨 (§6·lab)</i>
+      "attributes": [ {"key":"grade","type":"int","label":"학년"}, … ],
+      "primary_axis": {"key":"grade","label":"학년별"},
+      "list_columns": ["name","grade_class","homeroom","status"],
+      "subline": ["birth_date","gender"],
+      "info_block": {"label":"학적 정보","fields":["grade_class","homeroom"]},
+      "progress_items": [{"key":"counseling","label":"상담"}, …]
+    },
+
+    <span class="k">"member"</span>: {   <i>// 신규 — §10에서 「dl 행 추가」로 확인된 것</i>
+      "attributes": [
+        {"key":"subject","type":"string","label":"담당 학년"},
+        {"key":"position","type":"enum","label":"직위",
+         "values":["전문상담교사","기간제","교원"]}
+      ],
+      <i>// 역할 어휘는 선언하지 않는다 — 서버 role 테이블이 이미 소유(§10)</i>
+      "list_columns": ["name","role","position","phone","status"],
+      "contact_slots": ["phone","email"],        <i>// 병원: ["department","license_no"]</i>
+      "info_block": {"label":"소속 정보","fields":["subject","position"]},
+      "metric_items": [
+        {"key":"clients","label":"담당 학생"},
+        {"key":"counseling","label":"상담"},
+        {"key":"assessment","label":"검사"}
+      ]
+    },
+
+    <span class="k">"center"</span>: {   <i>// 신규 — §11에서 「식별번호 교체」로 확인된 것</i>
+      <i>// 병원은 식별번호가 2개 → 4행 고정을 배열로 푼다(§11-1)</i>
+      "info_rows": [
+        {"key":"representative_name","label":"교장"},
+        {"key":"school_code","label":"표준학교코드"},
+        {"key":"address","label":"주소"},
+        {"key":"phone","label":"전화번호"}
+      ],
+      "stat_tiles": [
+        {"key":"members","label":"교직원","unit":"명","href":"/member"},
+        {"key":"clients","label":"학생","unit":"명","href":"/clients"},
+        {"key":"rooms","label":"상담실","unit":"개","href":"/center/room"},
+        {"key":"programs","label":"프로그램","unit":"개","href":"/center/program"}
+      ]
+    }
+  },
+
+  <span class="k">"relations"</span>: { "guardian": { "enabled": true, "kinds": [ … ] } }
+}</pre>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span class="note-label">메뉴를 선언하지 않는 이유</span>
+      <code>menus: [...]</code>를 따로 두면 <code>capabilities.voucher: false</code>인데
+      메뉴 배열엔 바우처가 남는 <strong>모순 상태가 가능</strong>해진다.
+      capability에서 파생시키면 그 상태가 애초에 표현 불가능하다.
+      메뉴 <em>라벨</em>은 <code>labels</code>에서, 메뉴 <em>존재</em>는 <code>capabilities</code>에서 —
+      둘 다 이미 있는 것을 재사용한다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">14-3</span>메뉴 파생 — capability → menuId</h3>
+
+  <div class="spec wide">
+    <div class="spec-head">
+      <span>canShowSidebarMenu 확장 — 4번째 축 추가</span>
+      <span class="tag">호출부 5곳 무수정</span>
+    </div>
+<pre><i>// 기능이 꺼지면 사라지는 메뉴 — 정의가 아니라 코드가 소유(축 매핑이므로)</i>
+<b>const MENU_REQUIRED_CAPABILITY: Partial&lt;Record&lt;SidebarMenuId, string&gt;&gt; = {
+  voucher:       'voucher',
+  voucherManage: 'voucher',
+  billing:       'billing',
+  assessment:    'assessment',
+  assessmentManage: 'assessment',
+}</b>
+
+<i>// 기존 함수에 4번째 파라미터만 추가 — 판정 순서는 블랙리스트 다음</i>
+export function canShowSidebarMenu(
+  menuId, permissions, role,
+  <b>capabilities?: Record&lt;string, boolean&gt;</b>
+): boolean {
+  if (role &amp;&amp; ROLE_EXCLUDED_MENUS[role]?.includes(menuId)) return false
+
+  <b>const cap = MENU_REQUIRED_CAPABILITY[menuId]
+  if (cap &amp;&amp; capabilities &amp;&amp; capabilities[cap] === false) return false</b>
+
+  const required = SIDEBAR_MENU_PERMISSIONS[menuId]
+  if (!required?.length) return true
+  if (permissions.includes('*')) return true
+  return required.some((p) =&gt; permissions.includes(p))
+}
+
+<i>// 호출부는 인자 하나만 더 넘긴다 (5곳):</i>
+<i>//   UnifiedSidebar :701 메뉴 · :713 서브메뉴 · :740 하단</i>
+<i>//   MenuAccessGuard :25  ← 이 한 곳이 URL 직접 접근까지 막는다</i>
+<i>//   center/+layout :33   문서 양식 탭</i></pre>
+  </div>
+
+  <div class="wrap">
+    <p>
+      데이터 소스는 <strong>새 스토어를 만들지 않고</strong>
+      <code>permissionStore.context</code>에 얹는다. 별도 스토어를 두면 로딩 타이밍이 어긋나
+      <em>메뉴가 깜빡였다 사라지는</em> 기존 문제(<code>permissionReady</code> 게이트가 막고 있는 것)를
+      다시 만들게 된다.
+    </p>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">14-4</span>실측에서 나온 함정 3개</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <thead>
+        <tr><th>함정</th><th>내용</th><th>대응</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead" style="color:var(--warn)">URL 미차단</td>
+          <td>라우트 가드가 <strong>4곳에만</strong> 있다 —
+              <code>center</code>·<code>billing</code>·<code>member</code>·<code>settings/vouchers</code>.
+              <code>/vouchers</code>·<code>/assessment</code>·<code>/counseling</code>엔 <strong>없다.</strong>
+              메뉴를 지워도 주소창에 치면 들어가진다.</td>
+          <td><code>(protected)/vouchers/+layout.svelte</code> 등
+              <strong>가드 레이아웃 신설 필요</strong></td>
+        </tr>
+        <tr style="background:var(--warn-wash)">
+          <td class="rowhead" style="color:var(--warn)">대시보드 별도축</td>
+          <td>「처리할 일」이 권한코드조차 안 보고
+              <code>accessLevel === 'all'</code> 하나로만 제어된다.
+              청구 메뉴를 꺼도 <strong>「미청구 N건」이 그대로 뜬다.</strong>
+              카테고리 키도 하드코딩 리터럴.</td>
+          <td>§11-2에서 이미 제기 —
+              <code>dashboard_tasks</code>를 capability로 필터</td>
+        </tr>
+        <tr>
+          <td class="rowhead">자동 평탄화</td>
+          <td>서브메뉴가 1개 이하로 줄면 부모가 <strong>소리 없이 단일 링크로 바뀐다</strong>
+              (<code>UnifiedSidebar:718-725</code>). 바우처는 자식이 2개라
+              <code>voucherManage</code>만 꺼도 형태가 변한다.</td>
+          <td>의도된 동작인지 확인 —
+              대부분의 경우 자연스러움</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note flag">
+      <span class="note-label">가장 위험한 것</span>
+      <strong>URL 미차단</strong>이다. 「학교에서는 바우처를 안 쓴다」고 메뉴를 지웠는데
+      실제로는 접근 가능하면, 그건 <em>숨긴 것이지 끈 것이 아니다.</em>
+      데이터가 없어 빈 화면이 뜨거나, 더 나쁘게는 다른 기관 개념의 UI가 그대로 노출된다.
+      capability로 메뉴를 끄는 작업은 <strong>가드 레이아웃 신설과 반드시 같이</strong> 가야 한다.
+    </div>
+  </div>
+
+  <h3 class="wrap"><span class="h3-tag">14-5</span>작업 단위</h3>
+
+  <div class="tbl-wrap wide">
+    <table>
+      <caption>전역 확장 — 독립적으로 진행 가능한 단위</caption>
+      <thead>
+        <tr><th>단위</th><th>내용</th><th>선행</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowhead">A. Client</td>
+          <td>현재 §8 1~3단계 그대로 — 목록 → attributes → 상세</td>
+          <td>—</td>
+        </tr>
+        <tr style="background:var(--school-wash)">
+          <td class="rowhead">B. 메뉴 게이팅 <span class="chip keep">구현됨</span></td>
+          <td><code>canShowSidebarMenu</code> 4번째 축 +
+              <code>centerStore.orgCapabilities</code> +
+              가드 레이아웃 3개 신설. <strong>§14-6 참조</strong></td>
+          <td>완료 (2026-08-12)</td>
+        </tr>
+        <tr>
+          <td class="rowhead">C. Member</td>
+          <td><code>entities.member</code> 블록.
+              §10에서 확인했듯 <strong>가장 쉽다</strong> —
+              <code>infoRows</code> 배열이 이미 열려 있고 역할은 서버 소유</td>
+          <td>A로 패턴 검증 후</td>
+        </tr>
+        <tr>
+          <td class="rowhead">D. Center</td>
+          <td><code>entities.center</code> 블록 —
+              <code>info_rows</code> 가변화(병원 이중 식별번호) + 통계 타일 라벨</td>
+          <td>A로 패턴 검증 후</td>
+        </tr>
+        <tr>
+          <td class="rowhead">E. 대시보드</td>
+          <td>「처리할 일」 capability 필터.
+              <strong>별도 축을 쓰고 있어 손이 제일 많이 간다</strong></td>
+          <td>B 이후</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrap">
+    <div class="note find">
+      <span class="note-label">순서에 대한 판단</span>
+      <strong>B(메뉴 게이팅)를 A(Client)보다 먼저 해도 된다</strong> — 서로 독립이고,
+      B는 「학교엔 바우처·청구가 없다」는 <em>가장 눈에 띄는 차이</em>를 만든다.
+      기관 확장을 이해관계자에게 보여줘야 한다면 B가 효과가 크다.
+      다만 B는 반드시 <strong>가드 레이아웃 신설과 한 묶음</strong>이어야 한다(§14-4).
+      C·D는 A로 패턴이 검증된 뒤에 하는 게 맞다 — 같은 형식의 반복이라
+      A에서 형식이 틀리면 세 배로 고쳐야 한다.
+    </div>
+
+    <h3><span class="h3-tag">14-6</span>B 구현 결과 (2026-08-12)</h3>
+
+    <p>
+      메뉴 게이팅을 실제로 배선했다. <strong>서버에 <code>org_type</code>이 아직 없으므로
+      기존 센터는 전부 기본값(심리센터)을 받아 동작 변화가 없다</strong> —
+      서버가 값을 내려주기 시작하면 그때부터 켜진다.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>변경 파일</caption>
+        <thead>
+          <tr><th>파일</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead"><code>config/org-capabilities.ts</code></td>
+            <td><span class="chip core">신규</span>
+                <code>OrgCapabilities</code> 4종(billing·voucher·assessment·guardian) +
+                기관별 기본값 + <code>resolveCapabilities()</code></td>
+          </tr>
+          <tr>
+            <td class="rowhead"><code>config/sidebar-permissions.ts</code></td>
+            <td><code>MENU_REQUIRED_CAPABILITY</code> 매핑 +
+                <code>canShowSidebarMenu()</code> 4번째 파라미터 +
+                <code>isMenuUnsupported()</code>(안내 문구 분기용)</td>
+          </tr>
+          <tr>
+            <td class="rowhead"><code>stores/center.store.ts</code></td>
+            <td><code>CenterSummary.org_type</code> 필드 +
+                <code>currentCenter</code>·<code>orgCapabilities</code> derived store</td>
+          </tr>
+          <tr>
+            <td class="rowhead"><code>UnifiedSidebar.svelte</code></td>
+            <td>호출부 3곳(메뉴·서브메뉴·하단)에 capabilities 전달</td>
+          </tr>
+          <tr>
+            <td class="rowhead"><code>MenuAccessGuard.svelte</code></td>
+            <td>같은 판정 함수에 capabilities 전달 →
+                <strong>URL 직접 접근도 함께 차단</strong>.
+                미지원 기능은 「이 기관에서는 사용하지 않는 기능이에요」로 문구 분기</td>
+          </tr>
+          <tr style="background:var(--common-wash)">
+            <td class="rowhead">가드 레이아웃 3개</td>
+            <td><span class="chip core">신규</span>
+                <code>vouchers/</code> · <code>assessment/</code> ·
+                <code>assessment-case/</code> —
+                <strong>§14-4에서 지적한 URL 구멍을 막았다</strong></td>
+          </tr>
+          <tr>
+            <td class="rowhead"><code>lab/ontology</code></td>
+            <td>「사이드바에 적용」 토글 — 서버 지원 전까지 실제 사이드바로 확인하는 수단(dev 전용)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>검증 결과 — 관리자(<code>*</code>) 기준</caption>
+        <thead>
+          <tr><th>기관</th><th>숨겨지는 메뉴</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--school-wash)">
+            <td class="rowhead"><code>org_type</code> 없음<br>(기존 센터)</td>
+            <td style="color:var(--ok)"><strong>없음 — 회귀 없음 확인</strong></td>
+          </tr>
+          <tr>
+            <td class="rowhead">심리센터</td>
+            <td style="color:var(--ok)">없음</td>
+          </tr>
+          <tr>
+            <td class="rowhead" style="color:var(--school)">학교</td>
+            <td>바우처 · 바우처 관리 · 청구</td>
+          </tr>
+          <tr>
+            <td class="rowhead" style="color:var(--military)">군대</td>
+            <td>바우처 · 바우처 관리 · 청구</td>
+          </tr>
+          <tr>
+            <td class="rowhead" style="color:var(--clinic)">병원</td>
+            <td>바우처 · 바우처 관리 <span style="color:var(--ink-soft)">(청구는 유지 — 급여청구)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note find">
+      <span class="note-label">설계상 지킨 것</span>
+      <strong>capability → 메뉴 매핑은 코드가 소유하고, 정의는 true/false만 갖는다.</strong>
+      「바우처 기능 = 바우처 메뉴」는 축의 정의이지 기관마다 달라지는 값이 아니기 때문이다.
+      기관을 추가할 때 손대는 곳은 <code>CAPABILITIES_BY_ORG</code>에 줄 하나뿐이고,
+      사이드바·가드 코드는 열지 않는다.
+    </div>
+
+    <div class="note flag">
+      <span class="note-label">남은 것 — 서버</span>
+      <code>centers.org_type</code> 컬럼과 로그인 응답 포함이 없으면 이 배선은 잠들어 있다.
+      백엔드 작업은 ⓐ 컬럼 추가(기본값 <code>counseling_center</code>) ⓑ
+      로그인/센터 목록 응답에 필드 포함 — 둘뿐이다.
+      그때까지는 lab의 「사이드바에 적용」 토글로 확인한다.
+      <br><br>
+      또한 <strong>대시보드(E)는 여전히 별도 축</strong>이다 — 청구 메뉴가 숨겨져도
+      「미청구 N건」 타일은 그대로 뜬다(§14-4).
+    </div>
+  </div>
+</section>

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mindscope-api-svc
+  namespace: mindscope-staging
+  labels:
+    app: mindscope-api
+spec:
+  selector:
+    app: mindscope-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대시보드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 50:'#f0f4f8', 100:'#d9e2ec', 200:'#bcccdc', 300:'#9fb3c8', 400:'#829ab1', 500:'#627d98', 600:'#486581', 700:'#334e68', 800:'#243b53', 900:'#102a43' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body class="bg-[#f8f9fb]">
+<div class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="flex h-screen w-[260px] flex-col bg-gray-900 text-gray-300 shrink-0">
+    <div class="flex h-[72px] items-center px-6">
+      <div class="flex items-center gap-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/></svg>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight text-white">마인드봄</span>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-4 pt-4">
+      <div class="space-y-1">
+        <a href="#" class="flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium bg-white/10 text-white">
+          <span class="flex w-6 items-center justify-center text-teal-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span>대시보드</span>
+        </a>
+        <a href="#" class="flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+          </span>
+          <span>검사 현황</span>
+        </a>
+        <a href="#" class="flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span>내담자</span>
+        </a>
+        <a href="#" class="flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="15" r="3"/><circle cx="9" cy="7" r="4"/><path d="M10 15H6a4 4 0 0 0-4 4v2"/></svg>
+          </span>
+          <span>직원 관리</span>
+        </a>
+        <a href="#" class="flex items-center gap-3.5 rounded-xl px-4 py-3 text-[15px] font-medium text-gray-400 hover:bg-white/5">
+          <span class="flex w-6 items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span>설정</span>
+        </a>
+      </div>
+    </nav>
+    <div class="border-t border-white/10 px-5 py-5">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500/20 text-teal-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="truncate text-sm font-semibold text-white">임상심리사님</p>
+          <p class="truncate text-xs text-gray-500">임상심리사</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <div class="p-10 max-w-[1400px]">
+
+      <!-- Header -->
+      <div class="mb-10">
+        <p class="text-sm font-medium text-gray-400 mb-1">2026년 4월 24일 목요일</p>
+        <h1 class="text-[32px] font-bold text-gray-900 tracking-tight">좋은 오후예요, 임상심리사님</h1>
+      </div>
+
+      <!-- Metric Cards -->
+      <div class="mb-8 grid grid-cols-4 gap-5">
+        <div class="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-2.5 w-2.5 rounded-full bg-gray-900"></div>
+            <span class="text-sm font-medium text-gray-500">전체 검사</span>
+          </div>
+          <p class="text-[42px] font-extrabold text-gray-900 leading-none">18</p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-2.5 w-2.5 rounded-full bg-blue-500"></div>
+            <span class="text-sm font-medium text-gray-500">진행중</span>
+          </div>
+          <p class="text-[42px] font-extrabold text-blue-600 leading-none">3</p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-amber-200 ring-1 ring-amber-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-2.5 w-2.5 rounded-full bg-amber-500"></div>
+            <span class="text-sm font-semibold text-amber-700">검토 필요</span>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <p class="text-[42px] font-extrabold text-amber-600 leading-none">3</p>
+            <a href="#" class="text-sm font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2 decoration-amber-300">바로가기 →</a>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-2.5 w-2.5 rounded-full bg-green-500"></div>
+            <span class="text-sm font-medium text-gray-500">완료</span>
+          </div>
+          <p class="text-[42px] font-extrabold text-gray-900 leading-none">12</p>
+        </div>
+      </div>
+
+      <!-- Two Column: Chart + Action Items -->
+      <div class="grid grid-cols-5 gap-6">
+
+        <!-- Chart Area (3/5) -->
+        <div class="col-span-3 rounded-2xl bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">월간 검사 추이</h2>
+              <p class="mt-1 text-sm text-gray-400">최근 6개월</p>
+            </div>
+            <div class="flex items-center gap-5 text-xs font-medium">
+              <div class="flex items-center gap-1.5">
+                <span class="h-2.5 w-6 rounded-full bg-gray-900"></span>
+                <span class="text-gray-500">전체</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="h-2.5 w-6 rounded-full bg-green-400"></span>
+                <span class="text-gray-500">완료</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SVG Chart -->
+          <div class="relative" style="height: 260px">
+            <!-- Grid lines -->
+            <svg width="100%" height="260" class="absolute inset-0">
+              <!-- Horizontal grid -->
+              <line x1="40" y1="20" x2="100%" y2="20" stroke="#f1f5f9" stroke-width="1"/>
+              <line x1="40" y1="80" x2="100%" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+              <line x1="40" y1="140" x2="100%" y2="140" stroke="#f1f5f9" stroke-width="1"/>
+              <line x1="40" y1="200" x2="100%" y2="200" stroke="#f1f5f9" stroke-width="1"/>
+
+              <!-- Y-axis labels -->
+              <text x="30" y="24" text-anchor="end" fill="#94a3b8" font-size="12">20</text>
+              <text x="30" y="84" text-anchor="end" fill="#94a3b8" font-size="12">15</text>
+              <text x="30" y="144" text-anchor="end" fill="#94a3b8" font-size="12">10</text>
+              <text x="30" y="204" text-anchor="end" fill="#94a3b8" font-size="12">5</text>
+              <text x="30" y="244" text-anchor="end" fill="#94a3b8" font-size="12">0</text>
+
+              <!-- Total line (dark) -->
+              <polyline
+                points="80,200 180,170 280,140 380,110 480,90 580,56"
+                fill="none"
+                stroke="#111827"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <!-- Total dots -->
+              <circle cx="80" cy="200" r="5" fill="#111827"/>
+              <circle cx="180" cy="170" r="5" fill="#111827"/>
+              <circle cx="280" cy="140" r="5" fill="#111827"/>
+              <circle cx="380" cy="110" r="5" fill="#111827"/>
+              <circle cx="480" cy="90" r="5" fill="#111827"/>
+              <circle cx="580" cy="56" r="6" fill="#111827" stroke="white" stroke-width="3"/>
+
+              <!-- Completed area (green) -->
+              <path
+                d="M80,230 L180,210 L280,180 L380,150 L480,130 L580,100 L580,240 L80,240 Z"
+                fill="url(#greenGradient)"
+                opacity="0.15"
+              />
+              <!-- Completed line (green) -->
+              <polyline
+                points="80,230 180,210 280,180 380,150 480,130 580,100"
+                fill="none"
+                stroke="#4ade80"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="80" cy="230" r="4" fill="#4ade80"/>
+              <circle cx="180" cy="210" r="4" fill="#4ade80"/>
+              <circle cx="280" cy="180" r="4" fill="#4ade80"/>
+              <circle cx="380" cy="150" r="4" fill="#4ade80"/>
+              <circle cx="480" cy="130" r="4" fill="#4ade80"/>
+              <circle cx="580" cy="100" r="5" fill="#4ade80" stroke="white" stroke-width="3"/>
+
+              <!-- Current month highlight -->
+              <line x1="580" y1="20" x2="580" y2="240" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4"/>
+
+              <!-- X-axis labels -->
+              <text x="80" y="258" text-anchor="middle" fill="#94a3b8" font-size="12">11월</text>
+              <text x="180" y="258" text-anchor="middle" fill="#94a3b8" font-size="12">12월</text>
+              <text x="280" y="258" text-anchor="middle" fill="#94a3b8" font-size="12">1월</text>
+              <text x="380" y="258" text-anchor="middle" fill="#94a3b8" font-size="12">2월</text>
+              <text x="480" y="258" text-anchor="middle" fill="#94a3b8" font-size="12">3월</text>
+              <text x="580" y="258" text-anchor="middle" fill="#111827" font-size="12" font-weight="700">4월</text>
+
+              <defs>
+                <linearGradient id="greenGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4ade80"/>
+                  <stop offset="100%" stop-color="#4ade80" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right Column (2/5) -->
+        <div class="col-span-2 space-y-6">
+
+          <!-- Action Items -->
+          <div class="rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+            <div class="px-7 py-5 border-b border-gray-100">
+              <h2 class="text-lg font-bold text-gray-900">내 할 일</h2>
+            </div>
+            <div class="divide-y divide-gray-50">
+              <!-- Item -->
+              <a href="#" class="flex items-center gap-4 px-7 py-5 hover:bg-gray-50/70 transition-colors group">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 text-amber-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[15px] font-semibold text-gray-900">김민서 · 로샤 검토</p>
+                  <p class="text-sm text-gray-400">AI 초안 완료 · 12분 전</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" class="shrink-0 group-hover:stroke-gray-500 transition-colors"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+
+              <a href="#" class="flex items-center gap-4 px-7 py-5 hover:bg-gray-50/70 transition-colors group">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 text-amber-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[15px] font-semibold text-gray-900">최하윤 · HTP 검토</p>
+                  <p class="text-sm text-gray-400">AI 초안 완료 · 2시간 전</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" class="shrink-0 group-hover:stroke-gray-500 transition-colors"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+
+              <a href="#" class="flex items-center gap-4 px-7 py-5 hover:bg-gray-50/70 transition-colors group">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-100 text-purple-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[15px] font-semibold text-gray-900">이영희 · HTP</p>
+                  <p class="text-sm text-gray-400">AI 분석중 · 잠시만 기다려주세요</p>
+                </div>
+                <div class="h-5 w-5 rounded-full border-2 border-purple-400 border-t-transparent animate-spin shrink-0"></div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Exam Type Breakdown -->
+          <div class="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">검사 유형별</h3>
+            <div class="space-y-5">
+              <div>
+                <div class="flex items-center justify-between mb-2.5">
+                  <span class="text-sm font-medium text-gray-700">🏠 HTP</span>
+                  <span class="text-sm font-bold text-gray-900">8건</span>
+                </div>
+                <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div class="h-full rounded-full bg-blue-500 transition-all" style="width: 44%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2.5">
+                  <span class="text-sm font-medium text-gray-700">🦋 로샤</span>
+                  <span class="text-sm font-bold text-gray-900">6건</span>
+                </div>
+                <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div class="h-full rounded-full bg-orange-400 transition-all" style="width: 33%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2.5">
+                  <span class="text-sm font-medium text-gray-700">✏️ SCT</span>
+                  <span class="text-sm font-bold text-gray-900">4건</span>
+                </div>
+                <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div class="h-full rounded-full bg-purple-400 transition-all" style="width: 22%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

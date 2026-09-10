@@ -1,0 +1,14 @@
+{
+  "name": "planning-workspace",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "build": "vite build",
+    "test": "vitest run --config vitest.config.ts"
+  }
+}

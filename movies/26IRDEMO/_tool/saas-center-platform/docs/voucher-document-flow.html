@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voucher 문서 흐름 설계</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'sans-serif'],
+        },
+      },
+    },
+    // 동적 주입 색상 클래스 보호 (blue=voucher, yellow=document, orange=global document, slate=보조)
+    safelist: [
+      'bg-blue-50', 'ring-blue-200', 'text-blue-600',
+      'bg-yellow-50', 'ring-yellow-200', 'text-yellow-600',
+      'bg-orange-50', 'ring-orange-200', 'text-orange-600', 'bg-orange-100', 'text-orange-700',
+      'bg-slate-100', 'ring-slate-200', 'text-slate-600', 'text-slate-500', 'text-slate-400',
+      'bg-amber-100', 'text-amber-700', 'bg-sky-100', 'text-sky-700', 'bg-violet-100', 'text-violet-700',
+      'bg-emerald-100', 'text-emerald-700', 'bg-blue-100', 'text-blue-700',
+      'bg-rose-100', 'text-rose-700',
+    ],
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  [id] { scroll-margin-top: 5rem; }
+  /* 2차원 도식 캔버스 — 점 그리드 배경으로 "공간" 표현 */
+  .canvas {
+    background-image: radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- ===== Top nav ===== -->
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+      <div class="flex items-center gap-2 font-semibold text-slate-900">
+        <span class="text-blue-600" id="brand-icon"></span>
+        Voucher 문서 흐름 <span class="font-normal text-slate-300">/ 설계</span>
+      </div>
+      <nav id="nav" class="flex items-center gap-1 text-sm"></nav>
+    </div>
+  </header>
+
+  <main id="app" class="mx-auto max-w-5xl space-y-16 px-6 py-12"></main>
+
+<script>
+/* =========================================================================
+   1) ICON REGISTRY (Heroicons outline 24) — icon(name, cls) 로 재사용
+   ========================================================================= */
+const ICONS = {
+  'ticket':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />',
+  'document-text':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+  'globe-alt':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />',
+  'computer-desktop':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />',
+  'server-stack':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />',
+  'document-arrow-up':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+  'cloud-arrow-up':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />',
+  'arrow-long-right':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />',
+  'arrow-down':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />',
+  'link':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />',
+  'sparkles':
+    '<path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />',
+};
+function icon(name, cls = 'w-6 h-6') {
+  return `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+}
+
+/* =========================================================================
+   2) NODES — 모든 요소 정의 (아이콘 + 이름만). 새 요소는 여기에 한 줄 추가.
+   accent: blue=voucher, yellow=document, orange=global document, slate=보조
+   ========================================================================= */
+const BLUE   = { bg: 'bg-blue-50',   ring: 'ring-blue-200',   text: 'text-blue-600' };
+const YELLOW = { bg: 'bg-yellow-50', ring: 'ring-yellow-200', text: 'text-yellow-600' };
+const ORANGE = { bg: 'bg-orange-50', ring: 'ring-orange-200', text: 'text-orange-600' };
+const SLATE  = { bg: 'bg-slate-100', ring: 'ring-slate-200',  text: 'text-slate-600' };
+
+// kind: 'domain' = 둥근 박스(색상 칩) / 'aux' = 박스 없는 단순 아이콘
+const NODES = {
+  voucher:         { name: 'Voucher',         iconName: 'ticket',           accent: BLUE,   kind: 'domain' },
+  document:        { name: 'Document',        iconName: 'document-text',    accent: YELLOW, kind: 'domain' },
+  global_document: { name: 'Global Document', iconName: 'globe-alt',        accent: ORANGE, kind: 'domain' },
+  admin:           { name: '관리자',           iconName: 'computer-desktop', accent: SLATE,  kind: 'aux' },
+  server:          { name: '서버',             iconName: 'server-stack',     accent: SLATE,  kind: 'aux' },
+  origin_file:     { name: 'Origin File',     iconName: 'document-arrow-up', accent: SLATE,  kind: 'aux' },
+};
+
+/* =========================================================================
+   3) TILE — 재사용 단위: 아이콘 + 하단 이름.  Guide·시나리오에서 동일하게 사용.
+   ========================================================================= */
+function tile(node, tag) {
+  const a = node.accent;
+  // 아이콘 영역(h-16 w-16)·전체 폭(w-24)은 kind 무관 동일 → Guide(상단)와 Scenario(하단) 크기 일치.
+  const iconArea = node.kind === 'domain'
+    ? `<div class="flex h-16 w-16 items-center justify-center rounded-2xl ${a.bg} ${a.text} ring-1 ${a.ring}">${icon(node.iconName, 'w-8 h-8')}</div>`
+    : `<div class="flex h-16 w-16 items-center justify-center ${a.text}">${icon(node.iconName, 'w-10 h-10')}</div>`;
+  return `
+    <figure class="flex w-24 flex-col items-center gap-2">
+      ${iconArea}
+      <figcaption class="text-center text-sm font-medium text-slate-700">${node.name}</figcaption>
+      ${tag ? `<span class="rounded-full bg-orange-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-orange-700">${tag}</span>` : ''}
+    </figure>`;
+}
+
+// 노드 사이 화살표 (md: → / mobile: ↓). 아이콘 영역(h-16)에 수직 중앙 정렬.
+function arrow(label) {
+  return `
+    <div class="flex flex-col items-center justify-center gap-1 px-1 md:h-16">
+      ${label ? `<span class="text-xs font-semibold text-blue-600">${label}</span>` : ''}
+      <span class="text-slate-300">
+        <span class="hidden md:inline">${icon('arrow-long-right', 'w-10 h-10')}</span>
+        <span class="md:hidden">${icon('arrow-down', 'w-6 h-6')}</span>
+      </span>
+    </div>`;
+}
+
+function frameTab(text) {
+  return `<div class="absolute -top-3 left-5 rounded-md border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-500">${text}</div>`;
+}
+
+/* =========================================================================
+   4) SECTIONS
+   ========================================================================= */
+function renderGuide() {
+  return `
+  <section id="guide">
+    <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-8 py-12">
+      ${frameTab('Guide')}
+      <div class="flex flex-wrap items-start justify-center gap-x-10 gap-y-8">
+        ${Object.values(NODES).map((n) => tile(n)).join('')}
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderScenario1() {
+  return `
+  <section id="scenario-1">
+    <h2 class="mb-4 text-lg font-bold text-slate-900">
+      <span class="text-blue-600">Scenario 1.</span> Voucher 사업 안내 문서 업로드
+    </h2>
+    <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-6 py-12">
+      ${frameTab('Scenario 1')}
+      <div class="flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-1">
+        ${tile(NODES.admin)}
+        ${arrow('선택')}
+        ${tile(NODES.origin_file)}
+        ${arrow('업로드')}
+        ${tile(NODES.server)}
+        ${arrow('등록')}
+        ${tile(NODES.global_document, 'tenant 없음')}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   4.4) FLOW — 업로드 → 추출 → 확정 → 서빙 (end-to-end 파이프라인)
+   ========================================================================= */
+const FLOW_STEPS = [
+  {
+    n: 1, title: '업로드 → 변환 시작', badge: 'POST /voucher-extractions (multipart) → 202',
+    body: '관리자가 자료(PDF + 확장자 변형 N개)를 업로드 → <b>global_documents</b> N개 생성 + <b>voucher_extractions</b> 1건(status=<b>started</b>, started_at=now, document_ids=[전 변형]) + batch 워커 디스패치. voucher 와는 아직 무관.',
+  },
+  {
+    n: 2, title: '변환·추출 (비동기 워커)', badge: 'status: started → completed / failed',
+    body: '워커가 PDF→MD→voucher 후보 추출. 가공 MD 는 새 <b>global_document</b> 로 저장되어 document_ids 에 append. 성공: status=<b>completed</b>, completed_at 기록, 결과를 <b>completed</b> 컬럼({type, vouchers:[…]})에. 실패: status=<b>failed</b>, failed_at 기록, 사유를 <b>failed</b> 컬럼에. 프론트는 status 폴링. latency = completed_at − started_at.',
+  },
+  {
+    n: 3, title: '검토 (화면 전용 편집)', badge: 'GET /voucher-extractions/{id}',
+    body: '후보 목록(completed.vouchers)을 폼에 미리 채워 보여줌. 사용자는 <b>브라우저에서</b> 필드를 정정 — 서버에 후보별 저장 안 함(completed 는 읽기 전용). 조회 시 (name·year·org) 매칭으로 "이미 카탈로그에 있는 후보" 표시 가능.',
+  },
+  {
+    n: 4, title: '확정', badge: 'POST /voucher-extractions/{id}/confirm',
+    body: 'body = { vouchers:[<b>편집된 payload</b> + page_range + forms] } — 서버는 화면 편집 결과를 그대로 받는다. 각 후보 → <b>Voucher</b> upsert((name, program_year, program_organization) 멱등) + document_ids <b>전체(PDF·HWPX·MD 포함)</b>를 <b>voucher_documents</b> 로 링크(page_range 포함) + 임베드 서식 → <b>voucher_forms</b>(PDF global_document 에서 페이지 PNG 렌더). voucher_extractions 는 <b>completed 유지</b>(이력·재검토용).',
+  },
+  {
+    n: 5, title: '센터 서빙', badge: 'GET /center-vouchers/{id}/documents · /forms',
+    body: 'center_voucher → catalog voucher → <b>voucher_documents</b> → <b>global_documents.storage_path</b> 로 자료를 presigned URL 제공(확장자 선택). <b>MD 등 내부 산출물은 file_type 필터로 제외</b> — 센터엔 원본(PDF/HWPX)만 노출. voucher_forms 는 pages PNG presigned. (voucher_file / voucher_file_link 경로에서 마이그레이션)',
+  },
+];
+
+function flowStep(s) {
+  return `
+    <div class="flex gap-4">
+      <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 font-mono text-sm font-bold text-blue-600 ring-1 ring-blue-200">${s.n}</div>
+      <div class="flex-1 pb-6">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-semibold text-slate-900">${s.title}</span>
+          <span class="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-500">${s.badge}</span>
+        </div>
+        <p class="mt-1.5 text-sm leading-relaxed text-slate-600">${s.body}</p>
+      </div>
+    </div>`;
+}
+
+function renderFlow() {
+  return `
+  <section id="flow">
+    <h2 class="mb-4 text-lg font-bold text-slate-900">
+      <span class="text-blue-600">Flow.</span> 업로드 → 추출 → 확정 → 서빙
+    </h2>
+    <div class="canvas relative rounded-2xl border border-slate-200 bg-white px-6 py-8">
+      ${frameTab('Flow')}
+      <div class="relative">
+        <div class="absolute bottom-6 left-4 top-2 w-px bg-slate-200"></div>
+        ${FLOW_STEPS.map(flowStep).join('')}
+      </div>
+    </div>
+    <p class="mt-3 text-xs text-slate-400">확정 규약: confirm 은 <b>편집된 voucher payload 배열</b>을 받아 처리(편집은 화면 전용, 서버는 결과만 신뢰). voucher_extractions 는 확정 후에도 <b>completed 로 유지</b>(이력·재검토).</p>
+  </section>`;
+}
+
+/* =========================================================================
+   4.5) TABLES — 각 테이블 필드 (Scenario 위 스키마 참조)
+   새 컬럼은 col() 한 줄, 새 테이블은 TABLES 항목 추가로 확장.
+   ========================================================================= */
+function col(name, type, o = {}) { return { name, type, ...o }; }
+
+const TABLES = [
+  {
+    name: 'global_documents', iconName: 'globe-alt', accent: ORANGE, owner: 'document 모듈', badge: '신규',
+    note: '기존 documents 와 동일 형태(access_level·center_id 제외) — tenant 없음. 확장자 변형 묶음은 이 테이블이 아니라 사용처(voucher 는 voucher_extractions.document_ids)가 관리 — group_code 없음.',
+    fields: [
+      col('id', 'UUID', { pk: 1 }),
+      col('uploader_id', 'String(36)', { nullable: 1 }),
+      col('name', 'String(255)'),
+      col('original_name', 'String(255)', { nullable: 1 }),
+      col('description', 'Text', { nullable: 1 }),
+      col('storage_path', 'String(512)', { uq: 1 }),
+      col('file_type', 'String(100)', { note: 'pdf·hwpx·md ...' }),
+      col('file_size', 'BigInteger'),
+      col('checksum', 'String(64)', { nullable: 1, note: 'SHA-256 (가능 시)' }),
+      col('created_at', 'DateTime', { base: 1 }),
+      col('updated_at', 'DateTime', { base: 1 }),
+      col('deleted_at', 'DateTime', { base: 1, nullable: 1 }),
+    ],
+  },
+  {
+    name: 'voucher_extractions', iconName: 'sparkles', accent: SLATE, owner: 'voucher', badge: '재정의',
+    note: '문서 변환 → 초안(voucher 후보) 제안까지의 과정 1건 = 1 row (구 voucher_drafts). voucher와 무관(confirmed_voucher_id·kind·file_id 없음). 상태별 _at 기록으로 latency 측정. 후보 편집은 화면 전용이라 서버 후보별 영속화·마커 없음.',
+    fields: [
+      col('id', 'UUID', { pk: 1 }),
+      col('status', 'String(20)', { note: 'started · completed · failed' }),
+      col('started_at', 'DateTime', { note: '변환 시작 (NOT NULL)' }),
+      col('completed_at', 'DateTime', { nullable: 1, note: 'latency = completed_at − started_at' }),
+      col('failed_at', 'DateTime', { nullable: 1 }),
+      col('document_ids', 'JSONB', { note: '입력 global_document 전 변형(pdf·hwpx·md)' }),
+      col('completed', 'JSONB', { nullable: 1, note: '성공 결과 {type, vouchers:[후보…]} (구 data)' }),
+      col('failed', 'Text', { nullable: 1, note: '실패 사유 (구 error)' }),
+      col('created_at', 'DateTime', { base: 1 }),
+      col('updated_at', 'DateTime', { base: 1 }),
+      col('deleted_at', 'DateTime', { base: 1, nullable: 1 }),
+    ],
+  },
+  {
+    name: 'voucher_documents', iconName: 'link', accent: SLATE, owner: 'voucher', badge: '신규',
+    note: 'UNIQUE (voucher_id, global_document_id) · 확정(confirm) 시 생성되는 영속 링크(extraction 과 독립). voucher_extractions.document_ids 전체(PDF·HWPX·가공 MD 포함)를 연결 — voucher 가 원본+가공물을 완전하게 보유. 센터 서빙 단계에서만 MD 등 내부 산출물을 file_type 으로 필터해 노출 제외. voucher_file_links 대체.',
+    fields: [
+      col('id', 'UUID', { pk: 1 }),
+      col('voucher_id', 'String(36)', { fk: 'vouchers' }),
+      col('global_document_id', 'String(36)', { fk: 'global_documents' }),
+      col('page_range', 'INT4RANGE', { nullable: 1, note: '자료 내 페이지' }),
+      col('created_at', 'DateTime', { base: 1 }),
+    ],
+  },
+  {
+    name: 'vouchers', iconName: 'ticket', accent: BLUE, owner: 'voucher', badge: '기존',
+    note: '카탈로그(기존 모델). 단독 또는 voucher_documents 연결로 생성.',
+    fields: [
+      col('id', 'UUID', { pk: 1 }),
+      col('name', 'String(255)'),
+      col('program_name', 'String(255)'),
+      col('program_organization', 'String(255)'),
+      col('program_year', 'Integer'),
+      col('support_amount', 'JSONB', { nullable: 1, note: '지원금 구조' }),
+      col('support_target', 'Text', { nullable: 1 }),
+      col('contact', 'Text', { nullable: 1 }),
+      col('+ 사용/신청 기간 · support_scope (기존 그대로)', '', { ellipsis: 1 }),
+    ],
+  },
+  {
+    name: 'voucher_forms', iconName: 'document-text', accent: SLATE, owner: 'voucher', badge: '재정의',
+    note: '부속 서식(이용신청서·동의서 등). file_id → global_document_id 재연결(voucher_files 제거). confirm 시 PDF global_document 에서 페이지 PNG 렌더 → pages.',
+    fields: [
+      col('id', 'UUID', { pk: 1 }),
+      col('voucher_id', 'String(36)', { fk: 'vouchers' }),
+      col('global_document_id', 'String(36)', { fk: 'global_documents', note: '원본 PDF (구 file_id)' }),
+      col('name', 'String(255)'),
+      col('page_range', 'INT4RANGE', { nullable: 1 }),
+      col('note', 'Text', { nullable: 1 }),
+      col('pages', 'JSONB', { nullable: 1, note: '페이지 PNG S3 경로 목록' }),
+      col('created_at', 'DateTime', { base: 1 }),
+      col('updated_at', 'DateTime', { base: 1 }),
+      col('deleted_at', 'DateTime', { base: 1, nullable: 1 }),
+    ],
+  },
+  {
+    name: 'voucher_files', iconName: 'document-text', accent: SLATE, owner: 'voucher', badge: '제거', deferred: 1,
+    note: 'global_documents 로 대체 — 모델/모듈 제거.',
+    fields: [col('→ global_documents', '', { ellipsis: 1 })],
+  },
+  {
+    name: 'voucher_file_links', iconName: 'link', accent: SLATE, owner: 'voucher', badge: '제거', deferred: 1,
+    note: 'voucher_documents 로 대체 — 모델/모듈 제거.',
+    fields: [col('→ voucher_documents', '', { ellipsis: 1 })],
+  },
+];
+
+function badge(text, cls) {
+  return `<span class="rounded ${cls} px-1 py-px text-[9.5px] font-bold leading-none">${text}</span>`;
+}
+function tableBadge(label) {
+  const map = {
+    '신규': 'bg-emerald-100 text-emerald-700',
+    '재정의': 'bg-blue-100 text-blue-700',
+    '기존': 'bg-slate-100 text-slate-500',
+    '추후': 'bg-slate-100 text-slate-400',
+    '제거': 'bg-rose-100 text-rose-700',
+  };
+  return `<span class="rounded-md ${map[label] || 'bg-slate-100 text-slate-500'} px-1.5 py-0.5 text-[10px] font-semibold">${label}</span>`;
+}
+function fieldRow(f) {
+  if (f.ellipsis) return `<div class="px-4 py-1.5 text-[11px] text-slate-400">${f.name}</div>`;
+  let b = '';
+  if (f.pk) b += badge('PK', 'bg-amber-100 text-amber-700');
+  if (f.fk) b += badge('FK→' + f.fk, 'bg-sky-100 text-sky-700');
+  if (f.uq) b += badge('UQ', 'bg-violet-100 text-violet-700');
+  if (f.nullable) b += badge('NULL', 'bg-slate-100 text-slate-400');
+  const muted = f.base ? 'text-slate-400' : 'text-slate-700';
+  return `
+    <div class="flex items-center gap-1.5 px-4 py-1.5">
+      <span class="font-mono text-[12.5px] ${muted}">${f.name}</span>
+      ${b}
+      ${f.note ? `<span class="truncate text-[11px] text-slate-400">${f.note}</span>` : ''}
+      <span class="ml-auto shrink-0 font-mono text-[11px] text-slate-400">${f.type}</span>
+    </div>`;
+}
+function tableCard(t) {
+  const a = t.accent;
+  return `
+    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white ${t.deferred ? 'opacity-60' : ''}">
+      <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50/60 px-3 py-2">
+        <span class="flex h-7 w-7 items-center justify-center rounded-lg ${a.bg} ${a.text} ring-1 ${a.ring}">${icon(t.iconName, 'w-4 h-4')}</span>
+        <span class="font-mono text-sm font-semibold text-slate-800">${t.name}</span>
+        ${t.badge ? tableBadge(t.badge) : ''}
+        <span class="ml-auto text-[11px] text-slate-400">${t.owner}</span>
+      </div>
+      <div class="divide-y divide-slate-100">
+        ${t.fields.map(fieldRow).join('')}
+      </div>
+      ${t.note ? `<div class="border-t border-slate-200 bg-slate-50/60 px-4 py-2 text-[11px] leading-relaxed text-slate-500">${t.note}</div>` : ''}
+    </div>`;
+}
+function renderTables() {
+  return `
+  <section id="tables">
+    <h2 class="mb-4 text-lg font-bold text-slate-900">
+      <span class="text-blue-600">Tables.</span> 스키마
+    </h2>
+    <div class="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+      ${TABLES.map(tableCard).join('')}
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   5) MOUNT
+   ========================================================================= */
+const SECTIONS = [
+  { id: 'guide', label: 'Guide', render: renderGuide },
+  { id: 'tables', label: 'Tables', render: renderTables },
+  { id: 'flow', label: 'Flow', render: renderFlow },
+  { id: 'scenario-1', label: 'Scenario 1', render: renderScenario1 },
+];
+
+document.getElementById('brand-icon').innerHTML = icon('cloud-arrow-up', 'w-5 h-5');
+document.getElementById('nav').innerHTML = SECTIONS.map((s) =>
+  `<a href="#${s.id}" class="rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">${s.label}</a>`
+).join('');
+document.getElementById('app').innerHTML = SECTIONS.map((s) => s.render()).join('');
+</script>
+</body>
+</html>

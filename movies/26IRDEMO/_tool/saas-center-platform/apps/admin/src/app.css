@@ -1,0 +1,868 @@
+@import 'tailwindcss';
+
+button {
+  cursor: pointer;
+}
+
+@theme {
+  /* Primary */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary: #4f46e5;
+
+  /* Semantic */
+  --color-semantic-negative: #e83328;
+  --color-semantic-warning: #f47500;
+  --color-semantic-success: #017750;
+  --color-semantic-info: #0176d0;
+
+  /* Status */
+  --color-status-red: #e20808;
+  --color-status-orange: #f47500;
+  --color-status-yellow: #fecb01;
+  --color-status-green: #017750;
+  --color-status-blue: #0176d0;
+  --color-status-gray: #717171;
+
+  /* Spacing */
+  --spacing-4\.5: 1.125rem;
+  --spacing-7\.5: 1.875rem;
+  --spacing-18: 4.5rem;
+  --spacing-sidebar: 240px;
+  --spacing-sidebar-collapsed: 72px;
+
+  /* Border Radius */
+  --radius-norm: 10px;
+
+  /* Shadows */
+  --shadow-card: 0px 4px 12px 0px rgba(200, 200, 200, 0.1);
+
+  /* Font */
+  --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Helvetica Neue', Arial,
+    sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+/* 사이드바 상태 기반 스타일 */
+html[data-sidebar-collapsed='true'] .sidebar-label {
+  display: none !important;
+}
+
+@layer utilities {
+  /* Font Family */
+  .font-pretendard {
+    font-family: var(--font-sans);
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .section-border {
+    @apply rounded-2xl border border-gray-200 bg-[#FDFDFD];
+    box-shadow: 0px 4px 12px 0px #c8c8c81a;
+  }
+
+  .prevent-drag {
+    pointer: cursor;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .temp-hidden {
+    visibility: hidden;
+  }
+
+  .temp-none {
+    display: none;
+  }
+
+  /* =============================================
+	   Typography System - Pretendard
+	   Based on Design System Specification
+	   All letter-spacing: -0.41px
+	   ============================================= */
+
+  /* Display_01 - 44px */
+  .text-display-01-normal-bold {
+    font-size: 44px;
+    line-height: 44px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Display_02 - 32px */
+  .text-display-02-reading-bold {
+    font-size: 32px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Headline_00 - 28px */
+  .text-headline-00-normal-medium {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-00-normal-bold {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Headline_01 - 24px */
+  .text-headline-01-normal-regular {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-headline-01-normal-medium {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-01-normal-semibold {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-headline-01-normal-bold {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-01-reading-bold {
+    font-size: 24px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-01-reading-semibold {
+    font-size: 24px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Headline_02 - 20px */
+  .text-headline-02-normal-regular {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-headline-02-normal-medium {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-02-normal-semibold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-headline-02-normal-bold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-02-reading-semibold {
+    font-size: 20px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-headline-02-reading-bold {
+    font-size: 20px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Title_01 - 18px */
+  .text-title-01-normal-regular {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-title-01-normal-medium {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-title-01-normal-semibold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-title-01-normal-bold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-title-01-reading-regular {
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-title-01-reading-semibold {
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_01 - 16px */
+  .text-body-01-normal-regular {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-01-normal-medium {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-01-normal-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-01-normal-bold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-body-01-reading-regular {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-01-reading-semibold {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_02 - 15px */
+  .text-body-02-normal-regular {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-02-normal-medium {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-02-normal-semibold {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-02-reading-regular {
+    font-size: 15px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-02-reading-semibold {
+    font-size: 15px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Body_03 - 14px */
+  .text-body-03-normal-regular {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-03-normal-medium {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-03-normal-semibold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-03-normal-bold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-body-03-reading-regular {
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-03-reading-semibold {
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  /* Label_01 - 13px */
+  .text-label-01-normal-regular {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-01-normal-medium {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-label-01-normal-bold {
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Label_02 - 12px */
+  .text-label-02-normal-regular {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-02-normal-medium {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-label-02-normal-bold {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Caption_01 - 10px */
+  .text-caption-01-normal-regular {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-caption-01-normal-medium {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-caption-01-normal-bold {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* Caption_02 - 8px */
+  .text-caption-02-normal-regular {
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-caption-02-normal-medium {
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-caption-02-normal-bold {
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  /* =============================================
+	   Legacy Aliases (typo: nomal → normal)
+	   ============================================= */
+
+  .text-display-nomal-bold {
+    font-size: 44px;
+    line-height: 44px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-main-01-reading-bold {
+    font-size: 32px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-00-nomal-medium {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-00-nomal-bold {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-01-nomal-regular {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-headline-01-nomal-medium {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-01-nomal-bold {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-02-nomal-medium {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-02-nomal-semibold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-headline-02-nomal-bold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-title-01-nomal-medium {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-title-01-nomal-semibold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-title-02-nomal-regular {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-title-02-nomal-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-01-nomal-medium {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-01-nomal-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-01-nomal-bold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-body-02-nomal-regular {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-02-nomal-medium {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-02-nomal-semibold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-03-nomal-regular {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-03-nomal-medium {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-03-reading-regular {
+    font-size: 12px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-01-nomal-regular {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-01-nomal-semibold {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-label-01-reading-medium {
+    font-size: 10px;
+    line-height: 90%;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-label-02-reading-medium {
+    font-size: 8px;
+    line-height: 90%;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  /* =============================================
+	   Legacy Aliases (for backward compatibility)
+	   ============================================= */
+
+  .text-headline-01,
+  .text-headline-01-bold {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-headline-01-medium {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-headline-02,
+  .text-headline-02-semibold {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-headline-02-medium {
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-title-01,
+  .text-title-01-semibold {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-title-01-medium {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-title-02,
+  .text-title-02-regular {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-title-02-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-title-02-reading {
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-01-bold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 700;
+  }
+
+  .text-body-01-semibold {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-01-medium {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-02,
+  .text-body-02-regular {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-02-semibold {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-body-02-medium {
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-02-reading {
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-03-reading {
+    font-size: 12px;
+    line-height: 150%;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-body-03-medium {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-03-regular {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-01-semibold {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 600;
+  }
+
+  .text-label-01-regular {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-01-reading {
+    font-size: 10px;
+    line-height: 90%;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-label-02-regular {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-02-medium {
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-label-03-regular {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+
+  .text-label-03-medium {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.41px;
+    font-weight: 500;
+  }
+
+  .text-body-04-regular {
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -0.41px;
+    font-weight: 400;
+  }
+}

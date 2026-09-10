@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mindscope-api
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - mindscope-prod
+  selector:
+    matchLabels:
+      app: mindscope-api
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

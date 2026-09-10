@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mindSCOPE 검증 계획 대응 — 평가 항목별 준비도</title>
+<style>
+  :root{
+    --ink:#181b22; --sub:#5b6472; --line:#e6e9ee; --bg:#f6f7f9; --card:#fff;
+    --red:#d94141; --red-bg:#fdeeee; --amber:#b57a10; --amber-bg:#fdf6e8;
+    --green:#1d8a4e; --green-bg:#e9f6ee; --blue:#2f6fed; --blue-bg:#eaf1fe;
+    --violet:#7c5cd6; --violet-bg:#f1ecfc;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.3px; line-height:1.6;}
+  .wrap{max-width:1160px; margin:0 auto; padding:44px 36px 120px;}
+  h1{font-size:25px; font-weight:800; letter-spacing:-0.7px;}
+  .meta{font-size:13px; color:var(--sub); margin:6px 0 22px;}
+  h2{font-size:19px; font-weight:800; margin:46px 0 14px; padding-top:18px; border-top:2px solid var(--ink); scroll-margin-top:60px;}
+  h2 .n{color:var(--blue); margin-right:6px;}
+  p{font-size:14px; margin-bottom:10px;}
+
+  .nav{position:sticky; top:0; z-index:50; background:rgba(246,247,249,0.93); backdrop-filter:blur(8px); padding:12px 0 10px; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line);}
+  .nav a{font-size:12.5px; font-weight:700; color:var(--sub); text-decoration:none; background:#fff; border:1px solid var(--line); padding:7px 14px; border-radius:20px;}
+  .nav a:hover{color:var(--blue); border-color:var(--blue);}
+
+  .tldr{background:var(--card); border:1px solid var(--line); border-left:4px solid var(--red); border-radius:14px; padding:20px 24px; margin:18px 0;}
+  .tldr b{color:var(--red);}
+
+  /* 일정 타임라인 */
+  .timeline{display:flex; gap:0; margin:16px 0 6px; overflow-x:auto; padding:14px 2px 6px;}
+  .tl-item{flex:1; min-width:150px; position:relative; padding:0 8px;}
+  .tl-item .tl-bar{height:8px; border-radius:6px; background:#dde2ea; margin-bottom:10px;}
+  .tl-item.done .tl-bar{background:var(--green);}
+  .tl-item.now .tl-bar{background:var(--blue); box-shadow:0 0 0 4px var(--blue-bg); animation:glowpulse 2s infinite;}
+  @keyframes glowpulse{0%,100%{box-shadow:0 0 0 4px var(--blue-bg);}50%{box-shadow:0 0 0 8px rgba(47,111,237,0.12);}}
+  .tl-item .tl-title{font-size:13px; font-weight:800;}
+  .tl-item .tl-date{font-size:11.5px; color:var(--sub); font-weight:700;}
+  .tl-item .tl-desc{font-size:11.5px; color:var(--sub); margin-top:3px; line-height:1.5;}
+  .tl-item.now .tl-title::after{content:" ← 오늘(7.9)"; color:var(--blue); font-size:11px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px; background:var(--card); border-radius:12px; overflow:hidden; margin:12px 0 8px;}
+  th{background:#eef0f4; text-align:left; padding:9px 12px; font-weight:800; font-size:12px; color:var(--sub); border-bottom:1px solid var(--line); white-space:nowrap;}
+  td{padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.c, th.c{text-align:center;}
+  tr.hl-red td{background:#fff8f8;}
+  tr.hl-amber td{background:#fffcf4;}
+
+  .st{display:inline-block; font-size:11.5px; font-weight:800; padding:3px 10px; border-radius:16px; white-space:nowrap;}
+  .st.ok{background:var(--green-bg); color:var(--green);}
+  .st.part{background:var(--amber-bg); color:var(--amber);}
+  .st.no{background:var(--red-bg); color:var(--red);}
+  .st.q{background:var(--violet-bg); color:var(--violet);}
+  code{font-family:"SF Mono",Menlo,monospace; font-size:11px; background:#eef0f4; padding:1px 5px; border-radius:4px; color:#3a4150;}
+
+  .score{display:flex; gap:12px; flex-wrap:wrap; margin:14px 0;}
+  .score .sc{flex:1; min-width:130px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 18px; text-align:center;}
+  .score .num{font-size:30px; font-weight:800; letter-spacing:-1px;}
+  .score .lbl{font-size:12px; color:var(--sub); font-weight:700;}
+
+  .prio{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 22px; margin-bottom:12px;}
+  .prio h3{font-size:15px; font-weight:800; margin-bottom:8px;}
+  .prio ol{padding-left:22px;}
+  .prio li{font-size:13.5px; margin-bottom:7px;}
+  .prio li b{color:var(--ink);}
+  .tag{display:inline-block; font-size:10.5px; font-weight:800; padding:1px 8px; border-radius:12px; margin-left:4px; vertical-align:1px;}
+  .tag.dev{background:var(--blue-bg); color:var(--blue);}
+  .tag.biz{background:var(--red-bg); color:var(--red);}
+  .tag.ops{background:#eef0f3; color:var(--sub);}
+  .note{font-size:12.5px; color:var(--sub);}
+  @media (max-width:800px){ .wrap{padding:24px 16px 80px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>mindSCOPE 검증·평가 계획 대응 — 평가 항목별 준비도</h1>
+<div class="meta">2026-07-09 · 근거: 「mind scope(임상심리사) 프로그램 평가 및 보완계획」(26.6.1) × 웹·모바일 전수조사 · 원본: <code>04-검증항목-준비도.md</code> · <a href="./리빙랩-기능-전수보고서.html" style="color:var(--blue); font-weight:700;">기능 전수 보고서</a> · <a href="./리빙랩-흐름-시각화.html" style="color:var(--blue); font-weight:700;">흐름 시각화</a></div>
+
+<div class="nav">
+  <a href="#plan">평가 계획·일정</a>
+  <a href="#matrix-a">내담자 관리 7종</a>
+  <a href="#matrix-b">관리자/전문가 17종</a>
+  <a href="#clash">2차 평가와의 충돌</a>
+  <a href="#prio">1차 보완 작업 목록</a>
+</div>
+
+<div class="tldr">
+  <p style="font-size:15px; margin-bottom:6px;">평가자는 우리 화면 구조가 아니라 <b>공식 평가 항목 24종</b>으로 채점한다. 그 기준으로 다시 세어보면 — <b>✅ 10 · 🟡 8 · 🔴 4 · ❓ 2</b>.</p>
+  <p style="font-size:13.5px; color:var(--sub); margin:0;">🔴 4건 중 3건이 AI(검사 해석·바우처 서류 생성·에이전트 노출)이고, 2차 평가 문안의 "중복 일정 확인"은 현재 최대 결함(상담사 이중 배정 무검사)을 정조준하고 있다. <b>리빙랩의 성패 = "AI를 보여줄 수 있는 환경"의 확정 + 이중 배정 수정.</b></p>
+</div>
+
+<h2 id="plan"><span class="n">1.</span>평가 계획 요약 · 지금 어디인가</h2>
+<div class="timeline">
+  <div class="tl-item done"><div class="tl-bar"></div><div class="tl-title">1차 검증</div><div class="tl-date">6.30 – 7.3</div><div class="tl-desc">임상심리사 5명 · 기본 준비 과정(등록·발송·운영)</div></div>
+  <div class="tl-item now"><div class="tl-bar"></div><div class="tl-title">1차 보완</div><div class="tl-date">7.6 – 7.31</div><div class="tl-desc">보완요구사항 양식 → 프로그램 보완. <b>이 세션의 이슈들이 여기의 작업 목록</b></div></div>
+  <div class="tl-item"><div class="tl-bar"></div><div class="tl-title">보완 결과 검증</div><div class="tl-date">8.3 – 8.7</div><div class="tl-desc">실제 센터 운영처럼 평가 (2차 중점: 검사 결과→상담 진행·기록)</div></div>
+  <div class="tl-item"><div class="tl-bar"></div><div class="tl-title">2차 보완</div><div class="tl-date">8.10 – 8.22</div><div class="tl-desc">2차 보완요구사항 반영</div></div>
+  <div class="tl-item"><div class="tl-bar"></div><div class="tl-title">3차 · 최종</div><div class="tl-date">8월 4주</div><div class="tl-desc">곽금주·정경미 교수 결과보고서 검토 → 출시</div></div>
+</div>
+<p class="note">평가 방법: ①기능이 사용 목적에 맞는가 ②센터 운영에 부합하는가 ③기존 프로그램 대비 장단점 — 차수별 [평가 결과|보완할 사항] 양식 기록. 평가자: 이진영 박사(경기북부 쉼터)·신옥자 박사(양주 지역아동센터) 외.</p>
+
+<h2 id="matrix-a"><span class="n">2.</span>내담자 관리 프로그램 7종 — 준비도</h2>
+<table>
+  <tr><th style="width:30px;" class="c">#</th><th style="width:200px;">평가 항목 (문서 원문)</th><th style="width:78px;" class="c">준비도</th><th>구현 위치 · 리스크 · 보완</th></tr>
+  <tr><td class="c">1</td><td>주간/월간 스케줄 관리 <b>+ 스케줄 통계</b></td><td class="c"><span class="st part">🟡 부분</span></td><td>웹 캘린더 3뷰·모바일 3뷰(통계 포함) 완성. <b>웹 통계(analytics)는 전부 더미</b> — 평가자가 웹에서 "통계"를 찾으면 "-"만 봄</td></tr>
+  <tr><td class="c">2</td><td>내담자 조회 / 관계 관리</td><td class="c"><span class="st ok">✅ 완성</span></td><td>웹 목록·상세(관계 표시·이동) / 모바일 목록·상세·즐겨찾기. 관계 <b>수정</b>은 웹 등록 폼 경유 — 동선 안내</td></tr>
+  <tr><td class="c">3</td><td>검사 진행 현황 조회</td><td class="c"><span class="st ok">✅ 완성</span></td><td>웹 현황+이력(벌크) / 모바일 목록·상세</td></tr>
+  <tr class="hl-amber"><td class="c">4</td><td>검사의 시작부터 결과까지 (바로링크)</td><td class="c"><span class="st part">🟡 부분</span></td><td>end-to-end 닫혀 있음. 단 <b>quick-links centerId 하드코딩(P0-1)</b> + 검사/결과 링크 라벨 혼동 + 내담자 2단 인증 리허설 필요</td></tr>
+  <tr><td class="c">5</td><td>푸시 알림</td><td class="c"><span class="st part">🟡 부분</span></td><td>모바일 FCM(뱃지·딥링크·설정) 완성. <b>웹은 30초 폴링 — 푸시 아님.</b> 평가 기대치 조정 or 알림톡 활성화 결정</td></tr>
+  <tr><td class="c">6</td><td>청구 관리</td><td class="c"><span class="st ok">✅ 완성</span></td><td>웹 3경로·납부·단가 / 모바일 본인 담당. 환불·납부 정정 없음(사전 고지)</td></tr>
+  <tr class="hl-amber"><td class="c">7</td><td>최신 바우처 정보 알림</td><td class="c"><span class="st q">❓ 의도 확인</span></td><td>보유 바우처 상태 신호(신규·소진≤2회·만료 14일)는 대시보드에 있음. <b>"최신 바우처 제도/사업 정보"라면 해당 기능 없음</b> — 기획 의도 확인 필수</td></tr>
+</table>
+
+<h2 id="matrix-b"><span class="n">3.</span>관리자/전문가 프로그램 17종 — 준비도</h2>
+<table>
+  <tr><th style="width:30px;" class="c">#</th><th style="width:200px;">평가 항목 (문서 원문)</th><th style="width:78px;" class="c">준비도</th><th>구현 위치 · 리스크 · 보완</th></tr>
+  <tr><td class="c">1</td><td>일간/주간/월간 스케줄 관리</td><td class="c"><span class="st ok">✅ 완성</span></td><td>일간=장소/담당자 타임라인. 캘린더 "취소" 핸들러만 미구현(삭제는 동작)</td></tr>
+  <tr><td class="c">2</td><td>내담자 조회/관계 관리</td><td class="c"><span class="st ok">✅ 완성</span></td><td>위 A-2와 동일</td></tr>
+  <tr><td class="c">3</td><td>내담자의 모든 기록 (케어보드)</td><td class="c"><span class="st part">🟡 부분</span></td><td>내담자 상세 4탭(진행현황·사전기록지·문서·바우처)+상담 상세 일지로 존재. <b>"케어보드"라는 단일 화면은 없음</b> — 항목명↔화면 매핑표 제공</td></tr>
+  <tr><td class="c">4</td><td>스마트 일괄 회기 추가</td><td class="c"><span class="st ok">✅ 완성</span></td><td>멀티 날짜 피커(간격 패턴 자동 반복)+회기 추가</td></tr>
+  <tr class="hl-amber"><td class="c">5</td><td>AI 기반 상담일지 초안</td><td class="c"><span class="st part">🟡 조건부</span></td><td>필드노트→초안 prefill 완성(모바일 녹음·웹 열람). <b>"AI 프로덕션 미배포" 방침과 충돌 — 리빙랩 환경 AI 활성화 결정이 선행돼야 평가 가능</b></td></tr>
+  <tr><td class="c">6</td><td>검사 결과 통합 관리 (18종)</td><td class="c"><span class="st ok">✅ 완성</span></td><td>검사 관리(활성화)+현황·상세. 센터에 18종 시드 세팅 확인</td></tr>
+  <tr class="hl-red"><td class="c">7</td><td>AI 기반 검사 해석 보조</td><td class="c"><span class="st no">🔴 미노출</span></td><td><b>프로덕션 UI가 없다.</b> 백엔드 ai_lab(실험 인프라) 단계. 평가 항목인데 진입 화면 부재 — <b>1차 보완 최대 갭.</b> 범위 재협의 or 긴급 구현 결정</td></tr>
+  <tr><td class="c">8</td><td>AI 기반 검사 보고서 작성</td><td class="c"><span class="st part">🟡 부분</span></td><td>자기보고식 자동 채점+PDF 생성 엔진(백엔드) + 보고서 수동 업로드 존재. <b>LLM "작성"으로 평가받기엔 범위 확인 필요</b></td></tr>
+  <tr class="hl-amber"><td class="c">9</td><td>검사의 시작부터 결과까지 (바로링크)</td><td class="c"><span class="st part">🟡 부분</span></td><td>A-4와 동일 — P0-1 수정 필수</td></tr>
+  <tr><td class="c">10</td><td>전문가 학력/경력/자격, 인증 뱃지</td><td class="c"><span class="st ok">✅ 완성</span></td><td>myInfo 인증 신청→승인/반려 알림→뱃지. 승인 주체(플랫폼 admin) 운영 리허설</td></tr>
+  <tr><td class="c">11</td><td>결제 / 청구 관리</td><td class="c"><span class="st ok">✅ 완성</span></td><td>A-6와 동일</td></tr>
+  <tr class="hl-amber"><td class="c">12</td><td>바우처 납부 증빙</td><td class="c"><span class="st q">❓ 의도 확인</span></td><td>사용 내역·월별 usage 조회는 있음. <b>"증빙 서류" 출력/제출 형식은 미확인</b> — 기대 산출물 정의 필요</td></tr>
+  <tr class="hl-red"><td class="c">13</td><td>바우처 서류 자동 생성</td><td class="c"><span class="st no">🔴 미연결</span></td><td>백엔드 모듈(voucher_document·draft·extraction·form) 존재, <b>프론트 미연결.</b> 진행 중 과제 — 1차 보완 내 노출 여부 결정</td></tr>
+  <tr class="hl-red"><td class="c">14</td><td>운영 업무 자동화 (AI 에이전트)</td><td class="c"><span class="st no">🔴 숨김</span></td><td>기능 완성(채팅+페이지 도구 5종). <b>프로덕션 메뉴 숨김 — 평가자가 진입 불가.</b> 노출+AI 방침 결정 필수</td></tr>
+  <tr class="hl-amber"><td class="c">15</td><td>AI 기반 현장 비서 (필드노트)</td><td class="c"><span class="st part">🟡 조건부</span></td><td>모바일 sub-app 완성(녹음→분석→초안). 실기기 리허설 + AI 방침 + 웹 열람 경로 확정</td></tr>
+  <tr><td class="c">16</td><td>푸시 알림</td><td class="c"><span class="st part">🟡 부분</span></td><td>A-5와 동일</td></tr>
+  <tr><td class="c">17</td><td>다중센터 전환</td><td class="c"><span class="st ok">✅ 완성</span></td><td>웹+모바일(디바이스 재등록 포함). 평가자 계정에 복수 센터 세팅</td></tr>
+</table>
+
+<div class="score">
+  <div class="sc"><div class="num" style="color:var(--green)">10</div><div class="lbl">✅ 완성</div></div>
+  <div class="sc"><div class="num" style="color:var(--amber)">8</div><div class="lbl">🟡 부분·조건부</div></div>
+  <div class="sc"><div class="num" style="color:var(--red)">4</div><div class="lbl">🔴 미노출·미연결</div></div>
+  <div class="sc"><div class="num" style="color:var(--violet)">2</div><div class="lbl">❓ 의도 확인</div></div>
+</div>
+
+<h2 id="clash"><span class="n">4.</span>2차 평가 문안과의 직접 충돌 — 예고된 시나리오</h2>
+<p>2차 평가(8.3~) 문안이 정확히 어디를 볼지 명시하고 있다:</p>
+<table>
+  <tr><th>2차 평가 문안 (원문)</th><th style="width:90px;" class="c">판정</th><th>현재 상태</th></tr>
+  <tr><td>"보호자에게 온라인으로 점수내용 보내고, 결과까지 확인"</td><td class="c"><span class="st ok">✅</span></td><td>결과 링크(인증번호 4자리·1시간) 완성, 수신자 관계(보호자) 지정 가능. 링크 라벨 혼동만 정리 권장</td></tr>
+  <tr><td>"상담 일정 예약, 시간 변경"</td><td class="c"><span class="st ok">✅</span></td><td>접수·회기 수정 완성</td></tr>
+  <tr class="hl-red"><td>"<b>중복 일정 확인 여부</b>"</td><td class="c"><span class="st no">🔴</span></td><td>장소 충돌만 검사 — <b>상담사 이중 배정 무검사.</b> 평가 문안이 현재 최대 결함을 정조준. 1차 보완에서 반드시 해결</td></tr>
+</table>
+
+<h2 id="prio"><span class="n">5.</span>1차 보완(7.6 ~ 7.31) 작업 목록 — 우선순위 재편</h2>
+<p class="note" style="margin-bottom:12px;">기존 P0/P1을 평가 프레임으로 재배열. <span class="tag dev">개발</span>=코드 수정 <span class="tag biz">결정</span>=비즈니스 판단 선행 <span class="tag ops">운영</span>=세팅·리허설</p>
+
+<div class="prio">
+  <h3>🔥 즉시 — 평가 항목 자체가 깨지는 것</h3>
+  <ol>
+    <li><b>상담사 이중 배정(중복 일정) 검사 추가</b> — 2차 평가 문안 명시 항목 <span class="tag dev">개발</span></li>
+    <li><b>바로링크 centerId 하드코딩 수정</b> — 평가 항목 4/9번, 한 줄 수정 <span class="tag dev">개발</span></li>
+    <li><b>AI 노출 정책 확정</b> — 상담일지 초안·검사 해석·검사 보고서·에이전트·필드노트 5개 평가 항목이 "AI 프로덕션 미배포" 방침과 충돌. <b>리빙랩 전용 환경에서 AI 활성화</b> 여부 결정 <span class="tag biz">결정</span></li>
+    <li><b>AI 검사 해석 보조</b> — 진입 화면 부재. 평가 범위 재협의 or 최소 구현 <span class="tag biz">결정</span><span class="tag dev">개발</span></li>
+    <li><b>바우처 서류 자동 생성</b> — 백엔드 완료, 프론트 연결 여부 결정 <span class="tag biz">결정</span><span class="tag dev">개발</span></li>
+  </ol>
+</div>
+<div class="prio">
+  <h3>⚡ 1차 보완 기간 내 — 평가 경험 왜곡 방지</h3>
+  <ol start="6">
+    <li>웹 통계 더미 처리(analytics·검사 통계) — 항목 A-1이 "스케줄 통계" 포함: 최소 구현 or "준비 중" 명시 or 차단 <span class="tag dev">개발</span></li>
+    <li>만료 바우처 차감 검증 — 바우처 관련 평가 항목 3개 <span class="tag dev">개발</span></li>
+    <li>검사 접수 충돌 경고 응답 + 검사/결과 링크 라벨 분리 <span class="tag dev">개발</span></li>
+    <li>고아·더미 라우트 정리(/session mock·/settings 인덱스·예약 기능군·purchase) — 우연 진입 시 신뢰 하락 <span class="tag dev">개발</span></li>
+    <li>모바일: 홈 확정(전환 중 해소)·워크스페이스 placeholder 숨김·녹음 실기기 리허설 <span class="tag biz">결정</span><span class="tag ops">운영</span></li>
+    <li>"최신 바우처 정보 알림"·"바우처 납부 증빙" 기획 의도 확인 → 기대 산출물 정의 <span class="tag biz">결정</span></li>
+  </ol>
+</div>
+<div class="prio">
+  <h3>📋 평가 운영 준비 (개발 외)</h3>
+  <ol start="12">
+    <li>평가자 5명 계정·센터·검사 18종·복수 센터 세팅 + 검사 전용 내담자 계정 리허설 <span class="tag ops">운영</span></li>
+    <li>평가 항목명 ↔ 화면명 매핑표 제공("케어보드"=내담자 상세 등) — 평가 양식에 첨부 <span class="tag ops">운영</span></li>
+    <li>알려진 미구현(환불·예약 기능군 등) 사전 고지 — 평가 왜곡 방지 <span class="tag ops">운영</span></li>
+  </ol>
+</div>
+
+</div>
+</body>
+</html>

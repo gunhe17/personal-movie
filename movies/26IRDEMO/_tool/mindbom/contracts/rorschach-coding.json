@@ -1,0 +1,287 @@
+{
+  "_comment": "자동 생성 — 직접 고치지 말 것. 정본은 apps/api/app/modules/examination/rorschach/coding_codes.py, 갱신은 `uv run python -m scripts.export_rorschach_codes`",
+  "groups": {
+    "location": [
+      "W",
+      "D",
+      "Dd",
+      "WS",
+      "DS",
+      "DdS"
+    ],
+    "dq": [
+      "+",
+      "o",
+      "v/+",
+      "v"
+    ],
+    "determinants": [
+      "F",
+      "Ma",
+      "Mp",
+      "Ma-p",
+      "FMa",
+      "FMp",
+      "FMa-p",
+      "ma",
+      "mp",
+      "ma-p",
+      "FC",
+      "CF",
+      "C",
+      "Cn",
+      "FC'",
+      "C'F",
+      "C'",
+      "FT",
+      "TF",
+      "T",
+      "FV",
+      "VF",
+      "V",
+      "FY",
+      "YF",
+      "Y",
+      "FD",
+      "Fr",
+      "rF"
+    ],
+    "fq": [
+      "+",
+      "o",
+      "u",
+      "-",
+      "none"
+    ],
+    "contents": [
+      "H",
+      "(H)",
+      "Hd",
+      "(Hd)",
+      "Hx",
+      "A",
+      "(A)",
+      "Ad",
+      "(Ad)",
+      "An",
+      "Art",
+      "Ay",
+      "Bt",
+      "Cl",
+      "Ge",
+      "Ls",
+      "Na",
+      "Bl",
+      "Cg",
+      "Ex",
+      "Fd",
+      "Fi",
+      "Hh",
+      "Sc",
+      "Sx",
+      "Xy",
+      "Id"
+    ],
+    "zScore": [
+      "ZW",
+      "ZA",
+      "ZD",
+      "ZS"
+    ],
+    "specialScores": [
+      "DV1",
+      "DV2",
+      "DR1",
+      "DR2",
+      "INCOM1",
+      "INCOM2",
+      "FABCOM1",
+      "FABCOM2",
+      "ALOG",
+      "CONTAM",
+      "AB",
+      "AG",
+      "COP",
+      "MOR",
+      "PER",
+      "CP",
+      "PSV"
+    ]
+  },
+  "scored_groups": [
+    "determinants",
+    "contents",
+    "specialScores"
+  ],
+  "z_values": {
+    "1": {
+      "ZW": 1.0,
+      "ZA": 4.0,
+      "ZD": 6.0,
+      "ZS": 3.5
+    },
+    "2": {
+      "ZW": 4.5,
+      "ZA": 3.0,
+      "ZD": 5.5,
+      "ZS": 4.5
+    },
+    "3": {
+      "ZW": 5.5,
+      "ZA": 3.0,
+      "ZD": 4.0,
+      "ZS": 4.5
+    },
+    "4": {
+      "ZW": 2.0,
+      "ZA": 4.0,
+      "ZD": 3.5,
+      "ZS": 5.0
+    },
+    "5": {
+      "ZW": 1.0,
+      "ZA": 2.5,
+      "ZD": 5.0,
+      "ZS": 4.0
+    },
+    "6": {
+      "ZW": 2.5,
+      "ZA": 2.5,
+      "ZD": 6.0,
+      "ZS": 6.5
+    },
+    "7": {
+      "ZW": 2.5,
+      "ZA": 1.0,
+      "ZD": 3.0,
+      "ZS": 4.0
+    },
+    "8": {
+      "ZW": 4.5,
+      "ZA": 3.0,
+      "ZD": 3.0,
+      "ZS": 4.0
+    },
+    "9": {
+      "ZW": 5.5,
+      "ZA": 2.5,
+      "ZD": 4.5,
+      "ZS": 5.0
+    },
+    "10": {
+      "ZW": 5.5,
+      "ZA": 4.0,
+      "ZD": 4.5,
+      "ZS": 6.0
+    }
+  },
+  "location_pattern": "^(W|Dd|D)([Ss])?(\\d*)$",
+  "popular_responses": [
+    {
+      "card_no": 1,
+      "locations": [
+        "W"
+      ],
+      "content": "박쥐",
+      "criteria": "반점의 꼭대기가 박쥐의 상단부로 지각되고 항상 반점 전체를 포함해야 한다."
+    },
+    {
+      "card_no": 1,
+      "locations": [
+        "W"
+      ],
+      "content": "나비",
+      "criteria": "반점의 꼭대기가 나비의 상단부로 지각되고 항상 반점 전체를 포함해야 한다."
+    },
+    {
+      "card_no": 2,
+      "locations": [
+        "D1"
+      ],
+      "content": "구체적으로 밝혀진 동물",
+      "criteria": "곰, 개, 코끼리 또는 양. 보통 머리나 상체가 있으나 동물 전체를 포함하고 있어도 P를 부여한다."
+    },
+    {
+      "card_no": 3,
+      "locations": [
+        "D9"
+      ],
+      "content": "인간상이나 인형·만화 등의 묘사",
+      "criteria": "D1이 두 인간상으로 사용되었다면, D7이나 Dd31은 인간상의 부분으로 보고되지 않아야 P로 기호화한다."
+    },
+    {
+      "card_no": 4,
+      "locations": [
+        "W",
+        "D7"
+      ],
+      "content": "인간이나 거인",
+      "criteria": "괴물, 공상과학에서 나오는 생명체와 같이 인간을 닮은 모양. 동물상은 P로 기호화하지 않는다."
+    },
+    {
+      "card_no": 5,
+      "locations": [
+        "W"
+      ],
+      "content": "박쥐",
+      "criteria": "반점의 꼭대기를 박쥐의 상단부로 지각해야 하고 항상 반점 전체를 포함해야 한다."
+    },
+    {
+      "card_no": 5,
+      "locations": [
+        "W"
+      ],
+      "content": "나비",
+      "criteria": "반점의 꼭대기를 나비의 상단부로 지각해야 하고 항상 반점 전체를 포함해야 한다."
+    },
+    {
+      "card_no": 6,
+      "locations": [
+        "W",
+        "D1"
+      ],
+      "content": "동물가죽·짐승가죽·융단이나 모피",
+      "criteria": "고양이나 여우 같은 동물 전체를 기술하는 데 자주 포함된다. 수검자가 가죽·융단·모피를 실제로 언급했는지, 반응기술에 분명하게 내포되어 있는지에 근거해 결정한다."
+    },
+    {
+      "card_no": 7,
+      "locations": [
+        "D9"
+      ],
+      "content": "사람의 머리나 얼굴",
+      "criteria": "여자·아이·인디언처럼 밝힐 수도, 성별을 밝히지 않을 수도 있다. D2나 Dd23 영역을 포함한다면 D9 영역에 한해서 머리나 얼굴이라고 할 때만 P로 기호화된다."
+    },
+    {
+      "card_no": 8,
+      "locations": [
+        "D1"
+      ],
+      "content": "전체 동물상",
+      "criteria": "개·고양이·다람쥐 같은 종류로 보고 D4 영역과 가까운 부분을 동물의 머리로 지각한다."
+    },
+    {
+      "card_no": 9,
+      "locations": [
+        "D3"
+      ],
+      "content": "인간 또는 인간과 유사한 형상",
+      "criteria": "마녀, 거인, 괴물, 공상과학에 나오는 생명체."
+    },
+    {
+      "card_no": 10,
+      "locations": [
+        "D1"
+      ],
+      "content": "게",
+      "criteria": "모든 부속기관은 D1 영역에 한정되어 있어야 한다."
+    },
+    {
+      "card_no": 10,
+      "locations": [
+        "D1"
+      ],
+      "content": "거미",
+      "criteria": "모든 부속기관은 D1 영역에 한정되어 있어야 한다."
+    }
+  ]
+}

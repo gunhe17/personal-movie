@@ -1,0 +1,773 @@
+<title>로르샤하 검사 화면 재설계</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ink:      #16161a;
+    --paper:    #faf8f5;
+    --slate:    #7c7f86;
+    --carmine:  #a4243b;
+    --verdigris:#2d5f5d;
+
+    --bg:       var(--paper);
+    --surface:  #ffffff;
+    --sunken:   #f2efea;
+    --fg:       var(--ink);
+    --fg-2:     #4a4a52;
+    --fg-3:     var(--slate);
+    --line:     #e0dcd4;
+    --line-2:   #cfc9bf;
+    --accent:   var(--carmine);
+    --good:     var(--verdigris);
+    --warn:     #8a6410;
+
+    /* Lora가 라틴을, Noto Serif KR이 한글을 맡는다 — 앞 글꼴에 없는 글리프는
+       뒤로 넘어가므로 순서가 곧 역할 분담이다. */
+    --display: 'Lora', 'Noto Serif KR', 'Apple SD Gothic Neo', Georgia, serif;
+    --body:    'IBM Plex Sans KR', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    --mono:    'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:      #131317;
+      --surface: #1c1c21;
+      --sunken:  #101013;
+      --fg:      #ecebe8;
+      --fg-2:    #b4b2ad;
+      --fg-3:    #8b8985;
+      --line:    #2c2c33;
+      --line-2:  #3d3d45;
+      --accent:  #d4576f;
+      --good:    #6bab9d;
+      --warn:    #c9a23f;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:      #131317;
+    --surface: #1c1c21;
+    --sunken:  #101013;
+    --fg:      #ecebe8;
+    --fg-2:    #b4b2ad;
+    --fg-3:    #8b8985;
+    --line:    #2c2c33;
+    --line-2:  #3d3d45;
+    --accent:  #d4576f;
+    --good:    #6bab9d;
+    --warn:    #c9a23f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 47rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 6rem;
+  }
+
+  /* ── 머리말 ── */
+  .masthead {
+    padding: 5rem 0 3rem;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+  .masthead h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 1rem 0 0.75rem;
+  }
+  .masthead .dek {
+    color: var(--fg-2);
+    max-width: 34rem;
+    margin: 0 auto;
+    text-wrap: pretty;
+  }
+
+  /* 대칭 구분선 — 잉크반점의 좌우대칭을 구조로 */
+  .sym {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 3.5rem 0 1.75rem;
+  }
+  .sym::before, .sym::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line-2);
+  }
+  .sym > span {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    white-space: nowrap;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.6rem;
+    line-height: 1.3;
+    text-wrap: balance;
+    margin: 0 0 0.6rem;
+  }
+  h3 {
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 2.25rem 0 0.5rem;
+  }
+  p { margin: 0 0 1rem; text-wrap: pretty; }
+  strong { font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--sunken);
+    padding: 0.1em 0.36em;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+  }
+
+  /* ── 카드 ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5rem 1.6rem;
+    margin: 1.25rem 0;
+  }
+  .card > :last-child { margin-bottom: 0; }
+
+  .card.flag {
+    border-left: 3px solid var(--accent);
+  }
+  .card.ok {
+    border-left: 3px solid var(--good);
+  }
+
+  /* ── 질문 블록 ── */
+  .q {
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 1.5rem 1.6rem;
+    margin: 1.5rem 0;
+  }
+  .q > :last-child { margin-bottom: 0; }
+  .q-id {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--surface);
+    background: var(--accent);
+    padding: 0.2em 0.55em;
+    border-radius: 3px;
+    margin-bottom: 0.7rem;
+  }
+  .q h3 { margin-top: 0; font-size: 1.1rem; }
+
+  .opts {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .opts li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: baseline;
+    padding: 0.7rem 0.9rem;
+    background: var(--sunken);
+    border-radius: 4px;
+    line-height: 1.55;
+  }
+  .opts .mark {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--fg-3);
+    flex-shrink: 0;
+  }
+
+  /* ── 표 ── */
+  .tbl-wrap { overflow-x: auto; margin: 1.25rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    border-bottom-color: var(--line-2);
+    white-space: nowrap;
+  }
+  td.num {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .bad  { color: var(--accent); font-weight: 500; }
+  .fine { color: var(--good); }
+
+  /* ── 프로세스 다이어그램 ── */
+  figure { margin: 1.5rem 0; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption {
+    font-size: 0.84rem;
+    color: var(--fg-3);
+    margin-top: 0.6rem;
+    text-align: center;
+  }
+
+  /* ── 화면 목업 ── */
+  .mock {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.75;
+    background: var(--sunken);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--fg-2);
+    margin: 1.25rem 0;
+  }
+
+  /* ── 인용 ── */
+  blockquote {
+    margin: 1.25rem 0;
+    padding: 0.2rem 0 0.2rem 1.1rem;
+    border-left: 2px solid var(--line-2);
+    color: var(--fg-2);
+    font-style: italic;
+  }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  .lede {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    line-height: 1.65;
+    color: var(--fg-2);
+  }
+
+  ul.plain { padding-left: 1.15rem; margin: 0 0 1rem; }
+  ul.plain li { margin-bottom: 0.4rem; }
+
+  .foot {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.86rem;
+    color: var(--fg-3);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .q { transition: border-color 0.15s ease; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">마인드봄 · 임상가 검토 요청</div>
+    <h1>로르샤하 검사 화면 재설계</h1>
+    <p class="dek">
+      지금 화면이 실제 검사 절차와 어긋나 있습니다. 무엇을 바꾸려는지 정리했고,
+      <strong>여섯 가지는 선생님께서 정해주셔야</strong> 합니다.
+    </p>
+  </header>
+
+  <p class="lede">
+    읽는 데 10분, 답하시는 데 10분 정도 걸립니다. 표시된 질문에만 답해주셔도
+    충분합니다. 틀린 부분은 주저 없이 지적해주십시오 — 저희가 절차를 잘못
+    이해하고 있을 가능성이 큽니다.
+  </p>
+
+  <!-- ══════════ 1. 지금 무엇이 어긋나 있나 ══════════ -->
+  <div class="sym"><span>1 · 지금 무엇이 어긋나 있나</span></div>
+
+  <h2>화면이 실제 검사 순서를 따르지 않습니다</h2>
+
+  <p>
+    현재 시스템은 <strong>영역을 먼저 그리게</strong> 하고, 그 다음에 반응 내용을
+    붙입니다. 녹음한 음성을 나중에 글로 옮긴 뒤, 시각을 대조해 "이 영역이
+    이 말이었겠다"고 짝을 맞추는 방식입니다.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 640 200" role="img" aria-label="현재 방식과 실제 검사 절차의 순서 비교">
+      <defs>
+        <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="13">
+        <!-- 현재 -->
+        <text x="0" y="18" fill="var(--accent)" font-size="11" font-weight="600" letter-spacing="1">지금 화면</text>
+        <g color="var(--fg-3)">
+          <rect x="0" y="30" width="132" height="42" rx="4" fill="var(--sunken)" stroke="var(--line-2)"/>
+          <text x="66" y="49" text-anchor="middle" fill="var(--fg)" font-size="12">영역 그리기</text>
+          <text x="66" y="64" text-anchor="middle" fill="var(--fg-3)" font-size="10.5">+ 녹음</text>
+
+          <line x1="140" y1="51" x2="176" y2="51" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="184" y="30" width="132" height="42" rx="4" fill="var(--sunken)" stroke="var(--line-2)"/>
+          <text x="250" y="49" text-anchor="middle" fill="var(--fg)" font-size="12">음성을 글로</text>
+          <text x="250" y="64" text-anchor="middle" fill="var(--fg-3)" font-size="10.5">검사 끝난 뒤</text>
+
+          <line x1="324" y1="51" x2="360" y2="51" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="368" y="30" width="150" height="42" rx="4" fill="none" stroke="var(--accent)" stroke-dasharray="3 3"/>
+          <text x="443" y="49" text-anchor="middle" fill="var(--accent)" font-size="12">시각으로 짝 맞추기</text>
+          <text x="443" y="64" text-anchor="middle" fill="var(--accent)" font-size="10.5">어긋나면 손으로 보정</text>
+        </g>
+
+        <!-- 실제 -->
+        <text x="0" y="122" fill="var(--good)" font-size="11" font-weight="600" letter-spacing="1">실제 검사</text>
+        <g color="var(--fg-3)">
+          <rect x="0" y="134" width="132" height="42" rx="4" fill="var(--sunken)" stroke="var(--line-2)"/>
+          <text x="66" y="153" text-anchor="middle" fill="var(--fg)" font-size="12">자유반응</text>
+          <text x="66" y="168" text-anchor="middle" fill="var(--fg-3)" font-size="10.5">말만 받아적음</text>
+
+          <line x1="140" y1="155" x2="176" y2="155" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="184" y="134" width="132" height="42" rx="4" fill="var(--sunken)" stroke="var(--line-2)"/>
+          <text x="250" y="153" text-anchor="middle" fill="var(--fg)" font-size="12">질문</text>
+          <text x="250" y="168" text-anchor="middle" fill="var(--fg-3)" font-size="10.5">여기서 영역을 그림</text>
+
+          <line x1="324" y1="155" x2="360" y2="155" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="368" y="134" width="150" height="42" rx="4" fill="var(--sunken)" stroke="var(--good)"/>
+          <text x="443" y="158" text-anchor="middle" fill="var(--good)" font-size="12">짝 맞출 필요 없음</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>반응이 먼저 생기고 영역이 나중에 붙으면, 시각을 대조하는 단계가 통째로 사라집니다.</figcaption>
+  </figure>
+
+  <div class="card flag">
+    <h3 style="margin-top:0">저희가 이해한 실제 절차</h3>
+    <ul class="plain">
+      <li><strong>자유반응</strong> — 카드 I~X를 순서대로. "이게 뭐로 보입니까?"
+        내담자가 말하면 <strong>말만 받아적습니다.</strong> 영역은 묻지 않습니다.</li>
+      <li><strong>질문</strong> — 10장을 다 마친 뒤 처음부터 다시. "어디가 그렇게
+        보였나요?" 이때 <strong>위치도에 영역을 그립니다.</strong></li>
+    </ul>
+    <p style="margin-bottom:0">
+      카드 I 직후에 질문하지 않는 이유는 내담자가 방어적이 되어 이후 반응이
+      왜곡되기 때문으로 알고 있습니다. 검사 타당도 문제라 화면 편의로 바꿀 수
+      없는 규약으로 다루고 있습니다.
+    </p>
+  </div>
+
+  <div class="q">
+    <span class="q-id">질문 1</span>
+    <h3>이 절차 이해가 맞습니까?</h3>
+    <p>
+      특히 자유반응 중에는 영역을 전혀 묻지 않는지, 그리고 질문 단계를 10장
+      뒤에 일괄로 하시는지 확인하고 싶습니다.
+    </p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 맞다 — 자유반응 전체 → 질문 전체</li>
+      <li><span class="mark">나</span> 대체로 맞지만 예외 상황이 있다 <em>(어떤 경우인지)</em></li>
+      <li><span class="mark">다</span> 다르다 <em>(실제로는 어떻게 하시는지)</em></li>
+    </ul>
+  </div>
+
+  <!-- ══════════ 2. 지금 조용히 틀리고 있는 것 ══════════ -->
+  <div class="sym"><span>2 · 지금 조용히 틀리고 있는 것</span></div>
+
+  <h2>구조요약이 잘못된 값을 내고 있습니다</h2>
+
+  <p>
+    저장된 검사 60건을 확인했습니다. 반응 영역을 <code>D1</code>,
+    <code>Dd21</code>처럼 번호까지 기록하셨는데, <strong>집계 프로그램이
+    <code>W</code>·<code>D</code>·<code>Dd</code>만 인식합니다.</strong>
+    번호가 붙은 값은 아무 데도 세지 않고 그냥 버려집니다.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>기록된 값</th><th class="num">건수</th><th>집계 결과</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>W</code> <code>D</code> <code>Dd</code></td>
+          <td class="num">13</td>
+          <td class="fine">정상 반영</td>
+        </tr>
+        <tr>
+          <td><code>D1</code> <code>D2</code> <code>Dd21</code> <code>DdS26</code> …</td>
+          <td class="num bad">47</td>
+          <td class="bad">버려짐 — 어디에도 안 세어짐</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    즉 <strong>W:D:Dd 분포가 60건 중 13건만 반영</strong>되고 있습니다.
+    거기서 파생되는 Zf, DQ 분포, X+% 같은 값도 함께 틀어집니다.
+    오류 메시지는 뜨지 않습니다.
+  </p>
+
+  <div class="q">
+    <span class="q-id">질문 2</span>
+    <h3>채점표에는 어떻게 적으십니까?</h3>
+    <p>
+      저희는 <strong>기록은 번호까지</strong>(<code>D1</code>),
+      <strong>집계는 범주로</strong>(<code>D</code>) 하는 것으로 이해했습니다.
+      그렇게 고치려 합니다.
+    </p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 맞다 — 기록은 <code>D1</code>, 세는 것은 <code>D</code></li>
+      <li><span class="mark">나</span> 채점표에도 <code>D</code>만 적는다 <em>(번호는 위치도에만)</em></li>
+      <li><span class="mark">다</span> 다르다 <em>(실제 표기)</em></li>
+    </ul>
+  </div>
+
+  <h3>영역 자동 인식이 빗나가도 알려주지 않습니다</h3>
+
+  <p>
+    그리신 영역 135건이 표준 영역과 얼마나 겹치는지 재현해봤습니다.
+    자동 인식 자체는 <strong>93%가 최선의 후보를 골랐습니다.</strong>
+    다만 겹침 정도가 낮아도 그대로 저장됩니다.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>저장된 코드</th><th class="num">겹침</th><th>가장 가까운 표준 영역</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Dd22</code></td><td class="num bad">0%</td><td><code>Dd21</code> (6%)</td></tr>
+        <tr><td><code>Dd33</code></td><td class="num bad">0%</td><td><code>Dd35</code> (2%)</td></tr>
+        <tr><td><code>Dd33</code></td><td class="num bad">6%</td><td><code>Dd24</code> (42%)</td></tr>
+        <tr><td><code>Dd31</code></td><td class="num">14%</td><td><code>DdS28</code> (49%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    겹침이 0%라는 것은 그린 영역과 그 코드가 <strong>접점이 전혀 없다</strong>는
+    뜻입니다. 표준에 없는 영역을 의도적으로 그리신 것일 수도 있고
+    (그래서 <code>Dd99</code>가 있는 것으로 압니다), 자동 인식이 엉뚱한 값을 넣었는데
+    넘어간 것일 수도 있습니다. <strong>지금은 그 둘을 구분할 방법이 없습니다.</strong>
+  </p>
+
+  <div class="card ok">
+    <p style="margin-bottom:0">
+      <strong>바꾸려는 것</strong> — 그리는 방식은 그대로 두고,
+      겹침이 낮을 때만 확인을 여쭙니다. 잘 맞으면 아무것도 뜨지 않으므로
+      손이 더 가지는 않습니다.
+    </p>
+    <div class="mock" style="margin-bottom:0">⚠ 그린 영역이 Dd22와 거의 겹치지 않습니다 (일치도 0%)
+   [ Dd21로 변경 ]  [ 그대로 두기 ]  [ 표에 없음 (Dd99) ]</div>
+  </div>
+
+  <!-- ══════════ 3. 새 화면 ══════════ -->
+  <div class="sym"><span>3 · 새 화면</span></div>
+
+  <h2>단계를 나누되, 오갈 수 있게</h2>
+
+  <p>
+    검사 절차대로 네 단계로 나눕니다. 다만 <strong>단계 사이에 벽을 두지
+    않습니다.</strong> 채점하다가 반응 텍스트를 고치고 싶으시면 바로 돌아갈 수
+    있습니다. 종이에 적을 때 그냥 고치시는 것과 같습니다.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 640 118" role="img" aria-label="자유반응·질문·채점·결과 네 단계와 진행 표시">
+      <g font-family="IBM Plex Sans KR, sans-serif">
+        <!-- 단계 박스 -->
+        <g>
+          <rect x="4" y="26" width="140" height="46" rx="5" fill="var(--surface)" stroke="var(--line-2)"/>
+          <text x="74" y="46" text-anchor="middle" fill="var(--fg)" font-size="13" font-weight="500">자유반응</text>
+          <text x="74" y="62" text-anchor="middle" fill="var(--fg-3)" font-size="11" font-family="IBM Plex Mono, monospace">25개</text>
+        </g>
+        <g>
+          <rect x="160" y="26" width="140" height="46" rx="5" fill="var(--surface)" stroke="var(--line-2)"/>
+          <text x="230" y="46" text-anchor="middle" fill="var(--fg)" font-size="13" font-weight="500">질문</text>
+          <text x="230" y="62" text-anchor="middle" fill="var(--fg-3)" font-size="11" font-family="IBM Plex Mono, monospace">18 / 25</text>
+        </g>
+        <g>
+          <rect x="316" y="26" width="140" height="46" rx="5" fill="var(--surface)" stroke="var(--line-2)"/>
+          <text x="386" y="46" text-anchor="middle" fill="var(--fg)" font-size="13" font-weight="500">채점</text>
+          <text x="386" y="62" text-anchor="middle" fill="var(--fg-3)" font-size="11" font-family="IBM Plex Mono, monospace">12 / 25</text>
+        </g>
+        <g>
+          <rect x="472" y="26" width="140" height="46" rx="5" fill="var(--sunken)" stroke="var(--line-2)" stroke-dasharray="4 3"/>
+          <text x="536" y="52" text-anchor="middle" fill="var(--fg-3)" font-size="13" font-weight="500">결과</text>
+          <text x="580" y="52" text-anchor="middle" fill="var(--fg-3)" font-size="13">🔒</text>
+        </g>
+
+        <!-- 양방향 화살표 -->
+        <g stroke="var(--good)" stroke-width="1.3" fill="none">
+          <path d="M74,84 C74,102 386,102 386,84" />
+          <path d="M70,88 L74,82 L78,88" fill="var(--good)" stroke="none"/>
+          <path d="M382,88 L386,82 L390,88" fill="var(--good)" stroke="none"/>
+        </g>
+        <text x="230" y="112" text-anchor="middle" fill="var(--good)" font-size="11">언제든 오갈 수 있습니다</text>
+
+        <text x="536" y="16" text-anchor="middle" fill="var(--fg-3)" font-size="10.5">채점을 마쳐야 열립니다</text>
+      </g>
+    </svg>
+    <figcaption>진행은 숫자로만 표시하고 순서를 강제하지 않습니다. 결과만 잠급니다.</figcaption>
+  </figure>
+
+  <p>
+    <strong>결과만 잠그는 이유</strong>가 있습니다. 지금은 채점이 덜 된 상태에서도
+    구조요약이 나옵니다. R(총 반응 수)이 실제보다 적게 잡히는데, R은 거의 모든
+    비율의 분모라 <strong>전체 수치가 조용히 틀어집니다.</strong>
+    그래서 결과를 열 때만 확인을 겁니다.
+  </p>
+
+  <h3>검사 중 화면은 최소한만 보여드립니다</h3>
+
+  <p>
+    종이에 적으실 때 가장 큰 장점은 <strong>눈이 내담자에게 가 있다</strong>는
+    점이라고 봅니다. 카드를 돌리는지, 어디를 짚는지, 표정이 어떤지가 그 자체로
+    관찰 자료니까요. 그래서 검사 중 화면에는 채점 도구를 아예 띄우지 않습니다.
+  </p>
+
+  <div class="mock">┌─────────────────────────────────────────┐
+│  카드 I                      ● 12:04    │
+├─────────────────────────────────────────┤
+│                                         │
+│         [   카드 이미지   ]             │
+│                                         │
+│          ∧   ∨   &lt;   &gt;                  │  ← 회전
+├─────────────────────────────────────────┤
+│  ① 박쥐 같아요                          │
+│  ② 나비 같기도 하고                     │
+│  ③ ▌                                    │
+├─────────────────────────────────────────┤
+│   [ ← 이전 카드 ]   [ 다음 카드 → ]     │
+│   [ 거부 ]  [ 촉구 ]                    │
+└─────────────────────────────────────────┘</div>
+
+  <p>
+    카드를 넘기시는 시각이 자동으로 기록되어 <strong>반응시간이 저절로
+    측정됩니다.</strong> 초시계를 따로 누르실 필요가 없습니다.
+    카드 회전도 화면에서 돌리시면 그대로 기록됩니다.
+  </p>
+
+  <div class="q">
+    <span class="q-id">질문 3</span>
+    <h3>검사 중 화면에 이것들이 있어야 할까요?</h3>
+    <p>지금 설계에 넣은 것은 <strong>반응 입력 · 카드 넘기기 · 회전 · 거부 · 촉구</strong>
+      다섯 가지입니다. 더 필요하거나 빼야 할 것이 있는지 알려주십시오.</p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 이 정도면 충분하다</li>
+      <li><span class="mark">나</span> 더 필요하다 <em>(무엇이)</em></li>
+      <li><span class="mark">다</span> 이것도 많다 — 검사 중엔 더 줄여야 한다</li>
+    </ul>
+  </div>
+
+  <!-- ══════════ 4. 빠져 있던 기록 ══════════ -->
+  <div class="sym"><span>4 · 빠져 있던 기록</span></div>
+
+  <h2>기록지에 있는데 화면에 없는 것들</h2>
+
+  <p>
+    검토 과정에서 저희가 통째로 빠뜨린 항목들이 드러났습니다.
+    지금 시스템에도 없고, 처음 설계안에도 없었습니다.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>지금</th><th>왜 필요한지 (저희 이해)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>카드 회전</strong> <code>∧ ∨ &lt; &gt;</code></td>
+          <td class="bad">없음</td>
+          <td>영역 좌표가 정위 기준인데 뒤집어 본 반응이면 기준이 달라집니다</td>
+        </tr>
+        <tr>
+          <td><strong>반응시간</strong></td>
+          <td class="bad">없음</td>
+          <td>카드별 지연이 해석 근거가 되는 것으로 압니다</td>
+        </tr>
+        <tr>
+          <td><strong>거부</strong></td>
+          <td class="bad">없음</td>
+          <td>지금은 "거부"와 "아직 입력 안 함"이 구분되지 않습니다</td>
+        </tr>
+        <tr>
+          <td><strong>검사자 개입</strong><br><span style="color:var(--fg-3);font-size:0.9em">촉구·제지·지시 반복</span></td>
+          <td class="bad">없음</td>
+          <td>촉구 후 나온 반응인지 아닌지가 다른 정보로 알고 있습니다</td>
+        </tr>
+        <tr>
+          <td><strong>한계검증</strong></td>
+          <td class="bad">없음</td>
+          <td>정식 반응이 아니므로 R 집계에서 빼야 합니다</td>
+        </tr>
+        <tr>
+          <td><strong>행동관찰</strong></td>
+          <td class="bad">없음</td>
+          <td>"카드 IV에서 위축됨" 같은 메모 자리</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="q">
+    <span class="q-id">질문 4</span>
+    <h3>이 목록에서 빠진 것이 또 있습니까?</h3>
+    <p>
+      기록지에 적으시는 것 중 위 표에도 없는 항목이 있다면 알려주십시오.
+      나중에 추가하면 그 전에 실시한 검사에는 <strong>영구히 빈칸</strong>으로
+      남기 때문에 지금 확인하는 것이 중요합니다.
+    </p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 이 정도면 충분하다</li>
+      <li><span class="mark">나</span> 더 있다 <em>(무엇이)</em></li>
+    </ul>
+  </div>
+
+  <!-- ══════════ 5. 음성 인식 ══════════ -->
+  <div class="sym"><span>5 · 음성 인식</span></div>
+
+  <h2>받아적기를 돕는 기능, 넣을지 말지</h2>
+
+  <p>
+    음성을 자동으로 글로 옮기는 기능을 검토했습니다. 다만
+    <strong>기술적으로 확인된 문제가 있어</strong> 그대로 두기 어렵습니다.
+  </p>
+
+  <div class="card flag">
+    <h3 style="margin-top:0">확인된 문제</h3>
+    <p>
+      음성 인식기는 <strong>침묵 구간에서 없는 말을 만들어냅니다.</strong>
+      한국어에서는 특히 "시청해주셔서 감사합니다" 같은 문장이 삽입되는 것으로
+      알려져 있습니다. 학습 자료의 영향입니다.
+    </p>
+    <p style="margin-bottom:0">
+      로르샤하는 반응 사이 침묵이 길고 그 자체가 지표라, 정확히 이 문제가
+      발동하는 조건입니다. 연구에 따르면 전사문의 약 1%에서 <strong>오디오에
+      전혀 없는 문장</strong>이 통째로 생성되었습니다.
+    </p>
+  </div>
+
+  <p>
+    그래서 <strong>말하는 즉시 화면에 뜨는 방식은 포기</strong>하고,
+    반응 하나를 마치실 때만 그 구간을 옮기는 방식으로 바꿉니다.
+    2~5초 뒤에 글이 채워지고, <strong>빈 칸일 때만</strong> 채웁니다.
+    이미 타이핑하신 내용은 건드리지 않습니다.
+  </p>
+
+  <p>
+    다만 저희가 <strong>재보지 못한 것</strong>이 있습니다.
+    자동으로 옮겨진 글을 고치는 것이, 처음부터 타이핑하시는 것보다 실제로 빠른지
+    측정한 적이 없습니다.
+  </p>
+
+  <div class="q">
+    <span class="q-id">질문 5</span>
+    <h3>음성 인식이 실제로 도움이 되겠습니까?</h3>
+    <p>
+      틀린 곳을 고치는 시간이 오히려 더 들 수도 있습니다.
+      또 화면에 글이 뜨면 <strong>시선이 화면에 묶이는 부작용</strong>도 우려됩니다.
+    </p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 있으면 좋겠다 — 고치는 게 치는 것보다 빠를 것 같다</li>
+      <li><span class="mark">나</span> 없어도 된다 — 타이핑이 낫다</li>
+      <li><span class="mark">다</span> 실제로 써보고 판단하고 싶다</li>
+    </ul>
+    <p style="margin-top:1rem;margin-bottom:0;color:var(--fg-3);font-size:0.92rem">
+      가능하시면 실제 검사 녹음 3~5건을 주시면 저희가 정확도를 측정해
+      숫자로 보여드리겠습니다.
+    </p>
+  </div>
+
+  <div class="q">
+    <span class="q-id">질문 6</span>
+    <h3>어떤 기기로 쓰실 계획입니까?</h3>
+    <p>
+      영역을 마우스로 그리는 것과 태블릿에 펜으로 그리는 것은 속도가
+      크게 다릅니다. 화면 배치도 달라집니다.
+    </p>
+    <ul class="opts">
+      <li><span class="mark">가</span> 태블릿 + 펜</li>
+      <li><span class="mark">나</span> 노트북 (트랙패드/마우스)</li>
+      <li><span class="mark">다</span> 아직 정해지지 않았다</li>
+    </ul>
+  </div>
+
+  <!-- ══════════ 마무리 ══════════ -->
+  <div class="sym"><span>정리</span></div>
+
+  <h2>여쭙는 것 여섯 가지</h2>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th class="num">#</th><th>질문</th><th>왜 필요한지</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">1</td><td>검사 절차 이해가 맞는지</td><td>화면 전체 구조가 여기 달렸습니다</td></tr>
+        <tr><td class="num">2</td><td>채점표 영역 표기 방식</td><td>지금 47건이 집계에서 빠지고 있습니다</td></tr>
+        <tr><td class="num">3</td><td>검사 중 화면에 필요한 것</td><td>넣고 빼는 기준이 됩니다</td></tr>
+        <tr><td class="num">4</td><td>빠진 기록 항목이 더 있는지</td><td>나중에 넣으면 이전 검사는 영구히 빈칸입니다</td></tr>
+        <tr><td class="num">5</td><td>음성 인식 필요 여부</td><td>가장 비싼 기능이라 먼저 정해야 합니다</td></tr>
+        <tr><td class="num">6</td><td>사용 기기</td><td>화면 배치가 달라집니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:2rem">
+    <strong>2번은 답을 기다리지 않고 먼저 고치겠습니다.</strong>
+    어느 쪽 표기든 이미 저장된 47건은 읽을 수 있어야 하기 때문입니다.
+    수정하면 지금까지 하신 검사의 구조요약이 제대로 나오기 시작합니다.
+  </p>
+
+  <div class="foot">
+    마인드봄 · 투사적 심리검사 해석 보조 시스템 · 2026년 8월<br>
+    이 문서의 판단은 코드와 실제 저장된 검사 60건을 확인해 작성했습니다.
+    임상 절차에 관한 서술은 저희 이해이며 확인이 필요합니다.
+  </div>
+
+</div>

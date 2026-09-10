@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>마인드스코프 프로토타입 — 버전 비교 (r1 → r4 → r6)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: #17150F; color: #EDE9E0; padding: 32px 24px 80px; }
+  h1 { font-size: 22px; letter-spacing: -0.4px; margin-bottom: 6px; }
+  .sub { color: #9B958A; font-size: 13px; margin-bottom: 28px; line-height: 1.6; }
+  .cols { display: grid; grid-template-columns: 140px repeat(3, 1fr); gap: 12px; align-items: start; max-width: 1480px; margin: 0 auto; }
+  .colhead { position: sticky; top: 0; background: #17150F; padding: 10px 4px; font-size: 13px; font-weight: 700; z-index: 2; border-bottom: 1px solid #343026; }
+  .colhead small { display: block; font-weight: 400; color: #9B958A; margin-top: 2px; font-size: 11px; }
+  .rowlabel { position: sticky; left: 0; font-size: 13px; font-weight: 600; padding-top: 12px; color: #CFC9BC; }
+  .rowlabel small { display: block; font-weight: 400; color: #7C766A; font-size: 11px; margin-top: 3px; line-height: 1.5; }
+  img { width: 100%; border-radius: 14px; display: block; background: #000; }
+  .missing { aspect-ratio: 1/2; border: 1px dashed #3E3A2F; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #6B6659; font-size: 12px; }
+  .divider { grid-column: 1 / -1; margin: 26px 0 8px; font-size: 14px; font-weight: 700; color: #C9A96A; border-bottom: 1px solid #343026; padding-bottom: 8px; }
+</style>
+</head>
+<body>
+<h1>버전 비교 — v0.2(r1) → v0.5(r4) → v0.6 확정(r5/r6)</h1>
+<p class="sub">
+  r1 = 토스 스킨 · r4 = 따뜻함 사이클(웜 스톤·파스텔) · r5/r6 = v0.6 확정(섀도 제거→헤어라인 · inset-grouped 리스트 · 히어로 솔리드 #3D6FDB · 블루 정확히 1단어 · 웜 틴트 글리프).<br>
+  ※ 짧은 유색 글자 밑줄은 헤드리스 캡처 아티팩트 — 실제 브라우저에는 없음. r6은 마감 변경 화면만 재캡처(없는 칸은 r5가 최종).
+</p>
+<div class="cols" id="grid">
+  <div class="colhead">화면</div>
+  <div class="colhead">r1 <small>v0.2 · 토스 스킨</small></div>
+  <div class="colhead">r4 <small>v0.5 · 따뜻함 사이클</small></div>
+  <div class="colhead">r5 / r6 <small>v0.6 · 4인 논의 확정</small></div>
+</div>
+<script>
+  // r6에 있으면 r6(마감 반영본), 없으면 r5가 v0.6 최종
+  const R6 = ["consent","home_empty","home_look","home_watch","link_child","link_done","profile","timeline"];
+  const GROUPS = [
+    ["홈 — 4상황", [
+      ["home_watch","① 지켜보기 홈 — 블루 1단어 '돌봄'"],
+      ["home_look","① 알아보기 홈 — 히어로 솔리드"],
+      ["home_s2","② 세션 리듬 홈"],
+      ["home_s3","③ 다자녀 홈"],
+      ["home_empty","빈 홈 — 유채 0 · '다 챙기셨어요'"],
+    ]],
+    ["온보딩 · 연결", [
+      ["start","시작 질문"],
+      ["gate","가입 게이트"],
+      ["consent","동의 한 장 — 빈 원 stroke(r6)"],
+      ["profile","아이 프로필"],
+      ["link_land","초대 랜딩"],
+      ["link_verify","본인인증"],
+      ["link_child","아이 확인"],
+      ["link_done","연결 완료 — 출구 링크 블루 복원(r6)"],
+    ]],
+    ["기록 · 센터 · 마이", [
+      ["record","기록 남기기"],
+      ["say","말씀 담기(녹음)"],
+      ["timeline","타임라인 — 행 글리프 무채화(r6)"],
+      ["share","공유 설정"],
+      ["search","센터 찾기"],
+      ["center","센터 상세"],
+      ["call","전화 도우미"],
+      ["my","마이 — r4↔r6 비교 추천(유나: '5년 이동')"],
+    ]],
+    ["v0.6 전용 — 시간대 워시 (r6)", [
+      ["wash_am","아침 #F9F1DF"],
+      ["wash_pm","저녁 #F9EEE6"],
+      ["wash_eve","밤 #F0EFF2 — 헤드라인 아래 시작"],
+    ]],
+  ];
+  const grid = document.getElementById("grid");
+  const cell = (html) => { const d = document.createElement("div"); d.innerHTML = html; return d.firstElementChild; };
+  const shot = (round, id) => cell(`<img loading="lazy" src="${round}/${id}.png" onerror="this.outerHTML='<div class=missing>–</div>'">`);
+  for (const [title, rows] of GROUPS) {
+    grid.appendChild(cell(`<div class="divider">${title}</div>`));
+    for (const [id, note] of rows) {
+      grid.appendChild(cell(`<div class="rowlabel">${id}<small>${note}</small></div>`));
+      if (id.startsWith("wash_")) {
+        grid.appendChild(cell(`<div class="missing">해당 없음</div>`));
+        grid.appendChild(cell(`<div class="missing">해당 없음</div>`));
+        grid.appendChild(shot("r6", id));
+      } else {
+        grid.appendChild(shot("r1", id));
+        grid.appendChild(shot("r4", id));
+        grid.appendChild(shot(R6.includes(id) ? "r6" : "r5", id));
+      }
+    }
+  }
+</script>
+</body>
+</html>

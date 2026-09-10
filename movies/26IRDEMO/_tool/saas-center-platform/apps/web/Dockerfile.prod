@@ -1,0 +1,72 @@
+# Build context: monorepo root (pnpm-lock.yaml is at root)
+# Usage: docker build -f apps/web/Dockerfile.prod -t mindscope-web .
+
+# ============================================
+# Stage 1: Dependencies
+# ============================================
+FROM node:22-alpine AS deps
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app
+
+# Copy workspace config and lockfile from monorepo root
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/web/package.json ./apps/web/
+
+# Install all dependencies (only web workspace)
+RUN pnpm install --frozen-lockfile --filter web
+
+# Extract production dependencies as flat node_modules (no symlinks)
+RUN pnpm deploy --filter web --prod /app/prod_deps
+
+# ============================================
+# Stage 2: Build
+# ============================================
+FROM node:22-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app
+
+# Copy installed node_modules
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+
+# Copy web app source (including common/ and assessment/ directories)
+COPY apps/web/ ./apps/web/
+
+# Copy root config needed for build
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+
+WORKDIR /app/apps/web
+
+# Build SvelteKit app (adapter-node outputs to build/)
+RUN pnpm build
+
+# ============================================
+# Stage 3: Runtime
+# ============================================
+FROM node:22-alpine
+
+# Non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Copy build output and production deps with correct ownership (no chown -R needed)
+COPY --chown=appuser:appgroup --from=builder /app/apps/web/build ./build
+COPY --chown=appuser:appgroup --from=builder /app/apps/web/package.json ./
+COPY --chown=appuser:appgroup --from=deps /app/prod_deps/node_modules ./node_modules
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+USER appuser
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget -qO- http://localhost:3000/healthz || exit 1
+
+CMD ["node", "build/index.js"]

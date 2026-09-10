@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mindscope-ingress
+  namespace: mindscope-dev
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+spec:
+  ingressClassName: nginx
+  rules:
+    # API
+    - host: dev-api.mindscope.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mindscope-api-svc
+                port:
+                  number: 80
+    # Web Frontend
+    - host: dev-app.mindscope.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mindscope-web-svc
+                port:
+                  number: 80
+    # Admin Frontend
+    - host: dev-console.mindscope.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mindscope-admin-svc
+                port:
+                  number: 80

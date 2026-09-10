@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "measured_at": "2026-08-13",
+    "status": "draft",
+    "method": "양 레포 코드 실측 (플랫폼 TaskStatus enum / 마인드봄 state_machine.py VALID_TRANSITIONS)"
+  },
+  "platform_states": {
+    "field": "AssessmentTask.status",
+    "values": [
+      "pending",
+      "in_progress",
+      "submitted",
+      "completed",
+      "refused",
+      "cancelled"
+    ],
+    "semantics": "submitted=채점+PDF 완료·검수 대기 / completed=플랫폼 담당자 검수 완료"
+  },
+  "mindbom_states": {
+    "field": "Examination.status (평문 String — enum 클래스 없음)",
+    "values": [
+      "created",
+      "in_progress",
+      "ai_analyzing",
+      "ai_draft_ready",
+      "under_review",
+      "confirmed",
+      "report_generated",
+      "completed"
+    ],
+    "reverse_transitions": [
+      "ai_analyzing→in_progress (AI 실패 복귀)",
+      "ai_draft_ready→ai_analyzing (재분석)",
+      "under_review→ai_analyzing (재분석 요청)"
+    ],
+    "note": "문서와 코드 일치. 역방향 전이 3개는 문서에 없음 — report_generated 이후는 전진만"
+  },
+  "mapping": [
+    {
+      "mindbom": "created",
+      "platform": "pending",
+      "verdict": "1:1 정합"
+    },
+    {
+      "mindbom": "in_progress",
+      "platform": "in_progress",
+      "verdict": "1:1 정합"
+    },
+    {
+      "mindbom": "ai_analyzing",
+      "platform": "in_progress",
+      "verdict": "내부 단계 — 산출물 미확정"
+    },
+    {
+      "mindbom": "ai_draft_ready",
+      "platform": "in_progress",
+      "verdict": "⚠ submitted 아님 — PDF 부재 + AI 초안은 임상가 미검토(CDSS 원칙상 플랫폼 노출 금지)"
+    },
+    {
+      "mindbom": "under_review",
+      "platform": "in_progress",
+      "verdict": "⚠ submitted 아님 — 검토 주체가 마인드봄 임상가(플랫폼 담당자 아님) + 재분석 역전이 가능"
+    },
+    {
+      "mindbom": "confirmed",
+      "platform": "in_progress",
+      "verdict": "채점 확정·PDF 미생성 — submitted 정의 절반만 충족"
+    },
+    {
+      "mindbom": "report_generated",
+      "platform": "submitted",
+      "verdict": "✓ 유일한 전이 트리거 — submitted 정의(채점+PDF+검수 대기)와 정확 일치. 이후 역전이 없어 비가역 가정 안전"
+    },
+    {
+      "mindbom": "completed",
+      "platform": "submitted (유지)",
+      "verdict": "⚠ 동명이의 — 마인드봄 completed=자체 워크플로 종료 ≠ 플랫폼 completed=담당자 검수. 플랫폼 completed는 플랫폼 액션으로만 (자동 매핑=검수 건너뜀)"
+    },
+    {
+      "mindbom": "(없음)",
+      "platform": "refused",
+      "verdict": "역방향 갭 — 마인드봄에 거부 상태 없음"
+    },
+    {
+      "mindbom": "(없음)",
+      "platform": "cancelled",
+      "verdict": "역방향 갭 — 취소·중단 경로 자체 부재 (중도 이탈이 in_progress 영구 잔류)"
+    }
+  ],
+  "identity_link": {
+    "exists": false,
+    "note": "마인드봄 Client에 외부 참조 필드 전무(platform_client_id류 0건) — 경계 계약 최우선 신설 대상. 테넌트 축도 institution_id vs center_id 대응 필요"
+  },
+  "result_artifacts": {
+    "구조화 점수": "검사종별 3형태(HTP=해석 문장 행 / Rorschach=final_coding_json / SCT=result_data JSONB) — 플랫폼 report_payload로 스키마 변환 필요",
+    "PDF": "비저장 — 요청 시 on-demand 생성(WeasyPrint). '전송 시점 생성→플랫폼 documents 업로드' 계약 신설 필요",
+    "종합 소견": "단일 opinion 필드 부재 — 플랫폼 AssessmentTask.opinion(Text)의 대응물 없음"
+  },
+  "gaps": [
+    "신원 연결 컬럼 부재 (최우선)",
+    "refused/cancelled 대응 상태 부재",
+    "PDF 비저장 — 전송 계약 필요",
+    "종합 소견 필드 부재",
+    "exam_type 평문 3값 vs assessment_id 카탈로그 — 매핑 테이블 필요",
+    "institution_id vs center_id 테넌트 대응",
+    "completed 동명이의",
+    "마인드봄 명명 아키타입 미준수(컨벤션 세대 차이)"
+  ]
+}
