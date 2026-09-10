@@ -1,0 +1,15 @@
+{
+  "stage": "phone",
+  "size": [
+    3840,
+    2160
+  ],
+  "fps": 60,
+  "screen": "../raw/s06_phone_fieldnote-tap_t02.mov",
+  "phoneH": 86,
+  "statusH": 0,
+  "homeH": 0,
+  "screenBg": "#000000",
+  "shotRatio": 0.46,
+  "_note": "홈 → [바로 녹음] 탭 → 녹음 + 전사까지 한 테이크(idb 탭). 시뮬레이터 전체 화면이라 띠 없이."
+}

@@ -36,6 +36,33 @@ node capture-phone.mjs --scene s06-필드노트 --action fieldnote-rec --udid bo
 > ⚠️ **`demo.tsx`는 촬영용이다.** 운영 빌드에 들어가면 안 된다. `_tool/`은 커밋되지 않으므로
 > 이 줄과 STATUS.md의 제품 변경 표가 그 존재의 유일한 기록이다.
 
+### 최종 — 탭 한 번으로 전사까지 (`fieldnote-tap_t02` · 20.18초)
+
+**`idb`는 원래 깔려 있었다.** `idb_companion`도 `fb-idb`도 있고 CLI만 PATH 밖(`~/Library/Python/3.9/bin/idb`)이라
+`which idb`로 판단하는 러너·스킬이 "없음"으로 봤을 뿐이다. PATH에 넣으면 `--script`로 탭이 다 된다.
+
+```bash
+export PATH="$HOME/Library/Python/3.9/bin:$PATH"
+cd .claude/skills/phone-stage/scripts && node stage.mjs goto /field-note/home
+cd ../../capture-service/scripts
+node capture-phone.mjs --scene s06-필드노트 --action fieldnote-tap --udid booted \
+  --app kr.mindscope.app.dev --seed _seed/saas-2026-09-10e.json --script _scripts/s06-phone-fieldnote.mjs
+```
+
+흐름: **필드노트 홈 → `바로 녹음` 탭 → 녹음 화면(00:36 → 03:05) → 전사가 시각과 함께 쌓인다.**
+조작 시각이 meta에 남는다.
+
+> **`바로 녹음`이 데모로 가는 길은 촬영 빌드에만 있다** — `home.tsx`의 `onRecord`에
+> `EXPO_PUBLIC_FIELDNOTE_DEMO === '1'` 분기 한 줄. 그 값 없이 빌드하면 원래대로 회기 선택 시트가 뜬다.
+> 빌드도 `EXPO_PUBLIC_FIELDNOTE_DEMO=1 node stage.mjs build`로 한다.
+
+**진짜 경로로는 왜 안 되나** (t01에서 확인) — 탭으로 회기 선택까지는 간다. 녹음도 실제로 시작되고
+청크도 쌓인다(시뮬레이터에 마이크가 있다). 그런데 화면이 `전사 중…`에서 멈춘다:
+모델은 대역으로 갈아 끼웠고(`llm-stub`의 `/v1/audio/transcriptions`) 서버 로그에도
+`Chunk STT completed: text_length=58`이 찍히는데, **서버가 그 전사를 저장하는 데서 실패한다** —
+`field_note_audio/repository.py:56`의 `assert updated is not None`. 행은 있고 WHERE는 id·deleted_at뿐인데
+UPDATE가 아무것도 못 잡는다. 제품/환경 쪽 문제라 촬영을 거기 걸어 두지 않았다.
+
 ### 앱 절반은 테이크 셋이다
 
 | 테이크 | 무엇 | 비고 |

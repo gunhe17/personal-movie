@@ -84,7 +84,8 @@
 | s06 필드노트 (웹) | **`s06_web_fieldnote_t05.mov`** (v6 · 윤도현) | **15.47s** | 0 | 1 |
 | s06 필드노트 (앱 · 홈~회기선택) | `s06_phone_fieldnote-app_t01.mov` | 18.60s | 0 | 1 |
 | s06 필드노트 (앱 · **목록**) | **`s06_phone_fieldnote-list_t01.mov`** | **14.00s** | 0 | 1 |
-| s06 필드노트 (앱 · **녹음**) | **`s06_phone_fieldnote-rec_t04.mov`** (데모 라우트) | **30.02s** | 0 | 1 |
+| s06 필드노트 (앱 · **탭→전사**) | **`s06_phone_fieldnote-tap_t02.mov`** (idb 탭 · 데모) | **20.18s** | 0 | 1 |
+| s06 필드노트 (앱 · 녹음만) | `s06_phone_fieldnote-rec_t04.mov` (데모 라우트) | 30.02s | 0 | 1 |
 | s07 자동일지 | **`s07_web_draft_t06.mov`** (v6 · llm-stub) | **10.27s** | 0 | 1 |
 | s08 케어보드 | **`s08_web_careboard_t04.mov`** (v6 · s01 배치) | **15.93s** | 0 | 1 |
 | s09 회기·정산 | **`s09_web_noshow_t04.mov`** (v6 · s01 배치) | **11.10s** | 0 | 1 |
@@ -118,6 +119,9 @@ t02가 `--retake-of t01`로 사유와 함께 대체한다.
 > s01 **t10이 이걸로 죽었다**: `mds`(Spotlight)가 방금 만든 `node_modules`를 색인하느라 60Hz 캡처 타이머가 굶어
 > 22.16초를 **1195프레임(19.92초)** 으로 찍었다 — **영상이 실제보다 10% 빠르다.** `notReady 0`이라 드롭으로 잡히지 않는다.
 > **검토 첫 항목은 프레임 충실도**(`result.duration ÷ (steps[-1].t + tail)`)이고 **98% 아래면 버린다**. 정상은 98~99%다.
+>
+> ⚠️ **`idb`는 깔려 있다 — PATH만 밖이다**(09-11). `~/Library/Python/3.9/bin/idb`.
+> `which idb`로 판단하는 `phone.mjs`·`stage.mjs`가 "없음"으로 본다. PATH에 넣으면 **폰 조작 스크립트(`--script`)가 된다** — s06 앱 절반을 그렇게 찍었다.
 >
 > ⚠️ **제품 변경 (09-11) — 전문가 앱에 촬영용 데모 라우트.** `apps/mobile/app/(main)/field-note/demo.tsx` (새 파일 하나, 다른 코드 무수정).
 > 제품의 `RecordingScreen`을 그대로 렌더하고 타이머·파형 진폭·전사 줄만 대본으로 흘린다 — 화면을 다시 그리지 않으니 디자인이 어긋날 수 없다.

@@ -1,0 +1,135 @@
+{
+  "id": "s06_phone_fieldnote-tap_t01",
+  "scene": "s06-필드노트",
+  "device": "phone",
+  "action": "fieldnote-tap",
+  "take": "t01",
+  "captured_at": "2026-09-10T21:42:02.913Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.app.dev",
+    "url": null,
+    "env": "local",
+    "commit": "285e382"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 623,
+      "appended": 1003,
+      "dupped": 387,
+      "notReady": 0,
+      "ticks": 1003,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s06-phone-fieldnote.mjs",
+    "sha256": "bd621df42c9b7ab4772fde7a9b4e909e1c188e7fced01680422b69d0cb5f8fb4"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "필드노트 홈 — 오늘 기록할 일정과 최근 노트"
+    },
+    {
+      "t": 5.67,
+      "kind": "tap",
+      "target": "바로 녹음",
+      "note": "바로 녹음"
+    },
+    {
+      "t": 7.77,
+      "kind": "beat",
+      "target": "",
+      "note": "기록할 상담이나 검사를 선택해주세요"
+    },
+    {
+      "t": 8.98,
+      "kind": "tap",
+      "target": "201,205.1666717529297",
+      "note": "윤도현의 검사를 고른다"
+    },
+    {
+      "t": 12.49,
+      "kind": "hold",
+      "target": "2600",
+      "note": "녹음이 시작된다"
+    },
+    {
+      "t": 13.7,
+      "kind": "hold",
+      "target": "1200",
+      "note": "끝"
+    },
+    {
+      "t": 13.7,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.21,
+      "note": "누르면 회기를 고르고, 고르면 녹음이 선다",
+      "end": 12.49
+    }
+  ],
+  "result": {
+    "file": "raw/s06_phone_fieldnote-tap_t01.mov",
+    "duration": 16.72,
+    "ok": true,
+    "error": null
+  }
+}
