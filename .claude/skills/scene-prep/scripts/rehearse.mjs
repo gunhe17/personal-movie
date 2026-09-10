@@ -14,6 +14,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url'
 import { human } from '../../capture-service/scripts/human.mjs'
 import { SPEC } from '../../capture-service/scripts/spec.mjs'
 import { ensureWav, sttArgs, installStt } from '../../capture-service/scripts/stt.mjs'
+import { checkAuth, RELOGIN_HINT } from '../../capture-service/scripts/auth-check.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
@@ -39,12 +40,12 @@ if (args.mock) {
 // 리허설은 SPEC 타이밍을 그대로 쓴다 — 대기가 짧아서 되던 것이 촬영에서 깨지면 안 된다.
 // --fast는 셀렉터만 빠르게 훑어볼 때. 이걸로 통과했다고 촬영 통과는 아니다.
 const T = args.fast
-  ? { ...SPEC.timing, move: 120, moveSteps: 6, preClick: 80, postClick: 200, type: 8, afterType: 100, beat: 300, modal: 250, scrollEvery: 10, afterScroll: 200 }
+  ? { ...SPEC.timing, move: 120, moveSteps: 6, preClick: 80, postClick: 200, type: 8, afterType: 100, beat: 300, modal: 250, scrollFrame: 4, afterScroll: 200 }
   : SPEC.timing
 
 const { chromium } = createRequire(PLAYWRIGHT_FROM)('playwright')
 const stt = args.stt ? JSON.parse(fs.readFileSync(path.join(DEMO_ROOT, args.stt), 'utf8')) : null
-const sttWav = stt ? ensureWav(path.join(DEMO_ROOT, '_mocks/.stt-clip.wav')) : null
+const sttWav = stt ? ensureWav(path.join(DEMO_ROOT, '_mocks/.stt-clip.wav'), { speechSec: stt.speechSec, silenceSec: stt.silenceSec }) : null
 
 const browser = await chromium.launch({
   headless: !!args.headless,
@@ -61,6 +62,15 @@ const context = await browser.newContext({
   ...(stt ? { permissions: ['microphone'] } : {}),
   ...(args.state ? { storageState: path.join(DEMO_ROOT, args.state) } : {})
 })
+// 죽은 로그인은 "셀렉터 타임아웃"으로 위장한다 — 30초를 버리기 전에 여기서 잡는다
+if (args.state && args.url) {
+  const auth = await checkAuth(context, args.url)
+  if (!auth.ok) {
+    console.error(`✗ ${auth.why}\n${RELOGIN_HINT(args.url, args.state)}`)
+    await browser.close()
+    process.exit(5)
+  }
+}
 if (stt) await installStt(context, stt.clips)
 if (mock) {
   await context.addInitScript((s) => {

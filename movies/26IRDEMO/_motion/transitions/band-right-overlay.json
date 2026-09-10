@@ -1,0 +1,2 @@
+{ "stage":"wipe", "preset":"band", "dir":"right", "width":0.32, "feather":0.02, "ease":"inout",
+  "duration":1.0, "fps":60, "shutter":4, "size":[1920,1080], "color":"#3F5B66" }

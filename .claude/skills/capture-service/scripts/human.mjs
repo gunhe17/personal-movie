@@ -85,10 +85,19 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
       mark('type', sel, note ?? text)
       await sleep(T.afterType)
     },
+    // 거리를 먼저 정하고, 커서 이동과 같은 시간·ease-out으로 매 프레임 조금씩 휠을 보낸다(v5).
+    // CDP 합성 휠은 smooth scrolling을 타지 않아 델타 하나가 한 프레임 점프다 — 그래서 프레임마다 작은 델타로 쪼갠다.
     async scroll(dy, note) {
-      const n = Math.max(1, Math.round(Math.abs(dy) / T.scrollStep))
-      const s = Math.sign(dy) * T.scrollStep
-      for (let i = 0; i < n; i++) { await page.mouse.wheel(0, s); await sleep(T.scrollEvery) }
+      const dist = Math.abs(dy)
+      const dur = Math.min(T.moveMax, T.moveMin + dist * T.movePerPx)
+      const n = Math.max(1, Math.round(dur / T.scrollFrame))
+      let done = 0
+      for (let i = 1; i <= n; i++) {
+        const target = Math.round(dy * easeOut(i / n))   // 누적 정수 — 델타 합이 정확히 dy
+        if (target !== done) await page.mouse.wheel(0, target - done)
+        done = target
+        await sleep(T.scrollFrame)
+      }
       mark('scroll', dy, note)
       await sleep(T.afterScroll)
     },
@@ -133,6 +142,32 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
       await moveTo(first.x, first.y)
       await page.mouse.up()
       mark('draw', `${pts.length}점`, note)
+      await sleep(T.postClick)
+    },
+    /**
+     * 요소를 집어 다른 요소 위에 놓는다 — HTML5 드래그 앤 드롭.
+     * mousedown 뒤 커서가 실제로 움직이므로 dragstart → dragover → drop이 브라우저 순서대로 난다.
+     * to는 셀렉터 또는 {sel, fx, fy}(요소 박스 기준 0..1 비율 — 문단 끝처럼 특정 자리에 놓을 때).
+     */
+    async drag(from, to, note) {
+      const src = typeof from === 'string' ? page.locator(from).first() : from.first()
+      await src.waitFor({ state: 'visible' })
+      await assertEnabled(src, typeof from === 'string' ? from : 'locator')
+      const s = await center(from)
+      await moveTo(s.x, s.y, await shapeAt(s.x, s.y))
+      await sleep(T.preClick)
+      await page.mouse.down()
+      await moveTo(s.x + 12, s.y + 12)              // 드래그 임계값을 넘겨 dragstart를 낸다
+      const spec = typeof to === 'object' && to && 'sel' in to ? to : { sel: to, fx: 0.5, fy: 0.5 }
+      const el = typeof spec.sel === 'string' ? page.locator(spec.sel).first() : spec.sel.first()
+      await el.waitFor({ state: 'visible' })
+      await el.scrollIntoViewIfNeeded()
+      const b = await el.boundingBox()
+      if (!b) throw new Error(`드롭 대상 boundingBox 없음: ${spec.sel}`)
+      await moveTo(b.x + b.width * spec.fx, b.y + b.height * spec.fy)
+      await sleep(T.preClick)
+      await page.mouse.up()
+      mark('drag', `${from} → ${spec.sel}`, note)
       await sleep(T.postClick)
     },
     /**

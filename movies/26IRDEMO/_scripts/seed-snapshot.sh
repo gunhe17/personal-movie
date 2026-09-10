@@ -12,7 +12,7 @@ mkdir -p _seed
 
 case "$app" in
 saas)
-  container=saas-postgres; user=imomtae; db=imomtae
+  container=saas-postgres; user=imomtae; db=imomtae; port=3501
   query="
 select jsonb_pretty(jsonb_build_object(
   'app', 'saas-center-platform', 'seed', 'scripts.seed.develop',
@@ -26,7 +26,7 @@ select jsonb_pretty(jsonb_build_object(
   'field_notes', (select count(*) from field_notes where deleted_at is null)
 ));" ;;
 mindbom)
-  container=mindbom-postgres; user=mindbom; db=mindbom
+  container=mindbom-postgres; user=mindbom; db=mindbom; port=4501
   # 검사 시각은 담지 않는다 — seed.py가 재실행마다 '지금' 기준으로 다시 맞추므로
   # 시각까지 넣으면 같은 데이터에도 sha256이 매번 달라진다. id와 상태만 박는다.
   query="
@@ -40,7 +40,17 @@ select jsonb_pretty(jsonb_build_object(
 *) echo "모르는 앱: $app (saas | mindbom)"; exit 1 ;;
 esac
 
-docker exec "$container" psql -U "$user" -d "$db" -tA -c "$query" > "$out"
+# docker exec 대신 psql 직결 — 이 기계에서는 docker exec 권한이 막혀 있다.
+if [ "$app" = saas ]; then
+  PGPASSWORD=$(python3 -c "import urllib.parse
+for l in open('_tool/saas-center-platform/apps/api/.env'):
+    if l.startswith('DATABASE_URL='):
+        print(urllib.parse.unquote(urllib.parse.urlparse(l.split('=',1)[1].strip().replace('postgresql+asyncpg','postgresql')).password))")
+else
+  PGPASSWORD=mindbom_dev
+fi
+export PGPASSWORD
+psql -h localhost -p "$port" -U "$user" -d "$db" -tA -c "$query" > "$out"
 
 [ -s "$out" ] || { rm -f "$out"; echo "빈 결과 — DB가 떠 있고 시드가 돌았는지 확인 (accounts.json의 apps.$app.seed)"; exit 1; }
 echo "$out  sha256=$(shasum -a 256 "$out" | cut -c1-12)"

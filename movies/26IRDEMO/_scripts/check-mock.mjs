@@ -23,6 +23,8 @@ const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'))
 assert.ok(files.length, '_mocks가 비었다')
 for (const f of files) {
   const s = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))
+  // stt 클립 파일(s02-stt.json)은 에이전트 대본이 아니다 — turns가 없다
+  if (s.clips && !s.turns) { assert.ok(Array.isArray(s.clips) && s.clips.length, `${f}: clips 배열이 비었다`); continue }
   assert.ok(Array.isArray(s.turns) && s.turns.length, `${f}: turns 배열이 필요하다`)
   for (const [i, t] of s.turns.entries()) {
     const at = `${f} turn[${i}]`

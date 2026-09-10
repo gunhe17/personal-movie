@@ -1,0 +1,645 @@
+<title>3분 50초의 낙차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488;
+  --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --before:#3F5B66; --before-bg:#DCE4E7;
+  --after:#A9702F;  --after-bg:#F2E5D2;
+  --stop:#8C3A2E; --stop-bg:#EEDCD8;
+  --track:#DCDEDD; --off:#C8CCCB;
+  --f-d:'Hahmlet','Nanum Myeongjo',serif;
+  --f-b:'Gothic A1',system-ui,-apple-system,sans-serif;
+  --f-m:'IBM Plex Mono','Nanum Gothic Coding',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --stop:#D98A7B; --stop-bg:#33211D;
+  --track:#252B2D; --off:#333B3D;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --stop:#D98A7B; --stop-bg:#33211D;
+  --track:#252B2D; --off:#333B3D;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-b);line-height:1.72;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+:focus-visible{outline:2px solid var(--after);outline-offset:2px}
+
+.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
+.slate{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);margin:0}
+.slate b{color:var(--before);font-weight:500}.slate s{color:var(--after);text-decoration:none;font-weight:500}
+.mast h1{font-family:var(--f-d);font-weight:800;font-size:clamp(40px,6.6vw,74px);line-height:1.04;letter-spacing:-.03em;margin:14px 0 8px;text-wrap:balance}
+.mast .lede{font-size:16.5px;font-weight:300;color:var(--ink-2);max-width:62ch;margin:0 0 26px}
+.mast .lede b{font-weight:500;color:var(--ink)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));border-top:1px solid var(--rule)}
+.tally div{padding:12px 14px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.tally b{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);display:block;font-weight:400}
+.tally span{font-family:var(--f-d);font-weight:600;font-size:21px;letter-spacing:-.01em;display:block;margin-top:1px}
+.tally i{font-style:normal;font-size:12.5px;color:var(--ink-2);display:block}
+
+h2.sec{font-family:var(--f-m);font-size:11px;letter-spacing:.18em;font-weight:500;color:var(--ink-3);margin:58px 0 0;display:flex;align-items:center;gap:12px}
+h2.sec::after{content:"";flex:1;height:0;border-top:1px solid var(--rule)}
+h2.sec em{font-style:normal;color:var(--ink)}
+h3.sub{font-family:var(--f-d);font-weight:700;font-size:20px;letter-spacing:-.01em;margin:34px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
+p.note{font-size:13.5px;color:var(--ink-2);max-width:70ch;margin:12px 0 0;line-height:1.75}
+p.note b{color:var(--ink);font-weight:500}
+code{font-family:var(--f-m);font-size:.88em;background:var(--band);padding:1px 5px}
+pre{font-family:var(--f-m);font-size:12px;line-height:1.7;background:var(--surface);border:1px solid var(--rule);border-left:2px solid var(--after);padding:14px 16px;overflow-x:auto;margin:14px 0 0;white-space:pre;color:var(--ink)}
+pre .k{color:var(--after)}
+pre .d{color:var(--ink-3)}
+.mjkey{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:18px}
+.mjkey div{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 16px 16px;background:var(--surface)}
+.mjkey b{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;display:block}
+.mjkey span{font-family:var(--f-d);font-weight:700;font-size:16px;display:block;margin:2px 0 5px}
+.mjkey p{margin:0;font-size:12.5px;line-height:1.62;color:var(--ink-2)}
+
+/* 금지선 */
+.mines{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.mine{background:var(--surface);border:1px solid var(--rule);padding:20px 22px 22px}
+.mine .tag{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--stop);font-weight:500;margin:0 0 8px;display:block}
+.mine h3{font-family:var(--f-d);font-weight:700;font-size:19px;line-height:1.4;margin:0 0 8px;letter-spacing:-.01em}
+.mine p{margin:0;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+.mine .ans{margin-top:12px;padding:11px 13px;background:var(--after-bg);font-size:13px;line-height:1.68;color:var(--ink)}
+.mine .ans b{font-family:var(--f-m);font-size:9.5px;letter-spacing:.12em;color:var(--after);font-weight:500;display:block;margin-bottom:3px}
+
+/* 층 */
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:18px}
+.layers>div{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 18px 18px;background:var(--surface)}
+.layers .no{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3)}
+.layers h4{font-family:var(--f-d);font-weight:700;font-size:17px;margin:3px 0 7px;letter-spacing:-.01em}
+.layers p{margin:0;font-size:13px;line-height:1.66;color:var(--ink-2)}
+.layers .ev{margin-top:9px;font-family:var(--f-m);font-size:10.5px;line-height:1.6;color:var(--ink-3);letter-spacing:.02em}
+
+/* 층 배지 */
+.lay{display:inline-flex;gap:3px;vertical-align:1px}
+.lay i{display:block;width:9px;height:9px;background:var(--off);border:1px solid var(--rule-2)}
+.lay i.on1{background:var(--before)}
+.lay i.on2{background:var(--ink-2)}
+.lay i.on3{background:var(--ink-3)}
+.lay i.on4{background:var(--after)}
+.laykey{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 0;font-family:var(--f-m);font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+.laykey i{display:inline-block;width:9px;height:9px;margin-right:5px;border:1px solid var(--rule-2);vertical-align:0}
+
+/* 타임라인 */
+.tl{margin:20px 0 0;background:var(--surface);border:1px solid var(--rule);padding:20px 20px 14px;overflow-x:auto}
+.tl-in{min-width:660px}
+.tl-bar{display:flex;height:40px;border:1px solid var(--rule-2)}
+.tl-bar span{border-right:1px solid var(--rule-2);font-family:var(--f-m);font-size:10px;letter-spacing:.05em;padding:5px 0 0 6px;overflow:hidden;white-space:nowrap;color:var(--ink-2)}
+.tl-bar span:last-child{border-right:0}
+.tl-bar .h{background:var(--band)}
+.tl-bar .b{background:var(--before-bg);color:var(--before)}
+.tl-bar .pk{background:var(--stop-bg);color:var(--stop)}
+.tl-bar .pv{background:var(--ink);padding-left:2px}
+.tl-bar .pre{background:var(--after-bg);color:var(--after)}
+.tl-bar .a{background:var(--after-bg);color:var(--after)}
+.tl-bar .e{background:var(--band)}
+.tl-bar em{font-style:normal;display:block;font-size:9.5px;color:var(--ink-3);letter-spacing:.08em}
+.curve{margin-top:2px;position:relative}
+.curve svg{display:block;width:100%;height:auto}
+.tl-ticks{display:flex;margin-top:4px;font-family:var(--f-m);font-size:9.5px;color:var(--ink-3);letter-spacing:.06em}
+.tl-ticks span{border-left:1px solid var(--rule);padding-left:4px}
+.tl-cap{font-family:var(--f-m);font-size:10px;letter-spacing:.1em;color:var(--ink-3);margin:10px 0 0}
+
+/* 컷 */
+.cut{margin-top:18px;background:var(--surface);border:1px solid var(--rule)}
+.cut-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px;padding:16px 22px 13px;border-bottom:1px solid var(--rule)}
+.cut-head .n{font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;font-weight:500;width:100%;color:var(--before);display:flex;align-items:center;gap:10px}
+.cut.a .cut-head .n{color:var(--after)}
+.cut-head h3{font-family:var(--f-d);font-weight:700;font-size:clamp(19px,2.5vw,24px);line-height:1.32;letter-spacing:-.02em;margin:4px 0 0;text-wrap:balance}
+.cut-head .clk{margin-left:auto;font-family:var(--f-m);font-size:12px;color:var(--ink);background:var(--band);padding:2px 8px;white-space:nowrap}
+.cut-head .dur{font-family:var(--f-m);font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.cut-body{padding:16px 22px 20px}
+.cut-body p{margin:0;font-size:14px;line-height:1.74}
+.cut-body p+p{margin-top:8px}
+.cut-body em{font-style:normal;background:linear-gradient(transparent 64%,var(--before-bg) 64%);padding:0 1px}
+.cut.a .cut-body em{background:linear-gradient(transparent 64%,var(--after-bg) 64%)}
+.cut-body .why{margin-top:13px;padding:11px 14px;background:var(--band);font-size:12.5px;line-height:1.68;color:var(--ink-2)}
+.cut-body .why b{font-family:var(--f-m);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3);font-weight:500;display:block;margin-bottom:3px}
+.cut-body .vo{font-family:var(--f-d);font-size:15px;line-height:1.62;margin:11px 0 3px}
+.cut-body .src{font-family:var(--f-m);font-size:10.5px;color:var(--ink-3);letter-spacing:.03em;margin:0}
+
+.cut.peak{border-color:var(--stop)}
+.cut.peak .cut-head{border-bottom-color:var(--stop);background:var(--stop-bg)}
+.cut.peak .cut-head .n{color:var(--stop)}
+.cut.pivot{background:var(--ink);border-color:var(--ink);color:var(--ground)}
+.cut.pivot .cut-head{border-bottom-color:var(--rule-2)}
+.cut.pivot .cut-head .n{color:var(--rule)}
+.cut.pivot h3,.cut.pivot .cut-body p{color:var(--ground)}
+.cut.pivot .cut-head .clk{background:transparent;color:var(--rule);border:1px solid var(--rule-2)}
+.cut.pivot .cut-body .why{background:rgba(255,255,255,.07);color:var(--rule)}
+.cut.pivot .cut-body em{background:none;border-bottom:1px solid var(--rule-2)}
+
+/* 표 */
+.tbl{margin:18px 0 0;overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);font-size:13px;vertical-align:top;line-height:1.62}
+th{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.m,th.m{font-family:var(--f-m);font-size:11.5px;white-space:nowrap}
+td .cap{font-family:var(--f-m);font-size:11.5px;background:var(--band);border-left:2px solid var(--after);padding:3px 7px;display:inline-block;line-height:1.5}
+
+.list{margin:18px 0 0;border-top:1px solid var(--rule)}
+.list div{padding:14px 0 15px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:minmax(150px,1fr) 2.2fr;gap:5px 24px}
+.list h4{font-family:var(--f-b);font-weight:700;font-size:14.5px;margin:0;line-height:1.5}
+.list p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+
+.steps{counter-reset:s;margin:18px 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.steps li{counter-increment:s;border-bottom:1px solid var(--rule);padding:12px 0 13px 40px;position:relative;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:12px;font-family:var(--f-m);font-size:11px;color:var(--ink-3);border:1px solid var(--rule);width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.steps li b{color:var(--ink)}
+
+footer{margin:64px 0 0;border-top:2px solid var(--ink);padding:20px 0 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+footer h4{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 7px;font-weight:400}
+footer p{font-size:12px;color:var(--ink-2);line-height:1.68;margin:0}
+
+@media (max-width:760px){
+  .wrap{padding:0 16px}
+  .mines{grid-template-columns:1fr}
+  .list div{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="slate"><span>MOEUM · 마인드스코프</span><span>／</span><b>전면 실사 (AI 생성)</b><span>→</span><s>진짜 UI</s><span>／</span><span>26IRDEMO 구성 v2</span><span>／</span><span>2026-09-10</span></p>
+  <h1>3분 50초의 낙차</h1>
+  <p class="lede">실사 제작이 가능해지면 조사가 막아 뒀던 기법 절반이 풀린다. <b>고통을 설명하지 않고 겪게 하는 구간</b>이 생기고, 정점이 서고, 피벗이 40% 지점에 놓인다. 배경도 인물도 <b>전면 실사</b>로 간다 — 2D 캐릭터 안은 검토 끝에 접었고, 그 결정이 무엇을 걸고 무엇을 얻는지를 첫 절에 적었다. 컷마다 근거를 달았고 <b>근거 없는 컷은 넣지 않았다.</b></p>
+  <div class="tally">
+    <div><b>완성 길이</b><span>3:50</span><i>230.2초</i></div>
+    <div><b>피벗</b><span>38.2%</span><i>1:28 · 조사가 지정한 40% 지점</i></div>
+    <div><b>클로즈업</b><span>1회</span><i>정점의 눈, 3초 홀드</i></div>
+    <div><b>얼굴</b><span>1명</span><i>상담사 정상담 — 단일성</i></div>
+  </div>
+</header>
+
+<h2 class="sec"><em>전제</em> 이 형식은 금지선 <em>위에</em> 서 있다</h2>
+<p class="note">조사는 <b>“생성형 AI로 사람 · 얼굴 · 손 · 서식 · UI를 만들기”</b>를 기법 8 · 전면 금지로 적었다. 전면 실사로 가는 순간 이 구성은 그 금지 위에 선다. <b>우회 논리를 만들지 않는다</b> — 무엇을 걸고 무엇을 얻는지, 그리고 통과 조건만 적는다.</p>
+<div class="mines">
+  <div class="mine">
+    <span class="tag" style="color:var(--do)">얻는 것</span>
+    <h3>고통의 상한이 올라간다</h3>
+    <p>Jiang 2023 (n=1,095): 공포·심각성은 <b>실제 인물 화자 M=5.73 vs 애니메이션 5.08</b>(p&lt;.001). 2D 안은 그 손실을 목소리로 <i>보전</i>하는 구조였고, 실사는 <b>애초에 손실이 없다.</b></p>
+    <div class="ans"><b>바뀌지 않는 것</b>AFTER는 그대로다. Jiang의 나머지 절반 — <b>효능은 비인간 화자가 더 잘 수용된다</b>(애니메이션 M=5.16 vs 실제 인물 4.12) — 이 진짜 UI 화면을 그대로 지지한다.</div>
+  </div>
+  <div class="mine">
+    <span class="tag">거는 것</span>
+    <h3>이 관객은 미세표정을 직업적으로 읽는다</h3>
+    <p>어색함이 감지되면 FIGS 지뢰의 변형이 된다 — <b>“이 회사는 진짜 상담사를 한 명도 안 만났구나.”</b> Coca-Cola(2024·2025)와 Toys “R” Us(2024)가 무너진 지점이 정확히 여기다.</p>
+    <div class="ans"><b>잃은 방어</b>2D였다면 <b>“의도된 양식”</b>이라고 선언하는 것이 방어였다. 실사에는 그것이 없다. 2026 슈퍼볼 반응은 <b>“AI처럼 보이기만 해도 감점”</b>. 남는 방어는 둘 — <b>실제 UI는 실제 화면으로</b>(이미 하고 있다), <b>제작 흔적을 숨기지 않기</b>.</div>
+  </div>
+</div>
+
+<h3 class="sub">통과 조건 여섯</h3>
+<p class="note"><b>하나라도 못 지키면 그 컷은 생성하지 않고 실사로 찍는다.</b> 손과 소품은 책상 하나면 찍힌다.</p>
+<div class="list">
+  <div><h4>1 · 얼굴 클로즈업은 정점 하나뿐</h4><p>나머지 컷의 인물은 손 · 뒷모습 · 어깨 너머 · 중경 이하로 둔다. 얼굴이 늘수록 어색함이 감지될 확률이 곱으로 는다.</p></div>
+  <div><h4>2 · 아이의 얼굴은 만들지 않는다</h4><p>뒷모습 · 실루엣 · 프레임 밖. 아동 등장은 효과를 강화하지만(Lee &amp; Feeley 2016) <b>실사 아동 얼굴 생성은 윤리와 법 양쪽에서 선을 넘는다.</b></p></div>
+  <div><h4>3 · 손은 프레임에서 관리한다</h4><p>손목에서 자르거나, 손가락이 겹치는 각도를 피하거나, 그 컷만 실사 촬영.</p></div>
+  <div><h4>4 · 서식 · 문서 · UI는 여전히 생성 금지</h4><p>2026-09에도 “글자가 안 된다”가 반복된다. 실물 스캔과 실촬 화면을 얹는다.</p></div>
+  <div><h4>5 · 실존 인물 얼굴을 참조로 넣지 않는다</h4><p>실사로 갈수록 커지는 유혹이고, 소송 이후 공기에서 가장 비싼 실수다.</p></div>
+  <div><h4>6 · 컷마다 프레임 단위 검수</h4><p>손가락 · 눈 · 치아 · 귀 · 명찰 · 옷의 좌우. 하나라도 걸리면 1로 내리거나 3의 대체 촬영.</p></div>
+</div>
+
+<h2 class="sec"><em>층</em> 세 겹</h2>
+<p class="note">전면 실사로 가면 <b>배경과 인물이 한 층이 된다.</b> 2D 안의 네 층이 셋으로 줄고, 합성해야 할 것은 서식과 화면뿐이다.</p>
+<div class="layers">
+  <div>
+    <p class="no">층 1</p>
+    <h4>목소리</h4>
+    <p>실제 상담사 · 센터장 육성. 동의를 못 받으면 <b>실제 상담사가 익명으로 재녹음</b>한다 — 배우가 아니라.</p>
+    <p class="ev">Hatfield 1993 음성 모방 · Sci Rep 2024 · Flee “익명이 발화를 연다”</p>
+  </div>
+  <div>
+    <p class="no">층 2</p>
+    <h4>실사 화면</h4>
+    <p>AI 생성. <b>공간과 인물이 한 프레임에서 나온다.</b> 실제 서식 · 형광등 · 파일철의 고증이 여기 걸린다.</p>
+    <p class="ev">Song &amp; Schwarz 2008 (B) · Green 2004 (B)</p>
+  </div>
+  <div>
+    <p class="no">층 3</p>
+    <h4>실물 · 실촬 오버레이</h4>
+    <p><b>생성하지 않는 것</b> — 서식 스캔 · 실제 제품 화면 · 시계 타이포. 진짜 UI는 조각내지 않는다.</p>
+    <p class="ev">2026-09 생성 모델의 텍스트 한계 · Bekmambetov Screenlife</p>
+  </div>
+</div>
+<p class="note"><b>얼굴 규칙 — 실사가 되면서 더 엄해진다.</b> 얼굴을 가진 것은 <b>상담사 한 명뿐</b>(Kogut &amp; Ritov 2005, A). 실장 · 보호자는 손과 뒷모습, <b>아이는 얼굴을 만들지 않는다.</b> 그리고 <b>클로즈업은 정점 한 번뿐</b> — 무표정 클로즈업은 효과가 없고(Rooney &amp; Bálint), 실사에서는 위험만 는다.</p>
+
+<h2 class="sec"><em>타임라인</em> 소리가 어떻게 떨어지는가</h2>
+<p class="note">아래 곡선은 Short-term LUFS다. 막대는 실제 초에 비례한다. <b>밝기 · 음량 · 음고를 같은 프레임에 정렬한다</b>(Spence 2011 크로스모달).</p>
+<div class="tl">
+ <div class="tl-in">
+  <div class="tl-bar">
+    <span class="h" style="flex:0 0 2.61%">후크<em>6.0s</em></span>
+    <span class="b" style="flex:0 0 33.45%">BEFORE · 7컷<em>77.0s · ASL 1.0 불규칙 · 5레이어 · 8:1</em></span>
+    <span class="pk" style="flex:0 0 2.17%">정점<em>5.0s</em></span>
+    <span class="pv" style="flex:0 0 0.52%"></span>
+    <span class="pre" style="flex:0 0 2.61%">선취<em>6.0s</em></span>
+    <span class="a" style="flex:0 0 50.83%">AFTER · 10컷<em>117.0s · ASL 3.5–6 · 2.5레이어 · 2.5:1 · 락오프 35mm</em></span>
+    <span class="e" style="flex:0 0 7.82%">엔드<em>18.0s</em></span>
+  </div>
+  <div class="curve">
+    <svg viewBox="0 0 1000 118" role="img" aria-label="Short-term LUFS 곡선: 후크 −20, BEFORE −13까지 상승, 피벗 −60 무음, AFTER −27에서 −20으로 완만 상승">
+      <line x1="0" y1="16" x2="1000" y2="16" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4"></line>
+      <line x1="0" y1="44" x2="1000" y2="44" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4"></line>
+      <line x1="0" y1="110" x2="1000" y2="110" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4"></line>
+      <path d="M0,30 L21,30 L23,52 L120,34 L200,24 L300,18 L361,16 L382,16 L383,110 L388,110 L391,44 L500,38 L700,33 L922,30 L1000,30 L1000,118 L0,118 Z" fill="var(--before-bg)" opacity="0.5"></path>
+      <path d="M0,30 L21,30 L23,52 L120,34 L200,24 L300,18 L361,16 L382,16 L383,110 L388,110 L391,44 L500,38 L700,33 L922,30 L1000,30" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></path>
+      <line x1="382.5" y1="0" x2="382.5" y2="118" stroke="var(--stop)" stroke-width="1.5"></line>
+      <text x="388" y="12" fill="var(--stop)" font-family="IBM Plex Mono, monospace" font-size="11">피벗 1:28 · 38.2%</text>
+      <text x="4" y="13" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10">−13 LUFS · LRA 3</text>
+      <text x="396" y="41" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10">−27 → −20 · LRA 9–12</text>
+      <text x="396" y="107" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10">−60 · 1.2초 완전 무음 · 낙차 17dB</text>
+    </svg>
+  </div>
+  <div class="tl-ticks">
+    <span style="flex:0 0 26.06%">0:00</span>
+    <span style="flex:0 0 26.06%">1:00</span>
+    <span style="flex:0 0 26.06%">2:00</span>
+    <span style="flex:0 0 21.82%">3:00</span>
+  </div>
+  <p class="tl-cap">음악은 피벗 이후에 처음 등장한다 · 숫자 자막도 피벗 이후에만 · 애스펙트비는 바꾸지 않는다</p>
+ </div>
+</div>
+
+<h2 class="sec"><em>BEFORE</em> 하루가 쌓인다</h2>
+<p class="note">2인칭 추궁 · 명령형 없음. “번아웃” 없음. 과장된 한숨 연기 없음(Friestad &amp; Wright 1994 — 설득 지식이 켜진다). 로고 · 나레이션 · 브랜드 자막 없음(Green &amp; Brock 2000, A). <b>통계 숫자 없음</b> — 시계 표시는 숫자가 아니다.</p>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">후크 · 0:00</p>
+    <h3>아이가 나가고, 소리가 무너진다</h3>
+    <p class="dur">6.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>놀이치료실. 자연광. 정상담과 아이가 웃는다. 음악 없음.<br><em>5.0초에 아이가 문 밖으로 나가고, 그 프레임에서 사운드가 붕괴한다</em> — 형광등 험만 남는다.</p>
+    <div class="why"><b>왜 여기</b>첫 5초의 웃는 얼굴이 스킵률을 낮추고(Google/Ipsos, C), <b>낙차를 정확히 스킵 지점에 둔다.</b> 차분한 앰비언트 오프닝과 떠다니는 로고는 금지 — 자사 데이터에서 둘 다 불리하다.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B1</p>
+    <h3>같은 글씨를 네 번 옮겨 적는다</h3>
+    <p class="clk">09:40</p><p class="dur">8.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>데스크. 수화기를 든 손이 통화하면서 <em>메모지에 적는다</em>. 옆의 PC는 꺼져 있다. 전화기 액정에 번호가 뜨지 않는다. 받아 적은 것이 메모지 → 장부 → 엑셀 → 캘린더로 옮겨진다.</p>
+    <div class="why"><b>근거</b>1차 리빙랩 실장 그룹 — “통화하면서 손으로 적는다. PC가 꺼져 있으면 부재중도 모른다.” 고장 패턴 <code>분산</code> <code>휘발</code>. 실장은 얼굴이 없다(손만) — 단일성을 지킨다.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B2</p>
+    <h3>있는 것을 다시 옮겨 적는다</h3>
+    <p class="clk">14:50</p><p class="dur">12.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>엑셀 채점표. 로샤 반응을 워드로 <em>다시 옮겨 적는 손</em>. 옆에 펼친 지침서. <b>8pt 명조로 인쇄된 실제 서식</b>을 카메라가 읽을 수 있는 거리에서 잡는다. 과거 보고서 파일을 열어 내용만 지우고 새로 채운다. 그래프는 스크린샷으로 붙인다.</p>
+    <p class="vo">“그냥 주말이 없다고 보면 됩니다. 매일 자정 넘도록 보고서를 써도 끝나지 않을 만큼 일이 많거든요.”</p>
+    <p class="src">쿠키뉴스 2023-07-31, 대학병원 임상심리 수련생 — 익명 재녹음</p>
+    <div class="why"><b>노력 전이의 핵심 컷</b>읽기 어려운 서체가 소요 시간 추정을 <b>83% 늘린다</b>(Song &amp; Schwarz 2008, B). 서식은 반드시 실물이어야 한다 — <b>그려진 서식은 읽기 어려운 게 아니라 읽을 것이 없다.</b></div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B3</p>
+    <h3>회기 사이 10분에 다 들어간다</h3>
+    <p class="clk">10:50 → 11:00</p><p class="dur">10.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>치료실에서 나온다. 바우처 단말 결제 · 본인부담금 · 주차 등록 · 보호자 배웅 · 보강 일정 조율 · 다음 아이 준비를 <em>한 컷에 이어서</em>. 카메라는 반 박자 늦게 따라간다.</p>
+    <div class="why"><b>근거</b>경기도의회 최순자 의원 면담 진술(2026-08, C) — 열거된 업무 목록이 그대로 화면이 된다. <b>핸드헬드는 흔드는 것이 아니라 따라가지 못하는 것</b>(Frontiers Neurosci 2023). 85mm 압축, 헤드룸 제거.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B4</p>
+    <h3>여덟 칸에서 아이들만 사라진다</h3>
+    <p class="dur">12.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>화면이 여덟 칸으로 갈린다. 여덟 회기가 동시에 돈다. <em>아이들만 칸에서 하나씩 사라지고 상담사는 여덟 칸에 그대로 남는다.</em></p>
+    <div class="why"><b>근거</b><code>memos/106</code> — 하루 6~8회기. 형식은 Requiem for a Dream · Bizzocchi (C). <b>아이 선이 여기서 처음 보인다</b> — 아이는 나가고 사람은 남는다.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B5</p>
+    <h3>가방 안에서 빨간 불이 켜진다</h3>
+    <p class="clk">17:20</p><p class="dur">12.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>대기실. 오버숄더 쌍. <b>대사 없음.</b> 인물 위에 내면 자막만 — 보호자 위 <code>“방금 뭐라고 하셨더라”</code>, 상담사 위 <code>“이 얘기 지난주에도”</code>. 보호자가 돌아서고, <em>가방 안에서 녹음기의 빨간 불</em>이 한 프레임.</p>
+    <div class="why"><b>근거</b>0810 현장 실사 — “60~70% 부모들은 이미 다 녹음하고 있어요.” 형식은 Cleveland Clinic “Empathy”(2013)의 내면 자막. <b>녹음기는 불신이 아니라 대체재다</b> — 다시 읽을 수 있는 형태가 어디에도 없으니 정보를 원하는 쪽이 기록 장치를 든다.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B6</p>
+    <h3>같은 숏이 두 번 돈다</h3>
+    <p class="clk">22:47</p><p class="dur">14.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>집. 노트북. 한글 파일에 타이핑한다.<br><em>같은 숏을 소스 그대로 두 번 반복한다. 두 번째는 피치 −0.5옥타브.</em></p>
+    <p>책상 옆에 제출 양식이 쌓여 있다 — 센터 일지, 바우처 제공기록지, 슈퍼바이저 양식. <b>카메라가 스치기만 한다.</b></p>
+    <div class="why"><b>왜 스치기만 하나</b>이 고통은 조사에서 가장 두껍지만(언어치료연구 2019 동료심사 축어록 — “일정표, 기록지 뭐 세 장씩 있잖아요”) <b>해결이 없다.</b> 효능 없는 공포는 방어 회피를 낳고(EPPM, A), 완화가 고통보다 작으면 “피자”가 된다. 세우되 밀지 않는다 — 대신 엔드의 범위 카드에서 이름을 부른다.</div>
+  </div>
+</article>
+
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">B7</p>
+    <h3>시계가 쌓인다</h3>
+    <p class="clk">22:47 → 01:30 → 09:15</p><p class="dur">9.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>세 번의 시각이 지나고 누적 표시가 붙는다 — <em>+1일 6시간 40분</em>.</p>
+    <div class="why"><b>근거</b>Loewenstein &amp; Prelec 1993 (B). <code>09:15</code>의 근거는 X @heavendoor2 — “지금부터 3시간 자고, 새벽에 심리평가 보고서 마무리 하고 이른 출근.” <b>퇴근 후 기록이 아니라 출근 전 기록</b>이다.</div>
+  </div>
+</article>
+
+<h2 class="sec"><em>정점 · 피벗 · 선취</em> 이 세 컷이 영상을 정한다</h2>
+
+<article class="cut peak">
+  <div class="cut-head">
+    <p class="n">정점 · 1:23</p>
+    <h3>어제 파일과 오늘 파일이 같은 문장이다</h3>
+    <p class="dur">5.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>파일 탐색기. <code>상담일지_0902.hwp</code> · <code>상담일지_0909.hwp</code>. 연다. <em>두 문서의 문장이 거의 같다.</em></p>
+    <p>그것을 보는 <b>눈</b> — 이 영상의 유일한 클로즈업. <b>3초 홀드. 한숨 없음.</b></p>
+    <div class="why"><b>왜 이것이 정점인가</b>scenes11 장면 7이 정의한 정점 그대로다. 클로즈업은 <b>표정이 변하는 순간에만</b> 작동한다(Rooney &amp; Bálint). <b>실사에서는 이 컷이 영상 전체의 위험이 몰리는 자리</b>다 — 유일한 얼굴 클로즈업이고, 관객이 미세표정을 직업적으로 읽는다. 어색하면 <b>눈만 잡거나, 시선을 받는 화면으로 대체하거나, 이 컷만 실사 촬영한다.</b><br><br><b>정점을 “제출 서류 이중 작성”에 두지 않은 이유:</b> EPPM. 정점의 고통과 피벗 직후의 해결이 <b>같은 것</b>이어야 한다. 기억으로 쓴 일지 → 필드노트와 일지 초안, 이것은 실재한다.</div>
+  </div>
+</article>
+
+<article class="cut pivot">
+  <div class="cut-head">
+    <p class="n">피벗 · 1:28</p>
+    <h3>볼펜이 종이에 닿기 직전</h3>
+    <p class="clk">1.2s · −60 LUFS</p>
+  </div>
+  <div class="cut-body">
+    <p>볼펜 촉이 종이에 닿기 <em>직전 프레임</em>에서 하드컷. 1.2초 완전 무음. 15초에 걸쳐 40Hz에서 55Hz로 올라온 저역 글리산도가 <em>한 프레임에 끊긴다.</em> 명도가 같은 프레임에서 올라간다.</p>
+    <div class="why"><b>근거</b>Lawrence of Arabia(Coates) · Blumstein 2010 Biology Letters (B) · Spence 2011 크로스모달. 애스펙트비 전환 금지 — 기법이 인식되면 감정이 끊긴다.</div>
+  </div>
+</article>
+
+<article class="cut a">
+  <div class="cut-head">
+    <p class="n">선취 · 1:29</p>
+    <h3>설명 없이, 빈 칸이 채워진다</h3>
+    <p class="dur">6.0s</p>
+  </div>
+  <div class="cut-body">
+    <p>같은 책상. <b>밖이 밝다.</b> 화면 하나 — <code>일지 초안 생성</code>을 누르고, <em>6.7초 뒤 빈 칸이 채워진다.</em> 어떻게 저게 됐는지 말하지 않는다.</p>
+    <div class="why"><b>왜 여기서 답을 먼저 보이나</b><b>효능 인접</b>(Witte &amp; Allen 2000 EPPM, A) — 공포 직후에 효능이 붙어야 방어 회피가 일어나지 않는다. 그리고 <b>정보 격차</b>(Loewenstein 1994): 자이가르닉 효과는 2025 메타(59편)에서 회상 비율 0.99로 반증됐고, 조사가 그 대체재로 지정한 것이 이것이다. “어떻게 저게 되지?”를 남기고 처음으로 되돌아간다.<br><br>소재 <code>s07_web_draft_t04.mov</code> 2.21–10.63 중 6초.</div>
+  </div>
+</article>
+
+<h2 class="sec"><em>AFTER</em> 센터의 하루가 다시 흐른다</h2>
+<p class="note"><b>구도 규칙.</b> 각 컷은 오버숄더 0.8초로 들어간다 — 책상, 상담사의 어깨와 뒤통수, 그 너머 화면. <b>그 다음 화면은 정면 풀프레임으로 전환한다.</b> 오버숄더 상태로 조작을 보여주지 않는다 — 퍼스펙티브가 들어가면 판독성이 떨어지고 그 순간 ‘가짜 UI’로 읽힌다. 오버숄더는 동일시를 만들고(Deighton 1989 · Cohen 2001), 풀프레임은 진짜 UI 원칙을 지킨다. <code>faceless.html</code>이 Screenlife의 약점으로 적었던 “화면 밖 상황은 사운드로만 암시”가 이 0.8초로 해결된다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th class="m">#</th><th>컷</th><th class="m">소재 · 인아웃</th><th class="m">길이</th><th>화면</th><th>자막</th></tr></thead>
+  <tbody>
+    <tr><td class="m">A1</td><td>접수</td><td class="m">s01_intake_t07<br>1.9–17.0</td><td class="m">15.0s</td><td><b>역상 ①</b> — 메모지가 프레임에서 빠지고 그 자리에 에이전트 입력창. 통화 내용을 한 마디로 → 폼이 갈아끼워진다 → 검사 둘 → 등록</td><td><span class="cap">통화 한 건이 다섯 곳으로 흩어진다</span></td></tr>
+    <tr><td class="m">A2</td><td>검사 실시</td><td class="m">s02_collect_t05<br>2.2–10.5</td><td class="m">8.0s</td><td>태블릿을 돌려 내담자 화면 → 받아쓰기 → 피검자의 말이 그 줄에 붙는다</td><td><span class="cap">마인드봄</span></td></tr>
+    <tr><td class="m">A3</td><td>채점·보고서</td><td class="m">s03_draft_t01<br>4.9–18.7</td><td class="m">13.5s</td><td>비어 있는 두 섹션 → <code>AI 초안 생성</code> → 채워진다 → CDSS: 최종 해석·확정은 임상가 책임</td><td><span class="cap">검사는 207분, 서류는 257분</span></td></tr>
+    <tr><td class="m">A4</td><td>바로링크</td><td class="m">s04_sendlink_t03<br>1.9–11.9</td><td class="m">10.0s</td><td>A1이 방금 접수한 세 건 → 전송 → 전송 내역에 수신인·상태</td><td><span class="cap">검사받으러 한 번, 결과 들으러 한 번</span></td></tr>
+    <tr><td class="m">A5</td><td>일정</td><td class="m">s05_approve_t05<br>1.9–17.6</td><td class="m">16.0s</td><td>변경 요청 → 일간·주간·월간 확인 → 승인 → 회기가 옮겨진다</td><td><span class="cap">빈 시간을 맞추려면 한 명 한 명 연락한다</span></td></tr>
+    <tr><td class="m">A6</td><td>앱</td><td class="m">s06_fieldnote-app_t01<br>5.7–13.7</td><td class="m">8.0s</td><td>오늘 일정 1건 → 필드노트 → <code>바로 녹음</code>에 손</td><td>—</td></tr>
+    <tr><td class="m">A7</td><td>전사</td><td class="m">s06_fieldnote_t02<br>3.5–11.5</td><td class="m">8.0s</td><td>화자별 대화, 분 단위 타임스탬프</td><td><span class="cap">하루 6~8회기</span></td></tr>
+    <tr><td class="m">A8</td><td>일지 초안</td><td class="m">s07_draft_t04<br>1.9–14.4</td><td class="m">12.5s</td><td><b>역상 ③</b> — B6과 같은 앵글, 같은 책상. <b>밖이 밝다.</b> 선취에서 본 6.7초가 여기서 맥락을 얻는다</td><td><span class="cap">기억으로 쓰는 일지</span></td></tr>
+    <tr><td class="m">A9</td><td>케어보드</td><td class="m">s08_careboard_t03<br>1.6–17.1</td><td class="m">15.5s</td><td><b>역상 ②</b> — 파일철이 닫히고 스크롤이 된다. 8월까지 거슬러 → 원장 메모에 답 → 공지 고정 → 접었다 열면 답이 도착해 있다</td><td><span class="cap">전달해야 하던 일이, 남겨두면 되는 일이 된다</span></td></tr>
+    <tr><td class="m">A10</td><td>회기·정산</td><td class="m">s09_noshow_t03<br>1.9–12.4</td><td class="m">10.5s</td><td>노쇼 → 사유 → 회기 차감 → 잠긴 회기에 사유와 배지</td><td><span class="cap">수를 세서 낸다, 그 숫자로 급여가 정해진다</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note"><b>역상은 셋뿐이다.</b> ① 메모지→에이전트 ② 파일철→케어보드 ③ 22:47의 책상→밝은 책상. 더 넣으면 기법이 인식되고, 기법이 인식되면 설득 지식이 켜진다.</p>
+<p class="note"><b>혁신성이 나오는 자리는 기능이 아니라 연결이다.</b> A1이 만든 케이스가 A4에 있고, A6이 녹음한 회기가 A8에 있고, A5·A7·A8이 남긴 것이 A9에 모인다. <b>한 번도 다른 데이터를 쓰지 않는다</b> — 이것이 데모가 아니라 하루로 읽히는 이유다. 다만 A2·A3은 마인드봄이고 두 제품은 연동되지 않는다. 라벨은 걸되 <b>같은 아이라고 말하지 않는다.</b></p>
+
+<h2 class="sec"><em>엔드</em> 숫자 하나, 못 한 것 셋, 한 문장</h2>
+<div class="tbl">
+<table>
+  <thead><tr><th class="m">t</th><th>무엇</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr><td class="m">+0.0</td><td>무음. 좌하단에 숫자 하나 — <code>일지 2번</code> → <code>1번</code>. <b>업계 통계가 아니라 이 사람의 것</b></td><td>Zebregs 2015 · Slovic 2007 · Teixeira — 중앙 배치는 회피를 늘린다</td></tr>
+    <tr><td class="m">+4.0</td><td><b>범위 카드</b> — 아직 못 한 것 · 투사검사 채점과 풀배터리 보고서 · 일지→제출 서류 변환 · 보호자에게 발행</td><td>Allen 1991 (A) — 반박 없는 양면은 일면보다 나쁘다</td></tr>
+    <tr><td class="m">+8.5</td><td>낮. 밖이 밝다. 정상담이 아이와 보호자에게 인사한다. <b>아이가 들어오는 문</b> — 후크에서 나갔던 그 문</td><td>Han &amp; Shavitt 1994 (B) — 한국 표본은 관계·내집단 보상에 더 반응 · 정점–종점의 마지막 5초</td></tr>
+    <tr><td class="m">+16.5</td><td>“상담사가 아이를 돌보고, 마인드스코프가 상담사를 돌봅니다.” 로고 1.5초</td><td>Abridge 리포지셔닝 구조</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note"><b>범위 카드를 빼지 않는다.</b> 그리고 B6에서 스친 제출 양식 세 장은 여기 카드에 이름으로 다시 나온다 — <b>세워 놓고 잊은 고통이 아니라, 못 했다고 말한 고통</b>이 된다.</p>
+
+<h2 class="sec"><em>프롬프트</em> 미드저니에 무엇을 어떻게 요청하는가</h2>
+<p class="note"><b>2026년 자료만으로 세웠다.</b> V8.2가 기본(2026-07-24), 인물 고정은 <b>Edit Model 참조 4장</b>(2026-08-27). <code>--oref</code> · <code>--ow</code> · <code>--cref</code>는 <b>쓰지 않는다</b> — V8에는 oref가 없고 V7으로 폴백해야 한다(2026-08-28). 근거는 <code>_lab/research/02-findings/midjourney.md</code>와 <code>03-research/midjourney-video-grok.md</code>.</p>
+
+<h3 class="sub">층이 둘로 줄었다</h3>
+<p class="note">2D 안은 배경과 인물을 따로 만들어 합성했다. <b>둘 다 사진이면 광원을 정확히 맞춰야 해서 합성이 더 어렵다.</b> 그래서 <b>인물을 방 안에서 한 번에 생성한다</b> — 접합부가 없으면 어색함이 생길 자리도 없다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th>층</th><th>무엇으로</th><th>2026 근거</th></tr></thead>
+  <tbody>
+    <tr><td class="m">실사 화면</td><td>미드저니 V8.2 · 공간과 인물을 <b>한 프롬프트에서</b></td><td>—</td></tr>
+    <tr><td class="m">실물 · 실촬 오버레이</td><td>서식 스캔 · 실제 제품 화면 · 시계 타이포 — <b>생성하지 않는다</b></td><td>2026-09: “롤백·후작업 없으면 글자가 안 된다” · “mangles text”</td></tr>
+    <tr><td class="m">움직임</td><td><b>외부 영상 모델</b>(Seedance · Kling · Veo) → Topaz</td><td>미드저니 V1은 480p·24fps. 2026-09 공식도 V9 이미지를 V2 비디오보다 먼저 낸다</td></tr>
+    <tr><td class="m">소리</td><td>전부 밖에서</td><td>미드저니에 오디오 없음 (2026-09 확인)</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="mines" style="grid-template-columns:1fr">
+  <div class="mine">
+    <span class="tag">2D를 버리면서 잃은 것</span>
+    <h3>손이 다시 도박이 된다</h3>
+    <p>손을 2D 층에 두어 구조적으로 사라졌던 실패가 돌아온다. B1 수화기 · B2 옮겨 적는 손 · B5 가방 여는 손이 전부 클로즈업이다. <b>아래 “안 되면 내린다”가 그 대비책이다.</b></p>
+  </div>
+</div>
+
+<h3 class="sub">전 컷 잠금</h3>
+<div class="mjkey">
+  <div><b>퍼스낼리제이션</b><span>프로필 1개</span><p>평가할 때 <b>사진만 고른다.</b> 일러스트를 고르면 실사와 계속 싸운다</p></div>
+  <div><b>무드보드</b><span>2개</span><p><code>center-real</code> 실제 센터 사진 · <code>face-real</code> 인물 사진 레퍼런스(실존 인물 아님)</p></div>
+  <div><b>화면비</b><span>--ar 16:9</span><p>전 컷 고정. 애스펙트 전환 금지</p></div>
+  <div><b>드래프트</b><span>--draft</span><p>구도 탐색만. 최종본으로 쓰지 않는다</p></div>
+</div>
+<pre><span class="d">// PH 접미 — 인물이 나오는 컷</span>
+<span class="k">--ar</span> 16:9 <span class="k">--raw</span> <span class="k">--s</span> 80 <span class="k">--c</span> 4
+<span class="k">--no</span> illustration, anime, cartoon, cel shading, line art, painting, 3d render, cgi,
+     plastic skin, airbrushed, beauty retouch, glamour, smooth flawless skin,
+     teenage, legible text, lettering, numbers, watermark, logo
+
+<span class="d">// BG 접미 — 사람 없는 빈 공간</span>
+<span class="k">--ar</span> 16:9 <span class="k">--raw</span> <span class="k">--s</span> 90 <span class="k">--c</span> 5
+<span class="k">--no</span> people, hands, legible text, lettering, numbers, signage, watermark, logo,
+     illustration, painting, 3d render, plastic look</pre>
+<p class="note"><code>--raw</code>를 <b>전 컷에 켠다</b>(2D 안에서는 배경에만 켰다). 미드저니의 기본 미화가 실사를 스톡사진으로 만든다. <code>--s</code>는 사진에 맞는 <b>80~90</b> — 260 같은 값은 그림체를 부른다.</p>
+
+<h3 class="sub">인물 레퍼런스 4장 — 가장 먼저, 그리고 한 번만</h3>
+<p class="note"><b>배역 — 한국 여성, 30대 중반. 아동 놀이치료사. 세련되고 단정하다.</b> 잘 재단된 니트 · 어깨선 단발 · 작은 스터드 귀걸이 · 명찰. 화려하지 않고 정돈돼 있다.</p>
+<pre><span class="d">④ 정점의 표정  ← 가장 먼저 그린다. 앞선 참조가 없으므로 인물을 여기서 다 서술한다</span>
+candid documentary photograph, a Korean woman in her mid-thirties,
+a child-play therapist, poised and understated, well-tailored fine-knit sweater
+over a crisp shirt, neat shoulder-length hair, small stud earrings, clinic lanyard,
+natural skin texture,
+close portrait, three-quarter view, eyes lowered toward something just off-frame,
+the instant of noticing, mouth neutral, no exaggeration, eyebrows unraised,
+plain light-grey backdrop, soft window light from the left,
+85mm lens, f/2.0, shallow depth of field
+<span class="k">--ar 16:9 --raw --s 80 --c 4
+--no illustration, anime, cartoon, cel shading, line art, painting, 3d render, cgi, plastic skin, airbrushed, beauty retouch, glamour, smooth flawless skin, teenage, legible text, lettering, numbers, watermark, logo</span>
+
+<span class="d">① 정면</span>
+candid documentary photograph, a Korean woman in her mid-thirties,
+a child-play therapist, poised and understated, well-tailored fine-knit sweater
+over a crisp shirt, neat shoulder-length hair, small stud earrings, clinic lanyard,
+natural skin texture, calm neutral expression, front view,
+plain light-grey backdrop, soft even window light, 85mm lens, f/2.8
+<span class="k">--ar 16:9 --raw --s 80 --c 4
+--no illustration, anime, cartoon, cel shading, line art, painting, 3d render, cgi, plastic skin, airbrushed, beauty retouch, glamour, smooth flawless skin, teenage, legible text, lettering, numbers, watermark, logo</span>
+
+<span class="d">② 3/4 · 앉은 자세</span>
+the same Korean woman in her mid-thirties, three-quarter view,
+seated at a low table, forearms resting, same sweater and lanyard,
+neat shoulder-length hair, assured posture, plain light-grey backdrop,
+soft window light, 50mm lens
+<span class="k">--ar 16:9 --raw --s 80 --c 4
+--no illustration, anime, cartoon, cel shading, line art, painting, 3d render, cgi, plastic skin, airbrushed, beauty retouch, glamour, smooth flawless skin, teenage, legible text, lettering, numbers, watermark, logo</span>
+
+<span class="d">③ 손만 — 세 가지</span>
+close studies of the same woman's hands only, adult hands, neat short nails,
+no rings, three separate frames: holding a ballpoint pen,
+holding a corded phone receiver, resting on a laptop keyboard,
+plain light-grey backdrop, soft directional light, 85mm macro
+<span class="k">--ar 16:9 --raw --s 80 --c 4
+--no illustration, anime, cartoon, cel shading, line art, painting, 3d render, cgi, plastic skin, airbrushed, beauty retouch, glamour, smooth flawless skin, teenage, legible text, lettering, numbers, watermark, logo</span></pre>
+<p class="note">위 넷은 <b>파라미터까지 붙은 완전형</b>이라 그대로 복사해 쓴다. <b>네 장 모두 인물 서술을 반복해 적는다</b> — 참조 이미지에만 맡기면 나이와 옷이 컷마다 흔들린다. <code>mid-thirties</code> · <code>poised and understated</code> · <code>well-tailored</code> · <code>neat shoulder-length hair</code> 넷이 <b>“세련”을 만드는 축</b>이고, <code>natural skin texture</code>와 <code>--no beauty retouch, smooth flawless skin</code>이 <b>스톡사진으로 미끄러지는 것을 막는 축</b>이다. ④를 먼저 그리는 이유: 이 영상의 유일한 얼굴 클로즈업이고, <b>실사에서는 거기가 가장 위험한 자리</b>다 — 안 되면 나머지를 만들기 전에 알아야 한다.</p>
+
+<h3 class="sub">컷별 — 프레임에 무엇이 있나</h3>
+<p class="note"><code>[인물]</code> 표시가 있는 컷만 사람이 들어간다. <b>얼굴이 보이는 컷은 후크와 정점 둘뿐</b>이고 나머지는 손 · 뒷모습 · 초점 밖으로 처리한다. <b>붙여넣을 프롬프트 전문(파라미터 포함)은 <a href="https://claude.ai/code/artifact/e9108dfb-41a0-431d-931b-885ab69f04fe">미드저니 작업대</a> 3단계에 있다</b> — 여기는 무엇을 보여주는 컷인지만 적는다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th class="m">컷</th><th>장면 묘사</th><th class="m">인물</th></tr></thead>
+  <tbody>
+    <tr><td class="m">후크 <b>[인물]</b></td><td><code>a Korean child play-therapy room, a woman therapist in her mid-thirties seated on the floor mat laughing with a child seen from behind, low wooden table, open shelves with soft toys, warm late-afternoon daylight through a half-closed blind, eye-level static wide, 35mm</code> — <b>아이는 뒷모습만</b></td><td class="m">있음</td></tr>
+    <tr><td class="m">B1 데스크 <b>[인물]</b></td><td><code>a hand holding a corded phone receiver while writing on a sticky-note pad, a switched-off monitor beside it, a ruled ledger, laminate reception counter, fluorescent overhead, high three-quarter angle, hands and forearms only, no face, 50mm</code></td><td class="m">있음</td></tr>
+    <tr><td class="m">B2 서류 <b>[인물]</b></td><td><code>a woman's hands copying from an open ring-bound manual onto a form, three stacks of printed forms with blank unprinted surfaces, a closed laptop, a cold mug, fluorescent light, top-down, hands only, 50mm</code></td><td class="m">있음</td></tr>
+    <tr><td class="m">B3 10분 <b>[인물]</b></td><td><code>following a therapist from behind down a narrow corridor toward a reception counter, a card payment terminal on the counter, linked waiting chairs at the far end, fluorescent, handheld, seen from behind at shoulder height, 85mm</code></td><td class="m">있음</td></tr>
+    <tr><td class="m">B4 8분할</td><td><code>interior of a small therapy room with a low table and floor mat, seen from the doorway</code> — <b>각도만 바꿔 여덟 번.</b> 분할은 편집에서</td><td class="m">없음</td></tr>
+    <tr><td class="m">B5 대기실 <b>[인물]</b></td><td><code>over-the-shoulder view in a waiting area, a parent seen from behind facing a therapist whose face is out of focus in the background, three linked chairs, a shoulder bag left open on a chair, evening light through vertical blinds, shallow depth of field, 85mm</code></td><td class="m">있음</td></tr>
+    <tr><td class="m">B6 밤 <b>[인물]</b></td><td><code>a woman seen from behind at a small home desk at night, a laptop screen dark, three stacks of printed forms with blank surfaces, a desk lamp making a single pool of light, the rest of the room dark, the window black, 35mm</code></td><td class="m">있음</td></tr>
+    <tr><td class="m">피벗</td><td><code>extreme macro, the tip of a ballpoint pen one millimetre above ruled paper, shallow depth of field, warm desk-lamp light</code> — 접미 <code>--ar 16:9 --raw --s 50 --c 3</code></td><td class="m">없음</td></tr>
+    <tr><td class="m">AFTER 오버숄더 ×10</td><td><code>over-the-shoulder view past a shoulder and the back of a head toward a large monitor rendered as a flat matte black rectangle, keyboard, a notebook, daylight from the left, bright room</code> — <code>--no screen content, glare, reflection</code> 추가</td><td class="m">있음</td></tr>
+    <tr><td class="m">엔드 <b>[인물]</b></td><td><code>the entrance of a Korean child therapy center seen from inside, a therapist in her mid-thirties standing with her back to camera greeting a child and parent silhouetted against a glass door filled with bright midday light, a low shoe rack, 35mm</code></td><td class="m">있음</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note"><b>B7(시계)과 정점의 파일 탐색기 화면에는 미드저니가 없다</b> — 타이포 오버레이와 실제 화면 캡처다.</p>
+
+<h3 class="sub">움직임</h3>
+<div class="tbl">
+<table>
+  <thead><tr><th class="m">컷</th><th>모션 프롬프트</th><th class="m">모션</th></tr></thead>
+  <tbody>
+    <tr><td class="m">후크</td><td><code>the therapist and the child laugh, small natural movement, the camera holds still</code></td><td class="m">low</td></tr>
+    <tr><td class="m">B1</td><td><code>the camera holds still, only the pen tip moves across the pad</code></td><td class="m">low</td></tr>
+    <tr><td class="m">B2</td><td><code>the camera holds still, a page settles, the hand keeps writing</code></td><td class="m">low</td></tr>
+    <tr><td class="m">B3</td><td><code>the camera follows half a beat behind, walking forward down the corridor</code></td><td class="m"><b>high</b><br>얼굴 없음</td></tr>
+    <tr><td class="m">B5</td><td><code>the camera holds still, the blind slats sway once</code></td><td class="m">low</td></tr>
+    <tr><td class="m">B6</td><td><code>the lamp light flickers once, the papers do not move, the camera holds still</code></td><td class="m">low</td></tr>
+    <tr><td class="m">피벗</td><td><code>the pen tip descends one millimetre and stops</code></td><td class="m">low</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="list">
+  <div><h4>얼굴이 프레임에 있으면 반드시 low</h4><p>high는 얼굴을 무너뜨린다. <b>실사에서는 즉시 들킨다.</b></p></div>
+  <div><h4>카메라 지시는 인물이 없는 컷에만</h4><p>카메라를 지시하면 포즈가 바뀐다는 지적이 2026에도 반복된다.</p></div>
+  <div><h4>연장할 때 원문 프롬프트를 지우지 않는다</h4><p>남기고 지시를 덧붙인다. 5초를 넘는 컷은 한 소스 20초 상한 안에서 잇는다.</p></div>
+</div>
+
+<h3 class="sub">안 되면 내린다 — 이게 안전망이다</h3>
+<p class="note"><b>세 번 돌려서 안 나오면 그 컷은 생성하지 않는다.</b> 대체 촬영은 실패가 아니라 설계의 일부다 — 조사가 권한 세 층 중 하나(손과 물건의 탑다운 실사)를 그대로 쓰는 것이고, 그 층은 <b>노력 전이를 가장 잘 지키는</b> 형식이다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th>증상</th><th>대체</th></tr></thead>
+  <tbody>
+    <tr><td class="m">손이 무너진다</td><td><b>탑다운 실사 촬영.</b> 책상 하나 · 조명 하나 · 카메라 하나. 손과 서식이 주인공인 컷(B1 · B2 · B5)은 원래 이 형식이 가장 강하다</td></tr>
+    <tr><td class="m">얼굴이 어색하다</td><td>눈만 잡거나, 초점을 뒤로 빼거나, 그 컷만 실사 촬영</td></tr>
+    <tr><td class="m">정점이 안 나온다</td><td><b>이 컷만은 실사 촬영을 기본안으로 두는 것도 방법이다.</b> 배우 한 명 · 3초</td></tr>
+    <tr><td class="m">공간이 한국 센터 같지 않다</td><td>무드보드에 센터 사진을 더 넣는다. 그래도 안 되면 실제 센터에서 찍는다</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec"><em>금지</em> 실사라서 생기는 것</h2>
+<div class="list">
+  <div><h4>서식 · UI · 소품을 생성하지 않는다</h4><p>생성된 서식은 읽기 어려운 게 아니라 <b>읽을 것이 없다.</b> 실물 스캔과 실제 촬영본을 합성한다.</p></div>
+  <div><h4>얼굴 클로즈업을 늘리지 않는다</h4><p>정점 하나. 얼굴이 늘어날수록 어색함이 감지될 확률이 곱으로 는다. 무표정 클로즈업은 효과도 없다.</p></div>
+  <div><h4>아이의 얼굴을 만들지 않는다</h4><p>뒷모습 · 실루엣 · 프레임 밖. 윤리와 법 양쪽에서 선을 넘는다.</p></div>
+  <div><h4>연기를 과장하지 않는다</h4><p>과장된 한숨 · 처진 어깨는 설득 지식을 켠다(Friestad &amp; Wright). 정지 카메라 + 점프컷으로.</p></div>
+  <div><h4>AFTER를 인물로 끌고 가지 않는다</h4><p>인물의 자리는 오버숄더 0.8초와 엔드뿐이다. 효능 구간은 화면이 이긴다 — Jiang: 비인간 화자 M=5.16 vs 실제 인물 M=4.12.</p></div>
+  <div><h4>색으로 감정을 만들지 않는다</h4><p>국가별 변이가 크다(Jonauskaite 2020, D). 명도 · 채도 · 대비비로만.</p></div>
+  <div><h4>미구현 기능을 그리지 않는다</h4><p>실사가 되어도 이 금지는 풀리지 않는다. 보호자 앱 기록 탭은 여전히 화면에 올리지 않는다.</p></div>
+  <div><h4>제작 흔적을 숨기지 않는다</h4><p>러프컷을 상담사에게 보이고 <b>“내 말이 이 그림인가”</b>를 묻는다(Widdowson 2023). 크레딧에 자문 상담사 · 임상심리사 실명과 <b>생성 제작 사실</b>.</p></div>
+</div>
+
+<h2 class="sec"><em>범위</em> 형식이 바뀌어도 그대로인 것</h2>
+<div class="list">
+  <div><h4>클라이맥스가 “보호자가 기록을 받는 순간”이 아니다</h4><p>조사가 지정한 클라이맥스지만 그 기능은 <b>준비 중</b>이다(scenes9 §07 범위). 제작이 가능해져도 없는 기능은 그리지 않는다. 그래서 정점을 <b>해결 인접한 고통</b>으로 옮겼다.</p></div>
+  <div><h4>제출 서류 이중 작성이 정점이 아니다</h4><p>가장 두꺼운 고통(동료심사 축어록)인데 해결이 없다. B6에서 스치고 엔드 범위 카드에서 이름을 부르는 것이 최대치다.</p></div>
+  <div><h4>s03 AI 리뷰 화면은 본편에 없다</h4><p>지적을 만드는 것이 정규식, 진행 4단계는 타이머, 교차분석·MMPI-2·TCI·S-척도는 하드코딩이고 저장되지 않는다. <b>형식이 바뀌어도 사실은 바뀌지 않는다.</b></p></div>
+  <div><h4>원본이 아직 없다</h4><p>AFTER 층 전체가 <code>raw/*.mov</code> 41개다. 작업 트리에 없고 <code>.gitignore</code> 대상이라 커밋된 적도 없다. 편집은 원본이 있는 머신에서.</p></div>
+</div>
+
+<h2 class="sec"><em>순서</em> 제작</h2>
+<ol class="steps">
+  <li><b>육성 확보</b> — 0810 실사 녹취 재사용 동의, 또는 실제 상담사 익명 재녹음 3~4문장</li>
+  <li><b>소품 실물 수집 · 스캔</b> — 초기상담기록지 · 전자바우처 제공기록지 · 로샤 채점표 · 지침서. 서식 하나 틀리면 고관여 관객이 빠져나간다</li>
+  <li><b>배경 레퍼런스 촬영</b> — 실제 센터의 데스크 · 치료실 · 대기실 · 복도. 무드보드 <code>center-real</code>의 재료가 된다</li>
+  <li><b>배역 확정</b> — <b>한국 여성 30대 중반 · 아동 놀이치료사 · 세련되고 단정함</b>. 바꾸려면 여기서 바꾼다</li>
+  <li><b>퍼스낼리제이션 프로필 + 무드보드 둘</b> — 평가할 때 <b>사진만 고른다.</b> 일러스트를 고르면 실사와 계속 싸운다</li>
+  <li><b>인물 레퍼런스 4장</b> — <b>정점의 표정부터.</b> 여기서 안 나오면 대체 촬영으로 내릴지 지금 정한다</li>
+  <li><b>컷별 생성</b> — <code>--draft</code>로 구도를 싸게 잡고 확정 후 다시. <b>세 번 돌려 안 나오면 대체 촬영</b></li>
+  <li><b>움직임</b> — 외부 영상 모델(Seedance · Kling · Veo) → Topaz 업스케일</li>
+  <li><b>오버레이 합성</b> — 실물 서식 스캔 · 실제 화면 · 시계 타이포</li>
+  <li>러프컷 → <b>상담사 검수</b>(“내 말이 이 그림인가”)</li>
+  <li><b>AFTER 편집</b> — 원본 복구 후 CUT.md의 인아웃대로. 노컷 구간은 자르지도 배속하지도 않는다</li>
+  <li><b>러프컷을 상담센터에서 일해본 적 없는 사람에게</b> 보이고 BEFORE에서 무엇이 잘못됐는지 말하게 한다. 못 말하면 고통이 닿지 않은 것이다(지식의 저주, Camerer 1989)</li>
+</ol>
+
+<footer>
+  <div>
+    <h4>전제</h4>
+    <p>BEFORE를 <b>전면 실사(AI 생성)</b>로 제작한다고 가정한다. 2D 캐릭터 안은 검토 끝에 접었다 — 그 결정의 득실은 첫 절에 있다. 제작이 무산되면 촬영본만으로 붙인 <b>2분 50초의 구성</b>이 정본이다 — AFTER 층은 두 판이 같은 테이크를 쓴다.</p>
+  </div>
+  <div>
+    <h4>근거</h4>
+    <p>장면의 논지는 <b>아홉 장면</b>, 기법의 학술 근거는 <b>75초의 전환</b>, 촬영 없이 세우는 법과 이 문서의 금지선은 <b>얼굴 없는 열한 장면</b>에 원문이 있다. 등급 A 메타분석 · B 동료심사 단일 · C 실무.</p>
+  </div>
+  <div>
+    <h4>이 문서가 하지 않는 것</h4>
+    <p>기능의 실재 판정과 장면 선별. 그것은 앞의 문서들에 있다. 여기는 <b>순서 · 낙차 · 층의 배치</b>를 적는다.</p>
+  </div>
+</footer>
+
+</div>

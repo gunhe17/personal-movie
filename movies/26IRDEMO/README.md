@@ -15,6 +15,7 @@ manifest.csv  file, scene, device, action, take, in, out, use, note — 최종 �
 sNN-이름/
   raw/        OS 캡처 원본. 절대 덮어쓰지 않는다
   stills/     원본에서 뽑은 프레임 (png, 2x). 파일명 뒤에 타임코드
+  mockup/     raw를 무대(iMac 글라스 등)에 얹은 파생본 + 그 spec. `motion-stage` 스킬로 재생성. 원본명 + 처리명
   notes.md    조작 순서 · 캡처 지점 · 테이크 기록
 ```
 

@@ -1,8 +1,8 @@
 // s07 · 자동 상담 일지 (웹) — 비어 있는 일지 칸이 필드노트 초안으로 채워진다.
-// 배역: 회기 축 — 이하준 C00002 1회기(s06이 전사를 남긴 그 회기).
+// 배역: 검사 축 — 윤도현 개인상담 C00003 1회기(s06이 전사를 남긴 바로 그 회기).
 // 시작 URL: /counseling/status/<caseId>?session=<필드노트가 붙은 sessionId>
 //   ?session= 딥링크로 회기 상세를 바로 연다(page.svelte:538).
-// 전제: _scripts/s06-setup.sql(전사) → _scripts/s07-setup.sql(그 회기 일지 비우기).
+// 전제: _scripts/s06-setup.sql(케이스·회기·전사) → _scripts/s07-setup.sql(일지 비우기 + 초안 본문 고정).
 export default async function steps(page, h) {
   await h.beat('회기 상세 — 녹음은 있고 일지는 비어 있다')
   h.nocutStart('초안 생성 → 빈 칸이 채워진다')
@@ -18,5 +18,5 @@ export default async function steps(page, h) {
   // 그래서 커서를 일지 안에 두고(hover) 한 번만 내려 세 번째 칸까지 보여준다.
   await h.hover('textarea[placeholder="진행 내용을 작성해주세요"]', '초안이 들어온 진행 내용')
   await h.scroll(180, '다음 상담 내용까지 내려 본다')
-  await h.hold(1500, '끝')
+  await h.hold(600, '끝')
 }

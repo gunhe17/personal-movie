@@ -1,0 +1,49 @@
+{
+  "cookies": [
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNDA3Mjg5NmQtZDkwNy00NWVjLTlhMTUtODA3M2EwY2Q5MDZmIiwicGVyc29uX2lkIjoiZTE1ZWEwMzEtYjJmMS00MTY3LTg4ZmYtNDBkMjQ1MmI1ODljIiwiZW1haWwiOiJhZG1pbkBtaW5kc2NvcGUuY29tIiwidG9rZW5fdmVyc2lvbiI6MiwiYWNjb3VudF90b2tlbl92ZXJzaW9uIjowLCJleHAiOjE3ODkwMDU2MTV9.EDoE2vVHDlPUDse8XDyAjSh_POx4a6bC_kpu0Gi0ktc",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789005615.974433,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "refreshToken",
+      "value": "CSXwgbstj9M1NgYrWQXAfoF3By6fnXOaFbqPvWxCWHE",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789608615.974495,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "currentCenterId",
+      "value": "0b8ef109-6f1d-4d43-af15-95b140d340e7",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3503",
+      "localStorage": [
+        {
+          "name": "centers",
+          "value": "[{\"id\":\"0b8ef109-6f1d-4d43-af15-95b140d340e7\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"657SAZ\",\"logo_url\":null}]"
+        },
+        {
+          "name": "currentCenterId",
+          "value": "0b8ef109-6f1d-4d43-af15-95b140d340e7"
+        }
+      ]
+    }
+  ]
+}

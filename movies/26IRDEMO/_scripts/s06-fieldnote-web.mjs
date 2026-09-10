@@ -1,20 +1,29 @@
 // s06 · 필드노트 — 웹 절반. 앱이 녹음한 것이 여기서 전사·화자·시간 축으로 열린다.
-// 배역: 회기 축 — 이하준 C00002. 전사는 준비 단계(_scripts/s06-setup.sql)에서 넣는다.
-// 시작 URL: /schedule/field-notes/<이하준 fieldNoteId>
+// 배역: 검사 축 — **윤도현**(2014-05-08 · 만 12세) 개인상담 C00003 1회기.
+//   윤도현에게는 시드에 상담 케이스가 없다 — 케이스·일정·회기·전사를 전부 _scripts/s06-setup.sql이 만든다.
+//   그 SQL은 s01이 만든 윤도현을 전제한다(없으면 소리 내어 멈춘다).
+// 시작 URL: /schedule/field-notes/<C00003 1회기의 fieldNoteId>  (id는 setup SQL 마지막 select가 뽑는다)
+//
+// SPEC v4 — 고정 hold를 쓰지 않는다. 도착은 `until`(제품이 걸리는 만큼만), 읽을 시간은 `beat`.
 export default async function steps(page, h) {
-  await h.beat('필드노트 — 30분 · 회기에 연결됨')
-  await h.hold(2000, '누가 언제 남겼는지가 머리에 있다')
+  // 회기 카드는 필드노트 → 일정 상세 → 상담 케이스 상세까지 세 번을 타고 온다. 그게 도착의 기준이다.
+  await h.until('text=C00003', '필드노트 — 30분 · 회기에 연결됨')
+  await h.until('text=개인상담', '회기 카드 — 윤도현 · 만 12세 · 16:00')
+  await h.beat('누가 언제 남긴 기록인지가 화면에 있다')
 
-  h.nocutStart('시간 축을 따라 — 머릿속에 있던 것이 남는다')
-  await h.scroll(500, '전사로')
-  await h.beat('화자별 대화 — 상담사 / 내담자')
-  await h.hold(2500, '분 단위 타임스탬프가 붙어 있다')
-  await h.scroll(500, '더 아래로')
-  // 이 화면에 요약 카드는 없다 — /schedule/field-notes/[id]는 FieldNoteCompleted를
-  // activeTab='transcript' 기본값으로만 쓴다(탭 UI는 FieldNoteView 쪽이고 이 라우트는
-  // 쓰지 않는다). 요약·일지는 s07의 회기 상세가 받는다.
-  await h.beat('회기 후반 — 다음 주 과제까지 남아 있다')
+  h.nocutStart('시간 축을 따라 — 머릿속에만 있던 것이 남는다')
+  // 전사는 페이지가 아니라 **안쪽 영역**이 스크롤된다(overflow-y-auto · 실측 826×532, 내용 2092).
+  // 커서를 그 안에 두지 않으면 휠이 엉뚱한 것을 굴린다 — hover가 먼저인 이유다.
+  await h.hover('button:has-text("도현아, 지난번 검사 때")', '첫 발화')
+  await h.beat('화자가 이름으로 갈린다 — 정상담 / 윤도현')
+  await h.reveal('text=13.2초 침묵', '0:41 — 대답 전 13.2초 침묵까지 남는다')
+  await h.reveal('text=이런 것도 말해도 돼요', '2:17 — "이런 것도 말해도 돼요?"')
+  await h.reveal('text=그냥 제가 참으면 되니까요', '3:01 — "그냥 제가 참으면 되니까요"')
+  // 3:10 다음 줄이 곧 17:22다(전사가 회기 중반을 건너뛴다) — 두 시각이 한 화면에 나란히 서서
+  // 이 목록이 시간 축이라는 게 여기서 제일 크게 읽힌다. 그래서 스크롤이 101px로 짧다.
+  await h.reveal('text=잠이 잘 안 와요', '17:22 — 3:10 바로 아래. 회기 후반의 잠 이야기')
+  await h.reveal('text=한 단어로만 적어보는 거야', '26:28 — 다음 주 과제까지 시간 축 위에 있다')
   h.nocutEnd()
 
-  await h.hold(1500, '끝')
+  await h.hold(600, '끝')
 }

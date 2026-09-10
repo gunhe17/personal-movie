@@ -1,0 +1,2 @@
+{ "stage":"wipe", "preset":"wipe", "dir":"right", "feather":0.08, "ease":"inout",
+  "duration":0.8, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

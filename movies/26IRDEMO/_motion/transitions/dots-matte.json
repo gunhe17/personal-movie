@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"dots", "dir":"right", "cell":48, "stagger":0.5, "feather":0.02, "ease":"linear", "duration":0.9, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

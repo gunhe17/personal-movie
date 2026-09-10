@@ -40,3 +40,26 @@ raw/s09_web_noshow_t02.mov,s09-회기정산,web,noshow,t02,,,,
 raw/s02_web_collect_t05.mov,s02-검사실시,web,collect,t05,,,,
 raw/s03_web_draft_t01.mov,s03-채점보고서,web,draft,t01,,,,
 raw/s03_web_aireview_t01.mov,s03-채점보고서,web,aireview,t01,,,,
+raw/s07_web_draft_t04.mov,s07-자동일지,web,draft,t04,,,,
+raw/s08_web_careboard_t03.mov,s08-케어보드,web,careboard,t03,,,,
+raw/s09_web_noshow_t03.mov,s09-회기정산,web,noshow,t03,,,,
+raw/s01_web_intake_t08.mov,s01-접수,web,intake,t08,,,,
+raw/s04_web_sendlink_t04.mov,s04-바로링크,web,sendlink,t04,,,,
+raw/s03_web_aireview_t02.mov,s03-채점보고서,web,aireview,t02,,,,
+raw/s03_web_aireview_t03.mov,s03-채점보고서,web,aireview,t03,,,,
+raw/s03_web_aireview_t04.mov,s03-채점보고서,web,aireview,t04,,,,
+raw/s03_web_aireview_t05.mov,s03-채점보고서,web,aireview,t05,,,,
+raw/s03_web_aireview_t06.mov,s03-채점보고서,web,aireview,t06,,,,
+raw/s03_web_aireview_t07.mov,s03-채점보고서,web,aireview,t07,,,,
+raw/s03_web_aireview_t08.mov,s03-채점보고서,web,aireview,t08,,,,
+raw/s06_web_fieldnote_t03.mov,s06-필드노트,web,fieldnote,t03,,,,
+raw/s07_web_draft_t05.mov,s07-자동일지,web,draft,t05,,,,
+raw/s01_web_intake_t09.mov,s01-접수,web,intake,t09,,,,
+raw/s02_web_collect_t06.mov,s02-검사실시,web,collect,t06,,,,실패 — goto ERR_ABORTED 뒤 브라우저 닫힘(2.18s)
+raw/s02_web_collect_t07.mov,s02-검사실시,web,collect,t07,,,,실패 — 마인드봄 토큰 만료 401 /api/auth/check(32.0s)
+raw/s02_web_collect_t08.mov,s02-검사실시,web,collect,t08,,,,SPEC v5 재촬영 · 드롭 0 · 노컷 2.20–14.84 / 14.84–25.38
+raw/s02_web_collect_t09.mov,s02-검사실시,web,collect,t09,,,,받아쓰기 세 반응 · 드롭 0 · 노컷 2.21–16.93 / 16.93–21.37 / 21.37–31.94
+raw/s02_web_collect_t10.mov,s02-검사실시,web,collect,t10,,,,두 바퀴 받아쓰기 첫 판 — ②의 질문 원문이 빠져 폐기
+raw/s02_web_collect_t11.mov,s02-검사실시,web,collect,t11,,,,두 바퀴 전부 받아쓰기 · 타이핑 0 · 드롭 0 · 노컷 3개
+raw/s02_web_collect_t12.mov,s02-검사실시,web,collect,t12,,,,반응 하나 · 24.12s · 드롭 0 · 노컷 2.21–16.83 / 16.84–22.31
+raw/s03_web_aireview_t09.mov,s03-채점보고서,web,aireview,t09,,,,

@@ -25,10 +25,10 @@ export DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib     # WeasyPrint가 glib을 
 docker ps --format '{{.Names}}' | grep -q saas-postgres || { echo "saas-postgres 가 없다 — pnpm db:up 먼저"; exit 1; }
 
 echo "▶ 스키마 재생성 (마이그레이션 체인은 빈 DB에서 안 돈다 — init_db 가 정본)"
-( cd "$API_DIR" && uv run python -m scripts.init_db >/dev/null && uv run alembic stamp head >/dev/null )
+( cd "$API_DIR" && .venv/bin/python -m scripts.init_db >/dev/null && .venv/bin/python -m alembic stamp head >/dev/null )
 
 echo "▶ develop 시드"
-( cd "$API_DIR" && uv run python -m scripts.seed.develop > /tmp/seed.log 2>&1 ) || { echo "시드 실패 — /tmp/seed.log"; exit 1; }
+( cd "$API_DIR" && .venv/bin/python -m scripts.seed.develop > /tmp/seed.log 2>&1 ) || { echo "시드 실패 — /tmp/seed.log"; exit 1; }
 
 echo "▶ 로그인 상태 재생성 (계정 id가 바뀌어 기존 토큰이 죽었다)"
 BASE=$(python3 -c "import json;print(json.load(open('_state/accounts.json'))['apps']['saas']['base'])" 2>/dev/null || echo http://localhost:3503)

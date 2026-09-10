@@ -1,0 +1,57 @@
+{
+  "cookies": [
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiZDAxMTRkNjgtZjQ3My00Y2I4LWJjNDYtYWNmNDIyM2Q2ODgyIiwicGVyc29uX2lkIjoiMThkZGExOGQtYzc0Yy00Zjc4LTgwOTMtYWIyOWUyNTJjMzFjIiwiZW1haWwiOiJjb3Vuc2Vsb3IxQG1pbmRzY29wZS5jb20iLCJ0b2tlbl92ZXJzaW9uIjoyLCJhY2NvdW50X3Rva2VuX3ZlcnNpb24iOjAsImV4cCI6MTc4OTAyNTI1Nn0.1o4wPXbi7JAMw2F2KV5ky22oSNtsgOzRFtNdHiJO3M8",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789025256.254987,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "refreshToken",
+      "value": "DLy7Blo5e0jnP_U0LtAgxdcupUZTgUlLSahk5SMWB7s",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789628256.255039,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "currentCenterId",
+      "value": "b0f33e8e-9745-447e-9bd2-f0a8af8654ba",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3503",
+      "localStorage": [
+        {
+          "name": "permissionVersion",
+          "value": "1"
+        },
+        {
+          "name": "centers",
+          "value": "[{\"id\":\"b0f33e8e-9745-447e-9bd2-f0a8af8654ba\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"GQB2KT\",\"logo_url\":null}]"
+        },
+        {
+          "name": "permissionContext",
+          "value": "{\"permissions\":[\"delete:assessment_case\",\"delete:counseling\",\"delete:document\",\"delete:schedule\",\"read:assessment_case\",\"read:billing\",\"read:center\",\"read:center_assessment\",\"read:client\",\"read:counseling\",\"read:counseling_note\",\"read:document\",\"read:form_instance\",\"read:form_template\",\"read:member\",\"read:notice\",\"read:program\",\"read:role\",\"read:room\",\"read:schedule\",\"read:send_link\",\"read:voucher\",\"write:assessment_case\",\"write:billing\",\"write:client\",\"write:counseling\",\"write:counseling_note\",\"write:document\",\"write:form_instance\",\"write:member\",\"write:schedule\",\"write:send_link\"],\"role\":\"counselor\",\"memberId\":\"3165033f-f587-4ccb-996a-8fc86715ba1b\",\"accessLevel\":\"own\",\"isAuthenticated\":true,\"version\":1,\"updatedAt\":\"2026-09-10T06:58:16.814Z\"}"
+        },
+        {
+          "name": "currentCenterId",
+          "value": "b0f33e8e-9745-447e-9bd2-f0a8af8654ba"
+        }
+      ]
+    }
+  ]
+}

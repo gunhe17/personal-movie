@@ -1,0 +1,153 @@
+{
+  "id": "s07_web_draft_t05",
+  "scene": "s07-자동일지",
+  "device": "web",
+  "action": "draft",
+  "take": "t05",
+  "captured_at": "2026-09-10T06:21:20.869Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/3054fae2-6da7-4d4d-ae99-b2ba8f563fcf?session=fc56b461-31df-4f2c-9070-05e72be4be8d",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 771,
+      "appended": 809,
+      "dupped": 66,
+      "notReady": 0,
+      "ticks": 809,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10c.json",
+    "sha256": "c901b0925d8163af9993d5b44c4b221f04cec56b796d0c1ddd5018e4a358d1b9"
+  },
+  "script": {
+    "file": "_scripts/s07-draft.mjs",
+    "sha256": "9ea0d34cdfdb13ce9ed45719b44f391d958da3fb7466813d68544c2c683e3a85"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.2,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 녹음은 있고 일지는 비어 있다"
+    },
+    {
+      "t": 3.33,
+      "kind": "click",
+      "target": "button:has-text(\"일지 초안 생성\")",
+      "note": "일지 초안 생성"
+    },
+    {
+      "t": 9.81,
+      "kind": "until",
+      "target": "text=초안으로 채웠어요",
+      "note": "전사 분석 중… → 칸이 채워졌다 (+6.1s)"
+    },
+    {
+      "t": 10.51,
+      "kind": "beat",
+      "target": "",
+      "note": "채워진 일지 — 상담 목표 · 진행 내용"
+    },
+    {
+      "t": 11.18,
+      "kind": "hover",
+      "target": "textarea[placeholder=\"진행 내용을 작성해주세요\"]",
+      "note": "초안이 들어온 진행 내용"
+    },
+    {
+      "t": 11.22,
+      "kind": "scroll",
+      "target": "180",
+      "note": "다음 상담 내용까지 내려 본다"
+    },
+    {
+      "t": 12.27,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 12.27,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.2,
+      "note": "초안 생성 → 빈 칸이 채워진다",
+      "end": 9.81
+    }
+  ],
+  "retake_of": "t04",
+  "retake_reason": "배역 이하준→윤도현(C00003) — s06이 남긴 그 회기의 일지가 되도록 초안 본문 재작성",
+  "result": {
+    "file": "raw/s07_web_draft_t05.mov",
+    "duration": 13.48,
+    "ok": true,
+    "error": null
+  }
+}

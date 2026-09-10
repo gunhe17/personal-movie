@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"slices", "dir":"right", "slices":8, "stagger":0.6, "feather":0, "ease":"linear", "duration":0.9, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

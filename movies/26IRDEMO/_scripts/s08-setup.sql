@@ -15,6 +15,20 @@
 -- 적용:   docker exec -i saas-postgres psql -U imomtae -d imomtae < _scripts/s08-setup.sql
 -- 되돌리기: 파일 맨 아래 블록 (리허설·촬영을 반복하려면 매번 되돌린다)
 
+-- ① s09 재설정이 남긴 유령 행을 지운다.
+-- s09를 되돌리면 5회기 counseling_sessions 행이 **하드 삭제**된다. 그런데 케어보드 엔트리는
+-- 원천의 스냅샷이라 남고, 원천이 사라진 것을 알아채 `source_deleted_at`이 찍힌다 —
+-- 그래서 스트림에 `놀이치료 5회기 · 취소됨 · 원본 삭제됨`이라는, 케이스에 없는 회기가 뜬다.
+-- `backfill_care_board`도 이건 못 지운다(원천을 열거해 비교하므로, 아예 없는 원천은 시야에 없다).
+-- 가리키는 것이 없는 행만 골라 지운다.
+delete from care_board_entries e
+where e.source_table = 'counseling_sessions'
+  and e.client_id = (select id from clients where name='이하준' and deleted_at is null)
+  and not exists (
+    select 1 from counseling_sessions s where s.id = e.source_id and s.deleted_at is null
+  );
+
+-- ② 센터장이 남긴 메모 한 건.
 with ctx as (
   select (select id from centers where deleted_at is null limit 1) center_id,
          (select id from clients where name='이하준' and deleted_at is null) client_id,

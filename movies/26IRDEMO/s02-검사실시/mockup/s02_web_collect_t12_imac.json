@@ -1,0 +1,9 @@
+{
+  "stage": "imac",
+  "size": [3840, 2160],
+  "fps": 60,
+  "screen": "../raw/s02_web_collect_t12.mov",
+  "macW": 2,
+  "copy": {},
+  "_note": "copy를 빈 객체로 두면 오른쪽 열이 자리만 잡고 비어 있다. macW 2 → 2fr : 1fr 이라 오른쪽 1/3이 빈 채로 남는다 — 자막·카피를 편집에서 얹는 자리."
+}

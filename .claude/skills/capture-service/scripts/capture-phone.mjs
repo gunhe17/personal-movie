@@ -49,7 +49,7 @@ const sckArgs = ['--bundle-id', SIM_BUNDLE, '--window-title', devName, '--trim-t
   '--fps', String(SPEC_PHONE.capture.fps), '--codec', SPEC_PHONE.capture.codec, '--bitrate', String(SPEC_PHONE.capture.bitrate)]
 
 if (args.calibrate) {
-  const out = path.join(stillDir, 'calibrate-phone.png')
+  const out = args.out ? path.resolve(args.out) : path.join(stillDir, 'calibrate-phone.png')   // --out: 기존 보정본을 덮지 않고 딴 데로 (무대 점검용)
   const r = spawnSyncSck([...sckArgs, '--still', out])
   if (!fs.existsSync(out)) die(`보정 실패\n${r}`)
   const px = pngSize(out)

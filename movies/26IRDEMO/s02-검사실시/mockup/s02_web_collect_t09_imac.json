@@ -1,0 +1,7 @@
+{
+  "stage": "imac",
+  "size": [3840, 2160],
+  "fps": 60,
+  "screen": "../raw/s02_web_collect_t09.mov",
+  "width": 0.70
+}

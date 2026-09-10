@@ -1,0 +1,138 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>stage</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+  #stage{position:relative;width:100vw;height:100vh;overflow:hidden}
+  #inner{position:absolute;inset:0;transform-origin:50% 50%}
+  .item{position:absolute;transform-origin:50% 50%}
+  .item svg{display:block}
+</style>
+<div id="stage"><div id="inner"></div></div>
+<script>
+/* SPEC은 render.mjs가 이 자리에 끼워 넣는다 */
+const SPEC = /*__SPEC__*/ null;
+
+/* ── 글리프 — 상표 없는 중립 도형만. 브랜드 로고를 여기 추가하지 않는다 ── */
+const G = {
+  phone:  '<path d="M18 30c0-6 5-11 11-11h6l4 11-5 4c2 6 7 11 13 13l4-5 11 4v6c0 6-5 11-11 11C31 73 18 55 18 30z"/>',
+  person: '<circle cx="50" cy="30" r="14"/><path d="M22 82c0-16 13-28 28-28s28 12 28 28z"/>',
+  chat:   '<path d="M14 24c0-6 5-10 10-10h52c6 0 10 4 10 10v30c0 6-4 10-10 10H42L24 80V64c-6 0-10-4-10-10z"/>',
+  monitor:'<rect x="12" y="18" width="76" height="50" rx="4"/><rect x="42" y="70" width="16" height="10"/><rect x="30" y="80" width="40" height="6" rx="3"/>',
+  doc:    '<path d="M24 10h34l20 20v60H24z"/>',
+  clock:  '<circle cx="50" cy="50" r="36"/><path d="M50 28v24l16 10" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>',
+  bell:   '<path d="M50 12a6 6 0 016 6v3c12 3 20 13 20 26v14l7 10H23l7-10V47c0-13 8-23 20-26v-3a6 6 0 016-6z"/><path d="M42 78a8 8 0 0016 0z"/>'
+};
+
+/* ── 얼굴 — p=0 평온, p=1 부담(난감).
+   분노와 갈리는 지점은 눈썹이다: 안쪽 끝이 '올라가면' 곤란, '내려가면' 분노. ── */
+function faceSVG(p){
+  const outer = 34 + 5 * p;     // 바깥쪽 눈썹 끝은 내려온다
+  const inner = 34 - 7 * p;     // 안쪽 눈썹 끝은 올라간다  ← 부담의 핵심
+  const mouthY = 67 + 2 * p;
+  const curve  = 8 - 14 * p;    // 미소 → 평평 → 아주 살짝 아래
+  const skew   = 3 * p;         // 입이 한쪽으로 밀린다 — 난감함
+  const eye    = 3.5 + 0.8 * p; // 눈이 조금 커진다
+  return `
+    <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="4"/>
+    <line x1="30" y1="${outer}" x2="44" y2="${inner}" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <line x1="70" y1="${outer}" x2="56" y2="${inner}" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="37" cy="47" r="${eye}" fill="currentColor"/>
+    <circle cx="63" cy="47" r="${eye}" fill="currentColor"/>
+    <path d="M${36 + skew} ${mouthY} Q${50 + skew} ${mouthY + curve} ${64 + skew} ${mouthY - skew * 0.6}"
+          fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`;
+}
+
+/* ── 이징 ── */
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const easeOut = u => 1 - Math.pow(1 - clamp01(u), 3);   // 들어올 때 — 감속
+const easeIn  = u => Math.pow(clamp01(u), 3);           // 나갈 때 — 가속
+const smooth  = u => { u = clamp01(u); return u * u * (3 - 2 * u); };
+const overshoot = u => {                                // pop:true 일 때만
+  u = clamp01(u);
+  return 1 - Math.pow(1 - u, 3) * Math.cos(u * Math.PI * 1.1);
+};
+
+function place(el, x, y, size){
+  el.style.left = `${x * 100}%`;
+  el.style.top  = `${y * 100}%`;
+  el.style.width = el.style.height = `${size}px`;
+  el.style.marginLeft = el.style.marginTop = `${-size / 2}px`;
+}
+
+function render(t){
+  const inner = document.getElementById('inner');
+  document.getElementById('stage').style.background =
+    SPEC.bg === 'transparent' ? 'transparent' : SPEC.bg;
+  inner.innerHTML = '';
+
+  // 아주 느린 푸시인 — 애니메틱의 숨
+  const push = SPEC.push ?? 0.02;
+  inner.style.transform = `scale(${1 + push * (t / SPEC.duration)})`;
+
+  const S = Math.min(innerWidth, innerHeight);
+
+  for (const b of SPEC.beats){
+    const inDur  = b.in ?? 0.6;
+    const outAt  = b.out ?? Infinity;
+    const outDur = b.outDur ?? 0.5;
+    if (t < b.at) continue;
+    if (t > outAt + outDur) continue;
+
+    const ui = clamp01((t - b.at) / inDur);
+    const uo = outAt === Infinity ? 0 : clamp01((t - outAt) / outDur);
+    const ein = (b.pop ? overshoot : easeOut)(ui);
+    const eout = easeIn(uo);
+
+    const size = (b.size ?? 0.12) * S;
+    const life = t - b.at;
+
+    // 체류 중 아주 느린 드리프트 + 미세 부유
+    const [dx, dy] = b.drift ?? [0, 0];
+    const driftX = dx * S * Math.min(life / (b.driftIn ?? 3), 1);
+    const driftY = dy * S * Math.min(life / (b.driftIn ?? 3), 1);
+    const floatAmp = (b.float ?? 0.012) * S;
+    const floatY = Math.sin((life / 3.2) * Math.PI * 2) * floatAmp;
+
+    const enterY = (1 - ein) * size * 0.30;   // 아래에서 올라온다
+    const exitY  = -eout * size * 0.22;       // 위로 빠진다
+    const scale  = (0.86 + 0.14 * ein) * (1 - 0.10 * eout);
+
+    const el = document.createElement('div');
+    el.className = 'item';
+    place(el, b.x, b.y, size);
+    el.style.opacity = String(smooth(ui) * (1 - smooth(uo)));
+    el.style.transform =
+      `translate(${driftX}px, ${enterY + exitY + driftY + floatY}px) scale(${scale})`;
+    el.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}"
+                      fill="${b.color ?? SPEC.ink}" style="color:${b.color ?? SPEC.ink}">${G[b.icon] ?? G.chat}</svg>`;
+    inner.appendChild(el);
+  }
+
+  if (SPEC.face){
+    const f = SPEC.face;
+    const size = (f.size ?? 0.26) * S;
+    const ui = clamp01((t - (f.at ?? 0)) / (f.in ?? 0.6));
+    const outAt = f.out ?? Infinity;
+    const uo = outAt === Infinity ? 0 : clamp01((t - outAt) / (f.outDur ?? 0.5));
+    if (t <= outAt + (f.outDur ?? 0.5)){
+      const p = smooth((t - f.change) / (f.changeIn ?? 0.8));
+      const el = document.createElement('div');
+      el.className = 'item';
+      place(el, f.x, f.y, size);
+      el.style.color = f.color ?? SPEC.ink;
+      el.style.opacity = String(smooth(ui) * (1 - smooth(uo)));
+      const life = t - (f.at ?? 0);
+      const floatY = Math.sin((life / 4) * Math.PI * 2) * (f.float ?? 0.006) * S;
+      el.style.transform =
+        `translateY(${(1 - easeOut(ui)) * size * 0.18 + floatY - easeIn(uo) * size * 0.15}px)` +
+        ` rotate(${(f.tilt ?? 3) * p}deg)` +
+        ` scale(${(0.92 + 0.08 * easeOut(ui)) * (1 - 0.06 * easeIn(uo))})`;
+      el.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}">${faceSVG(p)}</svg>`;
+      inner.appendChild(el);
+    }
+  }
+}
+
+render(parseFloat(new URLSearchParams(location.search).get('t') || '0'));
+</script>

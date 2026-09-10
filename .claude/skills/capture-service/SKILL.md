@@ -25,7 +25,7 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | 목 에이전트 | **`--mock _mocks/sNN-*.json`** — 제품의 `mock-capture` 스크립트를 `sessionStorage['agent-mock:v2']`에 걸고 시작. 다음 턴은 `h.key('F9')`, `/agent` 화면이면 사람이 전송할 때 흘러나온다 | LLM을 부르지 않아 크레딧을 안 쓰고 매 테이크의 대사·prefill이 같다. 도구는 제품 배선(`handlePageToolCall`)을 그대로 타므로 화면 동작은 진짜다 |
 | 실기기 (s06) | iOS 화면 기록 · AirDrop → raw/ · `capture.mjs --manual`로 meta 등록 | 마이크가 필요한 필드노트만 |
 
-### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v4)
+### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v5)
 
 | 상수 | 값 | 뜻 |
 |---|---|---|
@@ -33,7 +33,7 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | `moveMin` / `movePerPx` / `moveMax` | 180 / 0.30 / 620 | 커서 이동은 **거리에 비례**한다(22 steps, ease-out). 가까운 버튼으로 먼 거리와 같은 시간을 들여 날아가지 않게 |
 | `preClick` / `postClick` | 220 / 380 | 클릭 전 멈춤 · 클릭 후 UI 반응 |
 | `type` / `afterType` | 40/글자 / 220 | 타이핑 |
-| `scrollStep` / `scrollEvery` / `afterScroll` | 140px / 40 / 450 | 부드러운 스크롤 |
+| `scrollFrame` / `afterScroll` | 16 / 450 | 스크롤은 **거리를 먼저 정하고** 커서 이동과 같은 시간·ease-out으로 매 프레임 작은 휠 델타를 보낸다(v5). v4의 140px 휠은 CDP에서 smooth scrolling을 안 타 한 프레임 점프였다 — s01 t07에서 364px이 세 번 툭툭 |
 | `beat` | 700 | 상태가 바뀐 뒤 시청자가 볼 시간 |
 | `modal` | 600 | 모달 열린 뒤 첫 조작까지 |
 | `settle` | 260 | `until`이 조건을 만난 뒤 화면이 자리 잡는 시간 |
@@ -69,7 +69,7 @@ v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르�
 
 ## 절차
 
-0. **로그인 상태** — `_state/local-<key>.json`이 있어야 보호 페이지가 열린다. 계정 목록은 `_state/accounts.json`, 생성은 `scripts/login.mjs`(자격증명은 `CAP_EMAIL`·`CAP_PASSWORD` 환경변수로만). 촬영 명령에 `--state _state/local-admin.json`.
+0. **로그인 상태** — `_state/local-<key>.json`이 있어야 보호 페이지가 열린다. **러너가 캡처 전에 그 상태가 살아 있는지 직접 묻는다**(`auth-check.mjs` — 마인드봄 `/api/auth/check`, saas `/api/proxy/auth/me`). 죽었으면 촬영을 시작하지 않고 재로그인 명령을 찍어 준다. 파일이 있다는 것과 유효하다는 것은 다르고, **죽은 토큰의 증상은 401이 아니라 셀렉터 타임아웃**이라 30초를 버린 뒤에야 실패한다(s02에서 테이크 둘을 이렇게 잃었다). 쿠키의 `expires`는 토큰 수명이 아니므로 그걸 보고 판단하지 않는다. 계정 목록은 `_state/accounts.json`, 생성은 `scripts/login.mjs`(자격증명은 `CAP_EMAIL`·`CAP_PASSWORD` 환경변수로만). 촬영 명령에 `--state _state/local-admin.json`.
 1. **시드 박제** — 촬영 환경은 **로컬 develop 시드 하나뿐**이다(`scripts.seed.develop` — 마인드스코프 아동심리상담센터, 계정은 `_state/accounts.json`, 공통 비번 `test1234`). 마인드봄(`_tool/mindbom`)도 같은 배역을 쓴다 — `scripts/cast.py`, 정본은 saas 쪽이고 `_scripts/check-cast.py`가 일치를 지킨다. `movies/26IRDEMO/_scripts/seed-snapshot.sh <saas|mindbom>`으로 `_seed/<앱>-<날짜>.json`을 만든다. 없으면 촬영하지 않는다(`--dry`는 시험용). 두 시드 다 자연키로 멱등해서 재실행만으로는 id가 살아 있지만, DB를 지우고 다시 만들면 전부 바뀐다 — 그래서 스냅샷의 sha256이 meta에 남는다. 마인드봄은 재실행할 때 검사 시각이 지금 기준으로 다시 맞춰진다(시간선 화면 때문). 스냅샷에 시각을 담지 않는 이유다.
 2. **장면 스크립트** — `movies/26IRDEMO/_scripts/sNN-<action>.mjs`. 두 가지 방법:
    - 손으로: `_template.mjs`를 복사한다.
@@ -85,6 +85,7 @@ v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르�
 6. **검토** — meta의 `steps[].t`로 순간을 찾아 본다. 재촬영은 스크립트를 고치고 다시 5 — 이전 테이크는 지우지 않는다. `--retake-of t01 --reason "…"`로 사유를 남긴다.
 7. **폰(시뮬레이터)** — 전제: 내담자 앱 dev 빌드가 시뮬레이터에 설치돼 있고(`kr.mindscope.client.dev`, `npx expo run:ios` — `ios/`가 없어 prebuild부터), Simulator 설정이 SPEC(베젤 off · 터치 표시 · 스케일 1.0)이다. 러너가 설정을 검사해 다르면 경고한다.
    - 보정: `node capture-phone.mjs --scene s05-일정 --action request --udid booted --app kr.mindscope.client.dev --calibrate` → `stills/calibrate-phone.png`, 캡처/기기 비율 일치 확인.
+     `--out <경로>`를 주면 그 파일로 나간다 — 기존 보정본을 안 덮는다. 무대가 어느 화면에 섰는지 볼 때 쓴다(`--url`로 딥링크를 같이 주면 이동 후 한 장).
    - 촬영: `--script _scripts/s05-phone-request.mjs`(템플릿 `_template-phone.mjs`, idb 필요) 또는 `--manual --seconds 25`(사람이 조작). 결과는 웹과 같은 meta·manifest.
    - s04·s05처럼 웹과 폰이 오가는 장면은 두 러너를 **동시에** 시작한다 — 각 meta의 `captured_at`과 첫 조작 `t`로 정렬한다.
 8. **실기기 (s06)** — iOS 화면 기록 → AirDrop → `raw/`에 넣고 `node capture.mjs --manual raw/s06_device_fieldnote_t01.mov --scene s06-필드노트 --device device --action fieldnote --seed _seed/x.json` → meta + manifest.

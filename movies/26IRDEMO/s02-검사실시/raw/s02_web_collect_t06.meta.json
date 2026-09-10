@@ -1,0 +1,115 @@
+{
+  "id": "s02_web_collect_t06",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t06",
+  "captured_at": "2026-09-10T08:05:50.293Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/5d000869-50bb-40ef-b855-d5fecd2bbbc8/collect",
+    "env": "local",
+    "commit": "5e89cbd"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 8,
+      "appended": 131,
+      "dupped": 127,
+      "notReady": 0,
+      "ticks": 131,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "8d04db332503a51f3b54ba53ad47ea19ec789d2ad6f6d2bc0835644720574941"
+  },
+  "stt": {
+    "file": "_mocks/s02-stt.json",
+    "clips": [
+      "박쥐 같아요. 날개를 펴고 있는."
+    ]
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.2,
+      "kind": "beat",
+      "target": "",
+      "note": "로샤 실시 — 카드 I"
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.2,
+      "note": "말한 것이 그대로 반응이 된다"
+    }
+  ],
+  "retake_of": "t05",
+  "retake_reason": "prep→capture 사이클 재실행 · 시드 스냅샷 c 위에서 · app.commit을 마인드봄으로 정정",
+  "result": {
+    "file": "raw/s02_web_collect_t06.mov",
+    "duration": 2.18,
+    "ok": false,
+    "error": "locator.waitFor: Target page, context or browser has been closed"
+  }
+}

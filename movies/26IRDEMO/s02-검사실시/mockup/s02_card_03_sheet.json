@@ -1,0 +1,19 @@
+{
+  "stage": "cards",
+  "size": [
+    2200,
+    2500
+  ],
+  "ground": "transparent",
+  "assets": "../../_tool/mindbom/apps/web/src/lib/assets/rorschach",
+  "pose": 0.55,
+  "cards": [
+    {
+      "type": "sheet",
+      "w": 68,
+      "h": 91,
+      "label": false,
+      "ref": 27
+    }
+  ]
+}

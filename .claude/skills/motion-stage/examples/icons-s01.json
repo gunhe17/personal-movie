@@ -1,0 +1,25 @@
+{
+  "out": "movies/26IRDEMO/_motion/s01-intake.mp4",
+  "duration": 4.4,
+  "fps": 30,
+  "size": [1920, 1080],
+  "bg": "#E9EAEA",
+  "ink": "#3F5B66",
+  "push": 0.03,
+
+  "beats": [
+    { "icon": "phone",  "at": 0.6, "x": 0.30, "y": 0.30, "size": 0.20,
+      "drift": [0.055, 0.075], "out": 3.5, "outDur": 0.7 },
+    { "icon": "person", "at": 1.2, "x": 0.50, "y": 0.24, "size": 0.20,
+      "drift": [0.000, 0.085], "out": 3.6, "outDur": 0.7 },
+    { "icon": "chat",   "at": 1.8, "x": 0.70, "y": 0.30, "size": 0.20,
+      "drift": [-0.055, 0.075], "out": 3.7, "outDur": 0.7 }
+  ],
+
+  "face": {
+    "x": 0.5, "y": 0.66, "size": 0.36,
+    "at": 0.2, "in": 0.7,
+    "change": 2.3, "changeIn": 1.0,
+    "color": "#191E21"
+  }
+}

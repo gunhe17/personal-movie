@@ -1,0 +1,239 @@
+{
+  "id": "s03_web_aireview_t06",
+  "scene": "s03-채점보고서",
+  "device": "web",
+  "action": "aireview",
+  "take": "t06",
+  "captured_at": "2026-09-10T03:29:45.371Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/5d000869-50bb-40ef-b855-d5fecd2bbbc8/report?ids=5d000869-50bb-40ef-b855-d5fecd2bbbc8,4bc62713-3523-4c49-a46e-d5fa1e48d9a9,e02118e2-2a58-4b69-b5b9-5dbd4ca09372",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 697,
+      "appended": 1247,
+      "dupped": 592,
+      "notReady": 0,
+      "ticks": 1247,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s03-review.mjs",
+    "sha256": "4f2b66a3aecc342a8caab0f52a031028a3ed9e5c2c713e7011f35e4ebca15606"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "종합보고서 편집기 — A4 지면 그대로"
+    },
+    {
+      "t": 3.17,
+      "kind": "click",
+      "target": "getByRole('button', { name: 'AI 종합 리뷰' })",
+      "note": "AI 종합 리뷰"
+    },
+    {
+      "t": 3.83,
+      "kind": "until",
+      "target": "text=보고서를 분석하고 있습니다",
+      "note": "네 단계로 훑는다 (+0.3s)"
+    },
+    {
+      "t": 4.53,
+      "kind": "beat",
+      "target": "",
+      "note": "문서 구조 → 검사 결과 대조 → 서술 일관성 → 표현·문체"
+    },
+    {
+      "t": 7.61,
+      "kind": "until",
+      "target": "aside[aria-label=\"AI 종합 리뷰\"] h4:has-text(\"검토사항\")",
+      "note": "완성도 점수와 검토사항 (+3.1s)"
+    },
+    {
+      "t": 8.32,
+      "kind": "beat",
+      "target": "",
+      "note": "무엇이 비었고 무엇이 어긋나는지"
+    },
+    {
+      "t": 8.34,
+      "kind": "reveal",
+      "target": "button:has-text(\"초안 작성\")",
+      "note": "섹션 누락 — Ⅲ 행동 관찰이 비었다"
+    },
+    {
+      "t": 9.81,
+      "kind": "click",
+      "target": "button:has-text(\"초안 작성\")",
+      "note": "초안 작성"
+    },
+    {
+      "t": 10.8,
+      "kind": "modal",
+      "target": "",
+      "note": "바뀔 문장을 지면 그대로 보여준다"
+    },
+    {
+      "t": 11.55,
+      "kind": "click",
+      "target": "button:has-text(\"본문에 적용\")",
+      "note": "본문에 적용"
+    },
+    {
+      "t": 12.64,
+      "kind": "beat",
+      "target": "",
+      "note": "지적이 사라지고 완성도가 오른다"
+    },
+    {
+      "t": 13.36,
+      "kind": "click",
+      "target": ".para:has-text(\"해석되어진\")",
+      "note": "HTP를 근거로 든 문단 — 여기 넣는다"
+    },
+    {
+      "t": 13.75,
+      "kind": "key",
+      "target": "End",
+      "note": "문단 끝에 커서를 둔다"
+    },
+    {
+      "t": 14.51,
+      "kind": "scroll",
+      "target": "1040"
+    },
+    {
+      "t": 14.96,
+      "kind": "reveal",
+      "target": "aside img[alt*=\"집\"]",
+      "note": "왼쪽에 있던 그 검사의 실제 그림"
+    },
+    {
+      "t": 16.52,
+      "kind": "click",
+      "target": "aside img[alt*=\"집\"]",
+      "note": "누르면 커서 자리에 들어간다"
+    },
+    {
+      "t": 17.15,
+      "kind": "scroll",
+      "target": "-635"
+    },
+    {
+      "t": 17.61,
+      "kind": "reveal",
+      "target": "locator('img[alt=\"집.png\"]').last()",
+      "note": "지면에 그림이 앉는다"
+    },
+    {
+      "t": 19.01,
+      "kind": "beat",
+      "target": "",
+      "note": "자료에는 첨부됨 표시가 붙는다"
+    },
+    {
+      "t": 19.61,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 19.61,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.21,
+      "note": "AI가 문서를 통째로 검토한다",
+      "end": 8.32
+    },
+    {
+      "start": 8.32,
+      "note": "고칠 문장을 먼저 보여주고, 임상가가 승인한다",
+      "end": 12.64
+    },
+    {
+      "start": 12.64,
+      "note": "검사 자료가 그대로 문서가 된다",
+      "end": 19.01
+    }
+  ],
+  "retake_of": "t05",
+  "retake_reason": "삽입 커서를 문단 끝으로(문장 갈림 제거) · 삽입된 그림으로 reveal(t05는 그림 여백만 잡혔다)",
+  "result": {
+    "file": "raw/s03_web_aireview_t06.mov",
+    "duration": 20.78,
+    "ok": true,
+    "error": null
+  }
+}

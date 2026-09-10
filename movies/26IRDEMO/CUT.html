@@ -1,0 +1,701 @@
+<title>2분 50초의 구성</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488;
+  --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --before:#3F5B66; --before-bg:#DCE4E7;
+  --after:#A9702F;  --after-bg:#F2E5D2;
+  --track:#DCDEDD; --out:#C3C7C6;
+  --f-d:'Hahmlet','Nanum Myeongjo',serif;
+  --f-b:'Gothic A1',system-ui,-apple-system,sans-serif;
+  --f-m:'IBM Plex Mono','Nanum Gothic Coding',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --track:#252B2D; --out:#333B3D;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31;
+  --after:#E0A662;  --after-bg:#32261A;
+  --track:#252B2D; --out:#333B3D;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-b);line-height:1.72;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--after);outline-offset:2px}
+
+/* 마스트 */
+.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
+.slate{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);margin:0}
+.slate b{color:var(--before);font-weight:500}.slate s{color:var(--after);text-decoration:none;font-weight:500}
+.mast h1{font-family:var(--f-d);font-weight:800;font-size:clamp(40px,6.6vw,74px);line-height:1.04;letter-spacing:-.03em;margin:14px 0 8px;text-wrap:balance}
+.mast .lede{font-size:16.5px;font-weight:300;color:var(--ink-2);max-width:62ch;margin:0 0 26px}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-top:1px solid var(--rule)}
+.tally div{padding:12px 14px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.tally b{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);display:block;font-weight:400}
+.tally span{font-family:var(--f-d);font-weight:600;font-size:21px;letter-spacing:-.01em;display:block;margin-top:1px}
+.tally i{font-style:normal;font-size:12.5px;color:var(--ink-2);display:block}
+
+h2.sec{font-family:var(--f-m);font-size:11px;letter-spacing:.18em;font-weight:500;color:var(--ink-3);margin:56px 0 0;display:flex;align-items:center;gap:12px}
+h2.sec::after{content:"";flex:1;height:0;border-top:1px solid var(--rule)}
+h2.sec em{font-style:normal;color:var(--ink)}
+p.note{font-size:13.5px;color:var(--ink-2);max-width:66ch;margin:12px 0 0}
+p.note+p.note{margin-top:8px}
+
+/* 타임라인 */
+.tl{margin:20px 0 0;background:var(--surface);border:1px solid var(--rule);padding:22px 22px 16px;overflow-x:auto}
+.tl-inner{min-width:640px}
+.tl-bar{display:flex;height:46px;border:1px solid var(--rule-2)}
+.tl-bar span{position:relative;border-right:1px solid var(--rule-2);font-family:var(--f-m);font-size:10px;letter-spacing:.06em;color:var(--ink-2);padding:5px 0 0 6px;overflow:hidden;white-space:nowrap}
+.tl-bar span:last-child{border-right:0}
+.tl-bar .bfr{background:var(--before-bg);color:var(--before)}
+.tl-bar .pvt{background:var(--ink);color:var(--ground);padding-left:3px}
+.tl-bar .act{background:var(--after-bg);color:var(--after)}
+.tl-bar .end{background:var(--band)}
+.tl-bar em{font-style:normal;display:block;font-size:9.5px;color:var(--ink-3);letter-spacing:.1em}
+.tl-scenes{display:flex;height:26px;margin-top:3px}
+.tl-scenes span{border-right:1px solid var(--ground);background:var(--track);font-family:var(--f-m);font-size:9.5px;letter-spacing:.08em;color:var(--ink-2);padding:5px 0 0 6px;overflow:hidden;white-space:nowrap}
+.tl-scenes span:last-child{border-right:0}
+.tl-scenes span.void{background:transparent}
+.tl-ticks{display:flex;margin-top:5px;font-family:var(--f-m);font-size:9.5px;color:var(--ink-3);letter-spacing:.08em}
+.tl-ticks span{border-left:1px solid var(--rule);padding-left:4px}
+.tl-key{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0 0;font-family:var(--f-m);font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+.tl-key i{display:inline-block;width:22px;height:8px;vertical-align:0;margin-right:6px;border:1px solid var(--rule-2)}
+.tl-key .k1 i{background:var(--before-bg)}
+.tl-key .k2 i{background:var(--ink);border-color:var(--ink)}
+.tl-key .k3 i{background:var(--after-bg)}
+.tl-key .k4 i{background:var(--band)}
+
+/* 표 */
+.tbl{margin:18px 0 0;overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule);font-size:13px;vertical-align:top;line-height:1.6}
+th{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.m,th.m{font-family:var(--f-m);font-size:11.5px;white-space:nowrap}
+td.was{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--rule-2)}
+
+/* 컷 카드 */
+.cut{margin-top:22px;background:var(--surface);border:1px solid var(--rule)}
+.cut-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px;padding:18px 24px 14px;border-bottom:1px solid var(--rule)}
+.cut-head .n{font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--after);font-weight:500;width:100%}
+.cut.b .cut-head .n{color:var(--before)}
+.cut.pivot .cut-head .n{color:var(--ink)}
+.cut-head h3{font-family:var(--f-d);font-weight:700;font-size:clamp(21px,2.8vw,27px);line-height:1.3;letter-spacing:-.02em;margin:4px 0 0;text-wrap:balance}
+.cut-head .dur{margin-left:auto;font-family:var(--f-m);font-size:12px;color:var(--ink-2);white-space:nowrap}
+
+.rail{padding:15px 24px 4px}
+.rail-h{display:flex;justify-content:space-between;font-family:var(--f-m);font-size:10px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:5px}
+.rail-t{position:relative;height:16px;background:var(--track);border:1px solid var(--rule)}
+.rail-t .use{position:absolute;top:0;bottom:0;background:var(--after-bg);border-left:1px solid var(--after);border-right:1px solid var(--after)}
+.rail-t .nc{position:absolute;bottom:-1px;height:3px;background:var(--ink)}
+.rail-t .nc.o{background:var(--out)}
+.rail-l{display:flex;justify-content:space-between;font-family:var(--f-m);font-size:10px;color:var(--ink-3);margin-top:4px;letter-spacing:.06em}
+
+.av{display:grid;grid-template-columns:1.25fr 1fr;padding:6px 0 0}
+.av>div{padding:16px 24px 20px}
+.av .v{border-right:1px solid var(--rule)}
+.av .lab{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;font-weight:500;margin:0 0 9px;display:flex;align-items:center;gap:8px;color:var(--after)}
+.cut.b .av .lab,.cut.pivot .av .lab{color:var(--before)}
+.av .a .lab{color:var(--ink-3)}
+.av .lab::after{content:"";flex:1;height:0;border-top:1px solid currentColor;opacity:.35}
+.av p{margin:0;font-size:14px;line-height:1.72}
+.av p+p{margin-top:8px}
+.av ol{margin:0;padding-left:19px;font-size:13.5px;line-height:1.72}
+.av ol li+li{margin-top:4px}
+.av em{font-style:normal;background:linear-gradient(transparent 64%,var(--after-bg) 64%);padding:0 1px}
+.cut.b .av em,.cut.pivot .av em{background:linear-gradient(transparent 64%,var(--before-bg) 64%)}
+.av .sup{margin-top:11px;padding:9px 12px;background:var(--band);font-size:12.5px;color:var(--ink-2);line-height:1.62}
+.av .sup b{font-family:var(--f-m);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3);font-weight:500;display:block;margin-bottom:2px}
+.av .cap{font-family:var(--f-m);font-size:12px;color:var(--ink);background:var(--band);border-left:2px solid var(--after);padding:7px 10px;display:block;margin:0 0 8px;line-height:1.55}
+.cut.b .av .cap{border-left-color:var(--before)}
+.av .quote{font-family:var(--f-d);font-size:15px;line-height:1.66;color:var(--ink);margin:0 0 8px}
+.av .src{font-family:var(--f-m);font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+
+.cut.pivot{background:var(--ink);border-color:var(--ink);color:var(--ground)}
+.cut.pivot .cut-head{border-bottom-color:var(--rule-2)}
+.cut.pivot .cut-head .n,.cut.pivot h3,.cut.pivot .av p{color:var(--ground)}
+.cut.pivot .cut-head .dur,.cut.pivot .av .lab{color:var(--rule)}
+.cut.pivot .av .v{border-right-color:var(--rule-2)}
+.cut.pivot .av em{background:none;border-bottom:1px solid var(--rule-2)}
+
+.rule-list{margin:18px 0 0;border-top:1px solid var(--rule)}
+.rule-list div{padding:14px 0 15px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:minmax(140px,1fr) 2.1fr;gap:6px 24px}
+.rule-list h4{font-family:var(--f-b);font-weight:700;font-size:14.5px;margin:0;line-height:1.5}
+.rule-list p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+.rule-list code{font-family:var(--f-m);font-size:12px;background:var(--band);padding:1px 5px}
+
+footer{margin:64px 0 0;border-top:2px solid var(--ink);padding:20px 0 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+footer h4{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 7px;font-weight:400}
+footer p{font-size:12px;color:var(--ink-2);line-height:1.68;margin:0}
+footer code{font-family:var(--f-m);font-size:11px}
+
+@media (max-width:760px){
+  .wrap{padding:0 16px}
+  .av{grid-template-columns:1fr}
+  .av .v{border-right:0;border-bottom:1px solid var(--rule)}
+  .cut.pivot .av .v{border-bottom-color:var(--rule-2)}
+  .rule-list div{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="slate"><span>MOEUM · 마인드스코프</span><span>／</span><b>촬영본 열둘</b><span>→</span><s>한 편</s><span>／</span><span>26IRDEMO</span><span>／</span><span>2026-09-10</span></p>
+  <h1>2분 50초의 구성</h1>
+  <p class="lede">아홉 장면을 찍었다. 이 문서는 그것을 어떤 순서로, 어디서 잘라, 무엇을 얹어 한 편으로 붙이는지를 적은 편집 정본이다. 인·아웃은 각 테이크 <code>meta.json</code>의 실측 타임코드이고, 얹는 것과 얹지 않는 것의 근거는 전부 <b>research/</b>에 원문이 있다.</p>
+  <div class="tally">
+    <div><b>완성 길이</b><span>2:50</span><i>169.7초</i></div>
+    <div><b>쓰는 테이크</b><span>12</span><i>각 조작의 마지막 것</i></div>
+    <div><b>피벗</b><span>1회</span><i>0:20 · 아홉 번이 아니라</i></div>
+    <div><b>노컷 구간</b><span>12</span><i>자르지도 배속하지도 않는다</i></div>
+  </div>
+</header>
+
+<h2 class="sec"><em>타임라인</em> 초 단위 실축</h2>
+<p class="note">막대는 실제 초에 비례한다. 고통은 앞 20초에 한 번에 몰고, 그 뒤로는 화면만 간다 — 아홉 번 왕복하면 설계해야 할 정점이 사라진다(정점–종점, Kahneman 1993).</p>
+
+<div class="tl">
+ <div class="tl-inner">
+  <div class="tl-bar">
+    <span class="bfr" style="flex:0 0 11.79%">0막 BEFORE<em>목소리 · 20.0s</em></span>
+    <span class="pvt" style="flex:0 0 0.71%">·</span>
+    <span class="act" style="flex:0 0 35.53%">1막 검사<em>s01–s04 · 60.3s</em></span>
+    <span class="act" style="flex:0 0 29.70%">2막 회기<em>s05–s07 · 50.4s</em></span>
+    <span class="act" style="flex:0 0 15.20%">3막 모임·정산<em>s08–s09 · 25.8s</em></span>
+    <span class="end" style="flex:0 0 7.07%">엔드<em>12.0s</em></span>
+  </div>
+  <div class="tl-scenes">
+    <span class="void" style="flex:0 0 12.50%"></span>
+    <span style="flex:0 0 11.96%">s01 접수</span>
+    <span style="flex:0 0 7.78%">s02 실시</span>
+    <span style="flex:0 0 9.90%">s03 보고서</span>
+    <span style="flex:0 0 5.89%">s04 링크</span>
+    <span style="flex:0 0 9.43%">s05 일정</span>
+    <span style="flex:0 0 7.13%">s06 앱</span>
+    <span style="flex:0 0 5.66%">s06 웹</span>
+    <span style="flex:0 0 7.48%">s07 일지</span>
+    <span style="flex:0 0 9.13%">s08 케어보드</span>
+    <span style="flex:0 0 6.07%">s09 정산</span>
+    <span class="void" style="flex:0 0 7.07%"></span>
+  </div>
+  <div class="tl-ticks">
+    <span style="flex:0 0 17.68%">0:00</span>
+    <span style="flex:0 0 17.68%">0:30</span>
+    <span style="flex:0 0 17.68%">1:00</span>
+    <span style="flex:0 0 17.68%">1:30</span>
+    <span style="flex:0 0 17.68%">2:00</span>
+    <span style="flex:0 0 11.60%">2:30</span>
+  </div>
+  <p class="tl-key">
+    <span class="k1"><i></i>촬영본 없음 — 목소리와 지면</span>
+    <span class="k2"><i></i>피벗 1.2초 무음</span>
+    <span class="k3"><i></i>실제 서비스 화면</span>
+    <span class="k4"><i></i>숫자 · 범위 · 엔드카드</span>
+  </p>
+ </div>
+</div>
+
+<h2 class="sec"><em>형식</em> 표준 샷리스트를 이 편에 맞게 바꾼 것</h2>
+<p class="note">영상 기획의 표준 문서는 <b>2단 AV 스크립트</b>(왼쪽 화면 · 오른쪽 소리)와 <b>샷리스트</b>(샷ID · 사이즈 · 앵글 · 무빙 · 길이)다. 이 편에는 카메라가 없다 — 전부 화면 캡처라 사이즈·앵글·무빙 칸이 성립하지 않는다. 그 자리에 캡처 문서가 실제로 갖고 있는 값을 넣었다. 2단 AV 형식은 그대로 쓴다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th>표준 샷리스트</th><th>여기서는</th><th>어디서 오나</th></tr></thead>
+  <tbody>
+    <tr><td class="was">샷 사이즈 · 앵글</td><td class="m">뷰포트</td><td>전 컷 고정 1600×900 @2x. 처음부터 끝까지 같은 크기라 칸이 필요 없다</td></tr>
+    <tr><td class="was">카메라 무빙</td><td class="m">커서와 스크롤</td><td><code>meta.json</code> <code>steps[]</code> — 클릭 · 호버 · 스크롤이 곧 무빙이다</td></tr>
+    <tr><td class="was">렌즈 · 장비</td><td class="m">소스 테이크</td><td>파일명 · 촬영 커밋 · 시드 sha256이 meta에 박혀 있다</td></tr>
+    <tr><td class="was">촬영 예상 길이</td><td class="m">인–아웃 실측</td><td>추정이 아니라 이미 찍힌 초. <code>steps[].t</code></td></tr>
+    <tr><td>—</td><td class="m">노컷 구간</td><td><b>표준에 없는 칸.</b> <code>nocut[]</code> — 제품이 실제로 일하는 시간이라 자르면 거짓말이 된다</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec"><em>구성</em> 열네 컷</h2>
+
+<!-- 0막 -->
+<article class="cut b">
+  <div class="cut-head">
+    <p class="n">0막 · 0:00–0:20 · BEFORE</p>
+    <h3>촬영본이 없는 20초</h3>
+    <p class="dur">20.0s</p>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <p>검은 지면에 한 줄씩. <em>로고 · 나레이션 · 브랜드 자막 · 숫자 전부 금지</em> — 이 구간에 처리 지시가 하나라도 있으면 몰입이 끊긴다.</p>
+      <p>고통 구간을 실사로 찍을 수 없다. 대신 두 층으로 세운다 — <b>실제 목소리</b>와 <b>지면의 문장</b>. Jiang 2023(n=1,095)이 배치를 정해 준다: 고통은 실제 사람이 말할 때 더 심각하게, 효능은 화면이 보여줄 때 더 잘 받아들여진다.</p>
+      <div class="sup"><b>동의</b>0810 현장 실사 녹취 재사용은 별도 동의가 있어야 한다. 못 받으면 같은 문장을 <b>실제 상담사가 익명으로</b> 다시 읽는다 — 배우가 아니라. 익명은 발화를 연다(Flee).</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="quote">“기록이 밀리면 기억이 흐려지고, 안 밀리려면 퇴근이 늦습니다.”</p>
+      <p class="src">0:02 · memos/106</p>
+      <p class="quote" style="margin-top:12px">“지금까지 내담자는 상담 내용을 받아본 적이 없습니다. 그래서 가방에 몰래 녹음기를 넣어 오는 사람이 있을 정도입니다.”</p>
+      <p class="src">0:08 · memos/106 · 0810 실사</p>
+      <p class="quote" style="margin-top:12px">“여태까지 수기로 한 거를 그냥 디지털화시킨 것뿐이잖아요. 저희는 하나도 변한 게 없다니까.”</p>
+      <p class="src">0:14 · 센터장 · 0810 실사 — <b>정점</b></p>
+    </div>
+  </div>
+</article>
+
+<!-- 피벗 -->
+<article class="cut pivot">
+  <div class="cut-head">
+    <p class="n">피벗 · 0:20–0:21</p>
+    <h3>1.2초, 아무 소리도 없다</h3>
+    <p class="dur">1.2s</p>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <p>세 번째 문장의 마지막 음절 <em>직후 프레임</em>에서 하드컷. 같은 프레임에서 명도가 올라가고, 화면은 이미 s01의 첫 프레임이다.</p>
+    </div>
+    <div class="a">
+      <p class="lab">소리</p>
+      <p>완전 무음 −60 LUFS. 앞뒤 낙차 17dB 이상. 애스펙트비는 바꾸지 않는다 — 기법이 인식되면 감정이 끊긴다.</p>
+    </div>
+  </div>
+</article>
+
+<!-- s01 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">1막 검사 · 컷 01 · 0:21–0:41</p>
+    <h3>통화 한 마디가 세 명의 접수가 된다</h3>
+    <p class="dur">20.3s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s01_web_intake_t07.mov</span><span>22.58s 중 1.9–22.2</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:8.4%;width:90.1%"></div>
+      <div class="nc" style="left:34.2%;width:19.1%"></div>
+      <div class="nc" style="left:82.6%;width:11.9%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 7.72–12.03 · 18.66–21.35</span><span>22.58</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>에이전트 화면에 통화 내용을 <em>한 마디로</em> 친다 → 전송</li>
+        <li>4.3초 뒤 접수 폼으로 갈아끼워진다 — 검사 항목만 비어 있다</li>
+        <li>로르샤흐(투사·대면) · 스마트폰중독검사(온라인) 둘을 고른다</li>
+        <li>명단 3명 · 기관을 훑고 <b>등록</b> — 내담자 셋이 실제로 생성된다</li>
+      </ol>
+      <div class="sup"><b>에이전트</b>조사가 허용한 노출은 도입·마무리 <b>2비트</b>뿐이다. 도입 몫을 여기서 쓴다 — 장면마다 넣으면 “에이전트 영상”이 된다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">통화 한 건이 다섯 곳으로 흩어진다</p>
+      <p>인점 직후 2초, 좌하단. 음악은 피벗 이후 여기서 처음 들어온다.</p>
+      <p class="src">scenes9 §01 · 1차 리빙랩 실장 그룹</p>
+    </div>
+  </div>
+</article>
+
+<!-- s02 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">1막 검사 · 컷 02 · 0:41–0:55</p>
+    <h3>피검자의 말이 그 줄에 붙는다</h3>
+    <p class="dur">13.2s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s02_web_collect_t05.mov</span><span>30.43s 중 2.0–15.2 (앞 덩어리)</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:6.6%;width:43.4%"></div>
+      <div class="nc" style="left:7.3%;width:42.8%"></div>
+      <div class="nc o" style="left:50.1%;width:38.3%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>회색 노컷 = 채점 부호화, 확장판용</span><span>30.43</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>로샤 실시, 카드 Ⅰ. 태블릿을 돌려 <b>내담자 화면</b>으로 — 카드만 남고 이전 반응은 가려진다</li>
+        <li>받아쓰기 — 마이크를 켠다. 피검자가 말한다</li>
+        <li>반응 기록. <em>전사가 도착해 그 줄에 붙는다</em></li>
+        <li>임상가 화면으로 돌아오면 채점지에 반응 ①이 있다</li>
+      </ol>
+      <div class="sup"><b>제품 라벨</b>여기부터 <b>마인드봄</b>이다. 처음 나올 때 한 번 건다. 두 제품은 연동되지 않으므로 <b>같은 아이라고 말하지 않는다</b> — 이름이 같은 것은 배역이지 데이터가 아니다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">마인드봄 — 투사검사 실시</p>
+      <p>이 컷에는 숫자를 얹지 않는다. 다음 컷이 숫자를 받는다.</p>
+      <p class="src">scenes9 §02</p>
+    </div>
+  </div>
+</article>
+
+<!-- s03 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">1막 검사 · 컷 03 · 0:55–1:12</p>
+    <h3>비어 있던 두 섹션이 눈앞에서 채워진다</h3>
+    <p class="dur">16.8s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s03_web_draft_t01.mov</span><span>19.07s 중 1.9–18.7</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:10.0%;width:88.1%"></div>
+      <div class="nc" style="left:46.7%;width:35.8%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 8.91–15.74 — 진짜 서버 호출</span><span>19.07</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>종합보고서 — 로르샤하 · HTP · SCT 세 검사가 한 문서에 들어와 있다</li>
+        <li>종합 소견도 제언도 <b>비어 있다</b></li>
+        <li><code>AI 초안 생성</code> → 모달이 <em>무엇을 채우는지 먼저 말한다</em>(비어 있는 섹션만) → 서버가 답한다</li>
+        <li>두 칸이 채워지고 보라색 <b>AI 배지</b>가 붙는다 — 이 문단은 초안이다</li>
+        <li>CDSS 푸터: <em>최종 해석·확정은 임상가 책임</em></li>
+      </ol>
+      <div class="sup"><b>정할 것</b>CDSS 푸터에 <code>모델 rule-based-fallback</code>이 찍힌다. 모델을 붙여 재촬영하든 그 줄을 프레임에서 빼든 <b>본 촬영 전에 정한다</b> — 화면에 룰베이스라고 적힌 채 AI를 말할 수는 없다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">검사는 207분, 서류는 257분</p>
+      <p>무음 위, 좌하단, 한 번에 하나. <b>영상에서 숫자가 처음 나오는 자리다</b> — 통계는 서사 뒤에(Zebregs 2015).</p>
+      <p class="src">한국임상심리학회지 · 병원 임상심리사 101명 (등급 B)</p>
+    </div>
+  </div>
+</article>
+
+<!-- s04 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">1막 검사 · 컷 04 · 1:12–1:22</p>
+    <h3>오가야 하던 일이 보내면 되는 일이 된다</h3>
+    <p class="dur">10.0s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s04_web_sendlink_t03.mov</span><span>12.22s 중 1.9–11.9</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:15.5%;width:81.8%"></div>
+      <div class="nc" style="left:67.8%;width:15.1%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 8.28–10.12</span><span>12.22</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>검사 현황 — <b>컷 01이 방금 접수한 세 건</b>이 그대로 있다</li>
+        <li><code>바로링크 전송</code> → 보낼 검사(스마트폰중독검사) · 수신자 이름 · 번호</li>
+        <li>전송 → <em>전송 내역에 수신인 · 방식 · 상태가 남는다</em></li>
+      </ol>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">검사받으러 한 번, 결과 들으러 한 번</p>
+      <p>1막이 여기서 닫힌다. 한 번의 접수가 대면 갈래와 온라인 갈래로 갈라져 각각 끝났다.</p>
+      <p class="src">scenes9 §04</p>
+    </div>
+  </div>
+</article>
+
+<!-- s05 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">2막 회기 · 컷 05 · 1:22–1:38</p>
+    <h3>승인 한 번에 회기가 옮겨진다</h3>
+    <p class="dur">16.0s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s05_web_approve_t05.mov</span><span>17.63s 중 1.9–17.6</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:10.8%;width:89.2%"></div>
+      <div class="nc" style="left:17.2%;width:75.6%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 3.04–16.37 — 사실상 컷 전체</span><span>17.63</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>변경 요청 한 줄 — 누가 · 언제에서 언제로 · 왜</li>
+        <li>스케줄로 넘어가 <b>일간 → 주간 → 월간</b>으로 겹치는 것이 없음을 확인한다</li>
+        <li>승인 → 확인 → <em>회기가 그 자리로 옮겨진다</em></li>
+      </ol>
+      <div class="sup"><b>보호자 화면은 없다</b>내담자 앱은 촬영 범위 밖이다. 요청이 어디서 왔는지는 화면의 요청 카드가 말하고, <b>없는 화면을 연출로 메우지 않는다.</b></div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">빈 시간을 맞추려면 한 명 한 명 연락한다</p>
+      <p>세 뷰를 넘기는 3초가 길어 보이지만 노컷 안이다. 겹치지 않는다는 것을 <b>사람이 확인하는 시간</b>이라 잘라내면 승인이 가벼워진다.</p>
+      <p class="src">scenes9 §05 · 1차 리빙랩 전문가 그룹</p>
+    </div>
+  </div>
+</article>
+
+<!-- s06a -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">2막 회기 · 컷 06 · 1:38–1:50 · 전문가 앱</p>
+    <h3>회기 시작에 손이 가는 곳</h3>
+    <p class="dur">12.1s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s06_phone_fieldnote-app_t01.mov</span><span>18.60s 중 3.9–16.0 · 804×1748</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:21.0%;width:65.1%"></div>
+      <div class="nc" style="left:30.8%;width:28.6%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 5.72–11.04</span><span>18.60</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>홈 — 오늘 일정 1건. <b>정상담님, 좋은 오후예요</b></li>
+        <li>필드노트 홈 — 오늘 기록할 일정 1건, 최근 노트 3건</li>
+        <li><code>바로 녹음</code>에 손이 간다 → 녹음 화면</li>
+      </ol>
+      <div class="sup"><b>녹음은 켜지 않는다</b>회기 녹음 자체는 찍지 않는다. 이 컷이 보여주는 것은 <b>회기 직전에 손이 닿는 거리</b>다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p>자막 없음. 세로 화면이 처음 들어오는 자리라 <b>화면 전환만으로 기기가 바뀐 것</b>이 읽힌다.</p>
+    </div>
+  </div>
+</article>
+
+<!-- s06b -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">2막 회기 · 컷 07 · 1:50–1:59 · 웹</p>
+    <h3>말한 것이 분 단위로 남아 있다</h3>
+    <p class="dur">9.6s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s06_web_fieldnote_t02.mov</span><span>12.10s 중 1.9–11.5</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:15.7%;width:79.3%"></div>
+      <div class="nc" style="left:34.9%;width:43.4%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 4.22–9.47</span><span>12.10</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>필드노트 — 30분 · 회기에 연결됨. 누가 언제 남겼는지가 머리에 있다</li>
+        <li>전사로 내려간다 — <em>화자별 대화, 상담사 / 내담자</em>, 분 단위 타임스탬프</li>
+        <li>회기 후반에 다음 주 과제까지 남아 있다</li>
+      </ol>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">하루 6~8회기</p>
+      <p class="src">리빙랩 1차 · memos/106</p>
+    </div>
+  </div>
+</article>
+
+<!-- s07 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">2막 회기 · 컷 08 · 1:59–2:13</p>
+    <h3>6.7초를 그대로 둔다</h3>
+    <p class="dur">12.7s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s07_web_draft_t04.mov</span><span>15.13s 중 1.9–14.6</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:12.6%;width:83.9%"></div>
+      <div class="nc" style="left:14.6%;width:55.7%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 2.21–10.63</span><span>15.13</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>회기 상세 — <b>녹음은 있고 일지는 비어 있다</b></li>
+        <li><code>일지 초안 생성</code> → “전사 분석 중…”이 <em>6.7초</em></li>
+        <li>칸이 채워진다 — 상담 목표 · 진행 내용. 스크롤을 내려 다음 상담 내용까지</li>
+      </ol>
+      <div class="sup"><b>이 편의 정점</b>기다림이 보이지 않으면 “미리 만들어 둔 화면”으로 읽힌다. 여기서 사라지는 것은 시간 총량이 아니라 <b>기억으로 쓰기라는 작업</b> 하나다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">기억으로 쓰는 일지</p>
+      <p>6.7초 동안 자막을 갈지 않는다. 소리도 얹지 않는다 — 기다림이 들리게.</p>
+      <p class="src">scenes9 §07 · 컷 06·07이 남긴 그 회기다</p>
+    </div>
+  </div>
+</article>
+
+<!-- s08 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">3막 모임 · 컷 09 · 2:13–2:28</p>
+    <h3>접었다 열면 답이 도착해 있다</h3>
+    <p class="dur">15.5s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s08_web_careboard_t03.mov</span><span>17.65s 중 1.6–17.1</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:9.1%;width:87.8%"></div>
+      <div class="nc" style="left:30.0%;width:55.1%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 5.29–15.02</span><span>17.65</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>케어보드 도크 — 접수 · 회기 · 필드노트 · 바우처가 <b>한 줄기</b>로</li>
+        <li>8월 회기까지 거슬러 올라간다 — <em>스크롤을 올리는 것이 인수인계다</em></li>
+        <li>센터장 김원장이 남긴 메모에 그 자리에서 답을 쓴다 → <code>공지로 고정</code></li>
+        <li>접었다 열면 <em>김원장의 답이 같은 보드에 도착해 있다</em> — 다른 계정에서 실제 API로</li>
+      </ol>
+      <div class="sup"><b>여기가 3막의 이유</b>컷 05·06·07·08에서 <b>방금 쌓은 기록</b>이 모인 화면이다. 앞이 없으면 이 컷은 그냥 목록이다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">전달해야 하던 일이, 남겨두면 되는 일이 된다</p>
+      <p class="src">scenes9 §08 · 센터장 0810 실사 “카톡으로 하니까 사라져요”</p>
+    </div>
+  </div>
+</article>
+
+<!-- s09 -->
+<article class="cut">
+  <div class="cut-head">
+    <p class="n">3막 정산 · 컷 10 · 2:28–2:38</p>
+    <h3>세지 않아도 맞는다</h3>
+    <p class="dur">10.3s</p>
+  </div>
+  <div class="rail">
+    <div class="rail-h"><span>s09_web_noshow_t03.mov</span><span>12.75s 중 1.9–12.2</span></div>
+    <div class="rail-t">
+      <div class="use" style="left:14.9%;width:80.8%"></div>
+      <div class="nc" style="left:61.8%;width:13.7%"></div>
+    </div>
+    <div class="rail-l"><span>0</span><span>노컷 7.88–9.63</span><span>12.75</span></div>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li>어제 5회기, 출결 미확인 → <code>노쇼로 표시</code></li>
+        <li>모달에 <b>사유를 쓴다</b>. <code>회기 차감</code> 스위치를 켠다</li>
+        <li>변경 → <em>잠긴 회기에 사유와 차감 배지가 함께 남는다</em></li>
+      </ol>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="cap">수를 세서 낸다, 그 숫자로 급여가 정해진다</p>
+      <p>사전 취소와 당일 노쇼는 페이가 다른데 구분되지 않았다 — 그 구분이 화면에서 한 번에 남는다.</p>
+      <p class="src">scenes9 §09 · memos/148</p>
+    </div>
+  </div>
+</article>
+
+<!-- 엔드 -->
+<article class="cut b">
+  <div class="cut-head">
+    <p class="n">엔드 · 2:38–2:50</p>
+    <h3>숫자 하나, 못 한 것 셋, 한 문장</h3>
+    <p class="dur">12.0s</p>
+  </div>
+  <div class="av">
+    <div class="v">
+      <p class="lab">화면</p>
+      <ol>
+        <li><b>+0.0</b> 무음. 좌하단에 숫자 하나 — <em>일지 2번 → 1번</em>. 업계 통계가 아니라 이 사람의 것</li>
+        <li><b>+4.0</b> <b>범위 카드</b> — 투사검사 채점과 풀배터리 보고서 · 일지→제출 서류 변환 · 보호자에게 발행</li>
+        <li><b>+8.5</b> 한 문장, 로고 1.5초</li>
+      </ol>
+      <div class="sup"><b>범위 카드를 빼지 않는다</b>반박 없는 양면 제시는 일면보다 나쁘다(Allen 1991). 그리고 이 관객은 없는 것을 있다고 하면 첫 도입 센터에서 바로 알아본다.</div>
+    </div>
+    <div class="a">
+      <p class="lab">소리 · 자막</p>
+      <p class="quote">상담사가 아이를 돌보고,<br>마인드스코프가 상담사를 돌봅니다.</p>
+      <p class="src">Abridge 리포지셔닝 구조 · 정점–종점 규칙의 마지막 5초</p>
+    </div>
+  </div>
+</article>
+
+<h2 class="sec"><em>규칙</em> 어기면 조사가 무효가 된다</h2>
+<div class="rule-list">
+  <div><h4>노컷 구간은 자르지도 배속하지도 않는다</h4><p>제품이 실제로 일하는 시간이다. s07의 6.7초, s03의 서버 응답, s08의 답 도착. 잘라내는 순간 “빠른 척”이 된다.</p></div>
+  <div><h4>숫자는 피벗 이후에만</h4><p>좌하단, 화면 중앙 금지, 무음 위, 한 번에 하나. 자막으로 쓰는 것은 등급 A·B만 — 나머지는 내부 설득용이다.</p></div>
+  <div><h4>커서의 실수를 지우지 않는다</h4><p>헤매다 돌아오는 것이 진짜라는 신호다. UI를 조각내 애니메이션하지 않는다 — 너무 매끈하면 가짜로 읽힌다.</p></div>
+  <div><h4>총량을 약속하지 않는다</h4><p><code>번아웃</code> · <code>업무 효율화</code> · <code>저녁을 돌려드립니다</code> 금지. AI 기록의 실측 절감은 하루 16분이고(JAMA 2026, 임상의 8,581명), 총량을 말하면 팩트체크당한다. 사라지는 것은 <b>한 작업</b>이다.</p></div>
+  <div><h4>두 제품의 인물 동일성을 주장하지 않는다</h4><p>마인드스코프와 마인드봄은 연동되지 않는다. 제품 라벨은 걸되 “이 아이가 저기로 갔다”고 말하지 않는다.</p></div>
+  <div><h4>없는 화면을 연출로 메우지 않는다</h4><p>내담자 앱은 촬영 범위 밖이다. 그 자리는 비우고, 대신 그 상태를 만드는 <b>데이터는 진짜로 만든다</b>.</p></div>
+</div>
+
+<h2 class="sec"><em>제외</em> 찍었지만 쓰지 않는 것</h2>
+<div class="tbl">
+<table>
+  <thead><tr><th>테이크</th><th>길이</th><th>왜 빼나</th></tr></thead>
+  <tbody>
+    <tr><td class="m">s03_web_aireview_t01</td><td class="m">28.78s</td><td><b>본편 제외.</b> AI 밀도는 가장 높지만 지적을 만드는 것이 정규식이고, 진행 4단계는 타이머, 교차분석·MMPI-2·TCI·S-척도는 하드코딩, 저장이 안 된다. 화면의 <code>실시한 검사</code> 셋은 그 내담자에게 실시된 적이 없다. <b>“기능은 전부 현재 코드에서 확인한 것만”</b>이라는 원칙과 정면으로 부딪힌다. 확장판에 쓰려면 프레임 안에 <b>로드맵 라벨</b>을 박고 쓴다</td></tr>
+    <tr><td class="m">s03_web_report_t02</td><td class="m">18.45s</td><td>완성된 보고서를 훑는 컷. CDSS 책임 문구가 컷 03에 이미 있다 — 같은 말을 두 번 하지 않는다</td></tr>
+    <tr><td class="m">s02 뒤 덩어리</td><td class="m">11.6s</td><td>채점 부호화(위치 W · 영역 그리기 · 질문 · 방향). 논지는 “전사가 그 줄에 붙는다”에서 끝난다. 확장판용</td></tr>
+    <tr><td class="m">probe · smoke · 앞 테이크 전량</td><td class="m">—</td><td>도구 시험 촬영과 재촬영으로 대체된 테이크. <b>지우지는 않는다</b> — 재촬영은 번호를 올릴 뿐이다</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec"><em>파생</em> 75초 마스터 — 같은 재료의 부분집합</h2>
+<p class="note">별도 촬영은 없다. 0막 20초는 그대로 쓰고, AFTER는 각 테이크의 <b>노컷 구간 하나씩</b>만 가져온다. 남는 20초는 컷 03의 초안 생성 구간(6.8초)과 컷 02의 받아쓰기(5.2초)로 채운다.</p>
+<div class="tbl">
+<table>
+  <thead><tr><th>컷</th><th class="m">구간</th><th class="m">길이</th><th>무엇</th></tr></thead>
+  <tbody>
+    <tr><td class="m">s01</td><td class="m">18.66–21.35</td><td class="m">2.7s</td><td>등록 → 케이스 생성</td></tr>
+    <tr><td class="m">s04</td><td class="m">8.28–10.12</td><td class="m">1.8s</td><td>전송 내역에 수신인이 남는다</td></tr>
+    <tr><td class="m">s05</td><td class="m">12.85–16.37</td><td class="m">3.5s</td><td>승인 → 회기가 옮겨진다</td></tr>
+    <tr><td class="m">s07</td><td class="m">2.21–10.63</td><td class="m">8.4s</td><td>초안 생성 → 칸이 채워진다</td></tr>
+    <tr><td class="m">s08</td><td class="m">12.28–15.02</td><td class="m">2.7s</td><td>접었다 열면 답이 와 있다</td></tr>
+    <tr><td class="m">s09</td><td class="m">7.88–9.63</td><td class="m">1.8s</td><td>차감 → 잠긴다</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note">합 21초. 0막 20 + 피벗 1.2 + AFTER 21 + 숫자·엔드 12 = <b>54초</b>.</p>
+
+<h2 class="sec"><em>선결</em> 편집이 아니라 사실 판단</h2>
+<div class="rule-list">
+  <div><h4>CDSS 모델명</h4><p>컷 03 푸터의 <code>모델 rule-based-fallback</code>. 모델을 붙여 재촬영하든 그 줄을 프레임에서 빼든 정한다.</p></div>
+  <div><h4>녹취 재사용 동의</h4><p>0막의 세 문장. 못 받으면 실제 상담사의 익명 재녹음으로 대체한다.</p></div>
+  <div><h4>원본 소재</h4><p><code>raw/*.mov</code> 41개가 작업 트리에 없다 — <code>.gitignore</code> 대상이라 커밋된 적도 없다. <b>스틸 추출과 편집은 원본이 있는 머신에서</b>. <code>meta.json</code>과 이 구성은 전부 남아 있다.</p></div>
+</div>
+
+<footer>
+  <div>
+    <h4>재료</h4>
+    <p><code>raw/*.meta.json</code> — 인·아웃과 노컷은 전부 실측 타임코드다. 로컬 정본은 <code>movies/26IRDEMO/CUT.md</code>.</p>
+  </div>
+  <div>
+    <h4>근거</h4>
+    <p>장면의 논지는 <b>아홉 장면</b>, 촬영 없이 세우는 법은 <b>얼굴 없는 열한 장면</b>, 편집 규칙의 학술 근거는 <b>75초의 전환</b>에 원문이 있다. 등급 A 메타분석 · B 동료심사 단일 · C 실무.</p>
+  </div>
+  <div>
+    <h4>이 문서가 하지 않는 것</h4>
+    <p>장면 선별의 근거와 기능의 실재 판정. 그것은 앞의 세 문서에 있다. 여기는 <b>순서 · 인아웃 · 얹는 것</b>만 적는다.</p>
+  </div>
+</footer>
+
+</div>

@@ -28,15 +28,20 @@ export default async function steps(page, h) {
 
   // 위로 거슬러 올라가는 것이 곧 인수인계다(scenes9 §08)
   await h.hover(page.getByText('놀이치료 접수'), '스트림 위')
-  await h.scroll(-280, '지난 회기로 거슬러')
-  await h.scroll(280, '다시 최근으로')
+  await h.scroll(-520, '8월 회기까지 거슬러 — 스크롤을 올리는 것이 인수인계다')
+  await h.beat('한 달 전 회기까지 같은 줄기에 있다')
+  await h.scroll(520, '다시 최근으로')
 
   h.nocutStart('남긴다 → 팀이 본다')
 
   await h.until(page.getByText('사례회의 안건'), '센터장 김원장이 남긴 메모 — 이름과 시각이 붙는다')
   await h.type(composer, MY_MEMO, '그 자리에서 답을 쓴다')
+  // 낙관 행이 먼저 그려지고 재조회가 진짜 엔트리로 갈아끼운다(care-board-service.ts:226).
+  // 핀은 **엔트리 id**로 걸리므로 그 교체를 기다리지 않고 누르면 임시 id로 404가 난다.
+  const restreamed = page.waitForResponse((r) => r.url().includes('/care-board/stream') && r.status() === 200)
   await h.click(page.getByRole('button', { name: '메모 등록' }), '메모 등록')
   await h.until(page.getByText('먼저 말을 겁니다'), '정상담 · 담당자 — 같은 줄기에 쌓인다')
+  await restreamed
 
   // 고정 = 이 보드를 여는 모두의 첫 줄. 핀 버튼은 행 우상단(호버하면 드러난다)
   const myRow = page.getByRole('listitem').filter({ hasText: '먼저 말을 겁니다' })

@@ -23,8 +23,12 @@ export default async function steps(page, h) {
   await h.beat('접수 진행 2/3 — 검사 항목만 비어 있다')
 
   // ② 맨 위의 빈 칸부터 채운다 — 검사 항목이 폼 최상단이다
-  await h.click('button:has-text("로르샤흐")', '로르샤흐(투사·대면) → s02')
-  await h.click('button:has-text("스마트폰중독검사")', '스마트폰중독검사(온라인) → s04')
+  //    한 접수가 두 갈래로 갈린다: 대면 3종은 마인드봄으로, 온라인 1종은 바로링크로.
+  //    대면 셋이 윤도현의 배터리가 되어 s03의 종합보고서가 된다 — 그래서 셋을 여기서 고른다.
+  await h.click('button:has-text("로르샤흐")', '로르샤흐(투사·대면) → s02 실시')
+  await h.click('button:has-text("집-나무-사람")', 'HTP(투사·대면) → s03 배터리')
+  await h.click('button:has-text("문장완성검사")', 'SCT(투사·대면) → s03 배터리')
+  await h.click('button:has-text("스마트폰중독검사")', '스마트폰중독검사(온라인) → s04 바로링크')
   await h.beat('접수 진행 3/3 — 버튼이 살아난다')
 
   // ③ 위쪽을 다 봤으니 이제 내린다 — 에이전트가 채운 것이 실제로 들어가 있다

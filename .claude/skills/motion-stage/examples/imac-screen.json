@@ -1,0 +1,13 @@
+{
+  "stage": "imac",
+  "size": [1920, 1080],
+  "duration": 4,
+  "fps": 30,
+  "screen": "../../../../movies/26IRDEMO/_motion/screen-sample.png",
+  "macW": 1.32,
+  "copy": {
+    "eyebrow": "MINDSCOPE",
+    "h": "접수부터 정산까지<br>한 화면에서",
+    "p": "흩어져 있던 기록이 한 줄기로 모입니다."
+  }
+}

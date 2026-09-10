@@ -1,0 +1,2 @@
+{ "stage":"wipe", "preset":"iris", "center":[0.5,0.55], "feather":0.1, "ease":"out",
+  "duration":0.9, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

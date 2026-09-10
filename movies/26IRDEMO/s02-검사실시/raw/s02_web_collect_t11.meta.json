@@ -1,0 +1,297 @@
+{
+  "id": "s02_web_collect_t11",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t11",
+  "captured_at": "2026-09-10T08:35:10.786Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/5d000869-50bb-40ef-b855-d5fecd2bbbc8/collect",
+    "env": "local",
+    "commit": "5e89cbd"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 1644,
+      "appended": 2344,
+      "dupped": 752,
+      "notReady": 0,
+      "ticks": 2344,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "df3cd7599c743f4881083b1df76c8dc7fc149bde89eb23afccf68177e2ac933d"
+  },
+  "stt": {
+    "file": "_mocks/s02-stt.json",
+    "clips": [
+      "박쥐 같아요. 날개를 펴고 있는.",
+      "가운데는 여자 사람 같기도 하고요.",
+      "가운데 검은 부분이 몸통이고 양옆이 날개요.",
+      "",
+      "치마 입은 것처럼 여기가 넓어 보여서요."
+    ]
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "로샤 실시 — 카드 I"
+    },
+    {
+      "t": 3.22,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "내담자 화면 — 태블릿을 돌린다"
+    },
+    {
+      "t": 4.3,
+      "kind": "beat",
+      "target": "",
+      "note": "카드만 남는다 — 기록은 전부 가려진다"
+    },
+    {
+      "t": 5.04,
+      "kind": "click",
+      "target": "button:has-text(\"받아쓰기\")",
+      "note": "받아쓰기 — 마이크를 켠다"
+    },
+    {
+      "t": 6.51,
+      "kind": "click",
+      "target": "button[aria-label^=\"반응 기록\"]",
+      "note": "반응 ① — 아이가 말한다"
+    },
+    {
+      "t": 8.89,
+      "kind": "hold",
+      "target": "2000",
+      "note": "한 마디가 끝나고 다음 마디가 온다"
+    },
+    {
+      "t": 9.64,
+      "kind": "click",
+      "target": "button[aria-label^=\"반응 기록\"]",
+      "note": "반응 ② — 또 하나"
+    },
+    {
+      "t": 10.29,
+      "kind": "until",
+      "target": "button[aria-label=\"반응 2 선택\"]",
+      "note": "채점지에 두 줄이 섰다 (+0.3s)"
+    },
+    {
+      "t": 11.38,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 1 선택\"]",
+      "note": "반응 ① 을 고른다 — 카드가 그리기 판이 된다"
+    },
+    {
+      "t": 13.36,
+      "kind": "hold",
+      "target": "1600",
+      "note": "\"어디가 그렇게 보였어?\" — 아이가 답한다"
+    },
+    {
+      "t": 16.16,
+      "kind": "draw",
+      "target": "5점",
+      "note": "아이가 가리킨 자리를 그린다"
+    },
+    {
+      "t": 17.24,
+      "kind": "beat",
+      "target": "",
+      "note": "그린 조각이 ①에 붙는다 — 위치 부호도 따라 붙는다"
+    },
+    {
+      "t": 18.33,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 2 선택\"]",
+      "note": "반응 ② 로 옮긴다"
+    },
+    {
+      "t": 20.31,
+      "kind": "hold",
+      "target": "1600",
+      "note": "②는 어디를 보고 그랬는지 답한다"
+    },
+    {
+      "t": 23.11,
+      "kind": "draw",
+      "target": "5점",
+      "note": "②의 자리를 그린다"
+    },
+    {
+      "t": 27.49,
+      "kind": "hold",
+      "target": "4000",
+      "note": "마지막 말이 ②의 질문 칸에 들어간다"
+    },
+    {
+      "t": 28.7,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "임상가 화면으로 돌아온다"
+    },
+    {
+      "t": 30.17,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 1 선택\"]",
+      "note": "반응 ① 을 연다"
+    },
+    {
+      "t": 30.82,
+      "kind": "until",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "자유반응 · 질문 · 영역이 다 차 있다 (+0.3s)"
+    },
+    {
+      "t": 31.52,
+      "kind": "beat",
+      "target": "",
+      "note": "임상가가 받아친 것이 아니다"
+    },
+    {
+      "t": 32.26,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 2 선택\"]",
+      "note": "반응 ② 도 연다"
+    },
+    {
+      "t": 32.91,
+      "kind": "until",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "②도 마찬가지다 (+0.3s)"
+    },
+    {
+      "t": 33.61,
+      "kind": "beat",
+      "target": "",
+      "note": "두 줄 다 말로만 채워졌다"
+    },
+    {
+      "t": 34.34,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 1 선택\"]",
+      "note": "반응 ① 로 돌아온다"
+    },
+    {
+      "t": 34.74,
+      "kind": "reveal",
+      "target": "button:has-text(\"W\")",
+      "note": "위치 칸으로 내려간다"
+    },
+    {
+      "t": 36.18,
+      "kind": "click",
+      "target": "button:has-text(\"W\")",
+      "note": "위치 부호 W — 반점 전체"
+    },
+    {
+      "t": 37.26,
+      "kind": "beat",
+      "target": "",
+      "note": "배지가 초록으로 — 빈 칸이 없다"
+    },
+    {
+      "t": 37.86,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 37.86,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.21,
+      "note": "말한 것이 그대로 반응이 된다",
+      "end": 10.29
+    },
+    {
+      "start": 10.29,
+      "note": "어디서 그렇게 봤는지 — 그리고 말한다",
+      "end": 27.49
+    },
+    {
+      "start": 27.49,
+      "note": "열어 보면 이미 적혀 있다",
+      "end": 33.61
+    }
+  ],
+  "retake_of": "t10",
+  "retake_reason": "마지막 조각이 내담자 화면 안에서 도착하도록 여유 1.4초 — 질문 원문(inquiry_stt_raw)을 잃지 않는다",
+  "result": {
+    "file": "raw/s02_web_collect_t11.mov",
+    "duration": 39.07,
+    "ok": true,
+    "error": null
+  }
+}

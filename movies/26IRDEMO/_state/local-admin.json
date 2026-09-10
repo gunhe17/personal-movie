@@ -1,0 +1,57 @@
+{
+  "cookies": [
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiZWMxNTQ1YjUtZjA4YS00ZWI1LWFkNTUtZWNhZDcyMDdhN2M3IiwicGVyc29uX2lkIjoiYzNiMzQxMmMtZjhjOS00MmE5LWE2MzYtZjU1MDc0NzlkMDRjIiwiZW1haWwiOiJhZG1pbkBtaW5kc2NvcGUuY29tIiwidG9rZW5fdmVyc2lvbiI6MiwiYWNjb3VudF90b2tlbl92ZXJzaW9uIjowLCJleHAiOjE3ODg5NDM3MzV9.xCMMdnVJ-DtJzaXgfT9f46IDKU86Hv8l5dhaGuy_sN8",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1788943735.921136,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "refreshToken",
+      "value": "IVjkRsw7PlrUZau0TB47Fl-31z4ceQiseTd0sRT-urs",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789546735.921193,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "currentCenterId",
+      "value": "7d1c6bfd-30fd-4fbb-a732-3d0d170c691d",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3503",
+      "localStorage": [
+        {
+          "name": "permissionVersion",
+          "value": "1"
+        },
+        {
+          "name": "centers",
+          "value": "[{\"id\":\"7d1c6bfd-30fd-4fbb-a732-3d0d170c691d\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"X9J3PZ\",\"logo_url\":null}]"
+        },
+        {
+          "name": "permissionContext",
+          "value": "{\"permissions\":[\"read:center\",\"read:program\",\"read:room\",\"read:member\",\"read:role\",\"read:center_assessment\",\"read:form_template\",\"write:center\",\"write:program\",\"write:room\",\"write:member\",\"write:member_invitation\",\"write:center_assessment\",\"write:form_template\",\"write:role\",\"read:member_invitation\",\"read:schedule\",\"read:client\",\"read:counseling\",\"read:counseling_note\",\"read:assessment_case\",\"read:send_link\",\"read:document\",\"read:form_instance\",\"read:notice\",\"write:schedule\",\"write:client\",\"write:counseling\",\"write:counseling_note\",\"write:assessment_case\",\"write:send_link\",\"write:document\",\"write:form_instance\",\"write:notice\",\"delete:member\",\"delete:schedule\",\"delete:client\",\"delete:counseling\",\"delete:assessment_case\",\"delete:document\",\"delete:form_instance\",\"read:billing\",\"write:billing\",\"delete:billing\",\"read:voucher\",\"write:voucher\",\"delete:voucher\",\"read:activity_log\"],\"role\":\"super_admin\",\"memberId\":\"0c6be6dc-8395-40ec-a053-ae1c0c2cab39\",\"accessLevel\":\"all\",\"isAuthenticated\":true,\"version\":1,\"updatedAt\":\"2026-09-09T08:21:58.256Z\"}"
+        },
+        {
+          "name": "currentCenterId",
+          "value": "7d1c6bfd-30fd-4fbb-a732-3d0d170c691d"
+        }
+      ]
+    }
+  ]
+}

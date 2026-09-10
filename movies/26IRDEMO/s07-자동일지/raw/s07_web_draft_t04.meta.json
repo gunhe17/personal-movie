@@ -1,0 +1,153 @@
+{
+  "id": "s07_web_draft_t04",
+  "scene": "s07-자동일지",
+  "device": "web",
+  "action": "draft",
+  "take": "t04",
+  "captured_at": "2026-09-09T22:22:30.126Z",
+  "spec_version": 4,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/7b9d6e01-87d0-4e5c-a303-e3aed38e3560?session=bc6f3cce-ecb4-4b69-8923-8937eef7c339",
+    "env": "local",
+    "commit": "b6d7ceb94"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 867,
+      "appended": 908,
+      "dupped": 77,
+      "notReady": 0,
+      "ticks": 908,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollStep": 140,
+    "scrollEvery": 40,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10b.json",
+    "sha256": "37c15eccb292dd4ecf2277f72ba18caadc1b26b1972230df385f20fcfc385757"
+  },
+  "script": {
+    "file": "_scripts/s07-draft.mjs",
+    "sha256": "fafe71d8b27773bbb8ef7e6fde6f35afd1af3dcf0ddb21d614c1885385c84d87"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 녹음은 있고 일지는 비어 있다"
+    },
+    {
+      "t": 3.59,
+      "kind": "click",
+      "target": "button:has-text(\"일지 초안 생성\")",
+      "note": "일지 초안 생성"
+    },
+    {
+      "t": 10.63,
+      "kind": "until",
+      "target": "text=초안으로 채웠어요",
+      "note": "전사 분석 중… → 칸이 채워졌다 (+6.7s)"
+    },
+    {
+      "t": 11.34,
+      "kind": "beat",
+      "target": "",
+      "note": "채워진 일지 — 상담 목표 · 진행 내용"
+    },
+    {
+      "t": 12.03,
+      "kind": "hover",
+      "target": "textarea[placeholder=\"진행 내용을 작성해주세요\"]",
+      "note": "초안이 들어온 진행 내용"
+    },
+    {
+      "t": 12.09,
+      "kind": "scroll",
+      "target": "180",
+      "note": "다음 상담 내용까지 내려 본다"
+    },
+    {
+      "t": 14.04,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 14.04,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.21,
+      "note": "초안 생성 → 빈 칸이 채워진다",
+      "end": 10.63
+    }
+  ],
+  "retake_of": "t03",
+  "retake_reason": "일지 본문을 임상 기록으로 고도화 · 프롬프트 고정으로 결정적 · 세 칸 다 보이게 스크롤 추가",
+  "result": {
+    "file": "raw/s07_web_draft_t04.mov",
+    "duration": 15.13,
+    "ok": true,
+    "error": null
+  }
+}

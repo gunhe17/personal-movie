@@ -1,0 +1,264 @@
+{
+  "id": "s02_web_collect_t08",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t08",
+  "captured_at": "2026-09-10T08:09:56.159Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/5d000869-50bb-40ef-b855-d5fecd2bbbc8/collect",
+    "env": "local",
+    "commit": "5e89cbd"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 921,
+      "appended": 1740,
+      "dupped": 868,
+      "notReady": 0,
+      "ticks": 1740,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 620,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 220,
+    "postClick": 380,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "8d04db332503a51f3b54ba53ad47ea19ec789d2ad6f6d2bc0835644720574941"
+  },
+  "stt": {
+    "file": "_mocks/s02-stt.json",
+    "clips": [
+      "박쥐 같아요. 날개를 펴고 있는."
+    ]
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.2,
+      "kind": "beat",
+      "target": "",
+      "note": "로샤 실시 — 카드 I"
+    },
+    {
+      "t": 3.23,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "내담자 화면 — 태블릿을 돌린다"
+    },
+    {
+      "t": 4.31,
+      "kind": "beat",
+      "target": "",
+      "note": "카드만 남는다 — 이전 반응은 가려진다"
+    },
+    {
+      "t": 5.04,
+      "kind": "click",
+      "target": "button:has-text(\"받아쓰기\")",
+      "note": "받아쓰기 — 마이크를 켠다"
+    },
+    {
+      "t": 6.13,
+      "kind": "beat",
+      "target": "",
+      "note": "마이크가 켜졌다 — 피검자가 말한다"
+    },
+    {
+      "t": 7.23,
+      "kind": "click",
+      "target": "button[aria-label^=\"반응 기록\"]",
+      "note": "반응 기록 — 반응 하나에 한 번"
+    },
+    {
+      "t": 10.21,
+      "kind": "hold",
+      "target": "2600",
+      "note": "전사가 도착해 그 줄에 붙는다"
+    },
+    {
+      "t": 11.32,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "임상가 화면으로 돌아온다"
+    },
+    {
+      "t": 12.41,
+      "kind": "beat",
+      "target": "",
+      "note": "채점지가 돌아온다 — 칩에는 번호만 있다"
+    },
+    {
+      "t": 13.49,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 1 선택\"]",
+      "note": "반응 ① 을 연다"
+    },
+    {
+      "t": 14.13,
+      "kind": "until",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "피검자의 말이 자유반응 칸에 있다 (+0.3s)"
+    },
+    {
+      "t": 14.84,
+      "kind": "beat",
+      "target": "",
+      "note": "영역·질문 배지는 아직 회색이다"
+    },
+    {
+      "t": 14.85,
+      "kind": "reveal",
+      "target": "button:has-text(\"영역 그리기\")",
+      "note": "위치 칸으로 내려간다"
+    },
+    {
+      "t": 16.28,
+      "kind": "click",
+      "target": "button:has-text(\"W\")",
+      "note": "위치 부호 W — 반점 전체"
+    },
+    {
+      "t": 17.36,
+      "kind": "beat",
+      "target": "",
+      "note": "W가 반응에 저장된다"
+    },
+    {
+      "t": 18.09,
+      "kind": "click",
+      "target": "button:has-text(\"영역 그리기\")",
+      "note": "영역 그리기"
+    },
+    {
+      "t": 19.18,
+      "kind": "beat",
+      "target": "",
+      "note": "카드 위에 직접 그린다"
+    },
+    {
+      "t": 21.71,
+      "kind": "draw",
+      "target": "5점",
+      "note": "영역을 그린다"
+    },
+    {
+      "t": 22.79,
+      "kind": "beat",
+      "target": "",
+      "note": "그린 영역이 반응에 붙는다"
+    },
+    {
+      "t": 24.46,
+      "kind": "type",
+      "target": "textarea[placeholder=\"어디가 그렇게 보였는지\"]",
+      "note": "질문 답변"
+    },
+    {
+      "t": 25.38,
+      "kind": "beat",
+      "target": "",
+      "note": "배지가 초록으로 — 빈 칸이 없다"
+    },
+    {
+      "t": 26.11,
+      "kind": "click",
+      "target": "button[aria-label^=\"카드 방향\"] >> nth=1",
+      "note": "방향 — 피검자가 카드를 돌렸다"
+    },
+    {
+      "t": 27.2,
+      "kind": "beat",
+      "target": "",
+      "note": "방향이 남는다"
+    },
+    {
+      "t": 27.8,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 27.8,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.2,
+      "note": "말한 것이 그대로 반응이 된다",
+      "end": 14.84
+    },
+    {
+      "start": 14.84,
+      "note": "한 줄을 끝까지 — 영역 · 질문",
+      "end": 25.38
+    }
+  ],
+  "retake_of": "t05",
+  "retake_reason": "prep→capture 사이클 재실행 · 시드 스냅샷 c · 마인드봄 토큰 재발급 뒤",
+  "result": {
+    "file": "raw/s02_web_collect_t08.mov",
+    "duration": 29,
+    "ok": true,
+    "error": null
+  }
+}

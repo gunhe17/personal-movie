@@ -1,7 +1,7 @@
 // SPEC — 촬영 규격의 정본. 러너(capture.mjs)와 리허설(scene-prep)이 같은 값을 본다.
 // 바꾸면 version을 올리고 .claude/rules/capture.md와 SKILL.md를 같이 고친다.
 export const SPEC = {
-  version: 4,
+  version: 5,
   viewport: { width: 1600, height: 900, dpr: 2 },           // CSS px · 16:9 · 캡처 3200×1800
   park: { x: 1576, y: 876 },                                // 커서 대기 위치 — 우하단, 툴팁을 띄우는 요소가 없는 곳
   theme: 'light',
@@ -15,7 +15,7 @@ export const SPEC = {
     move: 420,                       // 거리를 모를 때의 기본값(구 버전 호환)
     preClick: 220, postClick: 380,
     type: 40, afterType: 220,
-    scrollStep: 140, scrollEvery: 40, afterScroll: 450,
+    scrollFrame: 16, afterScroll: 450, // v5 — 스크롤은 거리를 정해두고 move와 같은 시간·곡선으로 매 프레임 조금씩 (휠 140px 점프는 3프레임 툭툭이었다)
     beat: 700, modal: 600,
     settle: 260                      // until이 조건을 만난 뒤 화면이 자리를 잡는 시간
   }

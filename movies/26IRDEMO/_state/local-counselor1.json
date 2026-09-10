@@ -1,0 +1,49 @@
+{
+  "cookies": [
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNjA0OGM0MDAtMTM1Ni00NjI0LTgxYzAtN2E2ZmUxOWY5MTdhIiwicGVyc29uX2lkIjoiYzM1YzdjZjMtMjAyZS00YTc5LWJiNjAtZWFlN2I5YWRhMGFjIiwiZW1haWwiOiJjb3Vuc2Vsb3IxQG1pbmRzY29wZS5jb20iLCJ0b2tlbl92ZXJzaW9uIjoyLCJhY2NvdW50X3Rva2VuX3ZlcnNpb24iOjAsImV4cCI6MTc4ODk0MzIwOX0.6l-3ybwa_j488y5Pi6L0ZA-sijBiYOf0jF_foXS0wKs",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1788943209.137525,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "refreshToken",
+      "value": "vmzxCwI6vMeSSnFnSF0vcOAcdbs0m5vUmWX0AAxREBs",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789546209.137594,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "currentCenterId",
+      "value": "3cd80963-40bc-487c-af1b-12a97cef64f4",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3503",
+      "localStorage": [
+        {
+          "name": "centers",
+          "value": "[{\"id\":\"3cd80963-40bc-487c-af1b-12a97cef64f4\",\"name\":\"해오름 아동심리상담센터\",\"code\":\"XWBHX4\",\"logo_url\":null}]"
+        },
+        {
+          "name": "currentCenterId",
+          "value": "3cd80963-40bc-487c-af1b-12a97cef64f4"
+        }
+      ]
+    }
+  ]
+}

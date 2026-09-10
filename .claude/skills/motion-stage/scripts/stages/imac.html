@@ -1,0 +1,168 @@
+<title>iMac 글라스 스테이지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{ --ink:#0E1B2E; --f-b:'Apple SD Gothic Neo','Pretendard','Gothic A1',system-ui,sans-serif; --f-m:'SF Mono','IBM Plex Mono',ui-monospace,monospace; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+.stage{position:relative;width:100vw;height:100vh;overflow:hidden;container-type:size;
+       font-family:var(--f-b);color:var(--ink)}
+
+.blob{position:absolute;border-radius:50%;filter:blur(9cqw)}
+.dots{position:absolute;inset:0;
+  -webkit-mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%);
+          mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%)}
+.grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;
+  background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent .9px);
+  background-size:.55cqw .55cqw}
+
+.lay{position:absolute;inset:0;display:grid;align-items:center;padding:0 6cqw 0 5cqw;gap:4cqw}
+
+/* ── iMac ── */
+.mac{position:relative;width:100%;filter:drop-shadow(0 6cqw 7cqw rgba(11,30,66,.34))}
+.frame{position:relative;border-radius:2.1cqw;padding:1.05cqw 1.05cqw 4.6cqw;
+  background:linear-gradient(150deg,rgba(255,255,255,.60),rgba(255,255,255,.20) 42%,rgba(255,255,255,.42));
+  -webkit-backdrop-filter:blur(2.4cqw) saturate(165%);backdrop-filter:blur(2.4cqw) saturate(165%);
+  border:.09cqw solid rgba(255,255,255,.75);
+  box-shadow:inset 0 .12cqw .5cqw rgba(255,255,255,.95),
+             inset 0 -.25cqw .9cqw rgba(31,58,110,.09),
+             0 .6cqw 1.6cqw rgba(20,45,95,.10)}
+.frame::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(var(--sheen,112deg),transparent 26%,rgba(255,255,255,.50) 40%,rgba(255,255,255,.06) 52%,transparent 62%)}
+.frame::before{content:"";position:absolute;left:8%;right:8%;top:.18cqw;height:.9cqw;border-radius:50%;
+  background:rgba(255,255,255,.75);filter:blur(.5cqw);pointer-events:none}
+
+.screen{position:relative;aspect-ratio:16/9;border-radius:.6cqw;overflow:hidden;background:#F7F9FC;z-index:2}
+/* 화면에 끼우는 프레임 — 유리 위가 아니라 화면 안이라 씻기지 않는다 */
+.screen .shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* 매트 모드 — 화면을 순흑/순백으로 두 번 굽고, 둘의 차이가 정확한 알파가 된다 (키잉 프린지 없음) */
+.matte .screen .app,.matte .screen .slot,.matte .cam{display:none}
+.matte-black .screen{background:#000}
+.matte-white .screen{background:#fff}
+
+.cam{position:absolute;left:50%;top:.36cqw;width:.34cqw;height:.34cqw;border-radius:50%;
+  background:rgba(20,40,80,.35);transform:translateX(-50%);z-index:3}
+.chin{position:absolute;left:0;right:0;bottom:0;height:4.6cqw;display:flex;align-items:center;justify-content:center}
+.chin i{width:2.4cqw;height:.62cqw;border-radius:.4cqw;background:rgba(21,45,92,.16);display:block}
+
+.neck{width:13cqw;height:4.6cqw;margin:0 auto;clip-path:polygon(16% 0,84% 0,100% 100%,0 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(255,255,255,.24));
+  -webkit-backdrop-filter:blur(1.6cqw);backdrop-filter:blur(1.6cqw);
+  border-left:.07cqw solid rgba(255,255,255,.5);border-right:.07cqw solid rgba(255,255,255,.5)}
+.foot{width:26cqw;height:1.5cqw;margin:0 auto;border-radius:.9cqw;
+  background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.26));
+  -webkit-backdrop-filter:blur(1.6cqw);backdrop-filter:blur(1.6cqw);
+  border:.07cqw solid rgba(255,255,255,.62);
+  box-shadow:0 .5cqw 1.4cqw rgba(16,38,80,.18)}
+.floor{width:34cqw;height:1.5cqw;margin:.7cqw auto 0;border-radius:50%;
+  background:rgba(18,40,84,.22);filter:blur(1.1cqw)}
+
+/* ── 자리표시 UI (screen 없이 미리볼 때만) ── */
+.app{position:absolute;inset:0;display:grid;grid-template-columns:14% 1fr;font-size:1cqw}
+.side{background:#EEF3FA;border-right:.07cqw solid #DDE5F0;padding:1.1cqw .8cqw;display:flex;flex-direction:column;gap:.55cqw}
+.side b{display:block;height:.75cqw;border-radius:.4cqw;background:#C6D4E8}
+.side b.on{background:#2F6BFF;opacity:.8}
+.main{padding:1.1cqw 1.3cqw;display:flex;flex-direction:column;gap:.9cqw}
+.bar{height:1.5cqw;border-radius:.45cqw;background:#E7EDF6}
+.bar.w40{width:40%}.bar.w22{width:22%;background:#2F6BFF;opacity:.85}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.8cqw}
+.card{height:6.4cqw;border-radius:.7cqw;background:#F1F5FB;border:.07cqw solid #E2E9F4}
+.rows{display:flex;flex-direction:column;gap:.5cqw;margin-top:.2cqw}
+.row{height:1.35cqw;border-radius:.4cqw;background:#F1F5FB}
+.row:nth-child(2){width:88%}.row:nth-child(3){width:72%}.row:nth-child(4){width:80%}
+.slot{position:absolute;right:1.1cqw;bottom:1.1cqw;font-family:var(--f-m);font-size:.72cqw;letter-spacing:.12em;color:#8FA3BE}
+
+/* ── 카피 ── */
+.copy .eyebrow{font-family:var(--f-m);font-size:1cqw;letter-spacing:.2em;color:#3E5F96;margin:0 0 1.4cqw}
+.copy h2{font-weight:800;font-size:3.7cqw;line-height:1.28;letter-spacing:-.03em;margin:0;color:#0B1A31;word-break:keep-all;text-wrap:balance}
+.copy p{margin:1.6cqw 0 0;font-size:1.3cqw;line-height:1.8;color:#33496B;max-width:24cqw;word-break:keep-all}
+.tag{position:absolute;left:2.4cqw;bottom:2cqw;font-family:var(--f-m);font-size:.85cqw;letter-spacing:.18em;color:rgba(14,27,46,.42);margin:0}
+</style>
+<div class="stage" id="stage"></div>
+<script>
+const SPEC = /*__SPEC__*/ null;
+const q = new URLSearchParams(location.search);
+const SHOT  = q.get('shot');            // 화면에 이미지를 끼운다 (스틸 미리보기용)
+const FILL  = q.get('fill');            // black | white — 매트용. 두 장의 차이가 알파가 된다
+
+const S = { ...{
+  ground:'#DCE7F7', macW:1.32, sheen:112, dots:1.5, dotOpacity:.5,
+  blobs:[
+    { c:'#2F6BFF', o:.55, w:78, x:-8,  y:-26, from:'left,top' },
+    { c:'#6FC2F5', o:.62, w:56, x:-6,  y:-14, from:'right,top' },
+    { c:'#FFFFFF', o:.55, w:46, x:34,  y:6,   from:'left,top' },
+    { c:'#94A6FF', o:.55, w:62, x:22,  y:-32, from:'left,bottom' },
+    { c:'#C7B4F2', o:.55, w:40, x:6,   y:-16, from:'right,bottom' },
+    { c:'#F3C3DC', o:.40, w:30, x:-4,  y:2,   from:'left,bottom' }
+  ],
+  copy:null, tag:null, macW:1.32, width:0.66, right:null   // right — 우측을 이만큼(무대 폭 비율) 비우고 iMac을 왼쪽으로 민다. 없으면 가운데
+}, ...(SPEC || {}) };
+
+const st = document.getElementById('stage');
+if (FILL) st.classList.add('matte', `matte-${FILL}`);
+st.style.setProperty('--sheen', S.sheen + 'deg');
+st.style.background = S.ground;
+
+let html = '<div id="bg" style="position:absolute;inset:0">';
+for (const b of S.blobs){
+  const [ax, ay] = b.from.split(',');
+  html += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`;
+}
+html += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div></div>`;
+
+const placeholder = `
+  <div class="app">
+    <div class="side"><b class="on"></b><b></b><b></b><b></b><b></b></div>
+    <div class="main">
+      <div class="bar w40"></div>
+      <div class="cards"><div class="card"></div><div class="card"></div><div class="card"></div></div>
+      <div class="bar w22"></div>
+      <div class="rows"><div class="row"></div><div class="row"></div><div class="row"></div><div class="row"></div></div>
+    </div>
+  </div>
+  <span class="slot">SCREEN SLOT</span>`;
+
+const copyHTML = S.copy ? `<div class="copy">
+    ${S.copy.eyebrow ? `<p class="eyebrow">${S.copy.eyebrow}</p>` : ''}
+    ${S.copy.h ? `<h2>${S.copy.h}</h2>` : ''}
+    ${S.copy.p ? `<p>${S.copy.p}</p>` : ''}
+  </div>` : '';
+
+html += `<div class="lay" id="lay" style="grid-template-columns:${S.copy ? S.macW + 'fr 1fr' : '1fr'};padding:${S.copy ? '0 6cqw 0 5cqw' : S.right != null ? `0 ${S.right * 100}cqw 0 ${(1 - S.width - S.right) * 100}cqw` : `0 ${(1 - S.width) * 50}cqw`}">
+    <div class="mac">
+      <div class="frame">
+        <div class="cam"></div>
+        <div class="screen" id="screen">${SHOT ? `<img class="shot" src="${SHOT}">` : placeholder}</div>
+        <div class="chin"><i></i></div>
+      </div>
+      <div class="neck"></div><div class="foot"></div><div class="floor"></div>
+    </div>
+    ${copyHTML}
+  </div>`;
+if (S.tag) html += `<p class="tag">${S.tag}</p>`;
+st.innerHTML = html;
+
+/* ── 애니메이션: pull — 화면이 뷰포트를 꽉 채운 상태에서 카메라가 뒤로 빠지며 iMac과 배경이 드러난다.
+   render(t, shot)는 CDP가 프레임마다 부른다. shot = 그 프레임의 화면 이미지 경로. 이미지 디코드를 기다리는 Promise를 돌려준다. ── */
+const EASE = { linear:u=>u, in:u=>u*u*u, out:u=>1-Math.pow(1-u,3), inout:u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2 };
+const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+async function render(t, shot){
+  const scr = document.getElementById('screen'), lay = document.getElementById('lay'), bg = document.getElementById('bg');
+  if (shot){
+    let img = scr.querySelector('img.shot');
+    if (!img){ scr.innerHTML = ''; img = document.createElement('img'); img.className = 'shot'; scr.appendChild(img); }
+    if (img.getAttribute('src') !== shot){ img.src = shot; try { await img.decode(); } catch {} }
+  }
+  if (!S.pull) return;
+  const P = S.pull, e = EASE[P.ease || 'inout'](clamp((t - (P.hold || 0)) / (P.duration || 1.2)));
+  lay.style.transform = 'none';
+  const r = scr.getBoundingClientRect(), scx = r.left + r.width/2, scy = r.top + r.height/2;
+  const s0 = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.003;   // 화면이 뷰포트를 꽉 채우는 배율
+  lay.style.transformOrigin = `${scx}px ${scy}px`;
+  lay.style.transform = `translate(${((innerWidth/2 - scx)*(1-e)).toFixed(2)}px, ${((innerHeight/2 - scy)*(1-e)).toFixed(2)}px) scale(${(1 + (s0-1)*(1-e)).toFixed(5)})`;
+  bg.style.opacity = P.fadeBg === false ? 1 : e;                                // 배경이 서서히 드러난다
+}
+render(parseFloat(q.get('t') || '0'), SHOT || null);
+
+</script>

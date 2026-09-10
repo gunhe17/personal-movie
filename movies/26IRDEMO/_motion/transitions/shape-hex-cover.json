@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"shape", "shape":"hex", "cover":true, "spin":540, "size0":0.05, "from":[-0.1,1.1], "exit":[1.1,-0.1], "feather":0.01, "ease":"linear", "duration":1.4, "fps":60, "shutter":4, "size":[1920,1080], "color":"#3F5B66" }

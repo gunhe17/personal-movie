@@ -1,0 +1,9 @@
+{
+  "stage": "imac",
+  "size": [3840, 2160],
+  "fps": 60,
+  "screen": "../raw/s03_web_aireview_t09.mov",
+  "width": 0.62,
+  "right": 0.3333,
+  "_note": "right 1/3을 비운다 — 자막·카피를 편집에서 얹는 자리. iMac은 왼쪽 2/3 안에서 폭 0.62, 왼쪽 여백 ≈0.047."
+}

@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"liquid", "dir":"down", "scale":90, "freq":0.006, "seed":7, "feather":0.1, "ease":"inout", "duration":1.0, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

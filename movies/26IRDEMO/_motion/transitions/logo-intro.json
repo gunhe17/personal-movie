@@ -1,0 +1,2 @@
+{ "stage":"logo", "logo":"../brand/mindscope-mark.svg", "size":[1920,1080], "fps":60, "shutter":1,
+  "ground0":"#0E1B2E", "logoW":0.16, "cover":18, "pop":0.62, "hold":0.45, "grow":1.5, "tail":0.45, "duration":3.0 }

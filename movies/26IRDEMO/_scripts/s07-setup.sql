@@ -1,9 +1,14 @@
 -- s07 준비 — 일지 초안이 "빈 칸을 채우는" 장면이 되게 한다. s06-setup.sql 다음에 돌린다.
 --
+-- 배역: **윤도현 · 개인상담 C00003 1회기**(2026-09-10 16:00-16:50). s06이 남긴 바로 그 필드노트다.
+-- 2026-09-10 이전 판은 이하준(C00002)이었다 — s06이 검사 축으로 옮겨가면서 s07도 따라왔다.
+-- "방금 녹음한 그 회기의 일지"가 다른 아이 이름으로 나오지 않게 하는 것이 이 이동의 전부다.
+--
 -- 시드는 모든 회기에 상담일지를 미리 써 둔다(counseling_notes 7건). 그 상태로 `일지 초안 생성`을
 -- 누르면 InlineJournalEditor.applyDraft(:251-283)가 "이미 작성한 내용이 있어요" 브라우저 confirm을
 -- 띄운다 — 화면에 네이티브 다이얼로그가 뜨고, 장면의 논지("아직 안 쓴 일지가 채워진다")도 깨진다.
--- 그래서 이 회기의 일지만 비운다. 회기를 막 마치고 아직 일지를 안 쓴 상태가 이 장면의 출발점이다.
+-- C00003은 s06-setup.sql이 통째로 만드는 케이스라 일지 행이 애초에 없지만, 리허설을 한 번 돌리면
+-- 생기므로 아래 update가 매번 비운다. 회기를 막 마치고 아직 일지를 안 쓴 상태가 이 장면의 출발점이다.
 --
 -- note_status도 되돌린다 — 한 번 돌리면 completed가 되어 다음 리허설이 같은 자리에서 출발하지 않는다.
 update counseling_notes
@@ -11,7 +16,7 @@ set content = '{}'::jsonb, summary = null
 where deleted_at is null
   and counseling_session_id in (
     select cs.id from counseling_sessions cs
-    join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00002'
+    join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00003'
     join field_notes fn on fn.schedule_id = cs.schedule_id and fn.deleted_at is null
     where cs.deleted_at is null and fn.refined_transcript is not null
   );
@@ -22,7 +27,7 @@ where fn.deleted_at is null
   and fn.refined_transcript is not null
   and fn.schedule_id in (
     select cs.schedule_id from counseling_sessions cs
-    join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00002'
+    join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00003'
     where cs.deleted_at is null
   );
 
@@ -31,7 +36,7 @@ where fn.deleted_at is null
 delete from counseling_note_ai_drafts
 where counseling_session_id in (
   select cs.id from counseling_sessions cs
-  join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00002'
+  join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00003'
   where cs.deleted_at is null
 );
 
@@ -50,7 +55,9 @@ where counseling_session_id in (
 -- 즉 이 한 행이면 코드도 안 고치고 프로세스도 안 재시작하고 본문이 고정된다.
 -- LLM은 이 프롬프트를 그대로 받아쓰는 역할만 한다(파이프라인·초안 이력·upsert는 전부 진짜 경로).
 --
--- 본문의 근거는 s06-setup.sql의 전사 12세그먼트뿐이다. 전사에 없는 사실은 넣지 않았다.
+-- 본문의 근거는 s06-setup.sql의 **윤도현 전사 23세그먼트**뿐이다. 전사에 없는 사실은 넣지 않았고,
+-- 마인드봄 종합보고서(mindbom `seed_content.py` REPORT_BODIES)의 소견·제언과도 어긋나지 않게 썼다.
+-- 1회기라 과제 점검이 아니라 라포 형성과 첫 과제 합의가 진행 내용의 축이다.
 delete from production_ai_configs
 where module = 'field_note' and pipeline_step = 'counseling_note';
 
@@ -65,14 +72,25 @@ insert into production_ai_configs (
 설명 문장 없이 JSON만 출력한다.
 
 {
-  "mood": "회기 초반 위축된 태도. 놀이 제안 이후 자발적 발화가 늘었고, 실패한 시도를 말할 때 목소리가 작아졌다.",
-  "main_topic": "또래에게 먼저 다가가는 행동을 실제 상황에서 시도해 보게 하고, 시도 뒤 남는 불편한 감정을 아동이 스스로 다룰 수 있게 돕는다. 기분 조절에 쓸 수 있는 신체활동은 아동이 직접 고르게 한다.",
-  "intervention": ["과제 점검", "감정 명명·반영", "시도 행동 강화", "인형놀이 역할 전환(역할놀이)", "심리교육 — 신체활동과 기분", "행동 활성화 계획 합의"],
-  "progress": "과제 점검 — 학교에서 친구에게 인사하기를 두 번 시도했고, 한 번은 상대가 듣지 못한 것 같았다고 보고했다. 그때의 감정을 ‘좀 창피했어요’로 표현하며 그대로 지나갔다고 했다. 감정을 명명해 되돌려 주고 결과보다 시도 자체를 강화하자 아동이 먼저 인형놀이를 요청했고, 먼저 말을 거는 역할을 제안하자 ‘제가요?’라며 주저한 뒤 수락했다. 후반부 신체활동과 기분을 설명하자 스스로 축구를 꺼내며 ‘아빠랑은 못 하니까 혼자 공 차기라도’라고 덧붙였고, 주 3회 공 차기로 합의했다.",
-  "homework": "주 3회 공 차기",
-  "next_goal": "공 차기는 횟수만 확인하고 성패로 다루지 않는다. 인형놀이에서 맡은 ‘먼저 말 거는 역할’을 인사 다음 한 마디까지 확장하고, 반응을 얻지 못했을 때 쓸 대처를 놀이 안에서 미리 연습한다. 아버지와 함께하지 못한다는 언급은 아동이 다시 꺼낼 때 따라간다.",
-  "raw_notes": "아동 표현 그대로 ‘아빠랑은 못 하니까 혼자 공 차기라도’. 회기 30분."
+  "mood": "회기 초반 표정 변화가 적고 응답 전 침묵이 길었다. 허용적 반응 이후 발화가 늘었고, 수면을 말할 때 목소리가 작아졌다.",
+  "main_topic": "자기 이야기를 꺼내도 괜찮다는 경험을 회기 안에서 먼저 만들고, 알아차린 감정을 한 단어로라도 밖에 내놓아 보게 한다. 오늘 처음 보고된 수면 곤란은 평가하지 않고 기록으로 이어서 본다.",
+  "intervention": ["라포 형성", "개방형 질문·침묵 허용", "감정 명명·반영", "자기 개방 강화", "일상 리듬(수면) 확인", "정서 기록 과제 합의"],
+  "progress": "또래 관계는 ‘애들이랑 축구도 하고’라며 무리 없이 보고했으나 자기 이야기는 ‘별로 안 해요, 딱히 할 말이 없어서’라고 했다. 말해도 되는지 확인을 구하는 질문 앞뒤로 13초·17초의 긴 침묵이 있었다. 무엇을 말해도 된다고 허용하자 ‘말하면 걱정하잖아요, 엄마도 요즘 힘든데’라며 함구의 이유를 밝혔고, 참으면 된다는 대처를 반영하고 몸의 신호를 묻자 ‘잠이 잘 안 와요’라며 2~3주간의 수면 곤란을 처음 보고했다. 말한 적 없던 것을 오늘 말해 준 것 자체를 강화했다.",
+  "homework": "하루 한 번, 그날 기분을 한 단어로 적기 (잠이 안 온 날은 시각도 함께)",
+  "next_goal": "기분 기록은 제출 여부나 성실도로 다루지 않고 적어 온 단어 하나에서 이야기를 연다. 수면은 아동이 적은 시각으로 경과를 확인하고, 악화되면 보호자 면담과 협진 여부를 논의한다. 어머니를 걱정시키지 않으려는 마음은 아동이 다시 꺼낼 때 따라간다.",
+  "raw_notes": "아동 표현 그대로 ‘그냥 제가 참으면 되니까요’ · ‘두세 주 됐어요. 말한 적은 없어요’. 회기 30분."
 }$prompt$,
   's07 촬영용 — 상담일지 초안 본문 고정(결정론). 촬영이 끝나면 이 행을 지운다.',
   now(), now()
 );
+
+-- ── 확인 — 촬영이 열 URL을 뽑는다 (caseId · sessionId는 재실행마다 바뀐다) ──────
+select cc.id as case_id, cs.id as session_id, cc.case_code, c.name,
+       fn.note_status, jsonb_array_length(fn.refined_transcript::jsonb) as segments
+from counseling_cases cc
+join counseling_sessions cs on cs.counseling_case_id = cc.id and cs.deleted_at is null
+join field_notes fn on fn.schedule_id = cs.schedule_id and fn.deleted_at is null
+join counseling_case_participants ccp
+  on ccp.counseling_case_id = cc.id and ccp.participant_type = 'client'
+join clients c on c.id = ccp.participant_id
+where cc.case_code = 'C00003';

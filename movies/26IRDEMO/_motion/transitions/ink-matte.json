@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"ink", "freq":0.012, "seed":3, "feather":0.15, "ease":"linear", "duration":1.1, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

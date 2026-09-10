@@ -19,6 +19,7 @@ import { human } from './human.mjs'
 export { SPEC } from './spec.mjs'
 import { SPEC } from './spec.mjs'
 import { ensureWav, sttArgs, installStt } from './stt.mjs'
+import { checkAuth, RELOGIN_HINT } from './auth-check.mjs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
 const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform')
@@ -68,7 +69,7 @@ try { ({ chromium } = createRequire(PLAYWRIGHT_FROM)('playwright')) }
 catch { die(`playwright를 못 찾음 (${PLAYWRIGHT_FROM} 기준) — 앱에 의존성부터 깔 것: cd ${APP_ROOT} && pnpm install. 다른 사본을 쓰려면 CAPTURE_APP_ROOT 또는 CAPTURE_PLAYWRIGHT_FROM.`) }
 // 가려진 창은 macOS/Chromium이 렌더를 멈춘다 — 창 뒤에서 촬영하려면 그 절전을 전부 꺼야 한다
 const stt = args.stt ? JSON.parse(fs.readFileSync(path.join(DEMO_ROOT, args.stt), 'utf8')) : null
-const sttWav = stt ? ensureWav(path.join(DEMO_ROOT, '_mocks/.stt-clip.wav')) : null
+const sttWav = stt ? ensureWav(path.join(DEMO_ROOT, '_mocks/.stt-clip.wav'), { speechSec: stt.speechSec, silenceSec: stt.silenceSec }) : null
 
 const browser = await chromium.launch({
   headless: false,
@@ -89,6 +90,13 @@ const context = await browser.newContext({
   ...(stt ? { permissions: ['microphone'] } : {}),
   ...(args.state ? { storageState: path.join(DEMO_ROOT, args.state) } : {})
 })
+// 로그인이 살아 있나 — **테이크를 태우기 전에** 묻는다. 죽은 토큰의 증상은 401이 아니라
+// "셀렉터가 영영 안 나타남"이라 30초를 기다린 뒤에야 실패한다(s02 t06·t07을 여기서 잃었다).
+if (args.state && args.url) {
+  const auth = await checkAuth(context, args.url)
+  log(`로그인 상태: ${auth.why}`)
+  if (!auth.ok) { await browser.close(); die(RELOGIN_HINT(args.url, args.state)) }
+}
 if (stt) await installStt(context, stt.clips)
 if (mock) {
   // 모든 내비게이션에서 돌기 때문에 이미 있으면 건드리지 않는다 — 덮으면 턴 커서가 0으로 되감긴다

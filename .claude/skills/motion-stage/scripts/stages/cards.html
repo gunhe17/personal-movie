@@ -1,0 +1,248 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>로샤 자료 카드</title>
+<style>
+:root{ --ink:#0E1B2E; --f-b:'Apple SD Gothic Neo','Pretendard',system-ui,sans-serif; --f-m:'SF Mono',ui-monospace,monospace; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+.stage{position:relative;width:100vw;height:100vh;overflow:hidden;container-type:size;font-family:var(--f-b);color:var(--ink)}
+
+/* 배경 무늬 — imac.html · logo.html과 같은 정의. 바꾸면 셋 다 바꾼다 */
+.blob{position:absolute;border-radius:50%;filter:blur(9cqw)}
+.dots{position:absolute;inset:0;
+  -webkit-mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%);
+          mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%)}
+.grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;
+  background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent .9px);background-size:.55cqw .55cqw}
+
+/* ── 무대: 원근 + 카드 열 ── */
+.lay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:3.2cqw;
+  perspective:150cqw;perspective-origin:50% 42%}
+.slot{transform-style:preserve-3d;display:flex;flex-direction:column;align-items:center;gap:1.4cqw}
+.card{position:relative;transform-style:preserve-3d;border-radius:1.2cqw;background:#FBFCFE;
+  box-shadow:0 .1cqw .2cqw rgba(255,255,255,.9) inset,
+             0 -.08cqw .3cqw rgba(20,45,95,.08) inset,
+             0 2.4cqw 3.6cqw -1cqw rgba(11,30,66,.32),
+             0 .5cqw 1.2cqw rgba(11,30,66,.10)}
+/* 두께 — 카드 뒤에 같은 모양을 조금 어긋나게 깔아 종이 묶음처럼 보이게 */
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;background:#E6ECF5;
+  transform:translateZ(-.35cqw) translate(.18cqw,.28cqw)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(118deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.28) 100%)}
+.face{position:absolute;left:0;top:0;overflow:hidden;padding:1.1cqw;display:flex;flex-direction:column;transform-origin:0 0}
+.cap{font-family:var(--f-m);font-size:.9cqw;letter-spacing:.2em;color:rgba(14,27,46,.55);white-space:nowrap}
+.cap b{color:#2F6BFF;font-weight:600;margin-right:.6em}
+
+/* ① 검사 카드 — 잉크 반점 하나 */
+.blot{flex:1;display:grid;place-items:center;background:#F6F7F9;border-radius:.8cqw;padding:.6cqw}
+.blot.flat{background:none;border-radius:0;padding:0}
+.blot img{width:100%;height:100%;object-fit:contain;display:block}
+.num{position:absolute;right:1.5cqw;bottom:1.3cqw;font-family:var(--f-m);font-size:1.1cqw;letter-spacing:.1em;color:rgba(14,27,46,.45)}
+
+/* ② 영역 기록지 — 열 장의 카드에 영역 번호 */
+.chart{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:.6cqw .7cqw;align-content:center}
+.cell{display:flex;flex-direction:column;align-items:center;gap:.2cqw}
+.cell:last-child{grid-column:2}
+.cell svg{width:100%;height:auto;display:block;border-radius:.35cqw;background:#F6F7F9}
+.cell .rn{font-family:var(--f-m);font-size:.62cqw;letter-spacing:.12em;color:rgba(14,27,46,.5)}
+.d{fill:rgba(47,107,255,.04);stroke:#2F6BFF;stroke-width:.9;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.dd{fill:none;stroke:rgba(14,27,46,.35);stroke-width:.5;vector-effect:non-scaling-stroke;stroke-dasharray:2 1.5}
+/* SVG 안의 글자는 viewBox 단위(0..100)다 — cqw를 쓰면 viewBox 배율이 한 번 더 곱해져 커진다 */
+.lab{font:600 4.2px var(--f-m);fill:#1F4ED8;paint-order:stroke;stroke:#fff;stroke-width:1.4px;stroke-linejoin:round;text-anchor:middle;dominant-baseline:central}
+/* 임상가가 손으로 친 표시 — 붉은 동그라미와 번호 */
+.mark{fill:none;stroke:#D8322C;stroke-width:1.7px;stroke-linecap:round;opacity:.88}
+.mlab{font:700 6.5px var(--f-b);fill:#D8322C;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#fff;stroke-width:2px;stroke-linejoin:round}
+
+/* ③ 점수계열 기록지 — 표 */
+.sheet{flex:1;overflow:hidden;line-height:1.2}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font-weight:600;font-size:.56cqw;line-height:1.25;color:rgba(14,27,46,.6);padding:.35cqw .15cqw;border-bottom:.08cqw solid #D7DEEA;background:#F3F6FB;word-break:keep-all}
+td{padding:.42cqw .15cqw;border-bottom:.05cqw dashed #E3E8F0;text-align:center;font-family:var(--f-m);font-size:.64cqw;color:#1D2A3E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.rn{font-family:var(--f-b);font-weight:700;color:#2F6BFF}
+tr.first td{border-top:.07cqw solid #CBD5E4}
+td:empty::after{content:"·";color:rgba(14,27,46,.18)}
+sup{font-size:.7em;vertical-align:super;line-height:0}
+
+.tag{position:absolute;left:2.4cqw;bottom:2cqw;font-family:var(--f-m);font-size:.85cqw;letter-spacing:.18em;color:rgba(14,27,46,.42);margin:0}
+.title{position:absolute;left:0;right:0;top:6cqh;text-align:center}
+.title .eyebrow{font-family:var(--f-m);font-size:1cqw;letter-spacing:.22em;color:#3E5F96;margin:0 0 .8cqw}
+.title h2{margin:0;font-weight:800;font-size:2.6cqw;letter-spacing:-.03em;color:#0B1A31}
+</style>
+<div class="stage" id="stage"></div>
+<script>
+/* 로샤 자료 세 장을 3D 카드로. 종이 스캔(카드 · 영역 기록지 · 점수계열 기록지)을
+   마인드봄의 실제 자료(card-N.png · areas/card-N.json)로 다시 그린다.
+   spec.assets  = 카드 PNG 폴더(file://, render.mjs가 절대경로로 바꿔 넣는다)
+   spec.areasData = { "1": areas[], ... } (render.mjs가 areas 폴더의 JSON을 읽어 넣는다 — file://은 fetch가 안 된다) */
+const SPEC = /*__SPEC__*/ null;
+const q = new URLSearchParams(location.search);
+const RN = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
+/* 점수계열 기록의 예 — 스캔(그림 7-2 (a))을 그대로 옮긴 17줄. spec.rows로 바꾼다 */
+const ROWS = [
+  ['I',1,'Wo',1,'Fo','','A','P','1.0',''],
+  ['',2,'D+',4,'M<sup>a</sup>o','(2)','H','','4.0',''],
+  ['',3,'WSo',1,'M<sup>a</sup>u','','(Hd)','','3.5',''],
+  ['II',4,'WSo',1,'M<sup>p</sup>,CF−','','Hd','','4.5','MOR, AB'],
+  ['III',5,'D+',1,'M<sup>a</sup>o','(2)','H, Hh','P','3.0','COP'],
+  ['',6,'WSo',1,'F−','','Hd','','5.5',''],
+  ['IV',7,'Wo',1,'FDo','','(A)','','2.0',''],
+  ['V',8,'Wo',1,'Fo','','A','P','1.0',''],
+  ['',9,'Do',7,'Fu','','(A)','','',''],
+  ['VI',10,'Wo',1,'Fo','','(A)','','2.5','MOR, DV2'],
+  ['VII',11,'D+',9,'M<sup>a</sup>.FYo','(2)','Hd','P','3.0','AG'],
+  ['VIII',12,'W+',1,'FM<sup>a</sup>.Fr.FCo','','A, Na','P','4.5','INCOM1'],
+  ['',13,'Dv/+',4,'FC.FVo','','Ls','','3.0',''],
+  ['',14,'DdSo',99,'FC−','','Ad','','4.0','PER'],
+  ['IX',15,'Wv',1,'M<sup>a</sup>.C','','Hx','','','AB'],
+  ['X',16,'W+',1,'M<sup>p</sup>u','','(H), Art','','5.5',''],
+  ['',17,'DdS+',22,'F−','','Hd, Bl','','4.0','']
+];
+const HEAD = ['카드','반응','영역·발달질','영역 번호','결정인·형태질','(2)','내용','평범','Z','특수점수'];
+
+const S = { ...{
+  ground:'#DCE7F7', dots:1.5, dotOpacity:.5,
+  blobs:[
+    { c:'#2F6BFF', o:.55, w:78, x:-8,  y:-26, from:'left,top' },
+    { c:'#6FC2F5', o:.62, w:56, x:-6,  y:-14, from:'right,top' },
+    { c:'#FFFFFF', o:.55, w:46, x:34,  y:6,   from:'left,top' },
+    { c:'#94A6FF', o:.55, w:62, x:22,  y:-32, from:'left,bottom' },
+    { c:'#C7B4F2', o:.55, w:40, x:6,   y:-16, from:'right,bottom' },
+    { c:'#F3C3DC', o:.40, w:30, x:-4,  y:2,   from:'left,bottom' }
+  ],
+  assets:'', areasData:{}, rows:ROWS, title:null, tag:null, pose:null, marks:0, cardBg:null,
+  tilt:14, lift:0.55, stagger:0.28, inDur:0.9,          // 카드 들어오는 각도·시간
+  cards:[
+    { type:'blot',  card:1, w:30, h:24, label:'검사 카드' },
+    { type:'chart',          w:27, h:36, label:'영역 기록지' },
+    { type:'sheet',          w:27, h:36, label:'점수계열 기록지' }
+  ]
+}, ...(SPEC || {}) };
+
+const img = n => `${S.assets}/card-${n}.png`;
+
+/* 붉은 표시 자리 — spec.marks(개수)만큼 서로 다른 카드의 D 영역에서 고른다.
+   seed가 같으면 늘 같은 자리다(재렌더마다 그림이 바뀌면 편집에서 못 쓴다). */
+const MARKS = (() => {
+  if (!S.marks) return null;
+  const seed = S.markSeed ?? 7;
+  const rnd = i => { const v = Math.sin(seed * 97.13 + i * 41.77) * 43758.5453; return v - Math.floor(v); };
+  const span = a => { const xs = a.path.map(p=>p.x), ys = a.path.map(p=>p.y);
+    return [Math.max(...xs)-Math.min(...xs), Math.max(...ys)-Math.min(...ys)]; };
+  // 카드마다 후보 하나 — 너무 큰 D(반점 전체에 가까운 것)는 동그라미가 카드를 삼킨다
+  const pool = [];
+  for (let card = 1; card <= 10; card++){
+    const ds = (S.areasData[card] || []).filter(a => a.type === 'D');
+    const ok = ds.filter(a => span(a).every(v => v > 0.04 && v < 0.24));
+    const pick = (ok.length ? ok : ds)[Math.floor(rnd(card * 3 + 1) * (ok.length || ds.length))];
+    if (pick) pool.push({ card, path: pick.path });
+  }
+  return pool.sort((a, b) => rnd(a.card) - rnd(b.card)).slice(0, S.marks)
+    .sort((a, b) => a.card - b.card)
+    .map((m, i) => ({ ...m, no: i + 1, seed: m.card + i }));
+})();
+const centroid = p => { const n = p.length; return [p.reduce((s,q)=>s+q.x,0)/n, p.reduce((s,q)=>s+q.y,0)/n]; };
+
+function blotHTML(c){
+  // flat: 반점 이미지의 흰 배경이 곧 카드 배경이다 — 안쪽 패널을 두지 않는다
+  return `<div class="blot${c.flat ? ' flat' : ''}"><img src="${img(c.card)}"></div>`
+       + (c.num === false ? '' : `<span class="num">${RN[c.card-1]}</span>`);
+}
+
+/* 손으로 친 동그라미 — 타원을 한 바퀴 조금 넘게 그리고 반지름을 흔든다 (붓 자국) */
+function scribble(cx, cy, rx, ry, seed){
+  const rnd = (i) => Math.sin(seed * 12.9898 + i * 78.233) * 0.5 + 0.5;
+  const turn = 1.14, n = 34, tilt = (rnd(9) - 0.5) * 0.7;
+  let d = '';
+  for (let i = 0; i <= n; i++){
+    const a = -0.5 + (i / n) * turn * Math.PI * 2;
+    const w = 1 + (rnd(i) - 0.5) * 0.13;
+    const x = Math.cos(a) * rx * w, y = Math.sin(a) * ry * w;
+    d += `${i ? 'L' : 'M'}${(cx + x * Math.cos(tilt) - y * Math.sin(tilt)).toFixed(2)} ${(cy + x * Math.sin(tilt) + y * Math.cos(tilt)).toFixed(2)}`;
+  }
+  return `<path class="mark" d="${d}"/>`;
+}
+function chartHTML(){
+  let h = '<div class="chart">';
+  for (let n = 1; n <= 10; n++){
+    const areas = S.areasData[n] || [];
+    // W 영역의 사각형이 곧 반점의 테두리다 — 그만큼만 잘라 보여준다 (원본은 여백이 넓다)
+    const W = areas.find(a => a.type === 'W')?.path, xs = W ? W.map(p=>p.x*100) : [0,100], ys = W ? W.map(p=>p.y*100) : [0,100];
+    const pad = 3, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad;
+    let svg = `<image href="${img(n)}" x="0" y="0" width="100" height="100" preserveAspectRatio="none"/>`;
+    if (MARKS){                                                // 임상가가 즉흥으로 표시한 몇 군데만
+      for (const m of MARKS.filter(m => m.card === n)){
+        const xs2 = m.path.map(p=>p.x*100), ys2 = m.path.map(p=>p.y*100);
+        const cx = (Math.min(...xs2)+Math.max(...xs2))/2, cy = (Math.min(...ys2)+Math.max(...ys2))/2;
+        const cl = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+        const rx = cl((Math.max(...xs2)-Math.min(...xs2))/2 + 2.2, 3.4, 11), ry = cl((Math.max(...ys2)-Math.min(...ys2))/2 + 2.0, 3.4, 11);
+        // 번호는 동그라미 오른쪽 위. 잘리지 않게 잘라낸 영역 안으로 묶는다
+        const lx = cl(cx + rx + 3.2, x0 + 2.5, x1 - 2.5), ly = cl(cy - ry - 1.2, y0 + 2.5, y1 - 2.5);
+        svg += scribble(cx, cy, rx, ry, m.seed) + `<text class="mlab" x="${lx.toFixed(2)}" y="${ly.toFixed(2)}">${m.no}</text>`;
+      }
+    } else for (const a of areas){
+      if (a.type === 'W') continue;                              // 전체는 카드 자체다
+      const pts = a.path.map(p => `${(p.x*100).toFixed(2)},${(p.y*100).toFixed(2)}`).join(' ');
+      if (a.type === 'D'){
+        const [cx, cy] = centroid(a.path);
+        svg += `<polygon class="d" points="${pts}"/><text class="lab" x="${(cx*100).toFixed(2)}" y="${(cy*100).toFixed(2)}">${a.code}</text>`;
+      } else svg += `<polygon class="dd" points="${pts}"/>`;
+    }
+    h += `<div class="cell"><svg viewBox="${x0.toFixed(2)} ${y0.toFixed(2)} ${(x1-x0).toFixed(2)} ${(y1-y0).toFixed(2)}" preserveAspectRatio="none" style="aspect-ratio:${((x1-x0)*16/((y1-y0)*9)).toFixed(3)}">${svg}</svg><span class="rn">${RN[n-1]}</span></div>`;
+  }
+  return h + '</div>';
+}
+function sheetHTML(){
+  const COLW = [7,6,11,8,17,6,16,6,7,16];
+  let h = `<div class="sheet"><table><colgroup>${COLW.map(w=>`<col style="width:${w}%">`).join('')}</colgroup><thead><tr>${HEAD.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>`;
+  for (const r of S.rows)
+    h += `<tr class="${r[0] ? 'first' : ''}">${r.map((v,i)=>`<td class="${i===0?'rn':''}">${v}</td>`).join('')}</tr>`;
+  return h + '</tbody></table></div>';
+}
+
+const st = document.getElementById('stage');
+let html = '';
+if (S.ground === 'transparent'){                    // 배경 없는 PNG — 무늬를 그리지 않는다
+  st.style.background = 'transparent';
+} else {
+  st.style.background = S.ground;
+  html += '<div style="position:absolute;inset:0">';
+  for (const b of S.blobs){ const [ax, ay] = b.from.split(','); html += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`; }
+  html += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div></div>`;
+}
+if (S.title) html += `<div class="title">${S.title.eyebrow ? `<p class="eyebrow">${S.title.eyebrow}</p>` : ''}${S.title.h ? `<h2>${S.title.h}</h2>` : ''}</div>`;
+html += '<div class="lay">';
+S.cards.forEach((c, i) => {
+  const body = c.type === 'blot' ? blotHTML(c) : c.type === 'chart' ? chartHTML() : sheetHTML();
+  // 안쪽은 ref 폭(세 장 나란한 판의 크기)에서 그리고 배율만 올린다. cqw는 무대 폭 기준이라
+  // 카드만 키우면 글자와 여백이 상대적으로 작아진다 — 한 장씩 크게 뽑을 때 여기서 어긋났다.
+  const ref = c.ref ?? c.w, k = c.w / ref;
+  const faceStyle = `width:${ref}cqw;height:${(ref * c.h / c.w).toFixed(3)}cqw;transform:scale(${k.toFixed(4)});border-radius:${(1.2 / k).toFixed(3)}cqw`;
+  html += `<div class="slot" id="slot${i}"><div class="card" style="width:${c.w}cqw;height:${c.h}cqw${S.cardBg ? `;background:${S.cardBg}` : ''}"><div class="face" style="${faceStyle}">${body}</div></div>
+    ${c.label === false ? '' : `<span class="cap"><b>${String(i+1).padStart(2,'0')}</b>${c.label ?? ''}</span>`}</div>`;
+});
+html += '</div>';
+if (S.tag) html += `<p class="tag">${S.tag}</p>`;
+st.innerHTML = html;
+
+/* 카드 자세 — 가운데는 정면, 양옆은 안쪽으로 tilt. 들어올 때는 아래에서 떠오르며 각도가 잡힌다 */
+const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const easeOut = u => 1 - Math.pow(1 - clamp(u), 3);
+const n = S.cards.length;
+async function render(t){
+  const total = S.duration || 0;
+  for (let i = 0; i < n; i++){
+    const el = document.getElementById(`slot${i}`);
+    // pose가 있으면 그 각도로 고정한다 — 낱장으로 뽑아 나중에 나란히 놓을 때 방향이 어긋나지 않는다
+    const side = S.pose != null ? S.pose : n === 1 ? 0 : (i - (n - 1) / 2) / ((n - 1) / 2);  // -1 … 1
+    const e = total ? easeOut((t - i * S.stagger) / S.inDur) : 1;
+    const bob = total ? Math.sin(t * 1.1 + i * 1.7) * 0.35 : 0;   // 체류 중 미세 부유
+    el.style.opacity = e;
+    el.style.transform = `translateY(${((1 - e) * 14 * S.lift + bob).toFixed(3)}cqw) translateZ(${(-Math.abs(side) * 6).toFixed(2)}cqw) `
+      + `rotateY(${(-side * S.tilt * e).toFixed(2)}deg) rotateX(${(4 + (1 - e) * 14).toFixed(2)}deg)`;
+  }
+  const imgs = [...document.images].filter(i => !i.complete);
+  if (imgs.length) await Promise.all(imgs.map(i => i.decode().catch(() => {})));
+}
+render(parseFloat(q.get('t') || '0'));
+</script>

@@ -1,0 +1,22 @@
+{
+  "stage": "cards",
+  "size": [
+    2200,
+    2500
+  ],
+  "ground": "transparent",
+  "assets": "../../_tool/mindbom/apps/web/src/lib/assets/rorschach",
+  "areas": "../../_tool/mindbom/apps/web/static/rorschach/areas",
+  "pose": 0.55,
+  "marks": 4,
+  "markSeed": 7,
+  "cards": [
+    {
+      "type": "chart",
+      "w": 68,
+      "h": 91,
+      "label": false,
+      "ref": 27
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+<title>이음매</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;800&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488; --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --before:#3F5B66; --before-bg:#DCE4E7; --after:#A9702F; --after-bg:#F2E5D2;
+  --sceneA:#0E1B2E;
+  --f-d:'Hahmlet',serif; --f-b:'Gothic A1',system-ui,sans-serif; --f-m:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285; --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31; --after:#E0A662; --after-bg:#32261A;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285; --rule:#2F3739; --rule-2:#465051;
+  --before:#82ACBA; --before-bg:#1E2C31; --after:#E0A662; --after-bg:#32261A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-b);line-height:1.6;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px 64px}
+:focus-visible{outline:2px solid var(--after);outline-offset:2px}
+
+.mast{padding:40px 0 16px;border-bottom:2px solid var(--ink);display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.slate{font-family:var(--f-m);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 8px}
+.slate b{color:var(--before);font-weight:500}
+h1{font-family:var(--f-d);font-weight:800;font-size:clamp(34px,5vw,54px);line-height:1;letter-spacing:-.03em;margin:0}
+.lede{font-size:14px;color:var(--ink-2);max-width:52ch;margin:0}
+
+/* 프리셋 선택 — 일곱 개, 각각 원칙 한 줄 */
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:18px}
+.presets button{font:inherit;text-align:left;background:var(--surface);border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:10px 12px 11px;cursor:pointer;color:var(--ink)}
+.presets button b{font-family:var(--f-m);font-size:11.5px;letter-spacing:.06em;display:block;color:var(--ink)}
+.presets button span{display:block;font-size:11.5px;color:var(--ink-3);line-height:1.4;margin-top:2px}
+.presets button[aria-pressed=true]{background:var(--before-bg)}
+.presets button[aria-pressed=true] b{color:var(--before)}
+
+/* 세 화면 */
+.views{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-top:14px}
+.view{background:var(--surface);border:1px solid var(--rule)}
+.view .cap{font-family:var(--f-m);font-size:10px;letter-spacing:.14em;color:var(--ink-3);padding:9px 12px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:10px}
+.view .cap b{color:var(--ink);font-weight:500;text-align:right}
+.frame{position:relative;aspect-ratio:16/9;overflow:hidden;background:#000}
+.side{display:grid;grid-template-rows:1fr 1fr;gap:14px}
+.scene{position:absolute;inset:0;display:flex;align-items:flex-end;padding:5%;font-family:var(--f-m);letter-spacing:.14em;font-size:clamp(9px,1.2vw,13px)}
+.A{background:var(--sceneA);color:#8FA3BE;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.2px);background-size:14px 14px}
+.B{background:linear-gradient(135deg,#2F6BFF33,#DCE7F7 45%,#C7B4F244);color:#3E5F96}
+.B::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.55) 1px,transparent 1.2px);background-size:14px 14px;opacity:.6}
+.scene .t{position:absolute;top:5%;right:5%;font-size:clamp(14px,2.4vw,28px);font-family:var(--f-d);font-weight:600;letter-spacing:-.01em}
+.A .t{color:#E6E7E5}.B .t{color:#0B1A31}
+#fillB,#bandLayer,#matteFill,#ovFill{position:absolute;inset:0}
+#bandLayer{pointer-events:none}
+#matteFill{background:#fff}
+.checker{background-color:#9aa;background-image:linear-gradient(45deg,#8b9199 25%,transparent 25%),linear-gradient(-45deg,#8b9199 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#8b9199 75%),linear-gradient(-45deg,transparent 75%,#8b9199 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+
+.bar{display:flex;align-items:center;gap:14px;margin-top:12px;background:var(--surface);border:1px solid var(--rule);padding:10px 14px}
+.bar button{font:inherit;font-size:13px;font-weight:500;padding:6px 14px;border:1px solid var(--ink);background:var(--ink);color:var(--ground);cursor:pointer;border-radius:2px}
+.bar button.ghost{background:transparent;color:var(--ink)}
+.bar input[type=range]{flex:1;accent-color:var(--before)}
+.bar .t{font-family:var(--f-m);font-size:11px;color:var(--ink-2);min-width:12ch;text-align:right}
+
+.ctl{margin-top:12px;background:var(--surface);border:1px solid var(--rule);display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.ctl label{display:block;padding:10px 12px 11px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.ctl label.dim{opacity:.38}
+.ctl b{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;display:block;margin-bottom:4px}
+.ctl select,.ctl input[type=number]{width:100%;font:inherit;font-size:13px;padding:4px 7px;border:1px solid var(--rule-2);background:var(--band);color:var(--ink);border-radius:2px}
+.ctl input[type=range]{width:100%;accent-color:var(--after)}
+.ctl .v{font-family:var(--f-m);font-size:11px;color:var(--ink-2);float:right}
+.ctl .tog{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:3px}
+.ctl .tog input{accent-color:var(--after);width:14px;height:14px;margin:0}
+
+h2.sec{font-family:var(--f-m);font-size:11px;letter-spacing:.18em;font-weight:500;color:var(--ink-3);margin:40px 0 0;display:flex;align-items:center;gap:12px}
+h2.sec::after{content:"";flex:1;border-top:1px solid var(--rule)}
+h2.sec em{font-style:normal;color:var(--ink)}
+p.note{font-size:13.5px;color:var(--ink-2);max-width:72ch;margin:12px 0 0}
+p.note b{color:var(--ink);font-weight:500}
+pre{font-family:var(--f-m);font-size:12px;line-height:1.7;background:var(--surface);border:1px solid var(--rule);border-left:2px solid var(--after);padding:13px 16px;overflow-x:auto;margin:12px 0 0;white-space:pre;color:var(--ink)}
+.tbl{margin:12px 0 0;overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:13px;vertical-align:top;line-height:1.55}
+th{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.m{font-family:var(--f-m);font-size:11.5px;white-space:nowrap}
+code{font-family:var(--f-m);font-size:.88em;background:var(--band);padding:1px 5px}
+
+@media (max-width:820px){ .views{grid-template-columns:1fr} .side{grid-template-rows:none;grid-template-columns:1fr 1fr} }
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <div>
+    <p class="slate">MOEUM · 마인드스코프 ／ <b>26IRDEMO</b> ／ 전환 무대 wipe.html ／ 2026-09-10</p>
+    <h1>이음매</h1>
+  </div>
+  <p class="lede">일곱 전환을 브라우저에서 바로 돌려 본다. 조절한 값이 곧 렌더 spec이다 — 같은 기하가 <b>루마 매트</b>(어느 두 컷 사이에나 거는 모양)와 <b>RGBA 오버레이</b>(지나가는 그래픽) 둘로 구워진다.</p>
+</header>
+
+<div class="presets" id="presets">
+  <button data-p="shape" aria-pressed="true"><b>shape</b><span>물건 — 도형이 회전하며 날아와 화면이 된다</span></button>
+  <button data-p="dots"><b>dots</b><span>텍스처 — 이 무대의 도트가 전환이 된다</span></button>
+  <button data-p="slices"><b>slices</b><span>오프셋과 지연 — 8분할의 여덟 줄</span></button>
+  <button data-p="liquid"><b>liquid</b><span>변형 — 가장자리가 물처럼</span></button>
+  <button data-p="ink"><b>ink</b><span>번짐 — 종이 위 잉크, 기록의 재료</span></button>
+  <button data-p="band"><b>band</b><span>가림 — 물건이 컷을 가린다</span></button>
+  <button data-p="wipe"><b>wipe</b><span>축 공유 — 한 방향으로</span></button>
+  <button data-p="iris"><b>iris</b><span>돌리·줌 — 한 점으로 들어간다</span></button>
+</div>
+
+<div class="views">
+  <div class="view">
+    <div class="cap"><span>① 합성 — 컷 A → 컷 B</span><b id="capMode"></b></div>
+    <div class="frame" id="comp">
+      <div class="scene A"><span class="t">22:47</span><span>BEFORE · 컷 A</span></div>
+      <div id="fillB"><div class="scene B"><span class="t">09:15</span><span>AFTER · 컷 B</span></div></div>
+      <div id="bandLayer"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="view"><div class="cap"><span>② 루마 매트</span><b>matte:true → mp4</b></div><div class="frame" id="matte"><div id="matteFill"></div></div></div>
+    <div class="view"><div class="cap"><span>③ RGBA 오버레이</span><b>ProRes 4444</b></div><div class="frame checker" id="ov"><div id="ovFill"></div></div></div>
+  </div>
+</div>
+
+<div class="bar">
+  <button id="play">재생</button>
+  <button class="ghost" id="step">한 프레임</button>
+  <input type="range" id="scrub" min="0" max="1000" value="0">
+  <span class="t" id="tlabel"></span>
+</div>
+
+<div class="ctl" id="ctl">
+  <label data-for="all"><b>dir</b><select id="dir"><option>right</option><option>left</option><option>down</option><option>up</option><option>down-right</option><option>down-left</option><option>up-right</option><option>up-left</option></select></label>
+  <label data-for="all"><b>ease</b><select id="ease"><option value="inout">inout</option><option value="out">out</option><option value="in">in</option><option value="linear">linear</option></select></label>
+  <label data-for="all"><b>feather <span class="v" id="fv"></span></b><input type="range" id="feather" min="0" max="0.4" step="0.01" value="0.08"></label>
+  <label data-for="all"><b>duration <span class="v" id="dv"></span></b><input type="range" id="duration" min="0.2" max="2" step="0.05" value="0.9"></label>
+  <label data-for="dots slices"><b>stagger <span class="v" id="sv"></span></b><input type="range" id="stagger" min="0" max="0.9" step="0.05" value="0.5"></label>
+  <label data-for="dots"><b>cell (px@1920) <span class="v" id="cv"></span></b><input type="range" id="cell" min="16" max="160" step="4" value="48"></label>
+  <label data-for="slices"><b>slices <span class="v" id="nv"></span></b><input type="range" id="slices" min="2" max="24" step="1" value="8"><div class="tog"><input type="checkbox" id="alternate"><span>alternate</span></div></label>
+  <label data-for="liquid"><b>scale (px@1920) <span class="v" id="scv"></span></b><input type="range" id="scale" min="0" max="300" step="5" value="90"></label>
+  <label data-for="liquid ink"><b>freq <span class="v" id="frv"></span></b><input type="range" id="freq" min="0.002" max="0.03" step="0.001" value="0.006"><b style="margin-top:6px">seed</b><input type="number" id="seed" min="1" max="99" value="7"></label>
+  <label data-for="shape"><b>shape</b><select id="shape"><option value="rect">rect 16:9</option><option value="circle">circle</option><option value="hex">hex</option><option value="tri">tri</option></select><div class="tog"><input type="checkbox" id="cover"><span>cover — 덮고 빠진다</span></div></label>
+  <label data-for="shape"><b>spin <span class="v" id="spv"></span>°</b><input type="range" id="spin" min="0" max="1440" step="90" value="720"><b style="margin-top:6px">size0 <span class="v" id="s0v"></span></b><input type="range" id="size0" min="0.01" max="0.4" step="0.01" value="0.06"></label>
+  <label data-for="shape"><b>from x · y</b><div style="display:flex;gap:6px"><input type="number" id="fx" step="0.05" min="-0.3" max="1.3" value="0.12"><input type="number" id="fy" step="0.05" min="-0.3" max="1.3" value="0.88"></div></label>
+  <label data-for="band"><b>width (band) <span class="v" id="wv"></span></b><input type="range" id="width" min="0.05" max="0.8" step="0.01" value="0.32"></label>
+  <label data-for="iris"><b>center x · y</b><div style="display:flex;gap:6px"><input type="number" id="cx" step="0.05" min="0" max="1" value="0.5"><input type="number" id="cy" step="0.05" min="0" max="1" value="0.55"></div></label>
+  <label data-for="all"><b>옵션</b><div class="tog"><input type="checkbox" id="invert"><span>invert</span></div><div class="tog"><input type="checkbox" id="hold" checked><span>앞뒤 0.5s 정지</span></div></label>
+</div>
+
+<h2 class="sec"><em>렌더 spec</em> 이 값을 그대로 파일로</h2>
+<p class="note"><code>movies/26IRDEMO/_motion/transitions/이름.json</code>으로 저장 → <code>node .claude/skills/motion-stage/scripts/render.mjs 이름.json</code>. <b>matte</b>면 검정/흰 mp4, 아니면 투명 ProRes 4444(premultiplied). <code>shutter:4</code>는 4배로 찍어 평균 — Chrome엔 모션 블러가 없다.</p>
+<pre id="spec"></pre>
+
+<h2 class="sec"><em>왜 이 일곱인가</em> 원칙에서 왔다</h2>
+<div class="tbl"><table>
+<thead><tr><th class="m">preset</th><th>원칙</th><th>출처</th><th>이 영상에서의 자리</th></tr></thead>
+<tbody>
+<tr><td class="m">shape</td><td><b>물건이 전환이 된다</b> — 도형이 한 점에서 출발해 회전·이동·성장하며 화면이 된다. 매트면 창, cover면 덮개(컷은 그 아래)</td><td>container transform · 12원칙 #4 변형 + #9 가림</td><td>16:9 사각형이면 <b>iMac 화면이 날아와 자리를 잡는 것</b>과 운을 맞춘다</td></tr>
+<tr><td class="m">dots</td><td>브랜드의 텍스처가 전환이 된다 — 무대 배경의 반투명 도트가 자라 다음 컷을 연다</td><td>Material <b>container transform</b>의 정신(요소가 곧 컨테이너가 된다)</td><td>iMac 무대 → 풀프레임 UI. <b>오버숄더 0.8초 진입</b></td></tr>
+<tr><td class="m">slices</td><td><b>오프셋과 지연</b> — 같은 동작을 시차로 나누면 위계가 생긴다</td><td>Willenskomer 12원칙 #2</td><td><b>B4 8분할</b> 뒤 — 여덟 줄이 시차로 닦이며 다음 컷</td></tr>
+<tr><td class="m">liquid</td><td><b>변형</b> — 가장자리가 형태를 바꾸며 지나간다</td><td>12원칙 #4 · SVG 변위(Smashing 2021)</td><td>B5 대기실 → 밤(B6). 물처럼 흐르는 시간</td></tr>
+<tr><td class="m">ink</td><td>종이 위 잉크 — 이 영상의 고통은 <b>기록</b>이다. 재료가 전환이 된다</td><td>Ink transition(freefrontend 2026) · 노이즈 문턱값</td><td><b>B8 파일철 → 케어보드</b>. 종이가 번져 화면이 된다</td></tr>
+<tr><td class="m">band</td><td><b>가림(obscuration)</b> — 물건이 지나가며 컷을 가린다. 오브젝트 와이프</td><td>12원칙 #9 · 편집의 mask transition</td><td><b>역상 ①</b> 메모지 → 에이전트. 띠 = 메모지 색</td></tr>
+<tr><td class="m">wipe</td><td><b>축 공유(shared axis)</b> — 같은 방향으로 이어지면 관계가 읽힌다</td><td>Material 4패턴</td><td>AFTER 안 컷과 컷 사이. 항상 같은 방향(→)</td></tr>
+<tr><td class="m">iris</td><td><b>돌리·줌</b> — 한 점으로 들어가 다음 공간이 된다</td><td>12원칙 #12</td><td>엔드 직전. 아이가 들어오는 문 한 점에서</td></tr>
+</tbody></table></div>
+<p class="note"><b>큰 피벗은 이 중 어느 것도 아니다.</b> 1.2초 무음 · 명도 리프트 · 음악 진입은 <b>하드컷</b>이고 영상 전체에 한 번이다. 여기 일곱은 그 뒤의 작은 이음매다. 역상은 셋만 — 더 넣으면 기법이 인식되고, 기법이 인식되면 설득 지식이 켜진다(Friestad &amp; Wright).</p>
+
+</div>
+
+<script>
+(function(){
+  /* ── wipe.html 과 글자 단위로 같은 기하 ── */
+  const ANG = { right:90, left:270, down:180, up:0, 'down-right':135, 'down-left':225, 'up-right':45, 'up-left':315 };
+  const VEC = { right:[1,0], left:[-1,0], down:[0,1], up:[0,-1], 'down-right':[.7071,.7071], 'down-left':[-.7071,.7071], 'up-right':[.7071,-.7071], 'up-left':[-.7071,-.7071] };
+  const EASE = { linear:u=>u, in:u=>u*u*u, out:u=>1-Math.pow(1-u,3), inout:u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2 };
+  const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const pct = v => (v * 100).toFixed(3) + '%';
+  const svgURL = (W, H, inner) => `url("data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`)}")`;
+  function alongDir(S, x, y, W, H){
+    const [dx, dy] = VEC[S.dir] || VEC.right;
+    const c = [[0,0],[W,0],[0,H],[W,H]].map(([px,py]) => px*dx + py*dy);
+    const mn = Math.min(...c), mx = Math.max(...c);
+    return ((x*dx + y*dy) - mn) / (mx - mn);
+  }
+  function maskFor(S, p, W, H){
+    const f = S.feather, k = W / 1920;
+    const on = S.invert ? 'transparent' : '#000', off = S.invert ? '#000' : 'transparent';
+    const finish = (defs, shapes) => svgURL(W, H, defs + (S.invert
+      ? `<mask id="m"><rect width="${W}" height="${H}" fill="#fff"/>${shapes}</mask><rect width="${W}" height="${H}" fill="#000" mask="url(#m)"/>`
+      : shapes));
+    const blurDef = f > 0 ? `<filter id="fb" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${(f*W*0.12).toFixed(1)}"/></filter>` : '';
+    const grp = s => `<g fill="#000"${f > 0 ? ' filter="url(#fb)"' : ''}>${s}</g>`;
+    switch (S.preset){
+      case 'iris': { const [cx, cy] = S.center; const R = Math.hypot(Math.max(cx,1-cx)*W, Math.max(cy,1-cy)*H); const r = p*(1+f)*R, fr = f*R;
+        return `radial-gradient(circle at ${pct(cx)} ${pct(cy)}, ${on} ${Math.max(0,r-fr)}px, ${off} ${r}px)`; }
+      case 'band': { const w = S.width, e = p*(1+w+2*f) - f;
+        return `linear-gradient(${ANG[S.dir]}deg, ${off} ${pct(e-w-f)}, ${on} ${pct(e-w)}, ${on} ${pct(e)}, ${off} ${pct(e+f)})`; }
+      case 'dots': { const cell = S.cell*k, st = clamp(S.stagger), R = cell*0.75; let s = '';
+        for (let y = cell/2; y < H + cell; y += cell) for (let x = cell/2; x < W + cell; x += cell){
+          const lp = clamp((p - st*alongDir(S, x, y, W, H)) / (1 - st + 1e-6)), e = EASE.out(lp);
+          if (e > 0) s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(e*R).toFixed(1)}"/>`; }
+        return finish(blurDef, grp(s)); }
+      case 'slices': { const n = Math.max(2, S.slices|0), st = clamp(S.stagger); const horiz = !(S.dir === 'down' || S.dir === 'up'); let s = '';
+        const flip = d => ({ right:'left', left:'right', down:'up', up:'down' })[d] || 'left';
+        for (let i = 0; i < n; i++){ const lp = EASE.inout(clamp((p - st*i/(n-1)) / (1 - st + 1e-6)));
+          const d = S.alternate && i % 2 ? flip(S.dir) : (horiz ? (S.dir === 'left' ? 'left' : 'right') : S.dir);
+          if (horiz){ const h = H/n, w = W*lp; s += `<rect x="${d === 'left' ? W - w : 0}" y="${i*h}" width="${w}" height="${h+1}"/>`; }
+          else { const w = W/n, h = H*lp; s += `<rect x="${i*w}" y="${d === 'up' ? H - h : 0}" width="${w+1}" height="${h}"/>`; } }
+        return finish(blurDef, grp(s)); }
+      case 'liquid': { const sc = S.scale*k, blur = (f*W*0.08).toFixed(1), L = Math.hypot(W, H);
+        const [dx, dy] = VEC[S.dir] || VEC.right, h = (Math.abs(W*dx) + Math.abs(H*dy))/2;
+        const e = p*(1+f), edge = (-h - sc) + e*(2*h + 2*sc); const x0 = W/2 - h - sc - 4, x1 = W/2 + edge;
+        const defs = `<filter id="lq" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="${S.freq}" numOctaves="2" seed="${S.seed}" result="n"/><feGaussianBlur in="SourceGraphic" stdDeviation="${blur}" result="b"/><feDisplacementMap in="b" in2="n" scale="${sc.toFixed(1)}" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+        const shapes = `<g transform="rotate(${ANG[S.dir]-90} ${W/2} ${H/2})"><rect x="${x0.toFixed(1)}" y="${-L}" width="${Math.max(0,x1-x0).toFixed(1)}" height="${3*L}" fill="#000" filter="url(#lq)"/></g>`;
+        return finish(defs, shapes); }
+      case 'shape': {                                       // 도형이 회전하며 이동해 커진다 — 창(매트) 또는 덮개(cover)
+        const shp = S.shape || 'rect', ratio = S.ratio ?? 16/9, spin = S.spin ?? 720, D = Math.hypot(W, H);
+        const [fx, fy] = S.from ?? [0.12, 0.88], [tx, ty] = S.to ?? [0.5, 0.5], [ex, ey] = S.exit ?? [0.88, 0.12];
+        const full = shp === 'circle' ? D*1.02 : shp === 'rect' ? Math.max(W, H*ratio)*1.04 : D*1.25;
+        const s0 = (S.size0 ?? 0.06)*D;
+        let cx, cy, ang, size;
+        if (!S.cover){ cx = W*(fx + (tx-fx)*p); cy = H*(fy + (ty-fy)*p); ang = spin*p; size = s0 + (full-s0)*p; }
+        else if (p < 0.5){ const q = EASE.inout(p/0.5); cx = W*(fx + (tx-fx)*q); cy = H*(fy + (ty-fy)*q); ang = spin*0.5*q; size = s0 + (full-s0)*q; }
+        else { const q = EASE.inout((p-0.5)/0.5); cx = W*(tx + (ex-tx)*q); cy = H*(ty + (ey-ty)*q); ang = spin*0.5*(1+q); size = full + (s0-full)*q; }
+        const poly = n => `<polygon points="${Array.from({length:n}, (_, i) => { const a = -Math.PI/2 + i*2*Math.PI/n; return `${(0.5*Math.cos(a)).toFixed(4)},${(0.5*Math.sin(a)).toFixed(4)}`; }).join(' ')}"/>`;
+        const geo = shp === 'circle' ? `<circle r="0.5"/>` : shp === 'rect' ? `<rect x="-0.5" y="${(-0.5/ratio).toFixed(4)}" width="1" height="${(1/ratio).toFixed(4)}" rx="${S.rx ?? 0.03}"/>` : shp === 'hex' ? poly(6) : poly(3);
+        return finish(blurDef, grp(`<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${ang.toFixed(2)}) scale(${size.toFixed(1)})">${geo}</g>`));
+      }
+      case 'ink': { const K = 4 + (1-f)*56, th = 0.85 - p*0.9;
+        const defs = `<filter id="ink" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${S.freq}" numOctaves="3" seed="${S.seed}" result="n"/><feColorMatrix in="n" type="luminanceToAlpha" result="a"/><feComponentTransfer in="a" result="t"><feFuncA type="linear" slope="${K.toFixed(2)}" intercept="${(-K*th).toFixed(3)}"/></feComponentTransfer><feFlood flood-color="#000" result="f"/><feComposite in="f" in2="t" operator="in"/></filter>`;
+        return finish(defs, `<rect width="${W}" height="${H}" fill="#000" filter="url(#ink)"/>`); }
+      default: { const e = p*(1+f); return `linear-gradient(${ANG[S.dir]}deg, ${on} ${pct(e-f)}, ${off} ${pct(e)})`; }
+    }
+  }
+
+  /* ── 페이지 ── */
+  const $ = id => document.getElementById(id);
+  let preset = 'shape';
+  const DEF = { shape:{feather:0.01,ease:'inout',duration:1.1}, dots:{feather:0.02,ease:'linear',duration:0.9}, slices:{feather:0.0,ease:'linear',duration:0.9,slices:8,stagger:0.6}, liquid:{feather:0.1,ease:'inout',duration:1.0,freq:0.006}, ink:{feather:0.15,ease:'linear',duration:1.1,freq:0.012,seed:3}, band:{feather:0.02,ease:'inout',duration:1.0}, wipe:{feather:0.08,ease:'inout',duration:0.8}, iris:{feather:0.1,ease:'out',duration:0.9} };
+  const S = () => ({ preset, dir:$('dir').value, ease:$('ease').value, feather:+$('feather').value, duration:+$('duration').value,
+    stagger:+$('stagger').value, cell:+$('cell').value, slices:+$('slices').value, alternate:$('alternate').checked,
+    scale:+$('scale').value, freq:+$('freq').value, seed:+$('seed').value, width:+$('width').value,
+    center:[+$('cx').value, +$('cy').value], invert:$('invert').checked,
+    shape:$('shape').value, cover:$('cover').checked, spin:+$('spin').value, size0:+$('size0').value, from:[+$('fx').value, +$('fy').value] });
+  const setMask = (el, m) => { el.style.webkitMaskImage = m; el.style.maskImage = m; el.style.webkitMaskSize = el.style.maskSize = '100% 100%'; };
+  const MODE = { shape:'도형이 날아와 창이 된다', dots:'도트가 자라며 B를 연다', slices:'여덟 줄이 시차로 닦는다', liquid:'가장자리가 흐른다', ink:'잉크가 번지며 B가 된다', band:'띠 아래에서 하드컷', wipe:'매트로 드러내기', iris:'한 점에서 열린다' };
+
+  let t = 0, playing = false, last = 0;
+  function draw(){
+    const s = S(), hold = $('hold').checked ? 0.5 : 0, total = s.duration + hold*2;
+    const tt = clamp((t - hold) / s.duration), p = EASE[s.ease](tt);
+    const W = $('comp').clientWidth, H = $('comp').clientHeight;
+    const isBand = s.preset === 'band' || (s.preset === 'shape' && s.cover);
+    if (isBand){
+      $('fillB').style.webkitMaskImage = $('fillB').style.maskImage = 'none';
+      $('fillB').style.opacity = tt >= 0.5 ? 1 : 0;
+      $('bandLayer').style.background = 'var(--before)'; setMask($('bandLayer'), maskFor(s, p, W, H)); $('bandLayer').style.opacity = 1;
+    } else {
+      $('fillB').style.opacity = 1; setMask($('fillB'), maskFor(s, p, W, H)); $('bandLayer').style.opacity = 0;
+    }
+    $('capMode').textContent = (s.preset === 'shape' && s.cover ? '도형이 덮고, 아래에서 컷, 빠져나간다' : MODE[s.preset]) + (s.invert ? ' · invert' : '');
+    $('spv').textContent = s.spin; $('s0v').textContent = s.size0.toFixed(2);
+    setMask($('matteFill'), maskFor(s, p, $('matte').clientWidth, $('matte').clientHeight));
+    $('ovFill').style.background = 'var(--before)'; setMask($('ovFill'), maskFor(s, p, $('ov').clientWidth, $('ov').clientHeight));
+    $('scrub').value = Math.round(t/total*1000);
+    $('tlabel').textContent = `${Math.max(0,t-hold).toFixed(3)}s / ${s.duration.toFixed(2)}s`;
+    $('fv').textContent = s.feather.toFixed(2); $('dv').textContent = s.duration.toFixed(2)+'s'; $('sv').textContent = s.stagger.toFixed(2);
+    $('cv').textContent = s.cell; $('nv').textContent = s.slices; $('scv').textContent = s.scale; $('frv').textContent = s.freq.toFixed(3); $('wv').textContent = s.width.toFixed(2);
+    // spec
+    const spec = { stage:'wipe', preset:s.preset, dir:s.dir, feather:s.feather, ease:s.ease, duration:s.duration, fps:60, shutter:4, size:[1920,1080] };
+    if (s.preset==='band'){ spec.width = s.width; spec.color = '#3F5B66'; }
+    else if (s.preset==='shape'){ spec.shape = s.shape; spec.spin = s.spin; spec.size0 = s.size0; spec.from = s.from; if (s.cover){ spec.cover = true; spec.color = '#3F5B66'; } else spec.matte = true; }
+    else spec.matte = true;
+    if (s.preset==='iris') spec.center = s.center;
+    if (s.preset==='dots'){ spec.cell = s.cell; spec.stagger = s.stagger; }
+    if (s.preset==='slices'){ spec.slices = s.slices; spec.stagger = s.stagger; if (s.alternate) spec.alternate = true; }
+    if (s.preset==='liquid'){ spec.scale = s.scale; spec.freq = s.freq; spec.seed = s.seed; }
+    if (s.preset==='ink'){ spec.freq = s.freq; spec.seed = s.seed; }
+    if (s.invert) spec.invert = true;
+    $('spec').textContent = JSON.stringify(spec, null, 2);
+    // 관련 없는 조절은 흐리게
+    document.querySelectorAll('#ctl label').forEach(l => { const f = l.dataset.for; l.classList.toggle('dim', !(f === 'all' || f.split(' ').includes(s.preset))); });
+    return total;
+  }
+  function loop(now){ if (!playing) return; const dt = Math.min(0.05, (now-last)/1000); last = now; const total = draw(); t += dt; if (t > total) t = 0; requestAnimationFrame(loop); }
+  $('play').onclick = () => { playing = !playing; $('play').textContent = playing ? '정지' : '재생'; if (playing){ last = performance.now(); requestAnimationFrame(loop); } };
+  $('step').onclick = () => { playing = false; $('play').textContent = '재생'; const s = S(), hold = $('hold').checked?0.5:0; t = Math.min(t + 1/60, s.duration + hold*2); draw(); };
+  $('scrub').oninput = e => { playing = false; $('play').textContent = '재생'; const s = S(), hold = $('hold').checked?0.5:0; t = e.target.value/1000*(s.duration+hold*2); draw(); };
+  document.querySelectorAll('#ctl select,#ctl input').forEach(el => el.addEventListener('input', () => draw()));
+  document.querySelectorAll('#presets button').forEach(b => b.onclick = () => {
+    preset = b.dataset.p; document.querySelectorAll('#presets button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    const d = DEF[preset] || {}; for (const k in d){ const el = $(k); if (el) el.value = d[k]; }
+    t = 0.5 + (+$('duration').value)*0.45; draw();
+  });
+  window.addEventListener('resize', draw);
+  const d0 = DEF[preset]; for (const k in d0){ const el = $(k); if (el) el.value = d0[k]; }
+  t = 0.5 + (+$('duration').value)*0.45; draw();
+})();
+</script>

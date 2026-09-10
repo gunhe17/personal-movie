@@ -17,17 +17,31 @@ import path from 'node:path'
 
 /** VAD 상수(dictation.svelte.ts)에 맞춘 파형 — 말 1.2초 뒤 침묵 1.6초면 조각 하나가 끊긴다 */
 const LEAD_S = 0.1, SPEECH_S = 1.2, TAIL_S = 1.6
+
+/*
+ * 침묵을 늘리는 이유 — **조각과 조각 사이에 조작이 들어갈 자리.**
+ *
+ * 제품은 침묵 1.2초(`SILENCE_MS`)면 조각을 끊고 전사를 부른다. 그래서 조각 k의
+ * 전사는 늘 `말 시작 + 2.4초`쯤 도착하는데, 기본 파형은 주기가 2.9초라 그 뒤
+ * 0.5초 만에 다음 조각이 시작된다. 그 사이에 "칩을 고르고 영역을 그린다" 같은
+ * 왕복이 못 들어간다 — 다음 조각이 이미 시작돼 주인이 어긋난다.
+ *
+ * `silenceSec`을 늘리면 전사 도착 시각은 그대로(+2.4초)인 채 다음 조각만 멀어진다.
+ * s02가 3.6초를 쓴다 — 주기 4.8초, 조각 사이 여유 2.4초.
+ */
 const RATE = 48000
 /** 잡음 RMS ≈ 0.17. 제품의 발화 문턱 SPEECH_RMS=0.05보다 넉넉히 위 */
 const AMP = 0.3
 
 /** 말–침묵이 번갈아 드는 16bit PCM WAV를 만든다 (없을 때만) */
-export function ensureWav(file) {
+export function ensureWav(file, { speechSec = SPEECH_S, silenceSec = TAIL_S } = {}) {
+  // 파형이 다르면 파일도 달라야 한다 — 같은 이름으로 캐시하면 앞 장면의 주기가 그대로 재사용된다
+  file = file.replace(/\.wav$/, `-${speechSec}-${silenceSec}.wav`)
   if (fs.existsSync(file)) return file
   fs.mkdirSync(path.dirname(file), { recursive: true })
-  const n = Math.round((LEAD_S + SPEECH_S + TAIL_S) * RATE)
+  const n = Math.round((LEAD_S + speechSec + silenceSec) * RATE)
   const pcm = Buffer.alloc(n * 2)
-  const from = Math.round(LEAD_S * RATE), to = Math.round((LEAD_S + SPEECH_S) * RATE)
+  const from = Math.round(LEAD_S * RATE), to = Math.round((LEAD_S + speechSec) * RATE)
   for (let i = from; i < to; i++) {
     // 가장자리를 재워 툭 끊기는 소리(클릭)를 없앤다 — 클릭 하나가 발화로 잡힌다
     const edge = Math.min(1, Math.min(i - from, to - i) / (0.05 * RATE))
@@ -52,11 +66,16 @@ export function sttArgs(wav) {
 /** 전사 응답을 대본으로 갈아 끼운다. `lines`를 순서대로 하나씩 돌려준다 */
 export async function installStt(context, lines) {
   const queue = [...lines]
-  await context.route('**/transcribe-clip', (route) =>
+  const t0 = Date.now()
+  let n = 0
+  await context.route('**/transcribe-clip', (route) => {
+    const text = queue.shift() ?? ''
+    // 몇 번째 조각이 언제 나갔는지 남긴다 — 조각과 조작의 순서가 어긋나면
+    // 화면에는 "그냥 안 채워진 칸"으로만 보인다. 이 줄이 없으면 원인을 못 짚는다.
+    console.error(`[stt] ${++n}번째 조각  t=${((Date.now() - t0) / 1000).toFixed(1)}s  ${text ? `"${text.slice(0, 18)}…"` : '(대본 소진 — 빈 응답)'}`)
     route.fulfill({
       status: 200, contentType: 'application/json',
-      body: JSON.stringify(queue.length
-        ? { text: queue.shift(), detected: true }
-        : { text: '', detected: false })   // 대본 소진 — 제품이 무시한다
-    }))
+      body: JSON.stringify(text ? { text, detected: true } : { text: '', detected: false })
+    })
+  })
 }

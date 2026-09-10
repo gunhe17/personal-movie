@@ -1,0 +1,1 @@
+{ "stage":"wipe", "preset":"shape", "shape":"rect", "spin":720, "size0":0.05, "from":[0.12,0.88], "feather":0.01, "ease":"inout", "duration":1.1, "fps":60, "shutter":4, "size":[1920,1080], "matte":true }

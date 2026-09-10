@@ -1,0 +1,16 @@
+{
+  "stage": "cards",
+  "size": [
+    3840,
+    2160
+  ],
+  "fps": 60,
+  "assets": "../../_tool/mindbom/apps/web/src/lib/assets/rorschach",
+  "areas": "../../_tool/mindbom/apps/web/static/rorschach/areas",
+  "title": {
+    "eyebrow": "S02 · 검사 실시",
+    "h": "종이 채점지가 화면이 된다"
+  },
+  "tag": "26IRDEMO · s02 · 로샤 자료",
+  "duration": 3.2
+}

@@ -1,12 +1,12 @@
 # 비밀
 .env
 .env.*
-movies/26IRDEMO/_state/local-*.json
+# movies/26IRDEMO/_state/local-*.json
 
 # 촬영 원본·빌드 산출물 (meta.json · stills · manifest는 남긴다)
-movies/26IRDEMO/**/raw/*.mov
-movies/26IRDEMO/**/stills/.devshot.png
-.claude/skills/capture-service/scripts/sckcap
+# movies/26IRDEMO/**/raw/*.mov
+# movies/26IRDEMO/**/stills/.devshot.png
+# .claude/skills/capture-service/scripts/sckcap
 
 # 벤치 테스트 영상 (make-*.sh로 재생성)
 lab/bench/*.mp4
@@ -14,4 +14,4 @@ lab/bench/*.mp4
 # OS / 에디터
 .DS_Store
 node_modules/
-_mocks/.stt-clip.wav
+_mocks/.stt-clip*.wav
