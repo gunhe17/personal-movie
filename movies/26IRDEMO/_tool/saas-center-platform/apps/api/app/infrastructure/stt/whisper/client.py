@@ -53,7 +53,12 @@ class WhisperSTTClient(STTProvider):
         self.api_key = api_key
         self.model = model
         self.diarize_model = diarize_model
-        self._client = AsyncOpenAI(api_key=api_key)
+        # 로컬 촬영에서는 base_url로 대역을 끼운다(`_scripts/llm-stub.mjs`) — 비어 있으면 공식 API 그대로다.
+        # 시뮬레이터에는 사람의 말이 없으므로 진짜 Whisper를 부를 이유가 없다(촬영 규칙 5와 같은 원칙).
+        from app.core.config import settings as _settings
+
+        _base = getattr(_settings, "OPENAI_BASE_URL", "") or None
+        self._client = AsyncOpenAI(api_key=api_key, base_url=_base)
 
     @staticmethod
     def _is_gpt4o_model(model: str) -> bool:

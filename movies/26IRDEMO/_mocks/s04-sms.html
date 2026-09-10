@@ -1,0 +1,72 @@
+<!-- s04 · 문자 목업 — 바로링크가 도착한 폰 화면.
+     제품에 없는 유일한 조각이라 여기서 만든다(iOS 시뮬레이터 메시지 앱은 sms.db를 안 읽는다 — 실측 2026-09-10).
+     문구는 제품이 실제로 보내는 템플릿 그대로다(SendLinkModal '메시지 미리보기').
+     링크는 진짜다 — 누르면 그 자리에서 /verify-link로 넘어가 한 컷으로 이어진다.
+     발신번호는 시드 밖의 지어낸 번호이고, 수신자 이름은 s04가 입력하는 '윤보호'와 같다. -->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>메시지</title>
+<style>
+  :root { --ios-blue:#007aff; --bubble:#e9e9eb; --line:#c6c6c8; }
+  * { box-sizing:border-box; -webkit-font-smoothing:antialiased }
+  html,body { margin:0; height:100%; background:#fff;
+    font:400 17px/1.45 -apple-system,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    color:#000; }
+  /* 상단 상태바(시계·와이파이·배터리)는 두지 않는다 — 폰 목업의 프레임이 그 역할을 한다(2026-09-10 결정) */
+  header { border-bottom:.5px solid var(--line); padding:22px 16px 10px; text-align:center }
+  header .who { font-size:11px; color:#8a8a8e; margin-top:4px }
+  header .avatar { width:50px; height:50px; border-radius:50%; background:#c7c7cc; margin:0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff }
+  header .name { font-size:12px; margin-top:5px; font-weight:500 }
+  .day { text-align:center; font-size:11px; color:#8a8a8e; margin:14px 0 8px; font-weight:600 }
+  .thread { padding:0 12px 12px }
+  .bubble { max-width:84%; background:var(--bubble); border-radius:19px; padding:10px 14px;
+    font-size:16px; line-height:1.42; white-space:pre-wrap; word-break:break-all; position:relative }
+  .bubble::after { content:""; position:absolute; left:-5px; bottom:0; width:16px; height:18px;
+    background:var(--bubble); border-bottom-right-radius:16px; z-index:-1 }
+  a { color:var(--ios-blue); text-decoration:underline; text-underline-offset:2px }
+  .code { font-weight:600 }
+  .composer { position:fixed; left:0; right:0; bottom:0; padding:8px 12px 26px; background:#fff;
+    border-top:.5px solid var(--line); display:flex; gap:8px; align-items:center }
+  .composer .box { flex:1; height:36px; border:.5px solid var(--line); border-radius:18px;
+    padding:0 14px; display:flex; align-items:center; color:#a9a9ae; font-size:16px }
+</style>
+
+<header>
+  <div class="avatar">👤</div>
+  <div class="name">02-6919-1234</div>
+  <div class="who">문자 메시지 · 오늘</div>
+</header>
+
+<div class="thread">
+  <div class="day">오늘 오전 10:51</div>
+  <div class="bubble">[마인드스코프 아동심리상담센터]
+
+안녕하세요, 윤보호님.
+
+바로링크를 안내드립니다.
+아래 링크에서 인증번호를 입력한 후 이용 가능한 검사와 안내를 확인해주세요.
+
+■ 바로링크: <a id="barolink" href="#">확인 중…</a>
+■ 인증번호: <span class="code" id="code">----</span>
+
+감사합니다.</div>
+</div>
+
+<div class="composer"><span class="box">문자 메시지</span></div>
+
+<script>
+  // 링크·인증번호는 촬영 때마다 바뀐다 — 쿼리스트링으로 받는다.
+  //   _mocks/s04-sms.html?id=<send_link_id>&code=<4자리>&base=<이동할 주소>&host=<보일 주소>
+  //
+  // **보이는 주소와 가는 주소가 다르다.** 화면에는 운영 도메인(app.mindscope.kr)이 찍히고,
+  // 실제로는 이 기계의 로컬 주소로 간다 — 로컬에 그 도메인을 세우려면 hosts와 TLS까지 필요하고,
+  // 문자 화면은 어차피 목업이라 거기까지 갈 값이 없다. 그 뒤의 화면은 전부 진짜 제품이다.
+  const q = new URLSearchParams(location.search)
+  const base = q.get('base') || 'http://localhost:3503'
+  const host = q.get('host') || 'https://app.mindscope.kr'
+  const id = q.get('id') || ''
+  const a = document.getElementById('barolink')
+  a.href = base + '/verify-link?send_link_id=' + id
+  a.textContent = host.replace(/\/$/, '') + '/verify-link?send_link_id=' + id
+  document.getElementById('code').textContent = q.get('code') || '----'
+</script>

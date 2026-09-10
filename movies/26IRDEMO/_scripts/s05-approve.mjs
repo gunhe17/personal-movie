@@ -6,14 +6,17 @@
 // 시작 URL: /schedule/reservations
 export default async function steps(page, h) {
   // ① 요청이 왔다 — 기존 9/17 10:00 → 변경 9/18 16:00, 사유까지 한 줄에
-  await h.beat('변경 요청 — 대기 한 줄')
-  await h.reveal('text=이하준', '누가 · 언제에서 언제로 · 왜')
+  await h.beat('변경 요청 — 누가 · 언제에서 언제로 · 왜')
+  // `reveal('text=이하준')`을 뺐다 — 대기 한 줄이 화면 안에 있어 t05에서 스크롤이 일어나지 않았고
+  //  (실측 간격 0.12초) `beat` 0.7초만 남아 있었다. 이미 보이는 것을 다시 보여주지 않는다(s01 배치 규칙).
 
   // ② 바로 누르지 않는다. 그 시각이 비는지 스케줄에서 본다
   h.nocutStart('요청 → 스케줄에서 확인 → 승인')
   // 사이드바의 캘린더 링크는 href='/schedule', 라벨은 '일정'이다(옆의 '변경 요청'에 대기 배지가 붙는다)
   await h.click('a[href="/schedule"]', '스케줄로')
   await h.until('text=요청 날짜 보기', '캘린더 — 요청이 배너로 떠 있다')
+  // 처음 보는 화면에는 `beat`를 준다 — s01 '에이전트 화면' · s03 '편집기'와 같은 급이다.
+  await h.beat('스케줄 — 요청이 배너로 떠 있다')
 
   await h.click('button:has-text("요청 날짜 보기")', '요청 날짜 보기')
   await h.until('text=2026-09-18', '9/18 일간 뷰 — 요청한 시각의 하루')
@@ -34,6 +37,7 @@ export default async function steps(page, h) {
   await h.until('text=일정을 변경했어요', '회기가 그 자리로 옮겨진다')
   h.nocutEnd()
 
-  await h.beat('캘린더에 반영된 회기')
-  await h.hold(600, '끝')
+  // 도착이 곧 결말이라 닫는 `hold` 하나로 끝낸다 — s01이 '검사 현황에 새 케이스'를,
+  // s04가 '전송 내역에 수신인'을 같은 모양으로 닫았다. 여기 `beat`를 더 두면 0.7초를 더 쳐다본다.
+  await h.hold(600, '끝 — 캘린더에 반영된 회기')
 }

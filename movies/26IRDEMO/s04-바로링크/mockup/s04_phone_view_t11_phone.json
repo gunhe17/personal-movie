@@ -1,0 +1,10 @@
+{
+  "stage": "phone",
+  "size": [
+    3840,
+    2160
+  ],
+  "fps": 60,
+  "screen": "../raw/s04_phone_view_t11.mov",
+  "phoneH": 86
+}

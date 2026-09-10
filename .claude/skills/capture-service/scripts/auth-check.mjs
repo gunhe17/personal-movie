@@ -50,6 +50,17 @@ const PATHS = ['/api/auth/check', '/api/proxy/auth/me']
 /** @returns {Promise<{ok: boolean, why: string}>} ok=false면 촬영하지 않는다 */
 export async function checkAuth(context, url, timeout = 8000) {
   const base = new URL(url).origin
+
+  /*
+   * **센터 로그인이 아닌 상태 파일은 이 검사의 대상이 아니다.**
+   * 바로링크(s04-B)는 회원이 아니라 **링크 세션**으로 연다 — 상태 파일에 든 것은
+   * `barolink_<linkId>` 쿠키 하나이고, 회원 엔드포인트(`/api/proxy/auth/me`)에는 당연히 401이다.
+   * 그걸 죽음으로 세면 멀쩡한 촬영이 막힌다. 회원 쿠키가 하나도 없으면 그냥 지나간다.
+   */
+  const cookies = await context.cookies().catch(() => [])
+  const memberish = cookies.some((c) => /^(accessToken|refreshToken)$/.test(c.name))
+  if (cookies.length && !memberish)
+    return { ok: true, why: '회원 로그인이 아닌 상태 파일 — 검사 건너뜀' }
   let seen404 = 0
   for (const p of PATHS) {
     let res

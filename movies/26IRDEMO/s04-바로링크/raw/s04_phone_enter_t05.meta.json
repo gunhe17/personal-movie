@@ -1,0 +1,266 @@
+{
+  "id": "s04_phone_enter_t05",
+  "scene": "s04-바로링크",
+  "device": "phone",
+  "action": "enter",
+  "take": "t05",
+  "captured_at": "2026-09-10T15:00:31.650Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "file:///Users/markos/workspace/service/personal-movie/movies/26IRDEMO/_mocks/s04-sms.html?id=a0213f04-96cf-4b2c-b0ae-2c1077ccb808&code=1164&base=http://localhost:3503",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 816,
+      "appended": 1149,
+      "dupped": 365,
+      "notReady": 0,
+      "ticks": 1149,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s04-enter.mjs",
+    "sha256": "c9b701190befbb5af489f76df6113ff5b81f22fdc28c616728cde303a0e1b580"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.23,
+      "kind": "beat",
+      "target": "",
+      "note": "문자 한 통 — 바로링크와 인증번호"
+    },
+    {
+      "t": 3.37,
+      "kind": "click",
+      "target": "#barolink",
+      "note": "바로링크를 누른다"
+    },
+    {
+      "t": 5.74,
+      "kind": "until",
+      "target": "section[aria-label=\"바로링크 인증\"]",
+      "note": "\"문자로 받은 번호 네 자리를 입력해주세요\" (+2.1s)"
+    },
+    {
+      "t": 6.44,
+      "kind": "beat",
+      "target": "",
+      "note": "계정도 앱도 없이, 문자에 온 네 자리로 들어간다"
+    },
+    {
+      "t": 6.8,
+      "kind": "hold",
+      "target": "300",
+      "note": "인증번호 1"
+    },
+    {
+      "t": 7.12,
+      "kind": "hold",
+      "target": "300",
+      "note": "인증번호 2"
+    },
+    {
+      "t": 7.43,
+      "kind": "hold",
+      "target": "300",
+      "note": "인증번호 3"
+    },
+    {
+      "t": 7.78,
+      "kind": "hold",
+      "target": "300",
+      "note": "인증번호 4"
+    },
+    {
+      "t": 9.03,
+      "kind": "until",
+      "target": "text=나의 검사",
+      "note": "들어왔다 — 나의 검사 (+1.2s)"
+    },
+    {
+      "t": 9.73,
+      "kind": "beat",
+      "target": "",
+      "note": "검사와 상담 기록이 한 화면에"
+    },
+    {
+      "t": 10.57,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "검사를 연다"
+    },
+    {
+      "t": 11.07,
+      "kind": "until",
+      "target": "[data-question-number]",
+      "note": "문항이 5개씩 (+0.3s)"
+    },
+    {
+      "t": 11.72,
+      "kind": "click",
+      "target": "locator('[data-question-number]').first().locator('label').nth(1)",
+      "note": "문항 1 — 두 번째 보기"
+    },
+    {
+      "t": 12.19,
+      "kind": "hold",
+      "target": "220",
+      "note": "답하면 다음 문항으로 스스로 내려간다"
+    },
+    {
+      "t": 12.86,
+      "kind": "click",
+      "target": "locator('[data-question-number]').nth(1).locator('label').nth(1)",
+      "note": "문항 2 — 두 번째 보기"
+    },
+    {
+      "t": 13.32,
+      "kind": "hold",
+      "target": "220",
+      "note": "답하면 다음 문항으로 스스로 내려간다"
+    },
+    {
+      "t": 13.95,
+      "kind": "click",
+      "target": "locator('[data-question-number]').nth(2).locator('label').nth(1)",
+      "note": "문항 3 — 두 번째 보기"
+    },
+    {
+      "t": 14.41,
+      "kind": "hold",
+      "target": "220",
+      "note": "답하면 다음 문항으로 스스로 내려간다"
+    },
+    {
+      "t": 15.05,
+      "kind": "click",
+      "target": "locator('[data-question-number]').nth(3).locator('label').nth(1)",
+      "note": "문항 4 — 두 번째 보기"
+    },
+    {
+      "t": 15.51,
+      "kind": "hold",
+      "target": "220",
+      "note": "답하면 다음 문항으로 스스로 내려간다"
+    },
+    {
+      "t": 16.2,
+      "kind": "click",
+      "target": "locator('[data-question-number]').nth(4).locator('label').nth(1)",
+      "note": "문항 5 — 두 번째 보기"
+    },
+    {
+      "t": 16.66,
+      "kind": "hold",
+      "target": "220",
+      "note": "답하면 다음 문항으로 스스로 내려간다"
+    },
+    {
+      "t": 16.93,
+      "kind": "until",
+      "target": "button:has-text(\"다음\"):not([disabled])",
+      "note": "다섯을 채우면 다음이 살아난다 (+0.3s)"
+    },
+    {
+      "t": 17.28,
+      "kind": "hold",
+      "target": "350",
+      "note": "집에서 폰으로 바로 응시한다"
+    },
+    {
+      "t": 17.88,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 17.88,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.23,
+      "note": "문자에서 링크 하나로 들어간다",
+      "end": 9.73
+    },
+    {
+      "start": 9.73,
+      "note": "링크 안에서 바로 응시한다",
+      "end": 16.93
+    }
+  ],
+  "retake_of": "t04",
+  "retake_reason": "설문을 h.click으로 — 커서가 보기까지 실제로 옮겨가고 SPEC 클릭 리듬을 탄다(문항당 0.3초 → 1.1초)",
+  "result": {
+    "file": "raw/s04_phone_enter_t05.mov",
+    "duration": 19.15,
+    "ok": true,
+    "error": null
+  }
+}

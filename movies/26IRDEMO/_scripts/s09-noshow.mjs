@@ -10,6 +10,9 @@ export default async function steps(page, h) {
 
   await h.click('button:has-text("노쇼했어요")', '노쇼로 표시')
   await h.until('textarea[placeholder="사유를 입력해주세요"]', '노쇼 모달 — 사유 + 회기 차감')
+  // 모달이 열린 뒤 첫 조작까지의 박자는 SPEC의 `modal`(600)이 정본이다 — `until`의 settle 0.26만으로는
+  // 사유 칸과 차감 스위치가 한 모달에 같이 있다는 것을 읽을 틈이 없다.
+  await h.modal('사유와 차감이 한 자리에')
 
   // 사유 = 차감·청구의 근거를 사람 말로 만드는 자리. 500자 제한, 저장되면 회기 기록에 남는다.
   await h.type(
@@ -32,5 +35,6 @@ export default async function steps(page, h) {
   await h.until('text=회기 차감', '회기 차감 배지')
   h.nocutEnd()
 
-  await h.hold(2000, '끝 — 잠긴 회기에 사유와 차감이 함께 남아 있다')
+  // 끝맺음은 s01·s04·s05와 같은 0.6초 — 뒤에 tail 1.2초가 더 붙어 실제로 보이는 시간은 1.8초다.
+  await h.hold(600, '끝 — 잠긴 회기에 사유와 차감이 함께 남아 있다')
 }

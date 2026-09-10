@@ -1,5 +1,68 @@
 # s06-필드노트 — 기억으로 쓰는 일지
 
+## 앱 절반 — 데모 라우트로 풀었다 (2026-09-11)
+
+**선택본 `s06_phone_fieldnote-rec_t04` — 30.02초 · 804×1748.** 목업 `mockup/s06_phone_fieldnote-rec_t04_phone.mp4`.
+
+> **경과 타이머는 전사 시각을 따라간다.** t03은 타이머가 00:14인데 전사가 03:34이라 어긋났다 —
+> 녹음은 이미 몇 분째 돌고 있는 것이므로, 줄이 뜰 때마다 타이머를 그 줄의 시각으로 맞춘다(03:03 → 03:47).
+
+녹음 화면이 **움직이는 모습**은 시뮬레이터로 못 찍는다 — `idb`가 없어 `바로 녹음`을 못 누르고,
+시뮬레이터에 마이크 입력이 없어 실시간 전사가 애초에 돌지 않는다. 그래서 제품에 촬영용 라우트를 하나 더했다.
+
+**`app/(main)/field-note/demo.tsx`** — 제품의 `RecordingScreen`을 **그대로** 렌더하고 상태만 대본으로 흘린다.
+화면을 다시 그리지 않으므로 디자인·치수·색이 앱과 어긋날 수가 없다. 새 파일 하나뿐이고 다른 제품 코드는 안 건드린다.
+(HTML로 화면을 재현한 판도 만들어 봤지만 — t01 — 아무리 값을 맞춰도 같지 않아 버렸다.)
+
+| 흘리는 것 | 무엇 |
+|---|---|
+| `timerFormatted` | 1초씩 오르는 경과 시간 |
+| `meteringRef` | 말–쉼이 번갈아 드는 진폭(dBFS) → **제품의 파형이 실제로 움직인다** |
+| `recOpacity` | 녹음 배지 깜박임 — 제품이 쓰는 그 값 |
+| `recordingTimeline` | 전사 줄이 시각과 함께 쌓인다. 대사는 `s06-setup.sql`의 윤도현 1회기 전사 |
+| `handlers` | 전부 무동작 — 조작이 없는 장면이다 |
+
+```bash
+cd .claude/skills/phone-stage/scripts
+CAP_PASSWORD=… node stage.mjs up --account counselor1 --route /field-note/demo
+# 촬영은 **앱을 내리고 촬영 중에 딥링크로 새로 연다** — 안 그러면 이미 돌던 타이머가 00:56에서 시작한다(t02)
+xcrun simctl terminate booted kr.mindscope.app.dev
+cd ../../capture-service/scripts
+( sleep 4; xcrun simctl openurl booted 'mindscope-dev:///field-note/demo' ) &
+node capture-phone.mjs --scene s06-필드노트 --action fieldnote-rec --udid booted \
+  --app kr.mindscope.app.dev --seed _seed/saas-2026-09-10e.json --manual --seconds 24
+```
+
+> ⚠️ **`demo.tsx`는 촬영용이다.** 운영 빌드에 들어가면 안 된다. `_tool/`은 커밋되지 않으므로
+> 이 줄과 STATUS.md의 제품 변경 표가 그 존재의 유일한 기록이다.
+
+### 앱 절반은 테이크 셋이다
+
+| 테이크 | 무엇 | 비고 |
+|---|---|---|
+| `fieldnote-app_t01` (18.60s) | 앱 홈 → 필드노트 홈 → 회기 선택 시트 | 진짜 앱 |
+| `fieldnote-list_t01` (14.00s) | **필드노트 홈 — 최근 노트 목록** | 진짜 앱 |
+| `fieldnote-rec_t04` (30.02s) | **녹음 화면**(타이머 03:03→03:47 · 전사가 쌓인다) | 데모 라우트 |
+
+**목록 → 녹음의 진입 전환은 컷으로 잇는다.** 딥링크로 그 전환을 찍으려 세 판(`fieldnote-open_t01~t03`)을
+태웠는데 전부 실패했다 — expo-router가 데모 화면을 **스택에 물고 있어** 다시 링크해도 새로 마운트되지 않고
+(타이머도 리셋되지 않는다) 전환이 기록기가 켜지기 전에 끝나 버린다. `idb`가 있으면 탭으로 해결되는 자리다.
+
+> 앱의 **필드노트 상세**(`_quick?fieldNoteId=…`)는 지금 데이터로는 `녹음된 음성이 없어요`다 —
+> 시드의 필드노트 넷이 전부 `field_note_audios` 0행이라 그렇다. 전사는 웹 절반이 보여준다.
+
+앞 테이크 `s06_phone_fieldnote-app_t01`(18.60초)은 **진짜 앱**으로 찍은 앱 홈 → 필드노트 홈 → 회기 선택 시트다.
+목업도 있다(`mockup/s06_phone_fieldnote-app_t01_phone.mp4`). 둘을 이어 붙이면 앱 절반이 선다.
+
+## 촬영 (2026-09-11 새벽 · SPEC v6 · s01 배치 규칙)
+
+**선택본 `s06_web_fieldnote_t05` — 15.47초 · 충실도 100% · 드롭 0 · 노컷 2.79–13.67.**
+목업 `mockup/s06_web_fieldnote_t05_imac.mp4`.
+
+배치는 이미 규칙에 맞았다 — 내려가서 읽는 `reveal`은 s01의 ③(보이는 것을 다 전달했으면 그때 내린다)에 해당해 유지했다. SPEC v4 → v6 재촬영이다.
+
+부하로 굶은 판은 `_scripts/capture-until-good.sh`가 자동으로 다시 찍는다(기준 충실도 98%).
+
 기기: 전문가 앱(시뮬레이터) + web  ※ 실기기 녹음은 하지 않는다 — features.md
 배역: **검사 축 — 윤도현**(2014-05-08 · 만 12세) · 개인상담 C00003 1회기(**2026-09-09 (수) 16:00–16:50**) · 상담사 정상담  (정본 CAST.md)
 시드: `_seed/saas-2026-09-10c.json` (sha256 앞 8자리 `c901b092`)

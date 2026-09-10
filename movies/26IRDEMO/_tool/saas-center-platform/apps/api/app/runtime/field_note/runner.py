@@ -186,7 +186,7 @@ class PipelineRunner:
                     await uow.commit()
             await self._dispatch_event(event_group_id)
         except Exception as e:
-            logger.warning(f"Audio transcript save skipped: {audio_id}: {e}")
+            logger.warning(f"Audio transcript save skipped: {audio_id}: {type(e).__name__}: {e}", exc_info=True)
 
     async def _set_statuses(
         self,

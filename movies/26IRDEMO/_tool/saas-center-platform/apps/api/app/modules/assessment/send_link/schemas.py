@@ -122,6 +122,20 @@ class LinkScheduleItem(BaseModel):
     assessment_names: list[str]
 
 
+class LinkJournalItem(BaseModel):
+    """바로링크로 보이는 상담 기록 한 편.
+
+    **발행된 공유문만** 나간다 — 임상 원문(counseling_notes)은 여기 절대 실리지 않는다.
+    앱(client_app)이 보는 것과 같은 집합이고, 게이트만 다르다(앱은 가족-센터 연결,
+    여기는 링크 인증). 그래서 필드도 앱의 AppSessionShareItem과 같은 둘이다.
+    """
+
+    session_id: str
+    session_no: int | None = None
+    text: str | None = None
+    published_at: datetime | None = None
+
+
 class LinkVerifyResponse(BaseModel):
     access_token: str
     center_id: str
@@ -130,3 +144,4 @@ class LinkVerifyResponse(BaseModel):
     recipient_name: str | None = None
     tasks: list[LinkTaskItem]
     schedules: list[LinkScheduleItem] = Field(default_factory=list)
+    journals: list[LinkJournalItem] = Field(default_factory=list)

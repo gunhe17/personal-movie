@@ -54,10 +54,11 @@ export default async function steps(page, h) {
   await h.click(page.getByRole('button', { name: '케어보드 열기' }), '케어보드 열기')
 
   await h.until(page.getByText('회의 자료에'), '김원장의 답이 같은 보드에 도착해 있다')
-  await h.beat('전달해야 하던 일이, 남겨두면 되는 일이 된다')
   h.nocutEnd()
 
-  await h.hold(1500, '끝')
+  // 도착이 곧 결말이라 닫는 `hold` 하나로 끝낸다 — s01 '검사 현황에 새 케이스' · s04 '전송 내역' ·
+  // s05 '캘린더에 반영'과 같은 모양이다. `beat` + `hold(1500)`은 같은 화면을 2.2초 더 쳐다보는 것이었다.
+  await h.hold(600, '끝 — 전달해야 하던 일이, 남겨두면 되는 일이 된다')
 }
 
 /**

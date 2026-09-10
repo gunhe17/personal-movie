@@ -155,6 +155,22 @@ if settings.APP_ENV != "production":
 app = server.app()
 
 
+# ── 로컬 저장소 정적 서빙 (개발 전용) ────────────────────────────────────────
+# S3를 안 쓰는 로컬에서는 저장소가 `/tmp/saas-storage`의 파일이고, presigned URL이
+# `file://…`로 나온다. 그런데 브라우저는 그걸 못 연다 — 바로링크의 `결과 보기 · PDF`가
+# `if (!['https:','http:'].includes(url.protocol)) throw`로 막는다(verify-link/+page.svelte:717).
+# 그래서 개발에서만 같은 디렉터리를 http로 내준다. 프로덕션(S3)에는 이 마운트가 생기지 않는다.
+if not settings.S3_BUCKET_ENABLED:  # pragma: no cover - 개발 전용
+    from pathlib import Path
+    from fastapi.staticfiles import StaticFiles
+
+    _local_root = Path(settings.LOCAL_STORAGE_PATH)
+    _local_root.mkdir(parents=True, exist_ok=True)
+    app.mount(
+        "/local-storage", StaticFiles(directory=str(_local_root)), name="local-storage"
+    )
+
+
 # + prometheus
 (
     Instrumentator(

@@ -1,0 +1,170 @@
+{
+  "id": "s04_phone_view_t10",
+  "scene": "s04-바로링크",
+  "device": "phone",
+  "action": "view",
+  "take": "t10",
+  "captured_at": "2026-09-10T15:24:37.519Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/verify-link?send_link_id=a0213f04-96cf-4b2c-b0ae-2c1077ccb808",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 149,
+      "appended": 487,
+      "dupped": 348,
+      "notReady": 0,
+      "ticks": 487,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s04-view.mjs",
+    "sha256": "4fdfebc7da900cf9919eb3b0ffbafacf279a858f5a422a090ba893a47a8f61f8"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 1.83,
+      "kind": "until",
+      "target": "section[aria-label=\"상담 기록\"]",
+      "note": "목록 — 인증은 두 시간 살아 있다 (+0.3s)"
+    },
+    {
+      "t": 2.53,
+      "kind": "beat",
+      "target": "",
+      "note": "검사와 상담 기록이 한 화면에"
+    },
+    {
+      "t": 3.27,
+      "kind": "click",
+      "target": "section[aria-label=\"상담 기록\"] button",
+      "note": "지난 회기를 연다"
+    },
+    {
+      "t": 3.78,
+      "kind": "until",
+      "target": "section[aria-label=\"상담 기록\"] p",
+      "note": "보호자에게 쓴 글이 펼쳐진다 (+0.3s)"
+    },
+    {
+      "t": 4.48,
+      "kind": "beat",
+      "target": "",
+      "note": "임상 원문이 아니라 보호자용으로 발행한 글이다"
+    },
+    {
+      "t": 5.12,
+      "kind": "click",
+      "target": "section[aria-label=\"상담 기록\"] button",
+      "note": "기록을 접는다"
+    },
+    {
+      "t": 5.64,
+      "kind": "until",
+      "target": "button:has-text(\"결과 보기 · PDF\")",
+      "note": "검사 목록 — 완료된 검사에 결과가 붙었다 (+0.3s)"
+    },
+    {
+      "t": 6.34,
+      "kind": "beat",
+      "target": "",
+      "note": "결과가 같은 링크로 왔다 — 다시 오지 않아도 된다"
+    },
+    {
+      "t": 6.94,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 6.94,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.53,
+      "note": "상담 기록은 발행된 글만 보인다",
+      "end": 4.48
+    },
+    {
+      "start": 4.48,
+      "note": "결과도 같은 링크로 온다",
+      "end": 6.34
+    }
+  ],
+  "retake_of": "t09",
+  "retake_reason": "중복 reveal이 화면을 밀어 끝이 검게 나왔다 — 폰에는 스크롤할 것이 없어 뺐다",
+  "result": {
+    "file": "raw/s04_phone_view_t10.mov",
+    "duration": 8.12,
+    "ok": true,
+    "error": null
+  }
+}

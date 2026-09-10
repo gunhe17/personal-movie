@@ -16,6 +16,7 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | 캡처 | **`sckcap`** (ScreenCaptureKit, Swift · `scripts/sckcap.swift`, 러너가 자동 컴파일) · **창 필터**(`--window-mode display` — 그 창 하나만 그린다) · `showsCursor=false` · 60Hz 타이머로 **CFR 60** · H.264 40Mbps(`--codec prores` 가능) · `.mov` | 그 창만 합성하므로 앞의 다른 창도, **창에 붙는 팝업(번역 풍선 등)도** 안 들어온다. 정지 화면에서도 프레임을 채워 드롭이 0이다. (ffmpeg avfoundation은 커서 옵션이 무시되고 ~1% 드롭이 있었다 — 실측) |
 | 크롭 | 창 (0, 크롬 높이) 에서 1600×900pt → 3200×1800px. **크롬 높이는 매 촬영 자동 측정** | 계산으로는 못 얻는다 — `outerHeight-innerHeight`는 7pt 틀리고 `window.screenY`는 뷰포트 에뮬레이션 탓에 0이다. 그래서 페이지 맨 위에 마젠타 2px 띠를 넣고 창 전체를 한 장 찍어 그 줄의 y를 센다(실측 87pt) |
 | 웹 뷰포트 | **1600×900 CSS px · DPR 2 → 3200×1800 픽셀 · 16:9** | 최종 프레임과 비율 일치. 1.67×까지 펀치인해도 1080p 이상 |
+| **폰-웹 뷰포트 (v7)** | **`--profile phone` · 390×844 CSS px · DPR 3 → 1170×2532** | 제품이 폰을 상정하고 만든 **공개 웹 화면**(바로링크 `/verify-link`)용. 그 페이지는 `max-width 440px` 가운데 정렬이라 1600×900으로 찍으면 3/4가 흰 여백이고 크롭하면 해상도가 준다. 세로로 찍어 motion-stage 폰 목업에 끼운다. **네이티브 앱이 아니다** — 앱은 `capture-phone.mjs`(시뮬레이터 · 804×1748). 기본은 `web`이라 아홉 장면의 규격은 안 바뀐다. meta에 `viewport.profile`로 남는다 |
 | 테마 | light 고정 | |
 | 커서 | **sckcap이 프레임에 합성** — `NSCursor`의 진짜 커서 이미지(arrow · ibeam · pointer). 좌표는 러너가 stdin `m <x> <y> <shape>`로 흘린다 | v2의 페이지 안 오버레이는 결함이 셋이었다 — 내비게이션마다 좌상단으로 튀고, CSS transition 80ms만큼 늦고, 모양이 화살표 하나로 고정. 캡처러가 그리면 셋 다 없다. 모양은 대상 요소의 `getComputedStyle().cursor`에서 정한다. OS 커서는 여전히 안 건드린다 |
 | 오디오 | 없음 | 사운드는 편집에서 |
@@ -25,13 +26,13 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | 목 에이전트 | **`--mock _mocks/sNN-*.json`** — 제품의 `mock-capture` 스크립트를 `sessionStorage['agent-mock:v2']`에 걸고 시작. 다음 턴은 `h.key('F9')`, `/agent` 화면이면 사람이 전송할 때 흘러나온다 | LLM을 부르지 않아 크레딧을 안 쓰고 매 테이크의 대사·prefill이 같다. 도구는 제품 배선(`handlePageToolCall`)을 그대로 타므로 화면 동작은 진짜다 |
 | 실기기 (s06) | iOS 화면 기록 · AirDrop → raw/ · `capture.mjs --manual`로 meta 등록 | 마이크가 필요한 필드노트만 |
 
-### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v5)
+### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v6)
 
 | 상수 | 값 | 뜻 |
 |---|---|---|
 | `lead` / `tail` | 1500 / 1200 | 캡처 시작 후·종료 전 여유. 편집 헤드룸은 이만큼이면 된다 |
-| `moveMin` / `movePerPx` / `moveMax` | 180 / 0.30 / 620 | 커서 이동은 **거리에 비례**한다(22 steps, ease-out). 가까운 버튼으로 먼 거리와 같은 시간을 들여 날아가지 않게 |
-| `preClick` / `postClick` | 220 / 380 | 클릭 전 멈춤 · 클릭 후 UI 반응 |
+| `moveMin` / `movePerPx` / `moveMax` | 180 / 0.30 / 460 | 커서 이동은 **거리에 비례**한다(22 steps, ease-out). 가까운 버튼으로 먼 거리와 같은 시간을 들여 날아가지 않게 |
+| `preClick` / `postClick` | 140 / 240 | 클릭 전 멈춤 · 클릭 후 UI 반응. **v6에서 줄였다** — 같은 목록의 버튼을 연달아 누르면 클릭마다 0.6초가 멈춤이었다(s01 검사 항목 4연타) |
 | `type` / `afterType` | 40/글자 / 220 | 타이핑 |
 | `scrollFrame` / `afterScroll` | 16 / 450 | 스크롤은 **거리를 먼저 정하고** 커서 이동과 같은 시간·ease-out으로 매 프레임 작은 휠 델타를 보낸다(v5). v4의 140px 휠은 CDP에서 smooth scrolling을 안 타 한 프레임 점프였다 — s01 t07에서 364px이 세 번 툭툭 |
 | `beat` | 700 | 상태가 바뀐 뒤 시청자가 볼 시간 |
@@ -44,6 +45,15 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 근거: v3의 s01 t03 실측 — 44.45초 중 **클릭 하나에 2.09초**, 마지막 `hold`+`tail`이 **4.2초 빈 화면**,
 `type`만 9.5초였다. 같은 조작을 v4로 다시 재면 **22.7초**이고 클릭 간격은 1.1초다.
 75초의 전환이 말한 AFTER 구간 ASL 3.5–6초에는 v4 쪽이 맞는다 — v3는 한 컷이 그보다 길어 편집에서 잘라내야 했다.
+
+### 길이 — 어디를 깎아도 되나
+
+**정본은 `scene-prep` 스킬 §4-1**(지표 넷 · 깎아도 되는 것/안 되는 것 · 지연이 흩어져 있는 세 군데)이다. 여기서는 촬영 쪽 규칙만 둔다.
+
+- **조작 밀도**(사람 조작 시간 ÷ 전체)가 **50% 아래면 아직 깎을 게 있다.** 촬영 전에 리허설 로그로 잰다
+- **시작·끝의 빈 화면은 재촬영으로 깎지 않는다** — `lead 1.5` · `tail 1.2`는 편집 헤드룸이고 **인아웃으로 회수한다**
+- 지연을 줄여야 하면 순서가 있다: **① 장면 스크립트 구조 → ② 목 대본(`typeMs`·`delayMs`) → ③ SPEC**.
+  SPEC은 마지막이다 — **아홉 장면 전부에 걸려서 이미 찍은 선택본과 리듬이 달라진다**
 
 ### 스크롤이 있는 폼 화면의 순서 (v4)
 
@@ -82,7 +92,12 @@ v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르�
    - 함정 셋 — `start_time`은 `end_time`과 같이 넣는다(안 그러면 기본 시간대로 밀린다) · 담당자를 대표로 세우려면 `id`가 필요하다(`_seed/<날짜>.json`에서 꺼낸다) · 날짜는 미래로 둔다. 저장은 사람이 누른다.
 4. **보정** — `node capture.mjs --scene s05-일정 --device web --action approve --url <URL> --script _scripts/s05-approve.mjs --seed _seed/x.json --calibrate` → `stills/calibrate.png`. 크롭이 브라우저 크롬 없이 페이지만 담는지 눈으로 확인한다.
 5. **촬영** — 같은 명령에서 `--calibrate`를 뺀다. 테이크 번호는 자동(기존 최대 +1). 결과: `raw/s05_web_approve_t01.mov` + `.meta.json` + manifest 행.
-6. **검토** — meta의 `steps[].t`로 순간을 찾아 본다. 재촬영은 스크립트를 고치고 다시 5 — 이전 테이크는 지우지 않는다. `--retake-of t01 --reason "…"`로 사유를 남긴다.
+6. **검토** — **먼저 프레임 충실도부터 본다: `result.duration ÷ (steps[-1].t + tail/1000)`.**
+   **98% 아래면 그 테이크는 버린다** — 60Hz 타이머가 굶어 프레임이 모자란 것이고, 그러면 **영상이 실제보다 빨리 재생된다.**
+   `notReady 0`이어도 잡히지 않는다(`appended == ticks`라 드롭으로 세지 않는다). 눈으로는 잘 안 보이고 meta의 `steps[].t`와 화면이 어긋나는 것으로 드러난다.
+   실측: s01 t10은 88%였다(`mds`가 방금 만든 `node_modules`를 색인 중) — 같은 조건에서 부하가 가라앉은 뒤 찍은 t11이 98.7%, t12가 99.7%.
+   **촬영 전에 `ps -Ao %cpu,comm -r | head`로 `mds`·빌드·인덱싱이 도는지 본다.** 정상 테이크는 98~99%다(나머지는 캡처 시작 오프셋).
+   그 다음 meta의 `steps[].t`로 순간을 찾아 본다. 재촬영은 스크립트를 고치고 다시 5 — 이전 테이크는 지우지 않는다. `--retake-of t01 --reason "…"`로 사유를 남긴다.
 7. **폰(시뮬레이터)** — 전제: 내담자 앱 dev 빌드가 시뮬레이터에 설치돼 있고(`kr.mindscope.client.dev`, `npx expo run:ios` — `ios/`가 없어 prebuild부터), Simulator 설정이 SPEC(베젤 off · 터치 표시 · 스케일 1.0)이다. 러너가 설정을 검사해 다르면 경고한다.
    - 보정: `node capture-phone.mjs --scene s05-일정 --action request --udid booted --app kr.mindscope.client.dev --calibrate` → `stills/calibrate-phone.png`, 캡처/기기 비율 일치 확인.
      `--out <경로>`를 주면 그 파일로 나간다 — 기존 보정본을 안 덮는다. 무대가 어느 화면에 섰는지 볼 때 쓴다(`--url`로 딥링크를 같이 주면 이동 후 한 장).

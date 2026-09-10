@@ -26,6 +26,8 @@ export default async function steps(page, h) {
   await h.until('text=윤보호', '전송 내역에 수신인이 남는다')
   h.nocutEnd()
 
-  await h.beat('수신인 · 방식 · 상태')
-  await h.hold(600, '끝')
+  // 도착이 곧 결말이라 닫는 `hold` 하나로 끝낸다 — s01이 "검사 현황에 새 케이스"를
+  // `until` + `hold(600)`으로 닫은 것과 같은 배치다. 여기 `beat`를 더 두면 이미 다 보인
+  // 화면을 0.7초 더 쳐다보는 시간이 된다(t03에서 그랬다).
+  await h.hold(600, '끝 — 수신인 · 방식 · 상태')
 }

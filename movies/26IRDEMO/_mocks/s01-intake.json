@@ -5,13 +5,15 @@
       "label": "한 번에 받아 접수 화면을 열고 기관·명단을 얹는다",
       "leadMs": 400,
       "progress": "요청을 확인하고 있습니다...",
-      "reply": "햇살지역아동센터로 세 아이를 명단에 올렸어요. 검사 항목만 고르고 등록을 눌러 주세요.",
+      "typeMs": 12,
+      "reply": "햇살지역아동센터로 세 아이를 명단에 올렸어요. 검사 항목만 고르고 등록하시면 돼요. 접수 페이지로 이동할게요.",
       "tools": [
         {
           "name": "page.navigate",
           "args": {
             "path": "/assessment/receive"
-          }
+          },
+          "delayMs": 150
         },
         {
           "name": "page.set_fields",
@@ -35,7 +37,8 @@
                 }
               ]
             }
-          }
+          },
+          "delayMs": 150
         }
       ]
     }

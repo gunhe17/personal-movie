@@ -1,0 +1,200 @@
+{
+  "id": "s06_web_fieldnote_t04",
+  "scene": "s06-필드노트",
+  "device": "web",
+  "action": "fieldnote",
+  "take": "t04",
+  "captured_at": "2026-09-10T18:57:06.446Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/schedule/field-notes/1c262a7f-e07c-477f-b549-ed935eff81e8",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 539,
+      "appended": 882,
+      "dupped": 376,
+      "notReady": 0,
+      "ticks": 882,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s06-fieldnote-web.mjs",
+    "sha256": "8568e85b526e9b5bf969f0a89eb7e05c4ec309660176468910343b472af820ec"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 1.85,
+      "kind": "until",
+      "target": "text=C00003",
+      "note": "필드노트 — 30분 · 회기에 연결됨 (+0.3s)"
+    },
+    {
+      "t": 2.14,
+      "kind": "until",
+      "target": "text=개인상담",
+      "note": "회기 카드 — 윤도현 · 만 12세 · 16:00 (+0.3s)"
+    },
+    {
+      "t": 2.84,
+      "kind": "beat",
+      "target": "",
+      "note": "누가 언제 남긴 기록인지가 화면에 있다"
+    },
+    {
+      "t": 3.56,
+      "kind": "hover",
+      "target": "button:has-text(\"도현아, 지난번 검사 때\")",
+      "note": "첫 발화"
+    },
+    {
+      "t": 4.27,
+      "kind": "beat",
+      "target": "",
+      "note": "화자가 이름으로 갈린다 — 정상담 / 윤도현"
+    },
+    {
+      "t": 4.74,
+      "kind": "scroll",
+      "target": "216"
+    },
+    {
+      "t": 5.19,
+      "kind": "reveal",
+      "target": "text=13.2초 침묵",
+      "note": "0:41 — 대답 전 13.2초 침묵까지 남는다"
+    },
+    {
+      "t": 6.92,
+      "kind": "scroll",
+      "target": "641"
+    },
+    {
+      "t": 7.37,
+      "kind": "reveal",
+      "target": "text=이런 것도 말해도 돼요",
+      "note": "2:17 — \"이런 것도 말해도 돼요?\""
+    },
+    {
+      "t": 8.89,
+      "kind": "scroll",
+      "target": "336"
+    },
+    {
+      "t": 9.34,
+      "kind": "reveal",
+      "target": "text=그냥 제가 참으면 되니까요",
+      "note": "3:01 — \"그냥 제가 참으면 되니까요\""
+    },
+    {
+      "t": 10.65,
+      "kind": "scroll",
+      "target": "168"
+    },
+    {
+      "t": 11.11,
+      "kind": "reveal",
+      "target": "text=잠이 잘 안 와요",
+      "note": "17:22 — 3:10 바로 아래. 회기 후반의 잠 이야기"
+    },
+    {
+      "t": 12.42,
+      "kind": "scroll",
+      "target": "336"
+    },
+    {
+      "t": 12.87,
+      "kind": "reveal",
+      "target": "text=한 단어로만 적어보는 거야",
+      "note": "26:28 — 다음 주 과제까지 시간 축 위에 있다"
+    },
+    {
+      "t": 14.23,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 14.26,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.84,
+      "note": "시간 축을 따라 — 머릿속에만 있던 것이 남는다",
+      "end": 13.58
+    }
+  ],
+  "result": {
+    "file": "raw/s06_web_fieldnote_t04.mov",
+    "duration": 14.7,
+    "ok": true,
+    "error": null
+  }
+}

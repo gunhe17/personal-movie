@@ -8,6 +8,7 @@ from app.modules.assessment.send_link.schemas import (
     LinkTaskItem,
     LinkVerifyResponse,
 )
+from .collect_link_journals import collect_link_journals
 from .collect_link_schedules import collect_link_schedules
 
 ASSESSMENT_LINK_AUDIENCE = "assessment_link"
@@ -38,6 +39,7 @@ async def verify_send_link_handler(
             send_link.center_id
         )
         schedules, task_schedules = await collect_link_schedules(verified, uow)
+        journals = await collect_link_journals(send_link, uow)
 
     recipients = send_link.recipients or []
     recipient_name = recipients[0].get("name") if recipients else None
@@ -59,6 +61,7 @@ async def verify_send_link_handler(
         case_id=send_link.case_id,
         recipient_name=recipient_name,
         schedules=schedules,
+        journals=journals,
         tasks=[
             LinkTaskItem(
                 task_id=t.id,

@@ -35,6 +35,8 @@ function createAgentChatStore() {
   // prefill page tool은 즉시 실행하지 않고 큐잉 — 답변 스트림을 다 보여준 뒤 이동 (flush는 conversation_done)
   let pendingPageTools: { tool: string; args: Record<string, unknown> }[] = []
   let pageToolTimer: ReturnType<typeof setTimeout> | null = null
+  // 리빌이 끝나기를 기다리는 page tool — 마지막 글자에서 startPageToolTimer() 가 집어간다
+  let flushPending: { tool: string; args: Record<string, unknown> }[] | null = null
   // 히스토리 일괄 마운트 직후 1프레임 — 메시지 등장 모션 억제
   let suppressEnterMotion = $state(false)
   // 타자기 리빌 — 도착 속도와 무관하게 흘려보낸다. done 이후에도 남은 글자는 같은 가속 곡선으로 계속 흘림.
@@ -43,6 +45,9 @@ function createAgentChatStore() {
   let revealShown = 0
   let revealMsgId = $state<string | null>(null)
 
+  // 답변의 **마지막 글자가 떨어진 순간부터** 이만큼 두고 이동한다.
+  // conversation_done 기준이 아니다 — 리빌(타자기)은 스트림보다 느릴 수 있어서,
+  // done에서 재면 글자가 아직 흐르는 중에 화면이 갈아끼워진다.
   const PAGE_TOOL_DELAY_MS = 1000
   const REVEAL_START_MS = 30   // 첫 REVEAL_RAMP_CHARS 자까지 글자당 지연
   const REVEAL_MIN_MS = 4      // 가속 후 도달하는 최소 지연(바닥)
@@ -55,10 +60,11 @@ function createAgentChatStore() {
     return REVEAL_START_MS - t * (REVEAL_START_MS - REVEAL_MIN_MS)
   }
 
-  function flushPageToolsSoon() {
-    if (pendingPageTools.length === 0) return
-    const calls = pendingPageTools
-    pendingPageTools = []
+  /** 리빌이 끝난 뒤 PAGE_TOOL_DELAY_MS 를 세고 page tool 을 실행한다 */
+  function startPageToolTimer() {
+    const calls = flushPending
+    if (!calls) return
+    flushPending = null
     if (pageToolTimer) clearTimeout(pageToolTimer)
     pageToolTimer = setTimeout(() => {
       pageToolTimer = null
@@ -66,6 +72,15 @@ function createAgentChatStore() {
         void handlePageToolCall(currentSessionId ?? '', '', c.tool, c.args)
       }
     }, PAGE_TOOL_DELAY_MS)
+  }
+
+  function flushPageToolsSoon() {
+    if (pendingPageTools.length === 0) return
+    flushPending = pendingPageTools
+    pendingPageTools = []
+    // 글자가 아직 흐르는 중이면 여기서 세지 않는다 — 마지막 글자를 뿌린 scheduleReveal 이 건다.
+    // 남은 시간을 추정해서 더하면 실제 리빌 종료와 어긋난다(실측 0.5 설정에 0.69초).
+    if (revealShown >= revealTarget.length) startPageToolTimer()
   }
 
   // ────────────────────────────────────────────
@@ -157,6 +172,7 @@ function createAgentChatStore() {
       revealShown += 1
       syncReveal()
       if (revealShown < revealTarget.length) scheduleReveal()
+      else startPageToolTimer()          // 마지막 글자가 떨어졌다 — 여기서부터 센다
     }, revealDelay(revealShown))
   }
 
@@ -388,6 +404,7 @@ function createAgentChatStore() {
     if (dismissTimer) { clearTimeout(dismissTimer); dismissTimer = null }
     pendingPageTools = []
     if (pageToolTimer) { clearTimeout(pageToolTimer); pageToolTimer = null }
+    flushPending = null
     stopWorking()
     stopReveal()
   }

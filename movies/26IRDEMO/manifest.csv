@@ -44,7 +44,7 @@ raw/s07_web_draft_t04.mov,s07-자동일지,web,draft,t04,,,,
 raw/s08_web_careboard_t03.mov,s08-케어보드,web,careboard,t03,,,,
 raw/s09_web_noshow_t03.mov,s09-회기정산,web,noshow,t03,,,,
 raw/s01_web_intake_t08.mov,s01-접수,web,intake,t08,,,,
-raw/s04_web_sendlink_t04.mov,s04-바로링크,web,sendlink,t04,,,,
+raw/s04_web_sendlink_t04.mov,s04-바로링크,web,sendlink,t04,,,,문서에 없던 판 — 옛 시드(saas-2026-09-10c · 검사 2건)라 본편에 못 쓴다
 raw/s03_web_aireview_t02.mov,s03-채점보고서,web,aireview,t02,,,,
 raw/s03_web_aireview_t03.mov,s03-채점보고서,web,aireview,t03,,,,
 raw/s03_web_aireview_t04.mov,s03-채점보고서,web,aireview,t04,,,,
@@ -61,5 +61,53 @@ raw/s02_web_collect_t08.mov,s02-검사실시,web,collect,t08,,,,SPEC v5 재촬�
 raw/s02_web_collect_t09.mov,s02-검사실시,web,collect,t09,,,,받아쓰기 세 반응 · 드롭 0 · 노컷 2.21–16.93 / 16.93–21.37 / 21.37–31.94
 raw/s02_web_collect_t10.mov,s02-검사실시,web,collect,t10,,,,두 바퀴 받아쓰기 첫 판 — ②의 질문 원문이 빠져 폐기
 raw/s02_web_collect_t11.mov,s02-검사실시,web,collect,t11,,,,두 바퀴 전부 받아쓰기 · 타이핑 0 · 드롭 0 · 노컷 3개
-raw/s02_web_collect_t12.mov,s02-검사실시,web,collect,t12,,,,반응 하나 · 24.12s · 드롭 0 · 노컷 2.21–16.83 / 16.84–22.31
-raw/s03_web_aireview_t09.mov,s03-채점보고서,web,aireview,t09,,,,
+raw/s02_web_collect_t12.mov,s02-검사실시,web,collect,t12,,,,반응 하나(t13로 대체) · 24.12s · 드롭 0 · 노컷 2.21–16.83 / 16.84–22.31
+raw/s03_web_aireview_t09.mov,s03-채점보고서,web,aireview,t09,,,,SPEC v5 · 19.60s (t10으로 대체 — 배치가 s01과 어긋났다)
+raw/s01_web_intake_t10.mov,s01-접수,web,intake,t10,,,,실패 — 프레임 충실도 88% (mds 색인 중 캡처 타이머 굶음). 영상이 실제보다 빠르다
+raw/s01_web_intake_t11.mov,s01-접수,web,intake,t11,,,,SPEC v6로 줄인 판 21.45s. 제품 이동 지연이 아직 구판(done+1000ms)
+raw/s01_web_intake_t12.mov,s01-접수,web,intake,t12,,,,SPEC v6 · 이동 지연 500ms(추정 기준) · 20.47s · 충실도 99.7%
+raw/s02_web_collect_t13.mov,s02-검사실시,web,collect,t13,,,,(t14로 대체) SPEC v6 · 대기를 전사 응답 조건으로 · 주기 3.7초 · 21.97s · 프레임 충실도 99.7% · 드롭 0 · 노컷 1.82–15.46 / 15.46–20.43
+raw/s01_web_intake_t13.mov,s01-접수,web,intake,t13,,,선택본,SPEC v6 · 이동 지연 리빌 실제 종료 +1000ms 고정 · 20.63s · 충실도 99.2%
+raw/s02_web_collect_t14.mov,s02-검사실시,web,collect,t14,,,선택본,SPEC v6 · s01과 같은 배치 규칙 · 21.32s · 프레임 충실도 99.1% · 드롭 0 · 노컷 2.19–15.88 / 15.88–19.72
+raw/s03_web_aireview_t10.mov,s03-채점보고서,web,aireview,t10,,,선택본,SPEC v6 · s01과 같은 배치 규칙 · 17.20s · 프레임 충실도 98.2% · 드롭 0 · 노컷 2.24–8.10 / 8.10–12.21 / 12.21–15.72
+raw/s04_web_sendlink_t05.mov,s04-바로링크,web,sendlink,t05,,,,폐기 — 60Hz 기록기가 굶어 충실도 56% (9.58초 조작이 6.03초로 압축)
+raw/s04_web_sendlink_t06.mov,s04-바로링크,web,sendlink,t06,,,,폐기 — 같은 증상 충실도 49.6% (ticks 322 = 약 30Hz). 부하 정리 후 재촬영
+raw/s04_web_sendlink_t07.mov,s04-바로링크,web,sendlink,t07,,,선택본,목업 mockup/s04_web_sendlink_t07_imac.mp4 · 검사 4건 데이터 · SPEC v6 · s01 배치 · 10.37s · 프레임 충실도 99.7% · 드롭 0 · 노컷 7.29–8.60
+raw/s04_phone_barolink_t01.mov,s04-바로링크,phone,barolink,t01,,,,제출 없는 판(t02~로 대체) · 받는 쪽 · SPEC v7 --profile phone(1170×2532) · 15.22s · 충실도 99.9% · 드롭 0 · 노컷 2.21–6.79 / 7.14–9.04 / 9.04–13.44
+raw/s04_phone_barolink_t02.mov,s04-바로링크,phone,barolink,t02,,,,폐기 — 60Hz 기록기가 굶어 충실도 92.9% (Virtualization VM 43%). 부하 정리 후 재촬영
+raw/s04_phone_barolink_t03.mov,s04-바로링크,phone,barolink,t03,,,,(t04로 대체 — 상단 상태바) 받는 쪽 · SPEC v7 phone(1170×2532) · 문자→인증→상담기록→응시→제출 · 25.65s · 충실도 99.7% · 드롭 0 · 노컷 2.21–7.14 / 7.49–9.36 / 9.36–23.57
+raw/s04_phone_barolink_t04.mov,s04-바로링크,phone,barolink,t04,,,,(구성 변경 — enter/view로 갈랐다) 받는 쪽 · SPEC v7 phone(1170×2532) · 문자(상태바 없음)→인증→상담기록→응시→제출 · 27.10s · 충실도 99.0% · 드롭 0 · 노컷 2.22–7.99 / 8.34–10.24 / 10.24–25.20
+raw/s04_phone_view_t01.mov,s04-바로링크,phone,view,t01,,,,폐기 — 로컬 저장소가 file:// 주소를 줘 PDF가 안 열렸다
+raw/s04_phone_view_t02.mov,s04-바로링크,phone,view,t02,,,,폐기 — 러너가 PDF 응답까지 텍스트로 다시 써서 뷰어가 못 읽었다
+raw/s04_phone_view_t03.mov,s04-바로링크,phone,view,t03,,,,(t04로 대체 — 목록 간격) B 조회 · SPEC v7 phone(1170×2532) · 상담 기록 펼침 → 결과 보기 · PDF · 11.75s · 충실도 99.7% · 드롭 0 · 노컷 2.30–4.29 / 4.29–10.25
+raw/s04_phone_enter_t01.mov,s04-바로링크,phone,enter,t01,,,,(t03으로 대체 — 주소·시뮬레이션) A 진입 · SPEC v7 phone(1170×2532) · 문자→링크→4자리→검사 첫 쪽 · 12.32s · 충실도 99.6% · 드롭 0 · 노컷 2.23–6.66 / 6.66–10.22
+raw/s04_phone_enter_t02.mov,s04-바로링크,phone,enter,t02,,,,폐기 — 60Hz 기록기가 굶어 충실도 92.5% (Chrome 62%)
+raw/s04_phone_enter_t03.mov,s04-바로링크,phone,enter,t03,,,,(t05로 대체 — 간격) 
+raw/s04_phone_view_t04.mov,s04-바로링크,phone,view,t04,,,,(t11로 대체) B 조회 · v7 phone · 목록 beat → 상담 기록 → 결과 보기 · PDF · 12.77s · 충실도 100.7% · 드롭 0 · 노컷 2.73–4.79 / 4.79–10.87
+raw/s04_phone_enter_t04.mov,s04-바로링크,phone,enter,t04,,,,(t05로 대체 — 설문 속도) 
+raw/s04_phone_enter_t05.mov,s04-바로링크,phone,enter,t05,,,선택본,목업 mockup/s04_phone_enter_t05_phone.mp4 · A 진입 · v7 phone · 문자(app.mindscope.kr)→인증 beat→목록 beat→설문 h.click · 19.15s · 충실도 100.4% · 드롭 0 · 노컷 2.23–9.73 / 9.73–16.93
+raw/s04_phone_view_t05.mov,s04-바로링크,phone,view,t05,,,,폐기 — 충실도 96.7% · PDF 가로 스크롤이 빈 곳으로
+raw/s04_phone_view_t06.mov,s04-바로링크,phone,view,t06,,,,폐기 — zoom=page-width 재진입이 흰 화면
+raw/s04_phone_view_t07.mov,s04-바로링크,phone,view,t07,,,,폐기 — PDF가 안 그려짐(1.4초는 짧다)
+raw/s04_phone_view_t08.mov,s04-바로링크,phone,view,t08,,,,폐기 — 2.6초를 줘도 흰 화면. PDF 뷰어는 폰 폭에서 재현이 안 된다
+raw/s04_phone_view_t09.mov,s04-바로링크,phone,view,t09,,,,폐기 — 중복 reveal이 화면을 밀어 끝이 검게
+raw/s04_phone_view_t10.mov,s04-바로링크,phone,view,t10,,,,(t11로 대체 — 상담 기록을 펼친 채로 끝내기로)
+raw/s04_phone_view_t11.mov,s04-바로링크,phone,view,t11,,,선택본,B 조회 · v7 phone · 결과 줄 → 상담 기록 펼친 채 끝 · 10.72s · 충실도 100.1% · 드롭 0 · 노컷 2.51–3.48 / 3.48–8.91 · 목업 mockup/s04_phone_view_t11_phone.mp4
+raw/s05_web_approve_t06.mov,s05-일정,web,approve,t06,,,,폐기 — 부하로 60Hz 기록기가 굶어 충실도 93%
+raw/s05_web_approve_t07.mov,s05-일정,web,approve,t07,,,,폐기 — 부하로 60Hz 기록기가 굶어 충실도 94%
+raw/s05_web_approve_t08.mov,s05-일정,web,approve,t08,,,,폐기 — 부하로 60Hz 기록기가 굶어 충실도 93%
+raw/s05_web_approve_t09.mov,s05-일정,web,approve,t09,,,,폐기 — 부하로 60Hz 기록기가 굶어 충실도 92%
+raw/s05_web_approve_t10.mov,s05-일정,web,approve,t10,,,선택본,SPEC v6 · s01 배치 · 15.03s · 충실도 99% · 드롭 0 · 노컷 2.21–13.26 · 목업 mockup/s05_web_approve_t10_imac.mp4
+raw/s09_web_noshow_t04.mov,s09-회기정산,web,noshow,t04,,,선택본,SPEC v6 · s01 배치 · 11.10s · 충실도 99% · 드롭 0 · 노컷 7.82–9.35 · DB no_show·차감·사유 · 목업 mockup/s09_web_noshow_t04_imac.mp4
+raw/s08_web_careboard_t04.mov,s08-케어보드,web,careboard,t04,,,선택본,SPEC v6 · s01 배치(끝의 beat 제거) · 충실도 99% · 드롭 0 · 목업 mockup/s08_web_careboard_t04_imac.mp4
+raw/s06_web_fieldnote_t04.mov,s06-필드노트,web,fieldnote,t04,,,,폐기 — 부하로 충실도 95%
+raw/s06_web_fieldnote_t05.mov,s06-필드노트,web,fieldnote,t05,,,선택본,SPEC v6 · 배치는 이미 규칙에 맞았다(읽으려 내려가는 reveal은 유지) · 충실도 100% · 드롭 0 · 목업 mockup/s06_web_fieldnote_t05_imac.mp4
+raw/s07_web_draft_t06.mov,s07-자동일지,web,draft,t06,,,선택본,SPEC v6 · 배치는 이미 규칙에 맞았다 · 10.27s · 충실도 99% · 드롭 0 · 노컷 2.22–6.17 · llm-stub로 초안 고정 · 목업 mockup/s07_web_draft_t06_imac.mp4
+raw/s06_phone_fieldnote-rec_t01.mov,s06-필드노트,phone,fieldnote-rec,t01,,,,폐기 — HTML 목업 판. 앱 데모 라우트로 대체
+raw/s06_phone_fieldnote-rec_t02.mov,s06-필드노트,phone,fieldnote-rec,t02,,,,폐기 — 데모가 이미 돌던 중이라 00:56에서 시작
+raw/s06_phone_fieldnote-rec_t03.mov,s06-필드노트,phone,fieldnote-rec,t03,,,,(t04로 대체 — 타이머가 전사 시각과 어긋났다) 앱 데모 라우트(/field-note/demo) · 진짜 RecordingScreen이 목 상태로 돈다 · 30.05s · 804×1748 · 목업 mockup/s06_phone_fieldnote-rec_t03_phone.mp4
+raw/s06_phone_fieldnote-rec_t04.mov,s06-필드노트,phone,fieldnote-rec,t04,,,선택본,앱 데모 라우트 · 타이머가 전사 시각을 따라간다(03:03→03:47) · 30.02s · 804×1748 · 목업 mockup/s06_phone_fieldnote-rec_t04_phone.mp4
+raw/s06_phone_fieldnote-open_t01.mov,s06-필드노트,phone,fieldnote-open,t01,,,,폐기 — 앱이 직전 화면을 복원해 홈이 안 잡혔다
+raw/s06_phone_fieldnote-open_t02.mov,s06-필드노트,phone,fieldnote-open,t02,,,,폐기 — 라우터가 데모 화면을 스택에 물고 있어 전환이 기록 전에 끝났다
+raw/s06_phone_fieldnote-open_t03.mov,s06-필드노트,phone,fieldnote-open,t03,,,,폐기 — 같은 증상. 진입 전환은 편집 컷으로 대신한다
+raw/s06_phone_fieldnote-list_t01.mov,s06-필드노트,phone,fieldnote-list,t01,,,선택본,필드노트 홈 — 최근 노트 목록 · 14.00s · 804×1748 · 목업 mockup/s06_phone_fieldnote-list_t01_phone.mp4

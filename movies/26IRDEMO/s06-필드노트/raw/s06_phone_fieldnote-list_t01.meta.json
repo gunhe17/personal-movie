@@ -1,0 +1,96 @@
+{
+  "id": "s06_phone_fieldnote-list_t01",
+  "scene": "s06-필드노트",
+  "device": "phone",
+  "action": "fieldnote-list",
+  "take": "t01",
+  "captured_at": "2026-09-10T21:19:12.484Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone, manual)",
+  "app": {
+    "bundle_id": "kr.mindscope.app.dev",
+    "url": null,
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 212,
+      "appended": 840,
+      "dupped": 630,
+      "notReady": 0,
+      "ticks": 840,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": null,
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 3.01,
+      "kind": "manual",
+      "target": "8s",
+      "note": "사람이 직접 조작"
+    },
+    {
+      "t": 11.01,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [],
+  "result": {
+    "file": "raw/s06_phone_fieldnote-list_t01.mov",
+    "duration": 14,
+    "ok": true,
+    "error": null
+  }
+}

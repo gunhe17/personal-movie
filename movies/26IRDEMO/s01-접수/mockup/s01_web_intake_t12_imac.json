@@ -1,0 +1,11 @@
+{
+ "stage": "imac",
+ "size": [
+  3840,
+  2160
+ ],
+ "fps": 60,
+ "screen": "../raw/s01_web_intake_t12.mov",
+ "width": 0.56,
+ "right": 0.3333333333333333
+}

@@ -248,6 +248,14 @@
     assessment_names: string[]
   }
 
+  // 상담 기록 — 센터가 **발행한 공유문**만 온다. 임상 원문은 이 경로에 실리지 않는다.
+  interface LinkJournal {
+    session_id: string
+    session_no?: number | null
+    text?: string | null
+    published_at?: string | null
+  }
+
   interface Question {
     number?: number
     question_number?: number
@@ -298,6 +306,8 @@
   let recipientName = $state('')
   let tasks = $state<LinkTask[]>([])
   let schedules = $state<LinkSchedule[]>([])
+  let journals = $state<LinkJournal[]>([])
+  let openJournal = $state('')
   function scheduleLabel(value: string) {
     return new Intl.DateTimeFormat('ko-KR', {
       timeZone: 'Asia/Seoul',
@@ -608,6 +618,7 @@
       recipientName = data.recipient_name ?? ''
       tasks = data.tasks ?? []
       schedules = data.schedules ?? []
+      journals = data.journals ?? []
       navigate('list', true)
     } catch {
       if (!disposed && sendLinkId === link) {
@@ -673,6 +684,7 @@
       recipientName = data.recipient_name ?? ''
       tasks = data.tasks ?? []
       schedules = data.schedules ?? []
+      journals = data.journals ?? []
     } catch (cause) {
       const failure = cause as {
         response?: {
@@ -1323,6 +1335,47 @@
                             ? '미참석'
                             : '일정 변경이 필요하면 센터에 문의해주세요.'}
                     </p>
+                  </div>
+                {/each}
+              </section>
+            {/if}
+            <!--
+              상담 기록 — 센터가 보호자에게 **발행한 공유문**만 보인다(임상 원문은 이 경로에 없다).
+              접힌 줄을 누르면 그 자리에서 펼친다. 검사와 같은 링크·같은 인증으로 본다.
+            -->
+            {#if journals.length}
+              <section class="mt-8 space-y-3" aria-label="상담 기록">
+                <Typography
+                  tag="h2"
+                  variant="body-01-normal-medium"
+                  color="text-title-default">상담 기록</Typography
+                >
+                {#each journals as journal (journal.session_id)}
+                  {@const open = openJournal === journal.session_id}
+                  <div class="rounded-xl border border-gray-200">
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between gap-3 p-4 text-left min-h-11"
+                      aria-expanded={open}
+                      aria-label={`${journal.session_no ?? ''}회기 상담 기록`}
+                      onclick={() => (openJournal = open ? '' : journal.session_id)}
+                    >
+                      <span class="text-body-01-reading-medium text-title-default">
+                        {journal.session_no ? `${journal.session_no}회기` : '상담 기록'}
+                      </span>
+                      <span class="text-body-03-reading-regular text-body-subtle">
+                        {journal.published_at
+                          ? scheduleLabel(journal.published_at)
+                          : ''}
+                      </span>
+                    </button>
+                    {#if open}
+                      <p
+                        class="whitespace-pre-line px-4 pb-4 text-body-02-reading-regular text-body-default"
+                      >
+                        {journal.text ?? '내용이 아직 없어요.'}
+                      </p>
+                    {/if}
                   </div>
                 {/each}
               </section>

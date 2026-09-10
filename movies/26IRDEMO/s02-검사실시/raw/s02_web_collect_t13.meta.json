@@ -1,0 +1,212 @@
+{
+  "id": "s02_web_collect_t13",
+  "scene": "s02-검사실시",
+  "device": "web",
+  "action": "collect",
+  "take": "t13",
+  "captured_at": "2026-09-10T11:53:29.549Z",
+  "spec_version": 6,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/519ea1b3-8975-40c9-b666-f4195be64ee1/collect",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 720,
+      "appended": 1318,
+      "dupped": 635,
+      "notReady": 0,
+      "ticks": 1318,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s02-collect.mjs",
+    "sha256": "c1d5889365b4e64fa40e5d63a746f1c342b32e5a31c873cdadeeceffc51b94c8"
+  },
+  "stt": {
+    "file": "_mocks/s02-stt.json",
+    "clips": [
+      "박쥐 같아요. 날개를 펴고 있는.",
+      "",
+      "가운데 검은 부분이 몸통이고 양옆이 날개요."
+    ]
+  },
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 1.82,
+      "kind": "until",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "로샤 실시 — 카드 I (+0.3s)"
+    },
+    {
+      "t": 2.8,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "내담자 화면 — 태블릿을 돌린다"
+    },
+    {
+      "t": 3.49,
+      "kind": "hold",
+      "target": "450",
+      "note": "카드만 남는다 — 기록은 전부 가려진다"
+    },
+    {
+      "t": 4.16,
+      "kind": "click",
+      "target": "button:has-text(\"받아쓰기\")",
+      "note": "받아쓰기 — 마이크를 켠다"
+    },
+    {
+      "t": 8.56,
+      "kind": "click",
+      "target": "button[aria-label^=\"반응 기록\"]",
+      "note": "아이가 말하면 카드를 한 번 — 반응 ①"
+    },
+    {
+      "t": 9.91,
+      "kind": "click",
+      "target": "button[aria-label=\"반응 1 선택\"]",
+      "note": "그 줄을 고른다 — 카드가 그리기 판이 된다"
+    },
+    {
+      "t": 14.7,
+      "kind": "draw",
+      "target": "5점",
+      "note": "아이가 가리킨 자리를 그린다"
+    },
+    {
+      "t": 15.46,
+      "kind": "hold",
+      "target": "500",
+      "note": "아이의 답이 그 줄의 질문 칸으로 들어간다"
+    },
+    {
+      "t": 16.62,
+      "kind": "click",
+      "target": "button[aria-label^=\"내담자 화면\"]",
+      "note": "임상가 화면으로 돌아온다"
+    },
+    {
+      "t": 17.13,
+      "kind": "until",
+      "target": "textarea[placeholder=\"피검자가 무엇으로 봤는지\"]",
+      "note": "자유반응 · 질문 · 영역이 다 차 있다 (+0.3s)"
+    },
+    {
+      "t": 17.83,
+      "kind": "beat",
+      "target": "",
+      "note": "임상가가 받아친 것이 아니다"
+    },
+    {
+      "t": 17.84,
+      "kind": "reveal",
+      "target": "button:has-text(\"W\")",
+      "note": "위치 칸으로 내려간다"
+    },
+    {
+      "t": 19.48,
+      "kind": "click",
+      "target": "button:has-text(\"W\")",
+      "note": "위치 부호 W — 반점 전체"
+    },
+    {
+      "t": 20.43,
+      "kind": "beat",
+      "target": "",
+      "note": "배지가 초록으로 — 빈 칸이 없다"
+    },
+    {
+      "t": 20.83,
+      "kind": "hold",
+      "target": "400",
+      "note": "끝"
+    },
+    {
+      "t": 20.83,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 1.82,
+      "note": "말한 것이 그대로 반응이 된다",
+      "end": 15.46
+    },
+    {
+      "start": 15.46,
+      "note": "돌아오면 이미 적혀 있다",
+      "end": 20.43
+    }
+  ],
+  "retake_of": "t12",
+  "retake_reason": "SPEC v6 · 대기를 전사 응답 조건으로 바꿔 위상 의존을 없애고 받아쓰기 주기 4.9→3.7초로 줄인 판",
+  "result": {
+    "file": "raw/s02_web_collect_t13.mov",
+    "duration": 21.97,
+    "ok": true,
+    "error": null
+  }
+}

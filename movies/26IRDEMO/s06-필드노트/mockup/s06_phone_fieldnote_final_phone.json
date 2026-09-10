@@ -1,0 +1,15 @@
+{
+  "stage": "phone",
+  "size": [
+    3840,
+    2160
+  ],
+  "fps": 60,
+  "screen": "s06_phone_fieldnote-cut.mov",
+  "phoneH": 86,
+  "statusH": 0,
+  "homeH": 0,
+  "screenBg": "#000000",
+  "shotRatio": 0.46,
+  "_note": "앱 절반 최종 목 — 목록 3.5초(fieldnote-list_t01 4.0~7.5) + 녹음 12.5초(fieldnote-rec_t04 2.5~15.0)를 컷으로 이었다. 원본 둘은 raw/에 그대로 있다."
+}

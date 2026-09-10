@@ -1,34 +1,34 @@
 {
   "cookies": [
     {
-      "name": "accessToken",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiZDAxMTRkNjgtZjQ3My00Y2I4LWJjNDYtYWNmNDIyM2Q2ODgyIiwicGVyc29uX2lkIjoiMThkZGExOGQtYzc0Yy00Zjc4LTgwOTMtYWIyOWUyNTJjMzFjIiwiZW1haWwiOiJjb3Vuc2Vsb3IxQG1pbmRzY29wZS5jb20iLCJ0b2tlbl92ZXJzaW9uIjoyLCJhY2NvdW50X3Rva2VuX3ZlcnNpb24iOjAsImV4cCI6MTc4OTAyNTI1Nn0.1o4wPXbi7JAMw2F2KV5ky22oSNtsgOzRFtNdHiJO3M8",
-      "domain": "localhost",
-      "path": "/",
-      "expires": 1789025256.254987,
-      "httpOnly": true,
-      "secure": false,
-      "sameSite": "Strict"
-    },
-    {
       "name": "refreshToken",
-      "value": "DLy7Blo5e0jnP_U0LtAgxdcupUZTgUlLSahk5SMWB7s",
+      "value": "7BDdgvX5kwP04lyD0Nd4MWq2Zqecwz9CRZEUucuICXQ",
       "domain": "localhost",
       "path": "/",
-      "expires": 1789628256.255039,
+      "expires": 1789658018.555585,
       "httpOnly": true,
       "secure": false,
       "sameSite": "Strict"
     },
     {
       "name": "currentCenterId",
-      "value": "b0f33e8e-9745-447e-9bd2-f0a8af8654ba",
+      "value": "0cdf7c12-9ed0-47a7-91a0-c33e33c632eb",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
+    },
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiMDU2Y2UzYjMtYTczYS00NzkwLTkyNzgtODVlOTA1NGQ2MjNjIiwicGVyc29uX2lkIjoiNzE1MDE4ZTUtM2I0My00MTBhLWEzZjctMTQ5NDUwZGE4YTgxIiwiZW1haWwiOiJjb3Vuc2Vsb3IxQG1pbmRzY29wZS5jb20iLCJ0b2tlbl92ZXJzaW9uIjoyLCJhY2NvdW50X3Rva2VuX3ZlcnNpb24iOjAsImV4cCI6MTc4OTA2OTA1NH0.g3bUI5RUnBl11BBFwlF2cf1twU1DDQRjadRThDbBvMc",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1789069054.458,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
     }
   ],
   "origins": [
@@ -41,15 +41,15 @@
         },
         {
           "name": "centers",
-          "value": "[{\"id\":\"b0f33e8e-9745-447e-9bd2-f0a8af8654ba\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"GQB2KT\",\"logo_url\":null}]"
+          "value": "[{\"id\":\"0cdf7c12-9ed0-47a7-91a0-c33e33c632eb\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"TV2AJY\",\"logo_url\":null}]"
         },
         {
           "name": "permissionContext",
-          "value": "{\"permissions\":[\"delete:assessment_case\",\"delete:counseling\",\"delete:document\",\"delete:schedule\",\"read:assessment_case\",\"read:billing\",\"read:center\",\"read:center_assessment\",\"read:client\",\"read:counseling\",\"read:counseling_note\",\"read:document\",\"read:form_instance\",\"read:form_template\",\"read:member\",\"read:notice\",\"read:program\",\"read:role\",\"read:room\",\"read:schedule\",\"read:send_link\",\"read:voucher\",\"write:assessment_case\",\"write:billing\",\"write:client\",\"write:counseling\",\"write:counseling_note\",\"write:document\",\"write:form_instance\",\"write:member\",\"write:schedule\",\"write:send_link\"],\"role\":\"counselor\",\"memberId\":\"3165033f-f587-4ccb-996a-8fc86715ba1b\",\"accessLevel\":\"own\",\"isAuthenticated\":true,\"version\":1,\"updatedAt\":\"2026-09-10T06:58:16.814Z\"}"
+          "value": "{\"permissions\":[\"read:center\",\"read:program\",\"read:room\",\"read:member\",\"read:role\",\"read:center_assessment\",\"read:form_template\",\"read:schedule\",\"read:client\",\"read:counseling\",\"read:counseling_note\",\"read:assessment_case\",\"read:send_link\",\"read:document\",\"read:form_instance\",\"read:notice\",\"write:member\",\"write:schedule\",\"write:client\",\"write:counseling\",\"write:counseling_note\",\"write:assessment_case\",\"write:send_link\",\"write:document\",\"write:form_instance\",\"delete:schedule\",\"delete:counseling\",\"delete:assessment_case\",\"delete:document\",\"read:billing\",\"write:billing\",\"read:voucher\"],\"role\":\"counselor\",\"memberId\":\"633df7fd-d4da-4ec7-ad44-34a32b617126\",\"accessLevel\":\"own\",\"isAuthenticated\":true,\"version\":1,\"updatedAt\":\"2026-09-10T18:36:28.904Z\"}"
         },
         {
           "name": "currentCenterId",
-          "value": "b0f33e8e-9745-447e-9bd2-f0a8af8654ba"
+          "value": "0cdf7c12-9ed0-47a7-91a0-c33e33c632eb"
         }
       ]
     }

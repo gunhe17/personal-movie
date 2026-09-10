@@ -1,0 +1,210 @@
+{
+  "id": "s03_web_aireview_t10",
+  "scene": "s03-채점보고서",
+  "device": "web",
+  "action": "aireview",
+  "take": "t10",
+  "captured_at": "2026-09-10T12:38:22.109Z",
+  "spec_version": 6,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:4503/examinations/519ea1b3-8975-40c9-b666-f4195be64ee1/report?ids=519ea1b3-8975-40c9-b666-f4195be64ee1,4dcded40-cbd4-4b6a-8d31-99431d8fde09,acdb10d9-7e83-4a38-a57f-b1458e5a994a",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 496,
+      "appended": 1032,
+      "dupped": 612,
+      "notReady": 0,
+      "ticks": 1032,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/mindbom-2026-09-10c.json",
+    "sha256": "416e30f069ac3283541669186ebef2b5b93174bbdd0d26ae72433e1821cad3b3"
+  },
+  "script": {
+    "file": "_scripts/s03-review.mjs",
+    "sha256": "74f31485100904881909b59f79bb026caaecf12734684c474474d37723d4f081"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.24,
+      "kind": "beat",
+      "target": "",
+      "note": "종합보고서 편집기 — A4 지면 그대로"
+    },
+    {
+      "t": 3.3,
+      "kind": "click",
+      "target": "getByRole('button', { name: 'AI 종합 리뷰' })",
+      "note": "AI 종합 리뷰"
+    },
+    {
+      "t": 3.81,
+      "kind": "until",
+      "target": "text=보고서를 분석하고 있습니다",
+      "note": "네 단계로 훑는다 (+0.3s)"
+    },
+    {
+      "t": 4.16,
+      "kind": "hold",
+      "target": "350",
+      "note": "문서 구조 → 검사 결과 대조 → 서술 일관성 → 표현·문체"
+    },
+    {
+      "t": 7.75,
+      "kind": "until",
+      "target": "aside[aria-label=\"AI 종합 리뷰\"] h4:has-text(\"검토사항\")",
+      "note": "완성도 점수와 검토사항 (+3.6s)"
+    },
+    {
+      "t": 8.1,
+      "kind": "hold",
+      "target": "350",
+      "note": "무엇이 비었고 무엇이 어긋나는지"
+    },
+    {
+      "t": 9.93,
+      "kind": "drag",
+      "target": "aside button:has-text(\"영역별 점수 요약\") → .para:has-text(\"4) 자기개념\") + .para",
+      "note": "SCT 영역별 점수 표를 자기개념 문단 아래로"
+    },
+    {
+      "t": 10.44,
+      "kind": "until",
+      "target": ".rpt-table",
+      "note": "놓은 자리에 표가 앉는다 (+0.3s)"
+    },
+    {
+      "t": 11.06,
+      "kind": "scroll",
+      "target": "468",
+      "note": "표가 지면에 들어왔다"
+    },
+    {
+      "t": 12.21,
+      "kind": "beat",
+      "target": "",
+      "note": "사이드바 자료에는 첨부됨 표시가 붙는다"
+    },
+    {
+      "t": 13.2,
+      "kind": "click",
+      "target": "button:has-text(\"초안 작성\")",
+      "note": "섹션 누락 — Ⅲ 행동 관찰이 비었다 · 초안 작성"
+    },
+    {
+      "t": 14.05,
+      "kind": "modal",
+      "target": "",
+      "note": "바뀔 문장을 지면 그대로 보여준다"
+    },
+    {
+      "t": 14.78,
+      "kind": "click",
+      "target": "button:has-text(\"본문에 적용\")",
+      "note": "본문에 적용"
+    },
+    {
+      "t": 15.72,
+      "kind": "beat",
+      "target": "",
+      "note": "지적이 사라지고 완성도가 오른다"
+    },
+    {
+      "t": 16.32,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 16.32,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.24,
+      "note": "AI가 문서를 통째로 검토한다",
+      "end": 8.1
+    },
+    {
+      "start": 8.1,
+      "note": "검사 자료를 끌어다 놓으면 문서가 된다",
+      "end": 12.21
+    },
+    {
+      "start": 12.21,
+      "note": "고칠 문장을 먼저 보여주고, 임상가가 승인한다",
+      "end": 15.72
+    }
+  ],
+  "retake_of": "t09",
+  "retake_reason": "SPEC v6 · s01의 배치 규칙에 맞춤 — 논지 도착은 hold(350) · 상태 변화만 beat · 스크롤 뒤 beat 제거 · 안 움직이는 reveal 제거",
+  "result": {
+    "file": "raw/s03_web_aireview_t10.mov",
+    "duration": 17.2,
+    "ok": true,
+    "error": null
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "stage": "phone",
+  "size": [
+    3840,
+    2160
+  ],
+  "fps": 60,
+  "screen": "../raw/s06_phone_fieldnote-list_t01.mov",
+  "phoneH": 86,
+  "statusH": 0,
+  "homeH": 0,
+  "screenBg": "#000000",
+  "shotRatio": 0.46,
+  "_note": "시뮬레이터 전체 화면(804×1748). 필드노트 홈의 최근 노트 목록 — 진입은 편집에서 녹음 테이크로 컷."
+}

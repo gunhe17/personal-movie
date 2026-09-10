@@ -1,0 +1,204 @@
+{
+  "id": "s01_web_intake_t11",
+  "scene": "s01-접수",
+  "device": "web",
+  "action": "intake",
+  "take": "t11",
+  "captured_at": "2026-09-10T11:40:04.489Z",
+  "spec_version": 6,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 923,
+      "appended": 1287,
+      "dupped": 469,
+      "notReady": 0,
+      "ticks": 1287,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s01-intake.mjs",
+    "sha256": "7df366453d6c543438899ddfe6b1b55313cc0f0e645837629a062a999bb1ae37"
+  },
+  "stt": null,
+  "mock": {
+    "file": "_mocks/s01-intake.json",
+    "sha256": "0059543ac121d749654a84b222515fffce63f36e0c206feafa13d3218e917d09",
+    "title": "s01 접수 — 통화 중 한 번의 요청으로 단체 검사 접수",
+    "turns": 1
+  },
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "에이전트 화면"
+    },
+    {
+      "t": 6.74,
+      "kind": "type",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "통화 중 요청 — 한 번에"
+    },
+    {
+      "t": 7,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 10.97,
+      "kind": "until",
+      "target": "text=접수 진행",
+      "note": "폼으로 갈아끼워진다 (+3.7s)"
+    },
+    {
+      "t": 11.32,
+      "kind": "hold",
+      "target": "350",
+      "note": "폼 도착 — 짧게"
+    },
+    {
+      "t": 12.37,
+      "kind": "click",
+      "target": "button:has-text(\"로르샤흐\")",
+      "note": "로르샤흐(투사·대면) → s02 실시"
+    },
+    {
+      "t": 13.42,
+      "kind": "click",
+      "target": "button:has-text(\"집-나무-사람\")",
+      "note": "HTP(투사·대면) → s03 배터리"
+    },
+    {
+      "t": 14.37,
+      "kind": "click",
+      "target": "button:has-text(\"문장완성검사\")",
+      "note": "SCT(투사·대면) → s03 배터리"
+    },
+    {
+      "t": 15.3,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "스마트폰중독검사(온라인) → s04 바로링크"
+    },
+    {
+      "t": 16.25,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 진행 3/3 — 버튼이 살아난다"
+    },
+    {
+      "t": 17.09,
+      "kind": "scroll",
+      "target": "539",
+      "note": "한 번에 맨 밑까지 — 명단 · 기관 · 담당자"
+    },
+    {
+      "t": 18.6,
+      "kind": "click",
+      "target": "role=button[name=\"등록\"]",
+      "note": "등록 — 내담자 3명이 실제로 생성된다"
+    },
+    {
+      "t": 19.93,
+      "kind": "until",
+      "target": "text=검사 현황",
+      "note": "검사 현황에 새 케이스 (+1.1s)"
+    },
+    {
+      "t": 20.53,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 20.53,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 7.25,
+      "note": "한 마디 → 검사 접수 폼 · 기관·명단이 얹힌다",
+      "end": 10.97
+    },
+    {
+      "start": 17.54,
+      "note": "등록 → 검사 현황",
+      "end": 19.93
+    }
+  ],
+  "retake_of": "t10",
+  "retake_reason": "t10은 캡처 타이머가 굶어 프레임이 10% 모자랐다(mds가 node_modules 색인 중) — 영상이 실제보다 빠르다. 부하가 가라앉은 뒤 재촬영",
+  "result": {
+    "file": "raw/s01_web_intake_t11.mov",
+    "duration": 21.45,
+    "ok": true,
+    "error": null
+  }
+}

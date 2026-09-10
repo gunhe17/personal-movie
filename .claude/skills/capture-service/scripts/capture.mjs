@@ -21,6 +21,7 @@ import { SPEC } from './spec.mjs'
 import { ensureWav, sttArgs, installStt } from './stt.mjs'
 import { checkAuth, RELOGIN_HINT } from './auth-check.mjs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
+
 const DEMO_ROOT = path.resolve(HERE, '../../../../movies/26IRDEMO')
 const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saas-center-platform')
 const PLAYWRIGHT_FROM = process.env.CAPTURE_PLAYWRIGHT_FROM ?? path.join(APP_ROOT, 'apps/web/package.json')
@@ -30,6 +31,10 @@ const CHROMIUM_BUNDLE_ID = 'com.google.chrome.for.testing'   // Playwright Chrom
 // ──────────────────────────────────────────────────────────────────────────
 
 const args = parseArgs(process.argv.slice(2))
+// 촬영 규격 프로파일 — 기본은 web(1600×900). `--profile phone`이면 폰 뷰포트로 찍는다(SPEC v7).
+// 이 아래로 SPEC.viewport를 직접 읽지 않는다 — 전부 VP를 본다.
+const VP = SPEC.profiles?.[args.profile ?? 'web'] ?? SPEC.viewport
+const PARK = VP.park ?? { x: VP.width - 24, y: VP.height - 24 }
 const need = (k) => { if (!args[k]) die(`--${k} 필요`) }
 need('scene'); need('device'); need('action')
 const sceneDir = path.join(DEMO_ROOT, args.scene)
@@ -83,8 +88,8 @@ const browser = await chromium.launch({
     ...(sttWav ? sttArgs(sttWav) : [])]
 })
 const context = await browser.newContext({
-  viewport: { width: SPEC.viewport.width, height: SPEC.viewport.height },
-  deviceScaleFactor: SPEC.viewport.dpr,
+  viewport: { width: VP.width, height: VP.height },
+  deviceScaleFactor: VP.dpr,
   colorScheme: SPEC.theme,
   locale: 'ko-KR', timezoneId: 'Asia/Seoul',
   ...(stt ? { permissions: ['microphone'] } : {}),
@@ -112,6 +117,10 @@ await context.route('**/*', async (route) => {
   if (route.request().resourceType() !== 'document') return route.fallback()
   try {
     const res = await route.fetch()
+    // **HTML일 때만 손댄다.** PDF도 document 리소스라 여기로 온다 — 그걸 text()로 읽어
+    // 다시 채우면 바이너리가 깨져 뷰어가 "PDF 문서를 로드하지 못했습니다"를 띄운다
+    // (s04 받는 쪽의 `결과 보기 · PDF`에서 실제로 겪었다, 2026-09-10).
+    if (!/text\/html/i.test(res.headers()['content-type'] ?? '')) return route.fulfill({ response: res })
     let body = await res.text()
     body = /<html[^>]*\slang=/i.test(body)
       ? body.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="ko"')
@@ -153,7 +162,7 @@ async function measureChromePt() {
   for (const wait of [0, 700, 1500]) {
     await sleep(wait)
     await markWindow()
-    const r = spawnSync(SCK_BIN, ['--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--scale', String(SPEC.viewport.dpr), '--trim-top', '0', '--still', probe])
+    const r = spawnSync(SCK_BIN, ['--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--scale', String(VP.dpr), '--trim-top', '0', '--still', probe])
     if (fs.existsSync(probe)) break
     sckErr = r.stderr || r.stdout
   }
@@ -167,27 +176,27 @@ async function measureChromePt() {
     }
   } catch (e) { log(`크롬 높이 측정 실패: ${e.message}`) }
   fs.unlinkSync(probe)
-  return px == null ? null : px / SPEC.viewport.dpr
+  return px == null ? null : px / VP.dpr
 }
 
 await cdp.send('Browser.setWindowBounds', {
   windowId,
-  bounds: { left: 80, top: 60, width: SPEC.viewport.width, height: SPEC.viewport.height + 140, windowState: 'normal' }
+  bounds: { left: 80, top: 60, width: VP.width, height: VP.height + 140, windowState: 'normal' }
 })
 await sleep(1200)
 const inner = await page.evaluate(() => [window.innerWidth, window.innerHeight])
-if (inner[0] !== SPEC.viewport.width || inner[1] !== SPEC.viewport.height)
-  log(`경고: 뷰포트 ${inner[0]}×${inner[1]} — SPEC ${SPEC.viewport.width}×${SPEC.viewport.height}과 다르다`)
-await page.mouse.move(SPEC.park.x, SPEC.park.y)
+if (inner[0] !== VP.width || inner[1] !== VP.height)
+  log(`경고: 뷰포트 ${inner[0]}×${inner[1]} — SPEC ${VP.width}×${VP.height}과 다르다`)
+await page.mouse.move(PARK.x, PARK.y)
 await sleep(300)
 
 const chromeH = await measureChromePt()
 if (chromeH == null) die('브라우저 크롬 높이를 재지 못했다 — 창 캡처가 되는지(화면 기록 권한) 확인')
 
-const rect = { x: 0, y: chromeH, w: SPEC.viewport.width, h: SPEC.viewport.height }   // 창 기준 points
+const rect = { x: 0, y: chromeH, w: VP.width, h: VP.height }   // 창 기준 points
 log(`창 모드 '${WIN_MARK}' 크롬높이=${chromeH}pt → rect ${rect.w}×${rect.h}+${rect.x}+${rect.y}`)
 const sckArgs = ['--rect', `${rect.x},${rect.y},${rect.w},${rect.h}`, '--trim-top', String(rect.y),
-  '--scale', String(SPEC.viewport.dpr), '--fps', String(SPEC.capture.fps),
+  '--scale', String(VP.dpr), '--fps', String(SPEC.capture.fps),
   '--codec', SPEC.capture.codec, '--bitrate', String(SPEC.capture.bitrate),
   '--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--cursor', 'on']
 
@@ -217,7 +226,7 @@ if (!(await ready)) { await browser.close(); die(`캡처러가 첫 프레임을 
 await page.evaluate(() => { document.title = document.title.startsWith('CAP-') ? '' : document.title }).catch(() => {})
 const t0 = Date.now()
 const clock = { now: () => (Date.now() - t0) / 1000 }
-const h = human(page, SPEC.timing, clock, SPEC.park, (line) => { try { cap.stdin.write(line + '\n') } catch { /* 캡처러가 이미 닫혔다 */ } })
+const h = human(page, SPEC.timing, clock, PARK, (line) => { try { cap.stdin.write(line + '\n') } catch { /* 캡처러가 이미 닫혔다 */ } })
 
 let ok = true, err = null
 try {
@@ -242,7 +251,7 @@ writeMeta({
   id, scene: args.scene, device: args.device, action: args.action, take,
   captured_at: new Date().toISOString(), spec_version: SPEC.version, captured_by: 'skill:capture-service',
   app: { url: args.url, env: args.env ?? guessEnv(args.url), commit: appCommit },
-  viewport: { css: [SPEC.viewport.width, SPEC.viewport.height], dpr: SPEC.viewport.dpr, pixels: [rect.w * SPEC.viewport.dpr, rect.h * SPEC.viewport.dpr], theme: SPEC.theme },
+  viewport: { profile: args.profile ?? 'web', css: [VP.width, VP.height], dpr: VP.dpr, pixels: [rect.w * VP.dpr, rect.h * VP.dpr], theme: SPEC.theme },
   capture: { ...SPEC.capture, mode: 'window', chrome_pt: chromeH, rect_pt: rect, stats },
   timing: SPEC.timing,
   seed: { file: args.seed ?? null, sha256: args.seed ? sha256(fs.readFileSync(path.join(DEMO_ROOT, args.seed))) : null },

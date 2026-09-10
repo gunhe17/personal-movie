@@ -10,6 +10,12 @@
 // 드래그 앤 드롭은 **실기능**이다 — 왼쪽 자료는 윤도현의 실제 검사 결과이고, 놓은 자리에
 // 제품 코드(`placeCaretAtPoint` → `insertMaterial`)가 표를 넣는다. 클릭 삽입과 같은 경로다.
 // 표를 고른 이유: HTP 그림은 666×942px라 900px 뷰포트에 안 잡혔다(t05~t07). SCT '영역별 점수 요약'은 5행이라 한 화면에 앉고, 4) 자기개념이 인용하는 바로 그 점수다.
+/** 표를 뷰포트 가운데로 올릴 거리. reveal이 하던 계산을 그대로 하되 뒤에 `beat`를 안 붙인다. */
+async function tableDy(page) {
+  const box = await page.locator('.rpt-table').first().boundingBox()
+  return box ? Math.round(box.y + box.height / 2 - 450) : 0
+}
+
 export default async function steps(page, h) {
   await h.beat('종합보고서 편집기 — A4 지면 그대로')
 
@@ -17,9 +23,10 @@ export default async function steps(page, h) {
   h.nocutStart('AI가 문서를 통째로 검토한다')
   await h.click(page.getByRole('button', { name: 'AI 종합 리뷰' }), 'AI 종합 리뷰')
   await h.until('text=보고서를 분석하고 있습니다', '네 단계로 훑는다')
-  await h.beat('문서 구조 → 검사 결과 대조 → 서술 일관성 → 표현·문체')
+  // 도착한 순간은 짧게 — 네 단계 자체는 다음 `until`이 3초를 그대로 보여준다(s01 배치 규칙)
+  await h.hold(350, '문서 구조 → 검사 결과 대조 → 서술 일관성 → 표현·문체')
   await h.until('aside[aria-label="AI 종합 리뷰"] h4:has-text("검토사항")', '완성도 점수와 검토사항')
-  await h.beat('무엇이 비었고 무엇이 어긋나는지')
+  await h.hold(350, '무엇이 비었고 무엇이 어긋나는지')
   h.nocutEnd()
 
   // ② 검사 자료를 본문에 끌어다 놓는다 — 로샤 결과가 그대로 문서가 된다
@@ -28,14 +35,17 @@ export default async function steps(page, h) {
     { sel: '.para:has-text("4) 자기개념") + .para', fx: 0.5, fy: 0.5 },
     'SCT 영역별 점수 표를 자기개념 문단 아래로')
   await h.until('.rpt-table', '놓은 자리에 표가 앉는다')
-  await h.reveal('.rpt-table', '표가 지면에 들어왔다')
+  // 스크롤 뒤에 `beat`를 붙이지 않는다 — t09는 `reveal`의 0.7초와 다음 `beat` 0.7초가 붙어
+  // 1.4초가 통째로 멈춰 있었다. 멈춤은 **상태가 바뀌는 순간**(사이드바 `첨부됨`) 하나에만 준다.
+  await h.scroll(await tableDy(page), '표가 지면에 들어왔다')
   await h.beat('사이드바 자료에는 첨부됨 표시가 붙는다')
   h.nocutEnd()
 
   // ③ AI 지적 하나를 쓴다 — 비어 있는 Ⅲ. 행동 관찰
   h.nocutStart('고칠 문장을 먼저 보여주고, 임상가가 승인한다')
-  await h.reveal('button:has-text("초안 작성")', '섹션 누락 — Ⅲ 행동 관찰이 비었다')
-  await h.click('button:has-text("초안 작성")', '초안 작성')
+  // `reveal`을 뺐다 — 버튼이 이미 패널 안에 보여서 t09에서 스크롤이 일어나지 않았고(실측 간격 0.02초)
+  // `beat` 0.7초만 남아 있었다. 이미 보이는 것을 다시 보여주지 않는다.
+  await h.click('button:has-text("초안 작성")', '섹션 누락 — Ⅲ 행동 관찰이 비었다 · 초안 작성')
   await h.modal('바뀔 문장을 지면 그대로 보여준다')
   await h.click('button:has-text("본문에 적용")', '본문에 적용')
   await h.beat('지적이 사라지고 완성도가 오른다')

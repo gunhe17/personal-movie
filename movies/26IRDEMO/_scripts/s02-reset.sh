@@ -25,6 +25,8 @@ set -euo pipefail
 NOTE="${1:-seed:yun-rorschach}"
 export PGPASSWORD=mindbom_dev
 PSQL=(psql -h localhost -p 4501 -U mindbom -d mindbom -q)
+# 이 기계에 psql이 없으면 컨테이너 안의 것을 쓴다(2026-09-10 밤부터 docker exec가 열렸다)
+command -v psql >/dev/null 2>&1 || PSQL=(docker exec -e PGPASSWORD -i mindbom-postgres psql -U mindbom -d mindbom -q)
 
 # 검사가 없으면 조용히 아무것도 안 하는 대신 멈춘다 — 재시드 직후 note가 바뀌면 여기서 걸린다
 [ "$("${PSQL[@]}" -t -A -c "select count(*) from examinations where note='$NOTE'")" = "1" ] \

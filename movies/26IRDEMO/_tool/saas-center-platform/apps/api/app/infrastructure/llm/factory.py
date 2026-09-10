@@ -13,7 +13,10 @@ def openai_client(model: str, *, api_key: str | None = None) -> OpenAIProvider:
     key = api_key or settings.OPENAI_API_KEY
     if not key:
         raise ValueError("OPENAI_API_KEY not set")
-    return OpenAIProvider(client=AsyncOpenAI(api_key=key), model=model)
+    # 로컬 촬영에서는 base_url로 대역을 끼운다(`_scripts/llm-stub.mjs`) — 비어 있으면 공식 API 그대로다.
+    # 촬영 규칙 5와 같은 원칙: 제품 경로는 전부 진짜로 돌고 **모델 응답 한 홉만** 갈아 끼운다.
+    base = getattr(settings, "OPENAI_BASE_URL", "") or None
+    return OpenAIProvider(client=AsyncOpenAI(api_key=key, base_url=base), model=model)
 
 
 def openrouter_client(

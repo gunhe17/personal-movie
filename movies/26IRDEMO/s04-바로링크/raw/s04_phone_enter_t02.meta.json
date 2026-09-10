@@ -1,0 +1,224 @@
+{
+  "id": "s04_phone_enter_t02",
+  "scene": "s04-바로링크",
+  "device": "phone",
+  "action": "enter",
+  "take": "t02",
+  "captured_at": "2026-09-10T14:53:33.647Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "file:///Users/markos/workspace/service/personal-movie/movies/26IRDEMO/_mocks/s04-sms.html?id=a0213f04-96cf-4b2c-b0ae-2c1077ccb808&code=1164&base=http://localhost:3503",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 212,
+      "appended": 765,
+      "dupped": 591,
+      "notReady": 0,
+      "ticks": 765,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s04-enter.mjs",
+    "sha256": "452e11c265c7ae3e57d1eb2137e448e4a239e2870599c19beefb21d9b61b2dcb"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.22,
+      "kind": "beat",
+      "target": "",
+      "note": "문자 한 통 — 바로링크와 인증번호"
+    },
+    {
+      "t": 3.1,
+      "kind": "click",
+      "target": "#barolink",
+      "note": "바로링크를 누른다"
+    },
+    {
+      "t": 5.3,
+      "kind": "until",
+      "target": "section[aria-label=\"바로링크 인증\"]",
+      "note": "\"문자로 받은 번호 네 자리를 입력해주세요\" (+2.0s)"
+    },
+    {
+      "t": 5.6,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 1"
+    },
+    {
+      "t": 5.85,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 2"
+    },
+    {
+      "t": 6.1,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 3"
+    },
+    {
+      "t": 6.54,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 4"
+    },
+    {
+      "t": 8.02,
+      "kind": "until",
+      "target": "text=나의 검사",
+      "note": "들어왔다 — 나의 검사 (+1.5s)"
+    },
+    {
+      "t": 8.85,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "검사를 연다"
+    },
+    {
+      "t": 9.36,
+      "kind": "until",
+      "target": "[data-question-number]",
+      "note": "문항이 5개씩 (+0.3s)"
+    },
+    {
+      "t": 9.71,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 1"
+    },
+    {
+      "t": 10.04,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 2"
+    },
+    {
+      "t": 10.48,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 3"
+    },
+    {
+      "t": 11.05,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 4"
+    },
+    {
+      "t": 11.36,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 5"
+    },
+    {
+      "t": 11.63,
+      "kind": "until",
+      "target": "button:has-text(\"다음\"):not([disabled])",
+      "note": "다섯을 채우면 다음이 살아난다 (+0.3s)"
+    },
+    {
+      "t": 11.98,
+      "kind": "hold",
+      "target": "350",
+      "note": "집에서 폰으로 바로 응시한다"
+    },
+    {
+      "t": 12.58,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 12.58,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.22,
+      "note": "문자에서 링크 하나로 들어간다",
+      "end": 8.02
+    },
+    {
+      "start": 8.02,
+      "note": "링크 안에서 바로 응시한다",
+      "end": 11.63
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "시뮬레이션을 눈으로 확인한 뒤의 판(scene-prep 절차대로)",
+  "result": {
+    "file": "raw/s04_phone_enter_t02.mov",
+    "duration": 12.75,
+    "ok": true,
+    "error": null
+  }
+}

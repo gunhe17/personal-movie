@@ -1,0 +1,205 @@
+{
+  "id": "s08_web_careboard_t04",
+  "scene": "s08-케어보드",
+  "device": "web",
+  "action": "careboard",
+  "take": "t04",
+  "captured_at": "2026-09-10T18:52:48.103Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/clients/40252857-736c-41d8-849f-bccb35a33c48",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 365,
+      "appended": 956,
+      "dupped": 596,
+      "notReady": 0,
+      "ticks": 956,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s08-careboard.mjs",
+    "sha256": "07cb8929931b44999eb66b5ee52694eac89434040a91a0afc9d7046a09254349"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 1.82,
+      "kind": "until",
+      "target": "getByPlaceholder('공유할 메모를 남겨보세요')",
+      "note": "케어보드 도크 (+0.3s)"
+    },
+    {
+      "t": 2.52,
+      "kind": "beat",
+      "target": "",
+      "note": "한 아이에게 일어난 일이 한 줄기로 — 접수 · 회기 · 필드노트 · 바우처"
+    },
+    {
+      "t": 3.1,
+      "kind": "hover",
+      "target": "getByText('놀이치료 접수')",
+      "note": "스트림 위"
+    },
+    {
+      "t": 4.01,
+      "kind": "scroll",
+      "target": "-520",
+      "note": "8월 회기까지 거슬러 — 스크롤을 올리는 것이 인수인계다"
+    },
+    {
+      "t": 5.16,
+      "kind": "beat",
+      "target": "",
+      "note": "한 달 전 회기까지 같은 줄기에 있다"
+    },
+    {
+      "t": 6.06,
+      "kind": "scroll",
+      "target": "520",
+      "note": "다시 최근으로"
+    },
+    {
+      "t": 6.78,
+      "kind": "until",
+      "target": "getByText('사례회의 안건')",
+      "note": "센터장 김원장이 남긴 메모 — 이름과 시각이 붙는다 (+0.3s)"
+    },
+    {
+      "t": 9.24,
+      "kind": "type",
+      "target": "getByPlaceholder('공유할 메모를 남겨보세요')",
+      "note": "그 자리에서 답을 쓴다"
+    },
+    {
+      "t": 10.16,
+      "kind": "click",
+      "target": "getByRole('button', { name: '메모 등록' })",
+      "note": "메모 등록"
+    },
+    {
+      "t": 10.72,
+      "kind": "until",
+      "target": "getByText('먼저 말을 겁니다')",
+      "note": "정상담 · 담당자 — 같은 줄기에 쌓인다 (+0.3s)"
+    },
+    {
+      "t": 11.38,
+      "kind": "click",
+      "target": "getByRole('listitem').filter({ hasText: '먼저 말을 겁니다' }).getByRole('button', { name: '공지로 고정' })",
+      "note": "공지로 고정"
+    },
+    {
+      "t": 11.89,
+      "kind": "until",
+      "target": "getByRole('button', { name: '고정 해제' })",
+      "note": "상단 공지 카드로 올라간다 (+0.3s)"
+    },
+    {
+      "t": 12.62,
+      "kind": "click",
+      "target": "getByRole('button', { name: '케어보드 접기' })",
+      "note": "케어보드 접기"
+    },
+    {
+      "t": 13.7,
+      "kind": "click",
+      "target": "getByRole('button', { name: '케어보드 열기' })",
+      "note": "케어보드 열기"
+    },
+    {
+      "t": 14.2,
+      "kind": "until",
+      "target": "getByText('회의 자료에')",
+      "note": "김원장의 답이 같은 보드에 도착해 있다 (+0.3s)"
+    },
+    {
+      "t": 14.8,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝 — 전달해야 하던 일이, 남겨두면 되는 일이 된다"
+    },
+    {
+      "t": 14.8,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 6.51,
+      "note": "남긴다 → 팀이 본다",
+      "end": 14.2
+    }
+  ],
+  "result": {
+    "file": "raw/s08_web_careboard_t04.mov",
+    "duration": 15.93,
+    "ok": true,
+    "error": null
+  }
+}

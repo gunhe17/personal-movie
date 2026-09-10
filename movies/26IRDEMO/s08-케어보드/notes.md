@@ -1,5 +1,14 @@
 # s08-케어보드 — 남긴 메모가 팀에게 가 닿는다 (t02 재구성)
 
+## 촬영 (2026-09-11 새벽 · SPEC v6 · s01 배치 규칙)
+
+**선택본 `s08_web_careboard_t04` — 15.93초 · 충실도 99% · 드롭 0 · 노컷 6.51–14.20.**
+목업 `mockup/s08_web_careboard_t04_imac.mp4`.
+
+끝의 `beat` + `hold(1500)`을 닫는 `hold(600)` 하나로 — s01·s04·s05와 같은 모양이다. 전제 둘을 밟았다: **`care_board_entries`가 재시드로 1행뿐이라** `backfill_care_board`로 22행을 재구축했고, 김원장 상태 파일(`_state/local-saas-admin.json`)의 refresh 토큰이 죽어 다시 받았다. 되돌리기는 `_scripts/s08-reset.sh`.
+
+부하로 굶은 판은 `_scripts/capture-until-good.sh`가 자동으로 다시 찍는다(기준 충실도 98%).
+
 기기: web
 배역: 모임 축 — **이하준**(회기 축과 같은 사람 · 놀이치료 C00002 · 진행률 4/8)에게 일어난 일을
 **정상담(주인공)** 과 **김원장(센터장 · 관리자)** 이 같은 보드에서 주고받는다. (정본 CAST.md)

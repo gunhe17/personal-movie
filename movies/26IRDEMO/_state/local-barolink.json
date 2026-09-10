@@ -1,0 +1,15 @@
+{
+  "cookies": [
+    {
+      "name": "barolink_a0213f04-96cf-4b2c-b0ae-2c1077ccb808",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZW5kX2xpbmtfaWQiOiJhMDIxM2YwNC05NmNmLTRiMmMtYjBhZS0yYzEwNzdjY2I4MDgiLCJjZW50ZXJfaWQiOiIwY2RmN2MxMi05ZWQwLTQ3YTctOTFhMC1jMzNlMzNjNjMyZWIiLCJjYXNlX2lkIjoiYjI2MjIwMzUtOTUzNy00NmEzLWEwYmMtNWRkOWQ3ZTdlOTY2IiwidG9rZW5fdmVyc2lvbiI6MiwiYWNjb3VudF90b2tlbl92ZXJzaW9uIjowLCJhdWQiOiJhc3Nlc3NtZW50X2xpbmsiLCJleHAiOjE3ODkwNjExMzJ9.aYsvO9oUtSRHV4F1t0HuC4g8iHu_nu17sXQ-gpxMWXE",
+      "domain": "localhost",
+      "path": "/api/barolink/a0213f04-96cf-4b2c-b0ae-2c1077ccb808",
+      "expires": 1789061132,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": []
+}

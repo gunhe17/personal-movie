@@ -2,27 +2,27 @@
   "cookies": [
     {
       "name": "accessToken",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNDA3Mjg5NmQtZDkwNy00NWVjLTlhMTUtODA3M2EwY2Q5MDZmIiwicGVyc29uX2lkIjoiZTE1ZWEwMzEtYjJmMS00MTY3LTg4ZmYtNDBkMjQ1MmI1ODljIiwiZW1haWwiOiJhZG1pbkBtaW5kc2NvcGUuY29tIiwidG9rZW5fdmVyc2lvbiI6MiwiYWNjb3VudF90b2tlbl92ZXJzaW9uIjowLCJleHAiOjE3ODkwMDU2MTV9.EDoE2vVHDlPUDse8XDyAjSh_POx4a6bC_kpu0Gi0ktc",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiZmYyYTI2NzEtNDNiNi00YTBlLTk0ZWItODE1MzJhNWNmNTRmIiwicGVyc29uX2lkIjoiYzU0MGY2ZDAtMGRiYi00ZjAzLTgwZTMtZWYwMTVhMWJkYTZmIiwiZW1haWwiOiJhZG1pbkBtaW5kc2NvcGUuY29tIiwidG9rZW5fdmVyc2lvbiI6MiwiYWNjb3VudF90b2tlbl92ZXJzaW9uIjowLCJleHAiOjE3ODkwNjgwOTZ9.s3taO8UnZ7yVnBp7XKudEMrbX5ms3pOHGTAqWOUUK6Q",
       "domain": "localhost",
       "path": "/",
-      "expires": 1789005615.974433,
+      "expires": 1789068096.801746,
       "httpOnly": true,
       "secure": false,
       "sameSite": "Strict"
     },
     {
       "name": "refreshToken",
-      "value": "CSXwgbstj9M1NgYrWQXAfoF3By6fnXOaFbqPvWxCWHE",
+      "value": "iCcu6ofbCnYHUMDD2zRoG8L5ECULiZTP8TE3HNkdNbw",
       "domain": "localhost",
       "path": "/",
-      "expires": 1789608615.974495,
+      "expires": 1789671096.801822,
       "httpOnly": true,
       "secure": false,
       "sameSite": "Strict"
     },
     {
       "name": "currentCenterId",
-      "value": "0b8ef109-6f1d-4d43-af15-95b140d340e7",
+      "value": "0cdf7c12-9ed0-47a7-91a0-c33e33c632eb",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
@@ -37,11 +37,11 @@
       "localStorage": [
         {
           "name": "centers",
-          "value": "[{\"id\":\"0b8ef109-6f1d-4d43-af15-95b140d340e7\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"657SAZ\",\"logo_url\":null}]"
+          "value": "[{\"id\":\"0cdf7c12-9ed0-47a7-91a0-c33e33c632eb\",\"name\":\"마인드스코프 아동심리상담센터\",\"code\":\"TV2AJY\",\"logo_url\":null}]"
         },
         {
           "name": "currentCenterId",
-          "value": "0b8ef109-6f1d-4d43-af15-95b140d340e7"
+          "value": "0cdf7c12-9ed0-47a7-91a0-c33e33c632eb"
         }
       ]
     }

@@ -1,0 +1,349 @@
+{
+  "id": "s04_phone_barolink_t04",
+  "scene": "s04-바로링크",
+  "device": "phone",
+  "action": "barolink",
+  "take": "t04",
+  "captured_at": "2026-09-10T14:34:59.531Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "file:///Users/markos/workspace/service/personal-movie/movies/26IRDEMO/_mocks/s04-sms.html?id=a0213f04-96cf-4b2c-b0ae-2c1077ccb808&code=1164&base=http://localhost:3503",
+    "env": "local",
+    "commit": "22ac3f9"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 1261,
+      "appended": 1626,
+      "dupped": 417,
+      "notReady": 0,
+      "ticks": 1626,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-10e.json",
+    "sha256": "3137c1dd9f6421347fc158d022d199f646e3a2433685c5cd86dda63ca33312a5"
+  },
+  "script": {
+    "file": "_scripts/s04-barolink.mjs",
+    "sha256": "5c8e8f5499846f5d371c0da9e901ec46b31d52e3a05a9193139dedba30c6645f"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.22,
+      "kind": "beat",
+      "target": "",
+      "note": "문자 한 통 — 바로링크와 인증번호"
+    },
+    {
+      "t": 3.21,
+      "kind": "click",
+      "target": "#barolink",
+      "note": "바로링크를 누른다"
+    },
+    {
+      "t": 5.66,
+      "kind": "until",
+      "target": "section[aria-label=\"바로링크 인증\"]",
+      "note": "\"문자로 받은 번호 네 자리를 입력해주세요\" (+2.2s)"
+    },
+    {
+      "t": 5.95,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 1"
+    },
+    {
+      "t": 6.22,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 2"
+    },
+    {
+      "t": 6.5,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 3"
+    },
+    {
+      "t": 6.77,
+      "kind": "hold",
+      "target": "240",
+      "note": "인증번호 4"
+    },
+    {
+      "t": 7.99,
+      "kind": "until",
+      "target": "text=나의 검사",
+      "note": "들어왔다 — 나의 검사 (+1.2s)"
+    },
+    {
+      "t": 8.34,
+      "kind": "hold",
+      "target": "350",
+      "note": "검사 · 상담 기록"
+    },
+    {
+      "t": 9.03,
+      "kind": "click",
+      "target": "section[aria-label=\"상담 기록\"] button",
+      "note": "상담 기록 — 지난 회기"
+    },
+    {
+      "t": 9.53,
+      "kind": "until",
+      "target": "section[aria-label=\"상담 기록\"] p",
+      "note": "보호자에게 발행한 글이 펼쳐진다 (+0.3s)"
+    },
+    {
+      "t": 10.24,
+      "kind": "beat",
+      "target": "",
+      "note": "임상 원문이 아니라 보호자용으로 쓴 글이다"
+    },
+    {
+      "t": 11.01,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "검사를 연다"
+    },
+    {
+      "t": 11.52,
+      "kind": "until",
+      "target": "[data-question-number]",
+      "note": "문항이 5개씩 (+0.3s)"
+    },
+    {
+      "t": 11.86,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 1"
+    },
+    {
+      "t": 12.2,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 2"
+    },
+    {
+      "t": 12.62,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 3"
+    },
+    {
+      "t": 13.17,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 4"
+    },
+    {
+      "t": 13.5,
+      "kind": "hold",
+      "target": "300",
+      "note": "문항 5"
+    },
+    {
+      "t": 13.77,
+      "kind": "until",
+      "target": "button:has-text(\"다음\"):not([disabled])",
+      "note": "다섯을 채우면 다음이 살아난다 (+0.3s)"
+    },
+    {
+      "t": 14.54,
+      "kind": "click",
+      "target": "locator('button:has-text(\"다음\")').first()",
+      "note": "1쪽 끝 — 다음"
+    },
+    {
+      "t": 15.05,
+      "kind": "until",
+      "target": "[data-question-number]",
+      "note": "2쪽 (+0.3s)"
+    },
+    {
+      "t": 15.24,
+      "kind": "hold",
+      "target": "160",
+      "note": "2쪽 문항 1"
+    },
+    {
+      "t": 16.29,
+      "kind": "hold",
+      "target": "160",
+      "note": "2쪽 문항 2"
+    },
+    {
+      "t": 16.85,
+      "kind": "hold",
+      "target": "160",
+      "note": "2쪽 문항 3"
+    },
+    {
+      "t": 17.26,
+      "kind": "hold",
+      "target": "160",
+      "note": "2쪽 문항 4"
+    },
+    {
+      "t": 17.46,
+      "kind": "hold",
+      "target": "160",
+      "note": "2쪽 문항 5"
+    },
+    {
+      "t": 18.19,
+      "kind": "click",
+      "target": "locator('button:has-text(\"다음\")').first()",
+      "note": "2쪽 끝 — 다음"
+    },
+    {
+      "t": 18.71,
+      "kind": "until",
+      "target": "[data-question-number]",
+      "note": "3쪽 (+0.3s)"
+    },
+    {
+      "t": 18.91,
+      "kind": "hold",
+      "target": "160",
+      "note": "3쪽 문항 1"
+    },
+    {
+      "t": 19.98,
+      "kind": "hold",
+      "target": "160",
+      "note": "3쪽 문항 2"
+    },
+    {
+      "t": 20.52,
+      "kind": "hold",
+      "target": "160",
+      "note": "3쪽 문항 3"
+    },
+    {
+      "t": 20.95,
+      "kind": "hold",
+      "target": "160",
+      "note": "3쪽 문항 4"
+    },
+    {
+      "t": 21.15,
+      "kind": "hold",
+      "target": "160",
+      "note": "3쪽 문항 5"
+    },
+    {
+      "t": 21.86,
+      "kind": "click",
+      "target": "button:has-text(\"제출\")",
+      "note": "제출"
+    },
+    {
+      "t": 25.2,
+      "kind": "until",
+      "target": "text=응답을 잘 받았어요",
+      "note": "제출 완료 — 자동 채점이 돈다 (+3.1s)"
+    },
+    {
+      "t": 25.56,
+      "kind": "hold",
+      "target": "350",
+      "note": "수고하셨어요 · 응답을 잘 받았어요"
+    },
+    {
+      "t": 26.16,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 26.16,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.22,
+      "note": "문자에서 링크 하나로 들어간다",
+      "end": 7.99
+    },
+    {
+      "start": 8.34,
+      "note": "상담 기록은 발행된 글만 보인다",
+      "end": 10.24
+    },
+    {
+      "start": 10.24,
+      "note": "링크 안에서 바로 응시한다",
+      "end": 25.2
+    }
+  ],
+  "retake_of": "t03",
+  "retake_reason": "문자 목업의 상단 상태바 제거 — 폰 목업 프레임이 그 역할을 한다",
+  "result": {
+    "file": "raw/s04_phone_barolink_t04.mov",
+    "duration": 27.1,
+    "ok": true,
+    "error": null
+  }
+}

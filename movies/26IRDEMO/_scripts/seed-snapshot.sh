@@ -50,7 +50,12 @@ else
   PGPASSWORD=mindbom_dev
 fi
 export PGPASSWORD
-psql -h localhost -p "$port" -U "$user" -d "$db" -tA -c "$query" > "$out"
+# 호스트에 psql이 깔려 있지 않을 수 있다 — 그때는 컨테이너 것을 쓴다(reset-seed.sh와 같은 방식).
+if command -v psql >/dev/null 2>&1; then
+  psql -h localhost -p "$port" -U "$user" -d "$db" -tA -c "$query" > "$out"
+else
+  docker exec -e PGPASSWORD "$container" psql -U "$user" -d "$db" -tA -c "$query" > "$out"
+fi
 
 [ -s "$out" ] || { rm -f "$out"; echo "빈 결과 — DB가 떠 있고 시드가 돌았는지 확인 (accounts.json의 apps.$app.seed)"; exit 1; }
 echo "$out  sha256=$(shasum -a 256 "$out" | cut -c1-12)"

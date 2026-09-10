@@ -22,6 +22,8 @@ const APP_ROOT = process.env.CAPTURE_APP_ROOT ?? path.join(DEMO_ROOT, '_tool/saa
 const PLAYWRIGHT_FROM = process.env.CAPTURE_PLAYWRIGHT_FROM ?? path.join(APP_ROOT, 'apps/web/package.json')
 
 const args = parseArgs(process.argv.slice(2))
+// 촬영 규격 프로파일 — 촬영(capture.mjs)과 같은 값을 본다(SPEC v7). 기본은 web.
+const VP = SPEC.profiles?.[args.profile ?? 'web'] ?? SPEC.viewport
 for (const k of ['scene', 'url', 'script']) if (!args[k]) die(`--${k} 필요`)
 
 const scriptPath = path.join(DEMO_ROOT, args.script)
@@ -55,8 +57,8 @@ const browser = await chromium.launch({
     ...(sttWav ? sttArgs(sttWav) : [])]
 })
 const context = await browser.newContext({
-  viewport: { width: SPEC.viewport.width, height: SPEC.viewport.height },
-  deviceScaleFactor: SPEC.viewport.dpr,
+  viewport: { width: VP.width, height: VP.height },
+  deviceScaleFactor: VP.dpr,
   colorScheme: SPEC.theme,
   locale: 'ko-KR', timezoneId: 'Asia/Seoul',
   ...(stt ? { permissions: ['microphone'] } : {}),
@@ -92,7 +94,7 @@ await sleep(1500)
 
 const t0 = Date.now()
 const clock = { now: () => (Date.now() - t0) / 1000 }
-const h = human(page, T, clock, SPEC.park)
+const h = human(page, T, clock, VP.park ?? SPEC.park)
 
 let ok = true, failedAt = null, err = null
 try {

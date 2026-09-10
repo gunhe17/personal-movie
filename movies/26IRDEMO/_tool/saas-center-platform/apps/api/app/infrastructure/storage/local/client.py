@@ -115,8 +115,11 @@ class LocalStorageClient:
     async def get_presigned_url(
         self, path: str, version_id: str | None = None, expires_in: int = 3600,
     ) -> str:
-        file_path = self._get_file_path(path)
-        return f"file://{file_path.absolute()}"
+        # 브라우저가 열 수 있는 주소여야 한다 — `file://`은 바로링크의 결과 열람이 막는다
+        # (verify-link/+page.svelte: http(s)만 허용). main.py가 같은 디렉터리를 /local-storage로 내준다.
+        from app.core.config import settings
+
+        return f"{settings.LOCAL_STORAGE_BASE_URL.rstrip('/')}/{path.lstrip('/')}"
 
     async def head_file(self, path: str) -> dict | None:
         file_path = self._get_file_path(path)

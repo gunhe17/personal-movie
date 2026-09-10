@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     AWS_REGION: str = "ap-northeast-2"
     S3_BUCKET_NAME: str = ""
     S3_BUCKET_ENABLED: bool = True  # Phase 1.5에서 True로 변경
+    # 로컬 저장소(개발 전용) — S3를 안 쓸 때 파일이 여기 쌓이고, main.py가 같은 경로를 /local-storage로 내준다
+    LOCAL_STORAGE_PATH: str = "/tmp/saas-storage"
+    LOCAL_STORAGE_BASE_URL: str = "http://localhost:3502/local-storage"
 
     # SMTP Email
     SMTP_SERVER: str = "smtps.hiworks.com"
@@ -106,6 +109,7 @@ class Settings(BaseSettings):
     SUMMARY_MAX_TOKENS: int = 2048
 
     # OpenRouter
+    OPENAI_BASE_URL: str = ""  # 비어 있으면 공식 API. 로컬 촬영은 llm-stub(_scripts/llm-stub.mjs)을 가리킨다
     OPENROUTER_API_KEY: str = ""
 
     # Poolside 직결 (laguna) — 키 있으면 poolside/* 모델은 직결이 기본
