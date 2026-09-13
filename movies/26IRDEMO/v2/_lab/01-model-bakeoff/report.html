@@ -1,0 +1,526 @@
+<title>첫 프레임 모델 시험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600&family=Gothic+A1:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --ground:#E9EAEA; --surface:#F8F8F7; --band:#F1F2F1;
+  --ink:#191E21; --ink-2:#4B565A; --ink-3:#7A8488;
+  --rule:#CBCFCF; --rule-2:#A8AEAF;
+  --go:#3F5B66; --go-bg:#DCE4E7;
+  --do:#A9702F; --do-bg:#F2E5D2;
+  --stop:#8C3A2E; --stop-bg:#EEDCD8;
+  --f-d:'Hahmlet','Nanum Myeongjo',serif;
+  --f-b:'Gothic A1',system-ui,-apple-system,sans-serif;
+  --f-m:'IBM Plex Mono','Nanum Gothic Coding',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --go:#82ACBA; --go-bg:#1E2C31;
+  --do:#E0A662; --do-bg:#32261A;
+  --stop:#D98A7B; --stop-bg:#33211D;
+}}
+:root[data-theme="dark"]{
+  --ground:#131719; --surface:#1C2123; --band:#181D1F;
+  --ink:#E6E7E5; --ink-2:#A2ABAD; --ink-3:#798285;
+  --rule:#2F3739; --rule-2:#465051;
+  --go:#82ACBA; --go-bg:#1E2C31;
+  --do:#E0A662; --do-bg:#32261A;
+  --stop:#D98A7B; --stop-bg:#33211D;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--f-b); font-weight:400; line-height:1.75;
+  -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums;
+  margin:0; padding:0 20px 96px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-d);font-weight:600;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--go)}
+
+/* ── 머리 ───────────────────────────── */
+.masthead{padding:72px 0 40px;border-bottom:2px solid var(--ink)}
+.eyebrow{
+  font-family:var(--f-m);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:20px
+}
+h1{font-size:clamp(34px,5.2vw,54px);line-height:1.18;letter-spacing:-.01em}
+.standfirst{
+  margin-top:20px;max-width:62ch;font-size:17px;color:var(--ink-2);font-weight:300
+}
+.terms{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:36px
+}
+.term{background:var(--surface);padding:16px 18px}
+.term dt{
+  font-family:var(--f-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:6px
+}
+.term dd{margin:0;font-size:14.5px;line-height:1.6}
+
+/* ── 절 ───────────────────────────── */
+section{padding-top:64px}
+.sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+h2{font-size:26px;letter-spacing:-.005em}
+.sechead .note{font-family:var(--f-m);font-size:12px;color:var(--ink-3)}
+.lede{max-width:66ch;color:var(--ink-2);margin-top:10px;font-size:15.5px}
+
+/* ── 요약표 ───────────────────────────── */
+.tablewrap{overflow-x:auto;margin-top:26px;border:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:760px;background:var(--surface)}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--rule);font-size:14px}
+thead th{
+  font-family:var(--f-m);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;background:var(--band);border-bottom:1px solid var(--rule-2)
+}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-m);text-align:right;white-space:nowrap}
+td.model{font-weight:700;white-space:nowrap}
+.mark{font-family:var(--f-m);font-size:13px}
+.mark.ok{color:var(--go)} .mark.mid{color:var(--do)} .mark.no{color:var(--stop)}
+
+/* ── 모델 카드 ───────────────────────────── */
+.rig{margin-top:34px;border:1px solid var(--rule);background:var(--surface)}
+.rig + .rig{margin-top:26px}
+.rigbar{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding:18px 22px;border-bottom:1px solid var(--rule);background:var(--band)
+}
+.rigname{font-family:var(--f-d);font-size:21px;font-weight:600}
+.rigid{font-family:var(--f-m);font-size:12px;color:var(--ink-3)}
+.cost{
+  margin-left:auto;font-family:var(--f-m);font-size:13px;
+  padding:3px 11px;border:1px solid var(--rule-2);color:var(--ink-2);white-space:nowrap
+}
+.cost b{color:var(--ink);font-weight:500}
+
+.specs{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1px;background:var(--rule);border-bottom:1px solid var(--rule)
+}
+.spec{background:var(--surface);padding:13px 18px}
+.spec .k{
+  font-family:var(--f-m);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3)
+}
+.spec .v{font-family:var(--f-m);font-size:14px;margin-top:3px}
+
+.promptbox{padding:20px 22px 22px}
+.promptlabel{
+  font-family:var(--f-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:10px;display:flex;gap:10px;align-items:baseline
+}
+.promptlabel span{color:var(--ink-2);letter-spacing:0;text-transform:none;font-size:11.5px}
+pre{
+  font-family:var(--f-m);font-size:12.5px;line-height:1.72;margin:0;
+  white-space:pre-wrap;word-break:break-word;
+  background:var(--band);border-left:3px solid var(--do);
+  padding:16px 18px;max-height:290px;overflow-y:auto;color:var(--ink-2)
+}
+pre b{color:var(--ink);font-weight:500}
+
+.strip{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.strip img{display:block;width:100%;height:auto;background:var(--band)}
+.frame{position:relative;background:var(--surface);font-size:0}
+.frame .no{
+  position:absolute;left:0;bottom:0;font-family:var(--f-m);font-size:10.5px;
+  letter-spacing:.08em;color:#fff;background:rgba(0,0,0,.62);padding:3px 8px
+}
+
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.vcell{background:var(--surface);padding:14px 18px}
+.vcell .k{
+  font-family:var(--f-m);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:5px
+}
+.vcell .k.ok{color:var(--go)} .vcell .k.mid{color:var(--do)} .vcell .k.no{color:var(--stop)}
+.vcell p{font-size:13.5px;line-height:1.62;color:var(--ink-2)}
+
+/* ── 교훈 ───────────────────────────── */
+.lesson{margin-top:28px;border:1px solid var(--rule);background:var(--surface)}
+.lessonhead{padding:18px 22px;border-bottom:1px solid var(--rule);background:var(--stop-bg)}
+.lessonhead .k{
+  font-family:var(--f-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--stop)
+}
+.lessonhead h3{font-size:19px;margin-top:5px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+.bacell{background:var(--surface)}
+.bacap{padding:12px 18px;font-family:var(--f-m);font-size:11.5px;color:var(--ink-3);border-bottom:1px solid var(--rule)}
+.bacap b{color:var(--ink);font-weight:500}
+.bacell img{display:block;width:100%;height:auto}
+.lessonbody{padding:20px 22px;display:grid;gap:14px}
+.lessonbody p{font-size:14.5px;color:var(--ink-2);max-width:70ch}
+.swap{display:grid;grid-template-columns:1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.swaprow{background:var(--surface);padding:12px 16px;font-family:var(--f-m);font-size:12.5px;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline}
+.swaprow .tag{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;min-width:54px}
+.swaprow .tag.no{color:var(--stop)} .swaprow .tag.ok{color:var(--go)}
+
+/* ── 마무리 ───────────────────────────── */
+.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:26px}
+.led{background:var(--surface);padding:18px}
+.led .k{font-family:var(--f-m);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.led .v{font-family:var(--f-m);font-size:23px;margin-top:6px}
+.led .s{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.open{margin-top:26px;border-left:3px solid var(--go);background:var(--go-bg);padding:18px 22px}
+.open h3{font-size:17px;margin-bottom:8px}
+.open p{font-size:14.5px;color:var(--ink-2);max-width:68ch}
+footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);font-family:var(--f-m);font-size:11.5px;color:var(--ink-3);display:flex;gap:20px;flex-wrap:wrap}
+
+@media (max-width:720px){
+  .strip{grid-template-columns:1fr}
+  .ba{grid-template-columns:1fr}
+  .masthead{padding-top:48px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">26IRDEMO · v2 · 랩 01 · 2026-09-13</p>
+  <h1>첫 프레임 모델 시험</h1>
+  <p class="standfirst">
+    같은 장면을 네 모델에 맡기고 각 모델의 공식 문법에 맞춰 프롬프트를 따로 썼다.
+    모델당 네 장. 공개 벤치마크가 답하지 못하는 질문 하나에 답하기 위한 것이다 —
+    <em>우리 소재에서 어느 모델이 나은가.</em>
+  </p>
+
+  <dl class="terms">
+    <div class="term">
+      <dt>고정한 것</dt>
+      <dd>장면 · 16:9 · 모델당 4장. 접수 데스크의 손과 오후 창광.</dd>
+    </div>
+    <div class="term">
+      <dt>바꾼 것</dt>
+      <dd>프롬프트 작법. 각 모델의 공식 가이드와 실측 리뷰에 맞춰 따로 썼다.</dd>
+    </div>
+    <div class="term">
+      <dt>판정 기준</dt>
+      <dd>빛 · 피부 · 공간 충실도 · 글자 누출. 넷 다 눈으로 본다.</dd>
+    </div>
+    <div class="term">
+      <dt>쓴 비용</dt>
+      <dd>1,500 크레딧. 잔액 7,913에서 시작.</dd>
+    </div>
+  </dl>
+</header>
+
+<section>
+  <div class="sechead">
+    <h2>한눈에</h2>
+    <span class="note">비용 오름차순 — 순위가 아니다</span>
+  </div>
+  <p class="lede">
+    해상도는 요청값이 아니라 <b>실제로 돌아온 픽셀</b>이다. Artlist의 SKU 이름은 실제 해상도와 어긋나는 경우가 있어
+    호출 결과의 <code>resolvedSettings</code>로 확인했다.
+  </p>
+
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th>모델</th><th>4장</th><th>실제 픽셀</th><th>비율</th>
+        <th>빛</th><th>피부</th><th>공간</th><th>글자 누출</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">Kling o3</td>
+        <td class="num">100</td><td class="num">2720×1536</td><td class="num">1.771</td>
+        <td><span class="mark ok">강함</span></td>
+        <td><span class="mark mid">보통</span></td>
+        <td><span class="mark ok">좋음</span></td>
+        <td class="num"><span class="mark ok">0 / 4</span></td>
+      </tr>
+      <tr>
+        <td class="model">Seedream 5.0 Pro</td>
+        <td class="num">300</td><td class="num">1376×768</td><td class="num">1.792</td>
+        <td><span class="mark ok">매우 좋음</span></td>
+        <td><span class="mark ok">매우 좋음</span></td>
+        <td><span class="mark ok">최상</span></td>
+        <td class="num"><span class="mark ok">0 / 4</span></td>
+      </tr>
+      <tr>
+        <td class="model">Nano Banana 2</td>
+        <td class="num">360</td><td class="num">2752×1536</td><td class="num">1.792</td>
+        <td><span class="mark no">평평함</span></td>
+        <td><span class="mark ok">최상</span></td>
+        <td><span class="mark ok">좋음</span></td>
+        <td class="num"><span class="mark no">2 / 4</span></td>
+      </tr>
+      <tr>
+        <td class="model">Artlist Original <span style="font-weight:400;color:var(--ink-3)">Indie</span></td>
+        <td class="num">640</td><td class="num">1920×1088</td><td class="num">1.765</td>
+        <td><span class="mark ok">최상</span></td>
+        <td><span class="mark ok">좋음</span></td>
+        <td><span class="mark no">방이 빔</span></td>
+        <td class="num"><span class="mark ok">0 / 4</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="lede" style="margin-top:18px">
+    <b>정확한 16:9(1.778)를 내는 모델이 하나도 없다.</b> 촬영본은 3200×1800으로 정확히 16:9라,
+    생성 프레임과 화소가 맞지 않는다. 편집에서 흡수해야 한다.
+  </p>
+</section>
+
+<!-- ─── KLING ─────────────────────────────── -->
+<section>
+  <div class="sechead"><h2>모델별</h2><span class="note">프롬프트 전문과 네 장</span></div>
+
+  <article class="rig">
+    <div class="rigbar">
+      <span class="rigname">Kling o3</span>
+      <span class="rigid">modelId 2189 · Image 3.0 Omni</span>
+      <span class="cost">4장 <b>100</b> 크레딧</span>
+    </div>
+    <div class="specs">
+      <div class="spec"><div class="k">해상도</div><div class="v">2720 × 1536</div></div>
+      <div class="spec"><div class="k">비율</div><div class="v">1.771</div></div>
+      <div class="spec"><div class="k">장수 과금</div><div class="v">정액 · 9장까지 동일</div></div>
+      <div class="spec"><div class="k">프롬프트 길이</div><div class="v">1,310자</div></div>
+    </div>
+    <div class="promptbox">
+      <div class="promptlabel">사용한 프롬프트 <span>공식 Pro Cinematic Gen 슬롯 템플릿 · 전경/중경/배경 분리 · 공식 팔레트명</span></div>
+<pre>Documentary photograph aesthetic, unretouched, fine film grain.
+
+A Korean woman in her forties sits behind a pale laminate reception counter in a small child-counselling centre, late afternoon. She is looking down at the counter, her right hand resting beside a ballpoint pen she has not yet picked up, her left hand flat and still. <b>The moment before she writes.</b> Calm, tired, unposed.
+
+<b>FG:</b> the counter edge, slightly left of centre. <b>MG:</b> the woman behind it, seated, occupying the right third. <b>BG:</b> a worn cloth visitor chair, a potted plant, a low shelf of dog-eared picture books, a half-closed venetian blind.
+
+Light: warm late-afternoon daylight entering from the left through the blind, throwing soft parallel bars across the counter and across her forearms; the right side of the room falls into cool shade.
+
+Composition: rule of thirds. The counter and her hands fill the lower left (1/3 of the frame); the upper right quadrant is calm empty wall, softly defocused, left clear for copy added later.
+
+Angle: high three-quarter, just above counter height.
+
+Focus: hard focus on her knuckles and the pen. <b>Set to 50mm</b>, medium depth of field so the bookshelf behind stays readable <b>during a slow dolly in</b>.
+
+Tone: <b>Low Saturation Gray palette</b>, muted grey-green and warm beige. Natural skin texture with visible pores, fine lines across the knuckles, matte skin with no shine, believable proportions and natural hands.
+
+Overall vibe: quiet, ordinary, the end of a long working day.
+
+<b>The counter surface is bare and unmarked, the wall behind her plain and unbranded, every surface in the room clean and free of print.</b></pre>
+    </div>
+    <div class="strip">
+      <div class="frame"><img src="img/kling_1.jpg" alt="Kling o3 1번 프레임" loading="lazy"><span class="no">01</span></div>
+      <div class="frame"><img src="img/kling_2.jpg" alt="Kling o3 2번 프레임" loading="lazy"><span class="no">02</span></div>
+      <div class="frame"><img src="img/kling_3.jpg" alt="Kling o3 3번 프레임" loading="lazy"><span class="no">03</span></div>
+      <div class="frame"><img src="img/kling_4.jpg" alt="Kling o3 4번 프레임" loading="lazy"><span class="no">04</span></div>
+    </div>
+    <div class="verdict">
+      <div class="vcell"><div class="k ok">공간</div><p>블라인드·방문자 의자·화분·그림책 선반이 다 있다. 지시한 소품을 가장 성실히 지었다.</p></div>
+      <div class="vcell"><div class="k ok">팔레트</div><p>저채도 회녹색이 v1 룩과 맞는다. 공식 팔레트명 <code>Low Saturation Gray</code>가 실제로 작동했다.</p></div>
+      <div class="vcell"><div class="k mid">인물</div><p>지시한 40대보다 나이가 위로 나온다. 피부가 상대적으로 매끈하다.</p></div>
+      <div class="vcell"><div class="k ok">글자</div><p>누출 없음. 긍정문 배제절이 온전히 먹었다.</p></div>
+    </div>
+  </article>
+
+  <!-- ─── SEEDREAM ─────────────────────────── -->
+  <article class="rig">
+    <div class="rigbar">
+      <span class="rigname">Seedream 5.0 Pro</span>
+      <span class="rigid">modelId 2616 · doubao-seedream-5-0-pro</span>
+      <span class="cost">4장 <b>300</b> 크레딧</span>
+    </div>
+    <div class="specs">
+      <div class="spec"><div class="k">해상도</div><div class="v">1376 × 768</div></div>
+      <div class="spec"><div class="k">비율</div><div class="v">1.792</div></div>
+      <div class="spec"><div class="k">SKU 불일치</div><div class="v">1.5K 표기 → quality 1k</div></div>
+      <div class="spec"><div class="k">프롬프트 길이</div><div class="v">210단어</div></div>
+    </div>
+    <div class="promptbox">
+      <div class="promptlabel">사용한 프롬프트 <span>공식 권고 600단어의 1/3 · 배제어 한 줄 7개 · 영상 정지 프레임 선언</span></div>
+<pre><b>A still frame from a documentary video</b>, photorealistic, horizontal 16:9.
+
+A Korean woman in her forties sits behind the reception counter of a small child-counselling centre in South Korea, late on a weekday afternoon. She looks down at the counter; one hand lies flat on the pale birch surface, the other rests beside a plain ballpoint pen she has not yet picked up. <b>Relaxed natural hands, five fingers on each hand, short unpolished nails.</b> She wears a soft grey-green cardigan with the sleeves pushed to mid-forearm. Calm, tired, unposed.
+
+Camera just above counter height at a three-quarter angle, 50 mm lens at f/4, focus on her hands, gentle falloff into the room behind. Behind her a worn cloth visitor chair, a small potted plant, and a low shelf of picture books.
+
+Late-afternoon daylight through a half-closed venetian blind on the left throws soft horizontal light bars across the counter and her forearms; the right side of the room falls into cool shade. Low-saturation grey-green and warm beige palette, muted contrast.
+
+Real skin: <b>visible pores, fine knuckle creases, faint veins, matte, no beauty retouching and no glossy sheen.</b> Fine grain, natural sensor noise.
+
+The upper right of the frame is plain, evenly lit wall, clean empty negative space.
+
+<b>No text, no signage, no labels, no logos, no screens, no watermark.</b></pre>
+    </div>
+    <div class="strip">
+      <div class="frame"><img src="img/seedream_1.jpg" alt="Seedream 1번 프레임" loading="lazy"><span class="no">01</span></div>
+      <div class="frame"><img src="img/seedream_2.jpg" alt="Seedream 2번 프레임" loading="lazy"><span class="no">02</span></div>
+      <div class="frame"><img src="img/seedream_3.jpg" alt="Seedream 3번 프레임" loading="lazy"><span class="no">03</span></div>
+      <div class="frame"><img src="img/seedream_4.jpg" alt="Seedream 4번 프레임" loading="lazy"><span class="no">04</span></div>
+    </div>
+    <div class="verdict">
+      <div class="vcell"><div class="k ok">빛</div><p>블라인드 빛줄기가 카운터와 뒷벽을 함께 가로지른다. 방향·질·감쇠가 넷 중 가장 물리적이다.</p></div>
+      <div class="vcell"><div class="k ok">브리프 충족</div><p>오른쪽 위 벽이 실제로 비었고 팔레트가 요청대로다. 지시를 가장 많이 지켰다.</p></div>
+      <div class="vcell"><div class="k no">해상도</div><p>1376×768. 넷 중 가장 낮다. 2K SKU는 따로 있고 4장에 600이다.</p></div>
+      <div class="vcell"><div class="k ok">워터마크</div><p>이 모델은 API 기본값이 워터마크 켜짐이다. 우하단을 크롭해 확인했고 없었다. Artlist가 꺼서 보낸다.</p></div>
+    </div>
+  </article>
+
+  <!-- ─── NANO BANANA 2 ────────────────────── -->
+  <article class="rig">
+    <div class="rigbar">
+      <span class="rigname">Nano Banana 2</span>
+      <span class="rigid">modelId 2250 · gemini-3.1-flash-image</span>
+      <span class="cost">4장 <b>360</b> 크레딧</span>
+    </div>
+    <div class="specs">
+      <div class="spec"><div class="k">해상도</div><div class="v">2752 × 1536</div></div>
+      <div class="spec"><div class="k">비율</div><div class="v">1.792</div></div>
+      <div class="spec"><div class="k">SKU 불일치</div><div class="v">1K 표기 → 2k</div></div>
+      <div class="spec"><div class="k">프롬프트 길이</div><div class="v">1,680자</div></div>
+    </div>
+    <div class="promptbox">
+      <div class="promptlabel">사용한 프롬프트 <span>공식 사진 템플릿 + 위반 불가 제약만 MUST 불릿으로 분리 · 직접 부정문 허용</span></div>
+<pre>A photorealistic, documentary-style medium shot of a Korean woman in her forties seated behind the reception counter of a small child-counselling centre, late on a weekday afternoon. She is looking down at the counter, her right hand resting beside a plain ballpoint pen she has not yet picked up, her left hand flat and still: the moment before she writes. Calm, tired, unposed.
+
+<b>Composition, all of the following MUST be followed EXACTLY:</b>
+- The counter runs horizontally across the lower third; her hands and the pen sit in the lower-left half of the frame.
+- She is seated on the right, occupying the right third, turned three-quarters toward the counter.
+- The upper-right of the frame is deliberately empty: a plain, faintly scuffed pale grey-green wall and the softly defocused slats of a half-closed aluminium venetian blind, with no objects, posters or decorations in it, <b>creating significant clean negative space for subtitles to be added later.</b>
+- Behind her, a worn cloth visitor chair, a potted plant, and a low shelf of dog-eared picture books, softly out of focus.
+
+Light and colour:
+- Late-afternoon daylight enters from a window on the left through the half-closed blind, laying soft horizontal bands of warm light across the counter and across her forearms; the right side of the room falls gently into shade. No overhead or practical lights are on.
+- A low-saturation palette of muted grey-green, warm beige and pale wood. Gentle contrast, nothing blown out, no crushed blacks.
+
+Skin and material:
+- Natural, unretouched skin: visible pores, fine skin grain, faint tendons and veins on the backs of her hands, short unpainted nails, fine lines at the knuckles. <b>Do NOT smooth, airbrush or beautify the skin; no glossy sheen, no glow, no rim-light halo, no plastic texture.</b>
+- Every surface in the room is blank and unbranded.
+
+Shot on a full-frame camera with a 50mm lens at f/4 for a documentary photo essay about everyday care work: <b>real-world natural lighting and real-world natural uniform depth of field</b>, sharp focus from her hands to the counter edge, the background only gently soft. A still, steady frame with no motion blur and no camera shake, intended to be used as the first frame of a video clip.
+
+<b>NEVER include any text, letters, numbers, handwriting, signage, posters, labels, brand marks, logos, watermarks or interface overlays anywhere in the image.</b>
+
+16:9 aspect ratio.</pre>
+    </div>
+    <div class="strip">
+      <div class="frame"><img src="img/nb2_1.jpg" alt="Nano Banana 2 1번 프레임" loading="lazy"><span class="no">01</span></div>
+      <div class="frame"><img src="img/nb2_2.jpg" alt="Nano Banana 2 2번 프레임" loading="lazy"><span class="no">02</span></div>
+      <div class="frame"><img src="img/nb2_3.jpg" alt="Nano Banana 2 3번 프레임" loading="lazy"><span class="no">03</span></div>
+      <div class="frame"><img src="img/nb2_4.jpg" alt="Nano Banana 2 4번 프레임" loading="lazy"><span class="no">04</span></div>
+    </div>
+    <div class="verdict">
+      <div class="vcell"><div class="k ok">피부</div><p>팔뚝의 힘줄과 정맥, 손등 주름이 실제 사진에 가깝다. 나이도 지시대로 40대다. 넷 중 1위.</p></div>
+      <div class="vcell"><div class="k no">빛</div><p>블라인드 띠가 약하고 전체가 고르게 밝다. 다큐멘터리이긴 하나 영화적이지 않다.</p></div>
+      <div class="vcell"><div class="k no">글자</div><p>그림책 표지와 책등에 글자가 보인다. 4장 중 2장. 대문자 NEVER 절이 완전히 막지 못했다.</p></div>
+      <div class="vcell"><div class="k ok">여백</div><p>공식 네거티브 스페이스 템플릿을 그대로 썼고 네 장 모두 윗벽이 비었다.</p></div>
+    </div>
+  </article>
+
+  <!-- ─── ARTLIST ──────────────────────────── -->
+  <article class="rig">
+    <div class="rigbar">
+      <span class="rigname">Artlist Original 1.0</span>
+      <span class="rigid">modelId 2122 · Indie LoRA · FLUX.2 기반</span>
+      <span class="cost">4장 <b>640</b> 크레딧</span>
+    </div>
+    <div class="specs">
+      <div class="spec"><div class="k">해상도</div><div class="v">1920 × 1088</div></div>
+      <div class="spec"><div class="k">비율</div><div class="v">1.765</div></div>
+      <div class="spec"><div class="k">LoRA</div><div class="v">Indie · 다큐멘터리 결</div></div>
+      <div class="spec"><div class="k">프롬프트 길이</div><div class="v">145단어</div></div>
+    </div>
+    <div class="promptbox">
+      <div class="promptlabel">사용한 프롬프트 <span>BFL 권고 구조 · 시네마틱 어휘는 LoRA가 공급하므로 프롬프트에서 제외 · hex 팔레트</span></div>
+<pre>Documentary photograph of a Korean woman in her forties seated behind the pale wood reception counter of a small child-counselling centre, late afternoon. She looks down at the counter, her right hand resting beside a plain ballpoint pen, her left hand flat and still, the moment before she writes. Late afternoon sunlight through a half-closed venetian blind lays soft horizontal bars of light across the counter and her forearms; the right side of the room falls into shade. Natural skin texture with visible pores, fine lines across the knuckles, faint veins on the backs of her hands, <b>matte skin, no shine</b>. Shot on a Canon 5D Mark IV, 50mm lens at f/4, eye-level, real-world natural depth of field. <b>Kodak Portra 400</b>, fine grain, low saturation, muted grey-green and warm beige palette, <b>#8A9A8E and #D9C7AE</b>. <b>The counter surface is bare and unmarked, the wall behind her plain and unbranded, every surface in the room clean and free of print.</b> The upper right of the frame is empty defocused wall, clear for subtitles added later.</pre>
+    </div>
+    <div class="strip">
+      <div class="frame"><img src="img/artlist_1.jpg" alt="Artlist Original 1번 프레임" loading="lazy"><span class="no">01</span></div>
+      <div class="frame"><img src="img/artlist_2.jpg" alt="Artlist Original 2번 프레임" loading="lazy"><span class="no">02</span></div>
+      <div class="frame"><img src="img/artlist_3.jpg" alt="Artlist Original 3번 프레임" loading="lazy"><span class="no">03</span></div>
+      <div class="frame"><img src="img/artlist_4.jpg" alt="Artlist Original 4번 프레임" loading="lazy"><span class="no">04</span></div>
+    </div>
+    <div class="verdict">
+      <div class="vcell"><div class="k ok">빛</div><p>블라인드 띠가 카운터를 가로지르는 그래픽이 넷 중 가장 강하다. 그림자 모양이 선명하다.</p></div>
+      <div class="vcell"><div class="k no">공간</div><p>방을 통째로 비웠다. 의자도 화분도 선반도 없다. 지시한 소품을 전부 흘렸다.</p></div>
+      <div class="vcell"><div class="k no">팔레트</div><p>저채도를 지시했는데 웜과 청록이 강하게 갈린 그레이딩이 걸렸다. LoRA가 이미 넣는 룩과 겹친 것으로 보인다.</p></div>
+      <div class="vcell"><div class="k ok">글자</div><p>누출 없음.</p></div>
+    </div>
+  </article>
+</section>
+
+<!-- ─── 교훈 ───────────────────────────────── -->
+<section>
+  <div class="sechead"><h2>100 크레딧이 찾아낸 것</h2><span class="note">라운드 1 · 폐기</span></div>
+  <p class="lede">
+    첫 판은 얼굴을 빼려고 <code>No face and no head in frame</code>을 넣었다.
+    네 장 모두 얼굴이 크게 들어왔다. 모델이 아니라 프롬프트의 결함이었다.
+  </p>
+
+  <div class="lesson">
+    <div class="lessonhead">
+      <div class="k">폐기된 라운드</div>
+      <h3>영어 부정문은 역효과를 낸다</h3>
+    </div>
+    <div class="ba">
+      <div class="bacell">
+        <div class="bacap"><b>라운드 1</b> — 얼굴 배제 지시 4/4 실패 · 글자 누출 2/4 · 손이 셋인 장 2개</div>
+        <img src="img/r1_1.jpg" alt="라운드 1 실패 예 1" loading="lazy">
+      </div>
+      <div class="bacell">
+        <div class="bacap"><b>라운드 1</b> — 팔 한 쌍에서 손이 세 개 나온 장</div>
+        <img src="img/r1_2.jpg" alt="라운드 1 실패 예 2" loading="lazy">
+      </div>
+    </div>
+    <div class="lessonbody">
+      <p>
+        문장이 <code>A woman's hands and forearms rest on…</code>으로 시작했다.
+        <b>사람을 명명하면 모델이 그 사람을 만든다.</b> 뒤따르는 부정문으로는 이미 불려 나온 주체를 지울 수 없다.
+      </p>
+      <p>
+        조사가 나중에 같은 것을 독립적으로 확인해 줬다. FLUX.2 문서에 이렇게 적혀 있다 —
+        인코더가 <code>a person without glasses</code>를 읽으면 <b>glasses라는 단어에 의미가 실려서 오히려 안경을 그린다.</b>
+        네거티브 프롬프트 필드가 없는 모델에서는 부정문이 억제가 아니라 소환으로 작동한다.
+      </p>
+      <div class="swap">
+        <div class="swaprow"><span class="tag no">버림</span><span>No face and no head in frame</span></div>
+        <div class="swaprow"><span class="tag no">버림</span><span>No visible words, lettering, numbers, signage, logos, watermark</span></div>
+        <div class="swaprow"><span class="tag ok">대신</span><span>the counter surface is bare and unmarked, the wall plain and unbranded, every surface clean and free of print</span></div>
+      </div>
+      <p>
+        긍정문으로 바꾼 라운드 2에서 <b>글자 누출이 2/4에서 0/4</b>, <b>손 이상이 2/4에서 0/4</b>가 됐다.
+        얼굴 조건은 요청에 따라 통째로 뺐다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 마무리 ─────────────────────────────── -->
+<section>
+  <div class="sechead"><h2>남은 것</h2></div>
+
+  <div class="ledger">
+    <div class="led"><div class="k">쓴 크레딧</div><div class="v">1,500</div><div class="s">라운드 1 폐기분 100 포함</div></div>
+    <div class="led"><div class="k">잔액</div><div class="v">6,413</div><div class="s">2026-10-10 갱신</div></div>
+    <div class="led"><div class="k">뽑은 프레임</div><div class="v">20</div><div class="s">유효 16 · 폐기 4</div></div>
+    <div class="led"><div class="k">모델당 단가</div><div class="v">25–160</div><div class="s">장당 크레딧 범위</div></div>
+  </div>
+
+  <div class="open">
+    <h3>Nano Banana Pro — 승인 대기</h3>
+    <p>
+      4장에 1,120 크레딧이라 승인 게이트에 걸려 있다. 독립 실사용 비교에서 사실감 1위로 나온 모델이고,
+      프레임당 280 대 Nano Banana 2의 90이다. 본편에서 프레임을 스무 장 쓰면 차액이 3,800이다.
+      한 번 써서 그 선택을 확정할지, 지금 넷에서 고를지가 남은 결정이다.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <span>movies/26IRDEMO/v2/_lab/01-model-bakeoff</span>
+  <span>원본 PNG · 프롬프트 · meta 전부 로컬 보관</span>
+  <span>생성물은 30일 뒤 서버에서 삭제된다</span>
+</footer>
+
+</div>
