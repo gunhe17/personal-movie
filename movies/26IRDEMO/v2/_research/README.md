@@ -14,7 +14,12 @@ opus 에이전트 다섯이 병렬로 돌았고, Artlist 실측은 이 세션이
 | [07](07-community-evidence.md) | **실사용자 증거** | Reddit(아카이브 API) · HN |
 | [08](08-pairing-evidence.md) | **이미지↔영상 조합 증거** | 없음을 확인한 조사 |
 | [09](09-rivals.md) | **경쟁 모델 비교 + Artlist 실측 가격** | 아레나 4개 보드 · 이 계정 견적 |
-| [10](10-prompting.md) | **프롬프트 실무** — 가장 실행에 가깝다 | Kling 공식 가이드 · 실측 리뷰 |
+| [10](10-prompting.md) | **Kling o3 프롬프트 실무** — 채택 모델 | Kling 공식 가이드 · 실측 리뷰 |
+| [11](11-artlist-model-catalog.md) | Artlist 모델 카탈로그 427 SKU | `list_models` 전수 |
+| [12](12-benchmark-methodology.md) | 벤치마크가 프롬프트를 구성하는 방식 | AA · arena.ai · GenAI Showdown |
+| [13](13-prompting-flux-artlist.md) | FLUX.2 · Artlist Original 프롬프트 | BFL 공식 · Artlist 블로그 |
+| [14](14-prompting-nano-banana.md) | Nano Banana 프롬프트 | ai.google.dev · minimaxir |
+| [15](15-prompting-seedream.md) | Seedream 5.0 Pro 프롬프트 | 火山方舟 공식 · 렌더링 DOM 재검증 |
 
 ---
 
