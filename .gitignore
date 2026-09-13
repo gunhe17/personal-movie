@@ -23,3 +23,9 @@ movies/26IRDEMO/v2/_lab/01-model-bakeoff/nano-banana-2/*.png
 movies/26IRDEMO/v2/_lab/01-model-bakeoff/artlist-original-indie/*.png
 movies/26IRDEMO/v2/_lab/01-model-bakeoff/seedream-5-pro/*.png
 movies/26IRDEMO/v2/_lab/01-model-bakeoff/kling-o3/*.png
+
+# v2 첫 프레임 — 원본 2K PNG는 로컬 보관 (장면당 9장 × ~5MB).
+# 저장소에는 web/ 축소본 · contact-sheet.png · meta.json · 채택본 first-frame.png 만 남는다.
+# ⚠ 시드가 없어 재생성이 불가능하다 — 저장소 밖에 따로 백업할 것.
+movies/26IRDEMO/v2/s*/r*/*.png
+!movies/26IRDEMO/v2/s*/r*/contact-sheet.png

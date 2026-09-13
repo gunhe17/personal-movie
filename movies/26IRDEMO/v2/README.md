@@ -6,7 +6,11 @@ v1은 실제 서비스 화면을 촬영해 만들었다. **v2는 첫 프레임�
 ```
 _research/   조사 (12편). 무엇을 근거로 무엇을 정했는지
 _lab/        시험. 01 = 첫 프레임 모델 선정
+sNN-이름/    장면별 첫 프레임 — prompt.md · meta.json · rN/ · first-frame.png
 ```
+
+**첫 프레임을 만드는 것은 [`first-frame` 스킬](../../../.claude/skills/first-frame/SKILL.md)이다.**
+아래 결정이 그 스킬의 실행 규격으로 굳어 있다 — 프롬프트 린트가 랩에서 찾은 실패 둘을 막는다.
 
 ## 정해진 것
 
@@ -15,7 +19,7 @@ _lab/        시험. 01 = 첫 프레임 모델 선정
 | **첫 프레임 모델** | **Kling o3** `modelId 2189` · 2K · 16:9 · 정액 100 크레딧 |
 | 확정 근거 | [_lab/01-model-bakeoff/DECISION.md](_lab/01-model-bakeoff/DECISION.md) |
 | 프롬프트 문법 | 같은 문서 §확정된 프롬프트 문법 |
-| 도구 | Artlist MCP — `.claude/skills/artlist/` |
+| 도구 | `first-frame` 스킬 · Artlist MCP(`.claude/skills/artlist/`) |
 
 ## 읽는 순서
 

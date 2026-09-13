@@ -74,3 +74,14 @@
 ## 결정
 
 **Kling o3 확정.** 근거와 확정된 프롬프트 문법은 [DECISION.md](DECISION.md).
+
+### ❌ 뒤늦게 기록 — 여백 예약은 라운드 2에서도 4/4 실패했다 (2026-09-13 재검토)
+
+라운드 1의 실패 넷 중 **여백만 라운드 2 비교표에서 빠져 있었다.** 컨택트 시트를 다시 보면
+`the upper right quadrant is calm empty wall` 지시에도 **네 장 모두 우상단을 인물이 차지한다.**
+
+원인은 프롬프트 안의 모순이다 — 같은 프롬프트가 `MG: the woman … occupying the right third`로
+주체를 우측에 두고, Composition에서 우상단을 비우라 했다. **모델은 주체를 택한다.**
+
+> **교정**: 주체가 차지하는 사분면과 여백 예약 사분면을 겹치지 않게 쓴다.
+> `first-frame` 스킬의 `frame.mjs check`가 `MG:`와 Composition 앞절을 합쳐 여백 절과 대조해 막는다.
