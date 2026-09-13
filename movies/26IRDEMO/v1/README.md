@@ -10,6 +10,7 @@ _lab/         조사 자료 (research/README.md)
 _seed/        시드 스냅샷 — 첫 촬영 전에 박제(`_scripts/seed-snapshot.sh <앱>`). 없으면 테이크끼리 섞을 수 없다
 _scripts/     Playwright 조작 스크립트, 장면별 1개 (_lab/research/01-source/webapp-audit의 walkthrough에서 파생)
 _mocks/       목 에이전트 스크립트(JSON) — 촬영 때 `capture.mjs --mock`으로 싣는다
+_assets/      편집에서 화면 위에 얹는 소재. 촬영본이 아니다 (구현예정.png = s03 "개발 예정" 라벨)
 _tool/        촬영 대상 제품 소스 사본 — saas-center-platform · mindbom. 보통 파일로 이 저장소에 있다(_tool/UPSTREAM.md). meta의 app.commit은 이 저장소의 커밋
 manifest.csv  file, scene, device, action, take, in, out, use, note — 최종 컷에 쓴 것만 use=Y
 sNN-이름/
