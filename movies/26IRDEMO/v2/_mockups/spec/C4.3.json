@@ -1,0 +1,11 @@
+{
+  "stage": "phone",
+  "size": [1920, 1080],
+  "fps": 30,
+  "screen": "../src/C4.4_s06_phone_fieldnote-app_t01.mov",
+  "phoneH": 86,
+  "statusH": 0,
+  "homeH": 0,
+  "screenBg": "#000000",
+  "shotRatio": 0.46
+}
