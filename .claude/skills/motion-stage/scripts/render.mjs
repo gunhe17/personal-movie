@@ -180,23 +180,26 @@ async function encodeSequence(dir, spec, out, { inFps = null, shutter = 1, alpha
 }
 
 /** 탭 링 — 촬영본 좌표에 흰 원이 퍼지며 사라진다. 시뮬레이터의 회색 점은 4K 무대 안에서 안 보인다(실측).
-    spec.taps: 마크 배열 `[{t,x,y}]` 또는 **촬영 meta 경로**(문자열). meta를 주면 tap 마크와 pxPerPoint를 거기서 읽는다.
-    좌표는 idb 포인트(기기 논리 좌표)다 — 촬영본 픽셀 = 포인트 × capture.pxPerPoint. */
+    spec.taps: 마크 배열 `[{t,x,y}]` 또는 **촬영 meta 경로**(문자열). meta를 주면 누른 마크와 배율을 거기서 읽는다.
+    누른 마크는 폰(시뮬레이터)의 `tap`과 웹(폰 프로파일)의 `click` 둘 다다 — 폰 모양 화면끼리 표시를 통일한다.
+    좌표 단위는 기기 논리 좌표(폰은 idb 포인트 · 웹은 CSS px)이고, 촬영본 픽셀로 옮기는 배율은
+    `capture.pxPerPoint`(폰 2) 또는 `viewport.dpr`(폰 프로파일 웹 3)다. **무대가 배율을 손으로 받지 않는다** —
+    tapRadius가 논리 좌표(pt)라 두 기기의 화면 폭(402pt · 390pt)이 같은 만큼 링도 화면에서 같은 크기로 보인다. */
 async function readTaps(spec, specDir){
   let taps = spec.taps, scale = spec.tapScale ?? 2;
   if (typeof taps === 'string'){
     const meta = JSON.parse(await readFile(path.resolve(specDir, taps), 'utf8'));
-    scale = spec.tapScale ?? meta.capture?.pxPerPoint ?? 2;
-    taps = (meta.steps ?? []).filter(m => m.kind === 'tap' && m.x != null);
+    scale = spec.tapScale ?? meta.capture?.pxPerPoint ?? meta.viewport?.dpr ?? 2;
+    taps = (meta.steps ?? []).filter(m => (m.kind === 'tap' || m.kind === 'click') && m.x != null);
   }
-  return (taps ?? []).map(m => ({ t: m.t - (spec.start ?? 0), x: m.x * scale, y: m.y * scale }));   // start만큼 당겨 클립 시간으로
+  // 링도 같은 배율로 굽는다 — scale을 같이 돌려준다(전엔 ringClip이 2로 하드코딩해 dpr 3에서 링만 2/3 크기였다)
+  return { scale, taps: (taps ?? []).map(m => ({ t: m.t - (spec.start ?? 0), x: m.x * scale, y: m.y * scale })) };   // start만큼 당겨 클립 시간으로
 }
 
 /** 링 한 번의 애니메이션을 straight-RGBA 원본 프레임으로 굽는다 — 링은 다 같으니 한 파일을 탭마다 다시 연다.
     **절제가 기본이다** — 손끝만 한 원이 한 번 퍼지고 처음부터 옅어진다. 눌렀다는 걸 알아챌 만큼만.
     흰 띠 양옆에 잉크색 테를 두른다: 흰 시트에서도, 어두운 녹음 화면에서도 같은 원이 보여야 한다(흰 원만 그리면 밝은 화면에서 사라진다). */
-async function ringClip(dir, spec, fps){
-  const scale = spec.tapScale ?? 2;
+async function ringClip(dir, spec, fps, scale){
   const R = (spec.tapRadius ?? 24) * scale;                 // 끝 반지름(포인트). 24pt → 지름 48pt = 화면 폭(402pt)의 12%
   const dur = spec.tapDur ?? 0.34;                          // postTap(450ms)보다 짧다 — 화면이 바뀌기 전에 끝난다
   const aW0 = spec.tapOpacity ?? 0.62;                      // 흰 띠 최대 알파 (컷마다 조절)
@@ -261,12 +264,13 @@ async function compose(black, white, screen, rect, spec, out){
   // ── 탭 링 ── 촬영본 픽셀 → 무대 좌표는 **눈이 아니라 계산**이다.
   // 위 오버레이가 촬영본을 `scale=…:force_original_aspect_ratio=increase` + crop(=cover)로 슬롯에 앉힌다.
   // 같은 식을 그대로 푼다: 배율 f, crop이 잘라낸 만큼을 빼면 촬영본 (0,0)이 무대 어디인지 나온다.
-  const taps = (await readTaps(spec, spec.specDir)).filter(p => p.t >= 0 && p.t < dur);
+  const { taps: allTaps, scale: tapScale } = await readTaps(spec, spec.specDir);
+  const taps = allTaps.filter(p => p.t >= 0 && p.t < dur);
   if (taps.length && sw){
     const bw = rect.w + ov * 2, bh = rect.h + ov * 2;
     const f = Math.max(bw / sw, bh / sh);
     const ox = (rect.x - ov) - (sw * f - bw) / 2, oy = (rect.y - ov) - (sh * f - bh) / 2;
-    const ring = await ringClip(path.dirname(black), spec, spec.fps);
+    const ring = await ringClip(path.dirname(black), spec, spec.fps, tapScale);
     const RS = Math.round(ring.S * f);
     for (const tp of taps){
       extra.push('-f', 'rawvideo', '-pixel_format', 'rgba', '-video_size', `${ring.S}x${ring.S}`, '-framerate', String(spec.fps), '-i', ring.file);
@@ -275,7 +279,7 @@ async function compose(black, white, screen, rect, spec, out){
                 `;${top}[r${n}]overlay=${cx}:${cy}:eof_action=pass:repeatlast=0:format=auto[q${n}]`;
       top = `[q${n}]`; n++;
     }
-    console.error(`  탭 링 ${taps.length}개 · 배율 ${f.toFixed(4)}`);
+    console.error(`  탭 링 ${taps.length}개 · 논리좌표→촬영본 ${tapScale} · 촬영본→무대 ${f.toFixed(4)} · 지름 ${(2 * (spec.tapRadius ?? 24) * tapScale * f).toFixed(0)}px`);
   }
   layers += `;${top}[fg]overlay=0:0:format=auto[o]`;
   top = '[o]';

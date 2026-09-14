@@ -35,6 +35,9 @@ const args = parseArgs(process.argv.slice(2))
 // 이 아래로 SPEC.viewport를 직접 읽지 않는다 — 전부 VP를 본다.
 const VP = SPEC.profiles?.[args.profile ?? 'web'] ?? SPEC.viewport
 const PARK = VP.park ?? { x: VP.width - 24, y: VP.height - 24 }
+// v9 — 폰 프로파일에는 커서를 그리지 않는다. 폰 모양 화면에 데스크톱 화살표가 떠 있으면 편에서 튄다.
+//   누른 자리는 무대(motion-stage)가 meta의 click 좌표로 탭 링을 그려 보여준다 — 시뮬레이터 컷과 같은 표시다.
+const CURSOR = (args.profile ?? 'web') === 'phone' ? 'off' : 'on'
 const need = (k) => { if (!args[k]) die(`--${k} 필요`) }
 need('scene'); need('device'); need('action')
 const sceneDir = path.join(DEMO_ROOT, args.scene)
@@ -198,7 +201,7 @@ log(`창 모드 '${WIN_MARK}' 크롬높이=${chromeH}pt → rect ${rect.w}×${re
 const sckArgs = ['--rect', `${rect.x},${rect.y},${rect.w},${rect.h}`, '--trim-top', String(rect.y),
   '--scale', String(VP.dpr), '--fps', String(SPEC.capture.fps),
   '--codec', SPEC.capture.codec, '--bitrate', String(SPEC.capture.bitrate),
-  '--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--cursor', 'on']
+  '--bundle-id', CHROMIUM_BUNDLE_ID, '--window-title', WIN_MARK, '--window-mode', 'display', '--cursor', CURSOR]
 
 // 캡처 직전에 한 번 더 앞으로 — 웹 모드는 디스플레이 기준 캡처라(앱 필터 + sourceRect)
 // 전체화면 Chromium의 Space가 내려가 있으면 통째로 흰 프레임이 잡힌다. 조용히 망하는 실패라 여기서 막는다.
@@ -252,7 +255,7 @@ writeMeta({
   captured_at: new Date().toISOString(), spec_version: SPEC.version, captured_by: 'skill:capture-service',
   app: { url: args.url, env: args.env ?? guessEnv(args.url), commit: appCommit },
   viewport: { profile: args.profile ?? 'web', css: [VP.width, VP.height], dpr: VP.dpr, pixels: [rect.w * VP.dpr, rect.h * VP.dpr], theme: SPEC.theme },
-  capture: { ...SPEC.capture, mode: 'window', chrome_pt: chromeH, rect_pt: rect, stats },
+  capture: { ...SPEC.capture, cursor: CURSOR === 'on' ? SPEC.capture.cursor : '없음 (폰 프로파일 — 누른 자리는 무대가 탭 링으로 그린다)', mode: 'window', chrome_pt: chromeH, rect_pt: rect, stats },
   timing: SPEC.timing,
   seed: { file: args.seed ?? null, sha256: args.seed ? sha256(fs.readFileSync(path.join(DEMO_ROOT, args.seed))) : null },
   script: { file: args.script, sha256: scriptSha },
