@@ -92,7 +92,8 @@ BEFORE(탑다운 손·물건·목소리)는 이 스킬의 범위가 아니다 �
 ### 4. 조작 스크립트를 쓴다
 
 `_scripts/_template.mjs`를 복사하거나 `capture-service`의 `record.mjs`로 기록해서 다듬는다.
-헬퍼는 `h.click · type · scroll · hover · key · beat · modal · hold · nocutStart/nocutEnd`.
+헬퍼는 `h.click · type · scrollTo · hover · key · beat · modal · hold · nocutStart/nocutEnd`.
+**스크롤은 목표 요소로 한 번에** — `h.scrollTo(sel, note, block)`. 거리를 손으로 재서 `h.scroll(dy)`에 넣거나 같은 목표로 여러 번 나눠 내리지 않는다(규칙 2-2 · capture-service §스크롤 규칙).
 셀렉터는 텍스트·role 기반을 쓴다. 뷰포트·타이밍은 건드리지 않는다(SPEC이 정본, `capture-service/scripts/spec.mjs`).
 폰으로 여는 웹 화면은 리허설에도 `--profile phone`을 붙인다 — 촬영과 같은 뷰포트로 돌아야 셀렉터와 스크롤이 같다(SPEC v7).
 

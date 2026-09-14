@@ -21,7 +21,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
 
 /* ── iMac ── */
 .mac{position:relative;width:100%;filter:drop-shadow(0 6cqw 7cqw rgba(11,30,66,.34))}
-.frame{position:relative;border-radius:2.1cqw;padding:1.05cqw 1.05cqw 4.6cqw;
+.frame{position:relative;border-radius:calc(var(--bz,1.05cqw) * 2);padding:var(--bz,1.05cqw) var(--bz,1.05cqw) var(--chin,4.6cqw);
   background:linear-gradient(150deg,rgba(255,255,255,.60),rgba(255,255,255,.20) 42%,rgba(255,255,255,.42));
   -webkit-backdrop-filter:blur(2.4cqw) saturate(165%);backdrop-filter:blur(2.4cqw) saturate(165%);
   border:.09cqw solid rgba(255,255,255,.75);
@@ -41,21 +41,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
 .matte-black .screen{background:#000}
 .matte-white .screen{background:#fff}
 
-.cam{position:absolute;left:50%;top:.36cqw;width:.34cqw;height:.34cqw;border-radius:50%;
+.cam{position:absolute;left:50%;top:calc(var(--bz,1.05cqw) / 2 - .17cqw);width:.34cqw;height:.34cqw;border-radius:50%;
   background:rgba(20,40,80,.35);transform:translateX(-50%);z-index:3}
-.chin{position:absolute;left:0;right:0;bottom:0;height:4.6cqw;display:flex;align-items:center;justify-content:center}
+.chin{position:absolute;left:0;right:0;bottom:0;height:var(--chin,4.6cqw);display:flex;align-items:center;justify-content:center}
 .chin i{width:2.4cqw;height:.62cqw;border-radius:.4cqw;background:rgba(21,45,92,.16);display:block}
 
-.neck{width:13cqw;height:4.6cqw;margin:0 auto;clip-path:polygon(16% 0,84% 0,100% 100%,0 100%);
+.neck{width:calc(13cqw * var(--st,1));height:calc(4.6cqw * var(--st,1));margin:0 auto;clip-path:polygon(16% 0,84% 0,100% 100%,0 100%);
   background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(255,255,255,.24));
   -webkit-backdrop-filter:blur(1.6cqw);backdrop-filter:blur(1.6cqw);
   border-left:.07cqw solid rgba(255,255,255,.5);border-right:.07cqw solid rgba(255,255,255,.5)}
-.foot{width:26cqw;height:1.5cqw;margin:0 auto;border-radius:.9cqw;
+.foot{width:calc(26cqw * var(--st,1));height:calc(1.5cqw * var(--st,1));margin:0 auto;border-radius:.9cqw;
   background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.26));
   -webkit-backdrop-filter:blur(1.6cqw);backdrop-filter:blur(1.6cqw);
   border:.07cqw solid rgba(255,255,255,.62);
   box-shadow:0 .5cqw 1.4cqw rgba(16,38,80,.18)}
-.floor{width:34cqw;height:1.5cqw;margin:.7cqw auto 0;border-radius:50%;
+.nostand .neck,.nostand .foot,.nostand .floor{display:none}
+.floor{width:calc(34cqw * var(--st,1));height:1.5cqw;margin:.7cqw auto 0;border-radius:50%;
   background:rgba(18,40,84,.22);filter:blur(1.1cqw)}
 
 /* ── 자리표시 UI (screen 없이 미리볼 때만) ── */
@@ -96,12 +97,18 @@ const S = { ...{
     { c:'#C7B4F2', o:.55, w:40, x:6,   y:-16, from:'right,bottom' },
     { c:'#F3C3DC', o:.40, w:30, x:-4,  y:2,   from:'left,bottom' }
   ],
-  copy:null, tag:null, macW:1.32, width:0.66, right:null   // right — 우측을 이만큼(무대 폭 비율) 비우고 iMac을 왼쪽으로 민다. 없으면 가운데
+  copy:null, tag:null, macW:1.32, width:0.66, right:null,  // right — 우측을 이만큼(무대 폭 비율) 비우고 iMac을 왼쪽으로 민다. 없으면 가운데
+  top:null,    // top — iMac 윗변을 여기(cqw)에 박는다. 넘친 아래(스탠드)는 잘린다. 없으면 세로 가운데
+  shade:null   // shade — [중간색, 끝색]. right 칸에 어두운 그라디언트를 깐다(흰 텍스트용)
 }, ...(SPEC || {}) };
 
 const st = document.getElementById('stage');
 if (FILL) st.classList.add('matte', `matte-${FILL}`);
 st.style.setProperty('--sheen', S.sheen + 'deg');
+if (S.bezel != null) st.style.setProperty('--bz', S.bezel + 'cqw');   // 베젤 두께(cqw). 기본 1.05
+if (S.chin != null) st.style.setProperty('--chin', S.chin + 'cqw');   // 턱 높이(cqw). 기본 4.6
+if (S.stand === false) st.classList.add('nostand');                   // 받침대(목·발·그림자)를 뺀다
+else if (typeof S.stand === 'number') st.style.setProperty('--st', S.stand);   // 받침대 배율. 1 = 원래 크기
 st.style.background = S.ground;
 
 let html = '<div id="bg" style="position:absolute;inset:0">';
@@ -109,6 +116,9 @@ for (const b of S.blobs){
   const [ax, ay] = b.from.split(',');
   html += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`;
 }
+// 텍스트 칸 — 칸보다 조금 넓게 시작해 투명에서 번져 들어온다. 배경 레이어라 흑/백 매트 차이에 안 섞인다
+if (S.shade && S.right != null)
+  html += `<div style="position:absolute;top:0;bottom:0;right:0;width:${(S.right + 0.08) * 100}cqw;background:linear-gradient(90deg,transparent,${S.shade[0]} 38%,${S.shade[1]})"></div>`;
 html += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div></div>`;
 
 const placeholder = `
@@ -129,7 +139,8 @@ const copyHTML = S.copy ? `<div class="copy">
     ${S.copy.p ? `<p>${S.copy.p}</p>` : ''}
   </div>` : '';
 
-html += `<div class="lay" id="lay" style="grid-template-columns:${S.copy ? S.macW + 'fr 1fr' : '1fr'};padding:${S.copy ? '0 6cqw 0 5cqw' : S.right != null ? `0 ${S.right * 100}cqw 0 ${(1 - S.width - S.right) * 100}cqw` : `0 ${(1 - S.width) * 50}cqw`}">
+const padTop = !S.copy && S.top != null ? `${S.top}cqw` : '0';
+html += `<div class="lay" id="lay" style="grid-template-columns:${S.copy ? S.macW + 'fr 1fr' : '1fr'};${padTop !== '0' ? 'align-items:start;' : ''}padding:${S.copy ? '0 6cqw 0 5cqw' : S.right != null ? `${padTop} ${S.right * 100}cqw 0 ${(1 - S.width - S.right) * 100}cqw` : `${padTop} ${(1 - S.width) * 50}cqw 0`}">
     <div class="mac">
       <div class="frame">
         <div class="cam"></div>

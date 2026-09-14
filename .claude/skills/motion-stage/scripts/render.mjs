@@ -183,9 +183,16 @@ async function encodeSequence(dir, spec, out, { inFps = null, shutter = 1, alpha
 async function compose(black, white, screen, rect, spec, out){
   const [w, h] = spec.size;
   const isVideo = /\.(mov|mp4|webm|m4v)$/i.test(screen);
-  const dur = spec.duration ?? (isVideo ? await probeDuration(screen) : 5);
+  const dur = spec.duration ?? (isVideo ? await probeDuration(screen) - (spec.start ?? 0) : 5);
   await mkdir(path.dirname(out), { recursive: true });
-  const ov = 1;
+  // 가장자리 안티에일리어싱을 덮으려 촬영본을 사방 1px 크게 얹는다(ov). 그런데 촬영본 크기가 화면 슬롯과 **정확히 같으면**
+  // 그 1px 확대가 804→806 리샘플이 되어 1:1이 깨진다(C3.6 4K 실측 PSNR 24dB). 그때는 확대 없이 그대로 얹는다.
+  let ov = 1;
+  if (isVideo || /\.(png|jpe?g)$/i.test(screen)) {
+    const { stdout: dim } = await run('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', screen]);
+    const [sw, sh] = dim.trim().split(',').map(Number);
+    if (sw === rect.w && sh === rect.h) ov = 0;
+  }
   const filter =
     // 알파 = 1 − |흰 − 검|. 검정판은 이미 알파가 곱해진 색이라 unpremultiply로 되돌린다
     `[1:v]format=rgb24,split[a1][a2];[2:v]format=rgb24[b];` +   // 한 스트림은 한 번만 소비된다 → split
@@ -196,11 +203,26 @@ async function compose(black, white, screen, rect, spec, out){
     `color=c=black:s=${w}x${h}:r=${spec.fps}:d=${dur}[base];` +
     `[base][sv]overlay=${rect.x - ov}:${rect.y - ov}:shortest=1[u];` +
     `[u][fg]overlay=0:0:format=auto[o]`;
+  // 절차 표시줄(steps) — head는 0초부터, hold는 head 뒤에서 tail 앞까지, tail은 끝에. 전부 무대 위 전면 알파 레이어.
+  // mov는 ProRes 4444(곱한 알파로 구웠다), png는 straight — overlay의 alpha 모드를 각각 맞춘다(안 맞추면 테두리가 어둡다).
+  const L = Object.fromEntries((spec.stepLayers ?? []).map(l => [l.k, l.file]));
+  const hd = L.head ? await probeDuration(L.head) : 0, tl = L.tail ? await probeDuration(L.tail) : 0;
+  const extra = []; let top = '[o]', n = 3, layers = '';
+  const layer = (args, alpha) => {
+    extra.push(...args);
+    // 절차 표시줄 자산은 1920×1080이다 — 무대가 그보다 크면(4K) 무대 크기로 늘려 얹는다(안 늘리면 왼쪽 위 1/4에 작게 붙는다)
+    layers += `;[${n}:v]scale=${w}:${h}:flags=lanczos[l${n}];${top}[l${n}]overlay=0:0:eof_action=pass:format=auto:alpha=${alpha}[s${n}]`;
+    top = `[s${n}]`; n++;
+  };
+  if (L.head) layer(['-i', L.head], 'premultiplied');
+  if (L.hold) layer(['-loop', '1', '-t', String(Math.max(0.1, dur - hd - tl)), '-itsoffset', String(hd), '-i', L.hold], 'straight');
+  if (L.tail) layer(['-itsoffset', String(Math.max(0, dur - tl)), '-i', L.tail], 'premultiplied');
   await run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error',
-    ...(isVideo ? ['-i', screen] : ['-loop', '1', '-t', String(dur), '-i', screen]),
+    ...(isVideo ? [...(spec.start ? ['-ss', String(spec.start)] : []), '-i', screen] : ['-loop', '1', '-t', String(dur), '-i', screen]),
     '-loop', '1', '-t', String(dur), '-i', black,
     '-loop', '1', '-t', String(dur), '-i', white,
-    '-filter_complex', filter, '-map', '[o]', '-t', String(dur),
+    ...extra,
+    '-filter_complex', filter + layers, '-map', top, '-t', String(dur),
     '-c:v', 'libx264', '-crf', String(spec.crf ?? 14), '-preset', 'slow',
     '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out],
     { maxBuffer: 1 << 26 });
@@ -227,6 +249,11 @@ async function render(specPath, opts = {}){
     for (let n = 1; n <= 10; n++){ const f = path.join(d, `card-${n}.json`); if (existsSync(f)) spec.areasData[n] = JSON.parse(await readFile(f, 'utf8')).areas; }
   }
   if (screen && !existsSync(screen)) die(`screen 파일이 없다: ${screen}`);
+  if (raw.steps?.dir){                                           // 절차 표시줄 레이어 — 경로는 spec 기준 dir (steps 무대의 `steps` 이름 배열과 구분)
+    const d = path.resolve(path.dirname(specPath), raw.steps.dir);
+    spec.stepLayers = ['head', 'hold', 'tail'].filter(k => raw.steps[k]).map(k => ({ k, file: path.join(d, raw.steps[k]) }));
+    for (const l of spec.stepLayers) if (!existsSync(l.file)) die(`steps 파일이 없다: ${l.file}`);
+  }
 
   if (screen) still = false;
   const alpha = !spec.matte && (spec.bg === 'transparent' || stage === 'wipe' || (stage === 'logo' && spec.ground0 === 'transparent'));

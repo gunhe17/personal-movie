@@ -28,7 +28,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
 /* ── 폰 ── */
 .phone{position:relative;height:var(--ph,84cqh);justify-self:center;
        filter:drop-shadow(0 4cqh 5cqh rgba(11,30,66,.34))}
-.frame{position:relative;height:100%;border-radius:5.2cqh;padding:.62cqh;
+.frame{position:relative;height:100%;border-radius:calc(var(--sr,4.7cqh) + .76cqh);padding:.62cqh;
   background:linear-gradient(150deg,rgba(255,255,255,.60),rgba(255,255,255,.20) 42%,rgba(255,255,255,.42));
   -webkit-backdrop-filter:blur(2.4cqw) saturate(165%);backdrop-filter:blur(2.4cqw) saturate(165%);
   border:.14cqh solid rgba(255,255,255,.75);
@@ -47,10 +47,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
    모서리가 자르는 것은 그 빈 띠뿐이라 콘텐츠는 한 픽셀도 안 잘린다(2026-09-11).
    슬롯의 비율은 촬영본 그대로(1170:2532)이고, 높이가 정해지면 폭이 따라오고 화면 폭이 거기 맞춰진다. */
 .screen{position:relative;height:100%;width:var(--slotW);display:flex;flex-direction:column;
-  border-radius:4.7cqh;overflow:hidden;background:var(--screenBg,#fff);z-index:2}
+  border-radius:var(--sr,4.7cqh);overflow:hidden;background:var(--screenBg,#fff);z-index:2}
 .band{width:100%;flex:0 0 auto;background:var(--screenBg,#fff)}
 .band.top{height:var(--statusH,3.8cqh)}
-.band.bottom{height:var(--homeH,2.6cqh)}
+.band.bottom{height:var(--homeH,2.6cqh);background:var(--homeBg,var(--screenBg,#fff))}   /* 촬영본 아래 끝 색이 위와 다를 때(homeBg) */
 .slot{position:relative;width:100%;height:var(--slotH);overflow:hidden;background:#F7F9FC}
 .slot .shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 /* 매트 모드 — imac과 같은 규약. **슬롯만** 순흑/순백으로 굽는다.
@@ -58,8 +58,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
 .matte .slot .app,.matte .slot .ph,.matte .speaker,.matte .side-btn{display:none}
 .matte-black .slot{background:#000}
 .matte-white .slot{background:#fff}
-/* 띠는 두 판에서 같은 색이어야 차이에 안 잡힌다 — 매트 때는 screenBg를 무시하고 흰색으로 고정 */
-.matte .screen,.matte .band{background:#fff}
+/* 띠는 두 판에서 같은 색이기만 하면 차이에 안 잡힌다 — 흰색일 필요는 없다.
+   (흰색으로 고정했더니 합성본의 윗띠가 촬영본의 회색 바탕과 달라 경계가 보였다 — 합성은 매트 판의 색을 그대로 쓴다) */
+.matte .screen{background:var(--screenBg,#fff)}
 
 /* 수화부 슬릿과 측면 버튼 — **화면 밖에만** 둔다.
    촬영본은 브라우저 페이지라 상태바가 없다. 다이내믹 아일랜드를 화면 위에 얹으면 페이지 맨 윗줄
@@ -113,13 +114,21 @@ const st = document.getElementById('stage');
 if (FILL) st.classList.add('matte', `matte-${FILL}`);
 st.style.setProperty('--sheen', S.sheen + 'deg');
 st.style.setProperty('--ph', S.phoneH + 'cqh');
+// 화면 모서리 반경(cqh). 시뮬레이터 촬영본은 자기 모서리가 검게 둥글어(804×1748 기준 대각선 36px ≈ 반경 6cqh)
+// 기본 4.7이면 그 검은 초승달이 화면 안에 보인다 — 촬영본보다 크게 잡아 가린다. 프레임 바깥 반경이 따라온다
+// (화면 반경 + 패딩 .62 + 테두리 .14 = +.76cqh — 동심이어야 모서리에서 유리 테가 두꺼워지지 않는다).
+if (S.screenRadius != null) st.style.setProperty('--sr', S.screenRadius + 'cqh');
 st.style.setProperty('--screenBg', S.screenBg);
+if (S.homeBg) st.style.setProperty('--homeBg', S.homeBg);   // 아래 띠만 다른 색 — 촬영본 맨 아래 줄 색을 뽑아 넣는다
 st.style.setProperty('--statusH', S.statusH + 'cqh');
 st.style.setProperty('--homeH', S.homeH + 'cqh');
 // 슬롯 치수는 계산해서 박는다 — 플렉스 안에서 `aspect-ratio`는 높이가 정해져도 폭을 안 잡아
 // 폰이 막대가 된다(실측). 높이가 먼저 정해지는 물건이므로 높이 → 폭 순서로 푼다.
 const SHOT_RATIO = S.shotRatio ?? 1170 / 2532;        // 폰-웹 촬영본(SPEC v7 phone). 시뮬레이터 판은 804/1748
-const slotH = S.phoneH - S.statusH - S.homeH;
+// 프레임 안쪽 높이 = 폰 높이 − 패딩 .62×2 − 테두리 .14×2 (.frame은 border-box). 이걸 빼지 않으면 슬롯이 화면보다 1.52cqh 길어
+// overflow에 잘리고, 합성은 그 잘린 사각형(촬영본보다 넓은 비율)에 촬영본을 cover로 채워 **위아래 약 1.8%를 잘라 먹었다**(C3.6 실측 428×914).
+const FRAME_INSET = 2 * .62 + 2 * .14;
+const slotH = S.phoneH - FRAME_INSET - S.statusH - S.homeH;
 st.style.setProperty('--slotH', slotH + 'cqh');
 st.style.setProperty('--slotW', (slotH * SHOT_RATIO) + 'cqh');
 st.style.background = S.ground;
@@ -129,6 +138,9 @@ for (const b of S.blobs){
   const [ax, ay] = b.from.split(',');
   html += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`;
 }
+// 우측 칸 그라디언트 — imac 무대와 같은 식(같은 배경을 쓰려고). 폭은 right, 없으면 0.2. 폰 위치는 안 바꾼다
+if (S.shade)
+  html += `<div style="position:absolute;top:0;bottom:0;right:0;width:${((S.right ?? 0.2) + 0.08) * 100}cqw;background:linear-gradient(90deg,transparent,${S.shade[0]} 38%,${S.shade[1]})"></div>`;
 html += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div></div>`;
 
 const placeholder = `
@@ -145,7 +157,9 @@ const copyHTML = S.copy ? `<div class="copy">
     ${S.copy.p ? `<p>${S.copy.p}</p>` : ''}
   </div>` : '';
 
-html += `<div class="lay" id="lay" style="grid-template-columns:${S.copy ? S.phoneW + 'fr 1.6fr' : '1fr'};padding:${S.copy ? '0 6cqw 0 6cqw' : S.right != null ? `0 ${S.right * 100}cqw 0 0` : '0'}">
+// top — 폰 윗변을 여기(cqh)에 박는다. 위에 절차 표시줄(steps)을 얹을 때 쓴다. 없으면 세로 가운데
+const padTop = S.top != null ? `${S.top}cqh` : '0';
+html += `<div class="lay" id="lay" style="grid-template-columns:${S.copy ? S.phoneW + 'fr 1.6fr' : '1fr'};${S.top != null ? 'align-items:start;' : ''}padding:${S.copy ? `${padTop} 6cqw 0 6cqw` : S.right != null ? `${padTop} ${S.right * 100}cqw 0 0` : `${padTop} 0 0`}">
     <div class="phone">
       <div class="frame">
         <div class="speaker"></div>

@@ -1,6 +1,7 @@
 // human.mjs — 사람이 하는 속도로 조작하는 헬퍼. 모든 조작은 marks에 시각을 남긴다.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const easeOut = (t) => 1 - Math.pow(1 - t, 3)
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 // send: sckcap stdin으로 커서 좌표를 흘리는 함수 (없으면 커서 없이 동작).
 // 커서는 캡처러가 프레임에 그린다 — 페이지 안 오버레이가 아니라서 내비게이션에도 위치가 유지되고 지연이 없다.
@@ -53,11 +54,65 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
     if (state.disabled || state.aria) throw new Error(`비활성 요소를 눌렀다: ${sel}`)
   }
 
+  // 거리를 먼저 정하고, 한 번에 ease-in-out으로 매 프레임 조금씩 휠을 보낸다(v8 — v5는 커서와 같은 ease-out이라 출발이 툭 튀었다).
+  // CDP 합성 휠은 smooth scrolling을 타지 않아 델타 하나가 한 프레임 점프다 — 그래서 프레임마다 작은 델타로 쪼갠다.
+  // 장면 스크립트는 거리를 손으로 재지 말고 scrollTo(목표)를 쓴다.
+  async function scrollBy(dy, note, target = null) {
+    const dist = Math.abs(dy)
+    const dur = T.scrollMin == null ? Math.min(T.moveMax, T.moveMin + dist * T.movePerPx)
+      : Math.min(T.scrollMax, T.scrollMin + dist * T.scrollPerPx)
+    const n = Math.max(1, Math.round(dur / T.scrollFrame))
+    let done = 0
+    for (let i = 1; i <= n; i++) {
+      const want = Math.round(dy * (T.scrollMin == null ? easeOut : easeInOut)(i / n))   // 누적 정수 — 델타 합이 정확히 dy
+      if (want !== done) await page.mouse.wheel(0, want - done)
+      done = want
+      await sleep(T.scrollFrame)
+    }
+    mark('scroll', target ?? dy, note)
+    await sleep(T.afterScroll)
+  }
+
+  /**
+   * 목표 요소까지 **한 번에** 부드럽게 스크롤한다(v8 규칙).
+   * block: 'center'(기본) · 'end'(요소 아래가 보이게) · 'start' · 'nearest'(이미 보이면 안 움직인다 — click·type이 쓴다).
+   * 스크롤러를 요소에서 거슬러 올라가 찾고(안쪽 overflow div 포함), 남은 거리로 잘라 끝에 부딪혀 멈추지 않게 한다.
+   * 휠은 커서 아래 요소로 가므로, 커서가 스크롤러 밖이면 먼저 안으로 들인다.
+   */
+  async function scrollTo(sel, note, block = 'center') {
+    const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
+    await el.waitFor({ state: 'attached' })
+    const g = await el.evaluate((n, block) => {
+      let sc = null
+      for (let p = n.parentElement; p && p !== document.body; p = p.parentElement) {
+        const o = getComputedStyle(p).overflowY
+        if ((o === 'auto' || o === 'scroll') && p.scrollHeight > p.clientHeight + 4) { sc = p; break }
+      }
+      const doc = !sc
+      sc ??= document.scrollingElement
+      const v = doc ? { left: 0, top: 0, w: innerWidth, h: innerHeight } : (() => { const b = sc.getBoundingClientRect(); return { left: b.left, top: b.top, w: sc.clientWidth, h: sc.clientHeight } })()
+      const r = n.getBoundingClientRect(), pad = 24
+      const inView = r.top >= v.top && r.bottom <= v.top + v.h
+      const want = block === 'nearest' && inView ? 0
+        : block === 'end' ? r.bottom - (v.top + v.h) + pad
+        : block === 'start' ? r.top - v.top - pad
+        : r.top + r.height / 2 - (v.top + v.h / 2)
+      const dy = Math.max(-sc.scrollTop, Math.min(sc.scrollHeight - sc.clientHeight - sc.scrollTop, want))
+      return { dy: Math.round(dy), v }
+    }, block)
+    if (Math.abs(g.dy) < 8) { if (note) mark('scroll', sel, `${note} (이미 보인다)`); return }
+    const { v } = g
+    if (pos.x < v.left || pos.x > v.left + v.w || pos.y < v.top || pos.y > v.top + v.h)
+      await moveTo(v.left + v.w * 0.6, v.top + v.h * 0.5)
+    await scrollBy(g.dy, note, sel)
+  }
+
   async function center(sel) {
     // 문자열 셀렉터 또는 Playwright Locator(codegen 기록 그대로) 둘 다 받는다
     const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
     await el.waitFor({ state: 'visible' })
-    await el.scrollIntoViewIfNeeded()
+    await scrollTo(sel, null, 'nearest')   // v8 — 화면 밖이면 목표까지 한 번에 부드럽게 (scrollIntoView는 한 프레임 점프다)
+    await el.scrollIntoViewIfNeeded()      // 가로 스크롤 등 위에서 못 잡은 경우만 남는다
     const b = await el.boundingBox()
     if (!b) throw new Error(`boundingBox 없음: ${sel}`)
     return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
@@ -85,22 +140,8 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
       mark('type', sel, note ?? text)
       await sleep(T.afterType)
     },
-    // 거리를 먼저 정하고, 커서 이동과 같은 시간·ease-out으로 매 프레임 조금씩 휠을 보낸다(v5).
-    // CDP 합성 휠은 smooth scrolling을 타지 않아 델타 하나가 한 프레임 점프다 — 그래서 프레임마다 작은 델타로 쪼갠다.
-    async scroll(dy, note) {
-      const dist = Math.abs(dy)
-      const dur = Math.min(T.moveMax, T.moveMin + dist * T.movePerPx)
-      const n = Math.max(1, Math.round(dur / T.scrollFrame))
-      let done = 0
-      for (let i = 1; i <= n; i++) {
-        const target = Math.round(dy * easeOut(i / n))   // 누적 정수 — 델타 합이 정확히 dy
-        if (target !== done) await page.mouse.wheel(0, target - done)
-        done = target
-        await sleep(T.scrollFrame)
-      }
-      mark('scroll', dy, note)
-      await sleep(T.afterScroll)
-    },
+    scroll: scrollBy,
+    scrollTo,
     async hover(sel, note) {
       const { x, y } = await center(sel)
       await moveTo(x, y, await shapeAt(x, y))
@@ -190,14 +231,7 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
     },
     /** 화면 밖 요소를 천천히 끌어올려 보여준다 — 폼 아래쪽을 청자에게 인식시킬 때(v4) */
     async reveal(sel, note) {
-      const el = typeof sel === 'string' ? page.locator(sel).first() : sel.first()
-      await el.waitFor({ state: 'visible' })
-      const box = await el.boundingBox()
-      if (box) {
-        const target = box.y + box.height / 2
-        const dy = Math.round(target - 450)     // 뷰포트 중앙(900/2)으로
-        if (Math.abs(dy) > 60) await this.scroll(dy, null)
-      }
+      await scrollTo(sel, null, 'center')   // v8 — 스크롤러를 찾아 목표까지 한 번에 (뷰포트 450 고정 계산은 안쪽 div에서 틀렸다)
       mark('reveal', sel, note)
       await sleep(T.beat)
     },

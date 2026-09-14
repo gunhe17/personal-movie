@@ -28,8 +28,9 @@ export function phone(udid, T, clock) {
   return {
     marks, nocut,
     async tap(target, note) {
+      const t = Date.now()
       const { x, y } = at(target)
-      await sleep(T.preTap)
+      await sleep(T.preTap - (Date.now() - t))   // v2: 라벨 조회(describe-all) 시간도 preTap 안에 센다 — 전엔 그만큼 탭 사이가 늘었다
       idb(['ui', 'tap', String(Math.round(x)), String(Math.round(y))])
       mark('tap', typeof target === 'string' ? target : `${x},${y}`, note)
       await sleep(T.postTap)

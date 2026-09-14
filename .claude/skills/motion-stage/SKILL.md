@@ -18,8 +18,9 @@ node .claude/skills/motion-stage/scripts/render.mjs --selftest     # 무대 둘 
 | `imac` | 파란색 중심 그라디언트 + 반투명 도트 위에 글라스 iMac. `screen`에 촬영본을 끼운다 | `movies/26IRDEMO/s01-접수/mockup/s01_web_intake_t08_imac.json` |
 | `wipe` | **전환.** 여덟 기하를 **루마 매트**(`matte:true` → mp4) 또는 **RGBA 오버레이**(ProRes 4444)로. `shape`는 도형이 회전·이동·성장해 화면이 된다 | `movies/26IRDEMO/_motion/transitions/*.json` · 데모 `index.html` |
 | `logo` | **로고 인트로.** 흰 마크 등장 → 한 번 튐 → 끝없이 커지며 창 안이 배경 무늬로 바뀌어 배경이 된다. `logo`에 SVG 경로. `copy` 한 줄을 앞에 세우려면 `copyAt`·`copyOut`·`logoAt` | `_motion/transitions/logo-intro.json` · 마크 `_motion/brand/mindscope-mark.svg` |
-| `cells` | **검은 지면에 칸이 차례로 켜진다.** 목차 컷용. `cells` 이름 배열 · `at` 첫 칸 · `beat` 간격 · `late` 반 박자 미룰 칸(1부터) · `rise` | `movies/26IRDEMO/v2/_mockups/spec/C0.1.json` |
+| `cells` | **검은 지면에 칸이 차례로 켜진다.** 목차 컷용. `cells` 이름 배열 · `at` 첫 칸 · `beat` 간격 · `late` 반 박자 미룰 칸(1부터) · `rise` | `movies/26IRDEMO/v2/s00-c1-일곱칸/C0.1.json` |
 | `cards` | **로샤 자료를 3D 카드로.** 검사 카드(card-N.png) · 영역 기록지(areas/card-N.json의 D 영역을 카드 열 장 위에) · 점수계열 기록지(표). `assets`·`areas`는 마인드봄 소스의 폴더(spec 기준 상대경로). `marks:4`면 영역 대신 **붉은 동그라미 네 군데**(`markSeed` 고정 — 재렌더해도 같은 자리). `ground:"transparent"`면 배경 없는 PNG, `pose`로 세 장의 기울기를 맞춘다. 카드를 크게 뽑을 땐 `ref`(기준 폭)를 주면 글자·여백이 통째로 확대된다. `duration`이 있으면 카드가 아래에서 떠오른다 | `movies/26IRDEMO/s02-검사실시/mockup/*.json` |
+| `steps` | **씬 상단 절차 표시줄.** 단계를 전부 나열하고 현재 단계를 알약으로 채운다(배경 투명). `steps` 이름 배열 · `ground`·`ink`(줄 바탕·글자) · `accent`·`onAccent`(알약·알약 위 글자) · `tag`(비우면 없다) · `from`/`to`(같으면 스틸, k→k+1 이동, 0→1 등장, k→0 퇴장) | `movies/26IRDEMO/v2/_assets/steps/` — `steps.json` 고치고 `build.mjs` |
 | `imac` + `pull` | **카메라 풀백.** 풀프레임 UI에서 뒤로 빠지며 iMac과 배경이 드러난다 (container transform 역방향). 프레임마다 화면을 갈아 끼우므로 느리다(1080p 2.2s ≈ 4분) | `s01-접수/mockup/s01_web_intake_t08_pull.json` |
 
 ## 언제 Chrome이 몇 번 뜨나 — 이것이 속도를 정한다
@@ -85,11 +86,33 @@ node .claude/skills/motion-stage/scripts/render.mjs --selftest     # 무대 둘 
 |---|---|
 | `screen` | 화면에 끼울 영상 또는 이미지. **spec 파일 기준 상대경로.** 없으면 자리표시 UI로 스틸 |
 | `duration` | 없으면 영상 길이 그대로. **쓸 구간만 잘라 넣는 편이 낫다** — 편집에서 어차피 인아웃을 잡는다 |
+| `start` | 촬영본의 이 초부터 쓴다(`duration`과 같이 구간을 잡는다). 잘라 둔 사본을 따로 만들지 않는다 |
+| `steps` | **절차 표시줄을 맨 위에 얹는다** — `{dir, head, hold, tail}`(dir은 spec 기준). head는 0초부터, hold PNG는 그 뒤로 tail 앞까지, tail은 끝에. 파일은 `steps` 무대 산출물(`v2/_assets/steps/SN-흐름/`) 그대로 — cuts.json의 `steps.head/hold/tail`과 같은 이름. `imac`·`phone` 공통 |
 | `copy` | 오른쪽 카피. 없으면 iMac이 가운데로 온다 |
 | `macW` | 카피가 있을 때 iMac 열의 비율 (`1.32fr : 1fr`) |
 | `right` | **우측을 이만큼 비운다**(무대 폭 비율, 예 `0.25`). iMac이 왼쪽으로 밀린다 — 오른쪽에 카피·로고를 편집에서 얹을 자리. 없으면 가운데. `copy`가 있으면 그 열이 우선이라 무시된다 |
+| `width` | iMac 폭(무대 폭 비율). 기본 0.66 |
+| `top` | iMac 윗변을 여기(cqw)에 박는다 — 넘친 아래는 잘린다. 없으면 세로 가운데. **`phone` 무대도 같은 뜻(단위 cqh)** — 절차 표시줄 아래로 내릴 때 `9.5` |
+| `shade` | `[중간색, 끝색]` — `right` 칸에 그라디언트를 깐다(흰 텍스트용). 배경 레이어라 매트에 안 섞인다 |
+| `bezel` · `chin` | 베젤 두께 · 턱 높이(cqw). 기본 1.05 · 4.6 |
+| `screenRadius` | **phone 무대** — 화면 모서리 반경(cqh, 기본 4.7). 프레임 바깥 반경이 따라온다. **시뮬레이터 촬영본(804×1748)은 `6.8`** — 촬영본 자체의 검게 둥근 모서리(대각선 36px ≈ 반경 6cqh)가 기본 반경에서는 초승달로 보인다(C3.6 실측). 폰-웹 촬영본(C1.9)은 모서리가 없어 기본값. **시뮬레이터 촬영본은 `screenBg:"transparent"`도 같이** — 검정이면 둥근 가장자리 안티에일리어싱이 그 검정을 섞어 화면 둘레에 **어두운 실선**이 생긴다(C3.6 실측, 투명이면 유리 테와 섞여 사라진다). 프레임 바깥 반경은 화면 반경 + .76(패딩 .62 + 테두리 .14)이라 동심이다 |
+| `phoneH` · `shotRatio` | **phone 무대 — 촬영본을 깨뜨리지 않는 규격.** 슬롯 = 폰 높이 − 프레임 안쪽 1.52cqh(패딩 .62×2 · 테두리 .14×2), 폭은 `shotRatio`(촬영본 폭/높이 **정확히**, 반올림 금지 — 0.46이면 cover가 또 잘라 먹는다). **시뮬레이터(804×1748)는 `size [3840,2160]` · `phoneH 82.446`** → 화면 804×1748 = 원본 1:1, 리샘플 없음(C3.6 실측 PSNR 43.7dB = 인코딩 상한). 1080 무대에서는 0.52배 축소라 글자가 뭉갠다. 촬영본 크기가 슬롯과 같으면 합성의 가장자리용 1px 확대를 끈다(`render.mjs` `ov=0`) |
+| `stand` | `false`면 받침대를 뺀다 · 숫자면 배율(1 = 원래 크기) |
 | `blobs` | 배경 색 덩어리 6개 `{c,o,w,x,y,from}`. 파랑이 첫 번째 |
 | `sheen` | 유리 반사 띠 각도 · `dots` 도트 간격(cqw) · `ground` 바닥색 |
+
+**v2 규격 (`movies/26IRDEMO/v2/_mockups/spec/`)** — 우측 1/5은 편집에서 흰 텍스트를 얹을 칸, 화면은 그 나머지에서 최대(1920 기준 1474px).
+위의 절차 표시줄(`steps`, 윗변 ≈ 4.6cqw)을 피해 윗변을 5.6에 둔다. 좌우는 자르지 않는다.
+
+```json
+"right":0.2, "width":0.78, "top":5.6, "bezel":0.55, "chin":3.4, "stand":0.45,
+"shade":["rgba(47,107,255,.22)","rgba(38,86,222,.55)"]
+```
+
+**v2는 전부 `size [3840,2160]`로 굽는다**(2026-09-14). 1080 무대에서 iMac 화면은 1474px — 촬영본 3200px을 0.46배로 줄여 글자가 뭉갰다. 4K면 약 2948px(0.92배)라 거의 원본이다. 폰은 4K에서 1:1(`phoneH 82.446`). 절차 표시줄 자산(1920×1080)은 `render.mjs`가 무대 크기로 늘려 얹는다.
+
+> 우측 칸을 비우면 화면은 **폭**에 묶인다 — 받침대를 빼거나 아래를 잘라도 거의 안 커진다(1/4 칸에서 1397px).
+> 크기를 더 원하면 칸을 줄이는 것이 유일한 손잡이다.
 
 화면 슬롯은 **16:9** — iMac 24"가 실제로 16:9이고 촬영본(3200×1800)도 16:9라 잘림이 없다.
 무대 안의 치수는 전부 `cqw`(무대 폭 비율)라 어느 크기로 뽑아도 같은 그림이다.

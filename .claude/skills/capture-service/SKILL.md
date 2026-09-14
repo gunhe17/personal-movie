@@ -22,19 +22,20 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | 오디오 | 없음 | 사운드는 편집에서 |
 | 폰 (시뮬레이터) | **`capture-phone.mjs`** — 같은 sckcap을 **창 모드**로: Simulator 창 하나를 잡고 타이틀바 52pt를 뺀다 · iPhone 17 Pro · **베젤 off · 터치 표시 on · Point Accurate(스케일 1.0)** → **804×1748px** · 60fps CFR | 웹과 같은 엔진이라 드롭 0·다른 창 무관. 터치 원이 창 안에 그려져 캡처된다. Pixel Accurate(1206×2622)는 이 모니터 높이(1260pt)를 넘어 불가 — 1080p 프레임 안의 폰엔 804px면 충분 |
 | 폰 조작 | **idb** (`brew tap facebook/fb && brew install idb-companion && python3 -m pip install fb-idb`) — 접근성 라벨로 요소를 찾아 탭 · 스와이프 · 입력. 설치 전엔 `--manual`(사람이 조작, 엔진만 녹화) | Playwright가 폰을 못 만진다. Maestro는 Java가 필요해 차선 |
-| 폰 타이밍 | preTap 400 · postTap 900 · swipe 500 · afterSwipe 900 · beat 1200 · lead/tail 3000 | 탭은 커서 이동이 없어 웹보다 짧고, RN 화면 전환 애니메이션 뒤를 기다린다 |
+| 폰 타이밍 (SPEC_PHONE **v2**) | preTap 400(**라벨 조회 시간 포함**) · postTap 600 · swipe 500 · afterSwipe 800 · beat 800 · lead/tail 3000 | 탭은 커서 이동이 없어 웹보다 짧고, RN 화면 전환 애니메이션 뒤를 기다린다. **v2에서 줄였다**(v1 postTap 900 · afterSwipe 900 · beat 1200, 조회 시간이 preTap 밖) — v1은 탭 사이가 약 2초라 탭이 여럿인 컷(C3.6)이 느렸다 |
 | 목 에이전트 | **`--mock _mocks/sNN-*.json`** — 제품의 `mock-capture` 스크립트를 `sessionStorage['agent-mock:v2']`에 걸고 시작. 다음 턴은 `h.key('F9')`, `/agent` 화면이면 사람이 전송할 때 흘러나온다 | LLM을 부르지 않아 크레딧을 안 쓰고 매 테이크의 대사·prefill이 같다. 도구는 제품 배선(`handlePageToolCall`)을 그대로 타므로 화면 동작은 진짜다 |
 | 실기기 (s06) | iOS 화면 기록 · AirDrop → raw/ · `capture.mjs --manual`로 meta 등록 | 마이크가 필요한 필드노트만 |
 
-### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v6)
+### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v8)
 
 | 상수 | 값 | 뜻 |
 |---|---|---|
 | `lead` / `tail` | 1500 / 1200 | 캡처 시작 후·종료 전 여유. 편집 헤드룸은 이만큼이면 된다 |
-| `moveMin` / `movePerPx` / `moveMax` | 180 / 0.30 / 460 | 커서 이동은 **거리에 비례**한다(22 steps, ease-out). 가까운 버튼으로 먼 거리와 같은 시간을 들여 날아가지 않게 |
-| `preClick` / `postClick` | 140 / 240 | 클릭 전 멈춤 · 클릭 후 UI 반응. **v6에서 줄였다** — 같은 목록의 버튼을 연달아 누르면 클릭마다 0.6초가 멈춤이었다(s01 검사 항목 4연타) |
+| `moveMin` / `movePerPx` / `moveMax` | 110 / 0.18 / 300 | 커서 이동은 **거리에 비례**한다(16 steps, ease-out). **v8에서 줄였다**(v6 180/0.30/460) — 버튼을 연달아 고르는 구간이 답답했다(v2 C1.7) |
+| `preClick` / `postClick` | 80 / 170 | 클릭 전 멈춤 · 클릭 후 UI 반응. v6 140/240 → **v8** |
 | `type` / `afterType` | 40/글자 / 220 | 타이핑 |
-| `scrollFrame` / `afterScroll` | 16 / 450 | 스크롤은 **거리를 먼저 정하고** 커서 이동과 같은 시간·ease-out으로 매 프레임 작은 휠 델타를 보낸다(v5). v4의 140px 휠은 CDP에서 smooth scrolling을 안 타 한 프레임 점프였다 — s01 t07에서 364px이 세 번 툭툭 |
+| `scrollMin` / `scrollPerPx` / `scrollMax` | 380 / 0.5 / 900 | **스크롤 전용(v8)** — 커서보다 길고 **ease-in-out**. 출발과 도착이 둘 다 부드럽다 |
+| `scrollFrame` / `afterScroll` | 16 / 400 | 매 프레임 작은 휠 델타를 보낸다(v5). v4의 140px 휠은 CDP에서 smooth scrolling을 안 타 한 프레임 점프였다 — s01 t07에서 364px이 세 번 툭툭 |
 | `beat` | 700 | 상태가 바뀐 뒤 시청자가 볼 시간 |
 | `modal` | 600 | 모달 열린 뒤 첫 조작까지 |
 | `settle` | 260 | `until`이 조건을 만난 뒤 화면이 자리 잡는 시간 |
@@ -66,6 +67,15 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 내려서 보여줄 때는 `h.reveal(sel, note)` — 그 요소를 뷰포트 가운데로 끌어올리고 `beat`를 둔다.
 채워진 값이 화면 밖에 있으면 **관객은 채워진 줄 모른다.**
 
+### 스크롤 규칙 (v8) — 목표를 정하고, 한 번에, 부드럽게
+
+1. **목표를 먼저 정한다.** 스크롤은 거리(px)가 아니라 **도착할 요소**로 쓴다 — `h.scrollTo(sel, note, block)`(`center` · `end` · `start`).
+   러너가 스크롤러(안쪽 `overflow` div 포함)를 찾아 남은 거리로 자르고, 커서가 스크롤러 밖이면 안으로 들인다.
+   `h.scroll(dy)`에 손으로 잰 숫자를 넣지 않는다 — 제품 레이아웃이 바뀌면 조용히 틀린다.
+2. **한 목표에 한 번.** 같은 곳으로 가려고 `scroll`·`reveal`을 두세 번 이어 붙이지 않는다 — 툭툭 끊겨 보인다.
+   중간에 보여줄 것이 있으면 그것이 **별개의 목표**이고, 사이에 조작이나 `beat`가 있어야 한다.
+3. **부드럽게.** 곡선은 ease-in-out, 시간은 `scrollMin + 거리×scrollPerPx`(≤ `scrollMax`). 장면 스크립트에서 바꾸지 않는다.
+
 ### v3에서 바뀐 것 (2026-09-09)
 
 v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르다.
@@ -84,7 +94,7 @@ v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르�
 2. **장면 스크립트** — `movies/26IRDEMO/_scripts/sNN-<action>.mjs`. 두 가지 방법:
    - 손으로: `_template.mjs`를 복사한다.
    - 기록으로: `CAP_PASSWORD=… node scripts/record.mjs --scene s01 --account staff --url <URL>` → 헤드 브라우저에서 직접 조작하고 창을 닫으면 `_scripts/<scene>-draft.mjs`가 생긴다. 그 초안에 `note`·`beat`·`modal`·`nocut`을 채우고 불필요한 클릭을 지운다. (codegen 기록이 있으면 `rec2steps.mjs`로 변환)
-   스크립트는 `export default async function steps(page, h)` 하나. `h` — `click(sel, note)` `type(sel, text, note)` `scroll(dy, note)` `hover(sel, note)` `key(k, note)` **`until(sel, note[, timeout])`** **`reveal(sel, note)`** `beat(note)` `modal(note)` `hold(ms, note)` `nocutStart(note)`/`nocutEnd()`. `sel`은 문자열 셀렉터나 Locator.
+   스크립트는 `export default async function steps(page, h)` 하나. `h` — `click(sel, note)` `type(sel, text, note)` **`scrollTo(sel, note[, block])`** `scroll(dy, note)` `hover(sel, note)` `key(k, note)` **`until(sel, note[, timeout])`** **`reveal(sel, note)`** `beat(note)` `modal(note)` `hold(ms, note)` `nocutStart(note)`/`nocutEnd()`. `sel`은 문자열 셀렉터나 Locator.
    **`hold`는 마지막 끝맺음(≤600ms) 말고는 쓰지 않는다** — 제품을 기다릴 때는 `until`이다.
 3. **목 에이전트 (에이전트가 나오는 장면만)** — 제품의 `mock-capture` 스킬(`_tool/saas-center-platform/.claude/skills/mock-capture/SKILL.md`)이 스크립트 형식과 채울 수 있는 필드의 정본이다. 스크립트는 `movies/26IRDEMO/_mocks/sNN-<action>.json`에 두고 촬영 명령에 `--mock _mocks/s01-intake.json`을 더한다. 러너가 sessionStorage에 직접 걸므로 `/lab/agent-mock` 편집기는 열지 않는다.
    - 채팅 재생(`/agent`에서 시작): 턴에 `progress`·`question`·`reply`를 쓰고, 장면 스크립트는 `h.type(...)` + `h.key('Enter')`로 전송한다. 되물음 턴 다음은 사용자의 답변이 연다.

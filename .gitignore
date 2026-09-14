@@ -30,5 +30,12 @@ movies/26IRDEMO/v2/_lab/01-model-bakeoff/kling-o3/*.png
 movies/26IRDEMO/v2/s*/r*/*.png
 !movies/26IRDEMO/v2/s*/r*/contact-sheet.png
 
+# v2 i2v 테이크 — 원본 mp4는 로컬 보관. 저장소에는 sheet.png · motion.json · 채택본 CN.N_ai.mp4 만 남는다.
+# ⚠ 시드가 없어 재생성이 불가능하다 — 저장소 밖에 따로 백업할 것.
+movies/26IRDEMO/v2/s*/t*/*.mp4
+
 # v2 무대 중간본 — raw 에서 ffmpeg 로 다시 자를 수 있다 (spec/ 이 정본)
 movies/26IRDEMO/v2/_mockups/src/
+
+# Claude Code 로컬 설정 (MCP 승인 등) — 개인 환경
+.claude/settings.local.json

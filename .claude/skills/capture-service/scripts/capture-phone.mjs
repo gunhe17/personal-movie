@@ -16,10 +16,10 @@ import { DEMO_ROOT, APP_ROOT, SCK_BIN, ensureSck, sceneDirs, nextTake, writeMeta
 
 // ── SPEC_PHONE ────────────────────────────────────────────────────────────
 export const SPEC_PHONE = {
-  version: 1,
+  version: 2,   // v2: 탭 사이를 줄였다(postTap 900→600 · beat 1200→800 · afterSwipe 900→800) · preTap이 라벨 조회 시간을 포함
   simulator: { showChrome: false, showSingleTouches: true, scale: 1.0, trimTopPt: 52 },   // 베젤 off · 터치 표시 · Point Accurate · 타이틀바 52pt(측정값)
   capture: { tool: 'sckcap (ScreenCaptureKit, 창 모드)', fps: 60, codec: 'h264', bitrate: 20_000_000, cursor: 'simulator touch indicator', audio: false },
-  timing: { lead: 3000, tail: 3000, preTap: 400, postTap: 900, afterType: 400, swipe: 500, afterSwipe: 900, beat: 1200 }
+  timing: { lead: 3000, tail: 3000, preTap: 400, postTap: 600, afterType: 400, swipe: 500, afterSwipe: 800, beat: 800 }
 }
 const SIM_BUNDLE = 'com.apple.iphonesimulator'
 // ──────────────────────────────────────────────────────────────────────────
