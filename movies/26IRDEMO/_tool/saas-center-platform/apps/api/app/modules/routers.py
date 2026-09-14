@@ -18,6 +18,7 @@ from app.modules.counseling.counseling_session.router import router as counselin
 from app.modules.counseling.counseling_case_analysis.router import router as counseling_case_analysis_router
 from app.modules.counseling.counseling_note_ai_draft.router import router as counseling_note_ai_draft_router
 from app.modules.counseling.counseling_note_share.router import router as counseling_note_share_router
+from app.modules.counseling.counseling_note_derivation.router import router as counseling_note_derivation_router
 from app.modules.field_note.field_note.router import router as field_note_router
 from app.modules.field_note.pipeline.router import router as field_note_pipeline_router
 from app.modules.field_note.streaming.ws_handler import router as field_note_streaming_router

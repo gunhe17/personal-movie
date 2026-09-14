@@ -6,6 +6,7 @@ from .counseling_session_facade import CounselingSessionFacade
 from .counseling_note_facade import CounselingNoteFacade
 from .counseling_note_ai_draft_facade import CounselingNoteAiDraftFacade
 from .counseling_note_share_facade import CounselingNoteShareFacade
+from .counseling_note_derivation_facade import CounselingNoteDerivationFacade
 from .counseling_agent_facade import CounselingAgentFacade
 from .counseling_case_analysis_facade import CounselingCaseAnalysisFacade
 
@@ -16,6 +17,7 @@ __all__ = [
     "CounselingNoteFacade",
     "CounselingNoteAiDraftFacade",
     "CounselingNoteShareFacade",
+    "CounselingNoteDerivationFacade",
     "CounselingAgentFacade",
     "CounselingCaseAnalysisFacade",
 ]

@@ -102,6 +102,7 @@ server.router(Router(router=routers.assessment_send_result_router, prefix="/api/
 server.router(Router(router=routers.counseling_case_analysis_router, prefix="/api/v1"))
 server.router(Router(router=routers.counseling_note_ai_draft_router, prefix="/api/v1")) # counseling_note_router를 case_router보다 먼저 등록 (정적 /counseling/notes가 case_id="notes"로 가로채는 충돌 방지 — FastAPI는 등록 순서로 매칭).
 server.router(Router(router=routers.counseling_note_share_router, prefix="/api/v1"))
+server.router(Router(router=routers.counseling_note_derivation_router, prefix="/api/v1"))
 server.router(Router(router=routers.counseling_note_router, prefix="/api/v1"))
 server.router(Router(router=routers.counseling_case_router, prefix="/api/v1"))
 server.router(Router(router=routers.counseling_session_router, prefix="/api/v1"))

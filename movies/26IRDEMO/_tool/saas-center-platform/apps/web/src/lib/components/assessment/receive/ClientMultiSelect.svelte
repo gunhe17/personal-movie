@@ -45,7 +45,7 @@
       birth_date: item.birth_date ? new Date(item.birth_date) : null,
       guardian_relationship: item.guardian_relationship ?? '',
       guardian_name: item.guardian_name ?? '',
-      guardian_phone: item.phone ?? '',
+      guardian_phone: item.guardian_phone ?? item.phone ?? '',
       memo: item.memo ?? '',
       created_at: item.created_at ?? '',
       updated_at: item.updated_at ?? ''

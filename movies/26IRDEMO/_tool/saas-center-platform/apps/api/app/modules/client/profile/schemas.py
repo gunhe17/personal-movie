@@ -181,6 +181,7 @@ class ClientSummary(BaseModel):
     # 아동의 대표 보호자 — list 응답에서 관계 조합으로 채움. 없으면 None.
     guardian_name: str | None = None
     guardian_relationship: str | None = None
+    guardian_phone: str | None = None
     # 현재 요청자(상담사)가 해당 내담자를 관심 표시했는지 — list 응답에서만 채워짐
     is_favorited: bool = False
     # 다음 예정 회기 시작 시각(UTC naive) — list 응답에서 항상 채워짐.

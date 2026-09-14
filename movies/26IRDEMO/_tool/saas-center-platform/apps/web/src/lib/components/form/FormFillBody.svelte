@@ -174,9 +174,11 @@
                 >{/if}
             </p>
           {/if}
-          {#if field.type === 'text'}
+          {#if field.type === 'text' || field.type === 'date' || field.type === 'phone'}
+            <!-- date·phone도 여기서 그린다 — 안 그리면 필수 필드를 목록 폴백에서 채울 길이 없어
+                 제출이 영원히 400이다. signature는 그대로 안 그린다(서명 패드 미구현). -->
             <input
-              type="text"
+              type={field.type === 'date' ? 'date' : field.type === 'phone' ? 'tel' : 'text'}
               value={answers[fieldId] ?? ''}
               oninput={(e) => (answers[fieldId] = e.currentTarget.value)}
               class="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-border-active transition-colors"

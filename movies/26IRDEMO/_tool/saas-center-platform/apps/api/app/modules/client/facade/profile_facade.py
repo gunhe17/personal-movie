@@ -278,15 +278,18 @@ class ProfileFacade:
         }
         guardian_ids = {gid for gid, _ in primary_guardian.values()}
         guardian_names: dict[str, str] = {}
+        guardian_phones: dict[str, str | None] = {}
         if guardian_ids:
             repo = self._uow.repo(ClientRepository)
             related = await ListClientsByIdsService(repo).execute(list(guardian_ids))
             guardian_names = {gc.id: gc.name for gc in related}
+            guardian_phones = {gc.id: gc.phone for gc in related}
         for summary in items:
             pg = primary_guardian.get(summary.id)
             if pg:
                 summary.guardian_name = guardian_names.get(pg[0])
                 summary.guardian_relationship = pg[1]
+                summary.guardian_phone = guardian_phones.get(pg[0])
 
     async def list_with_relations_response(
         self,

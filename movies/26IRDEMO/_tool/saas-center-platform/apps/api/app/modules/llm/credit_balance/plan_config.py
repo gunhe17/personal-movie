@@ -25,6 +25,7 @@ class AIPurpose(StrEnum):
     # Counseling
     CASE_ANALYSIS = "case_analysis"
     COUNSELING_GUARDIAN_SHARE = "counseling_guardian_share"
+    COUNSELING_NOTE_DERIVE = "counseling_note_derive"  # 확정 일지 → 제출 서류(바우처 양식) 초안
 
     # Voucher Processing (Admin — 센터 크레딧 미차감)
     VOUCHER_PDF_TO_MD = "voucher_pdf_to_md"
@@ -71,6 +72,7 @@ PURPOSE_ESTIMATED_CREDITS: dict[str, int] = {
     AIPurpose.FIELD_NOTE_GENERATE_NOTE: 8,   # ~16K tokens (시스템+전사+메모+요약 → JSON)
     AIPurpose.CASE_ANALYSIS: 14,             # ~21K tokens 종단분석, 대형 JSON — 헤드룸(11→14)로 오버슈트 완화
     AIPurpose.COUNSELING_GUARDIAN_SHARE: 3,  # ~5K tokens (시스템+일지 4필드 → 짧은 JSON)
+    AIPurpose.COUNSELING_NOTE_DERIVE: 3,     # ~5K tokens (시스템+일지 4필드+양식 스키마 → 필드 JSON)
 }
 
 # ── 한글 라벨 (UI 표시용) ──
@@ -88,6 +90,7 @@ PURPOSE_LABELS: dict[str, str] = {
     AIPurpose.FIELD_NOTE_RECOMMENDATION: "추천 생성",
     AIPurpose.CASE_ANALYSIS: "상담 사례분석",
     AIPurpose.COUNSELING_GUARDIAN_SHARE: "공유문 생성",
+    AIPurpose.COUNSELING_NOTE_DERIVE: "제출 서류 초안",
     AIPurpose.VOUCHER_PDF_TO_MD: "바우처 PDF 변환",
     AIPurpose.VOUCHER_MD_TO_JSON: "바우처 데이터 추출",
     AIPurpose.FORM_GENERATE_DRAFT: "AI 양식 생성",

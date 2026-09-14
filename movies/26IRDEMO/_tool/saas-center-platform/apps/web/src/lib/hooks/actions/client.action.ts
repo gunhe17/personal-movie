@@ -36,6 +36,8 @@ export interface ClientListItem {
   guardian_relationship?: string | null
   /** 보호자 이름 - 목록 표시용 */
   guardian_name?: string | null
+  /** 대표 보호자 연락처 - 목록 응답에서 채워짐 */
+  guardian_phone?: string | null
   /** 가장 활성인 바우처 (목록 응답에서 채워짐) */
   voucher_primary?: ClientVoucherBrief | null
   /** 보유 바우처 개수 */

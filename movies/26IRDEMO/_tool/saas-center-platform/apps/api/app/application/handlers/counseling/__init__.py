@@ -16,6 +16,7 @@ from .apply_case_edits import apply_case_edits_handler
 from .delete_session import delete_session_handler
 from .list_session_participants import list_session_participants_handler
 from .generate_guardian_share import generate_guardian_share_handler
+from .derive_submission_form import derive_submission_form_handler
 
 __all__ = [
     "intake_case_handler",
@@ -34,4 +35,5 @@ __all__ = [
     "delete_session_handler",
     "list_session_participants_handler",
     "generate_guardian_share_handler",
+    "derive_submission_form_handler",
 ]

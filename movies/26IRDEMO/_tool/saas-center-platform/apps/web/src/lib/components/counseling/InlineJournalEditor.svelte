@@ -53,6 +53,8 @@
   import StackCounselingIcon102 from '$lib/assets/StackCounselingIcon102.svelte'
   import AiDraftHistoryModal from './AiDraftHistoryModal.svelte'
   import TransferNoteModal from './TransferNoteModal.svelte'
+  import DeriveFormModal from './DeriveFormModal.svelte'
+  import { getClientVoucherList } from '$lib/hooks/actions/clientVoucher.action'
   import FieldnoteIcon24 from '$lib/assets/FieldnoteIcon24.svelte'
   import TimerIcon16 from '$lib/assets/TimerIcon16.svelte'
   import AiStarIcon20 from '$lib/assets/AiStarIcon20.svelte'
@@ -341,6 +343,37 @@
         nextPlan,
         sourceLabel: `${formatUtcToKst(session.start, 'YYYY-MM-DD')} 회기 · ${displayName}`,
         audienceLabel: `${displayName}님 가족이 앱에서 봐요`,
+        sessionId: session.session_id,
+        clientId: selectedClientId,
+        clientName: displayName
+      },
+      options: { size: 'xl' }
+    })
+  }
+
+  // 제출 서류(바우처 양식 파생) — 전달문과 같은 자리에서 나가지만 받는 곳이 다르다.
+  // 양식은 상담사가 고르지 않는다: 내담자가 가진 바우처에 제출처가 걸어둔 서식이 정본이라,
+  // 걸린 양식이 없으면 만들 재료가 없어 버튼이 비활성이다.
+  const clientVoucherQuery = queryBuilder(
+    getClientVoucherList,
+    () => ({ centerId: $centerId ?? '', client_id: selectedClientId }),
+    () => ({ enabled: !!$centerId && !!selectedClientId })
+  )
+  const hasVoucherForm = $derived(
+    (clientVoucherQuery.data?.items ?? []).some(
+      (v) => (v.catalog?.form_template_ids ?? []).length > 0
+    )
+  )
+  async function openDeriveForm() {
+    if (!hasTransferMaterial || !hasVoucherForm || !selectedClientId) return
+    await flush()
+    modalStore.open({
+      component: DeriveFormModal,
+      props: {
+        goal,
+        progress,
+        nextPlan,
+        sourceLabel: `${formatUtcToKst(session.start, 'YYYY-MM-DD')} 회기 · ${displayName}`,
         sessionId: session.session_id,
         clientId: selectedClientId,
         clientName: displayName
@@ -890,6 +923,18 @@
             내담자에게 전달
           </button>
         </div>
+        <!-- 제출 서류 = 같은 일지가 바우처 제출처로 나가는 것. 전달문과 같은 위계(아웃라인) -->
+        <button
+          type="button"
+          onclick={openDeriveForm}
+          disabled={!hasTransferMaterial || !hasVoucherForm}
+          title={hasVoucherForm
+            ? undefined
+            : '이 내담자의 바우처에 연결된 제출 양식이 없어요'}
+          class="h-11 shrink-0 rounded-lg border border-gray-200 bg-white px-4 text-body-01-normal-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-800 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-caption-subtle disabled:hover:border-gray-200"
+        >
+          제출 서류 초안 작성
+        </button>
         <!-- 저장됨 플래시: 체크가 그려지며 fade in -->
         {#if justSaved}
           <span
