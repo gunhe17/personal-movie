@@ -20,6 +20,8 @@ opus 에이전트 다섯이 병렬로 돌았고, Artlist 실측은 이 세션이
 | [13](13-prompting-flux-artlist.md) | FLUX.2 · Artlist Original 프롬프트 | BFL 공식 · Artlist 블로그 |
 | [14](14-prompting-nano-banana.md) | Nano Banana 프롬프트 | ai.google.dev · minimaxir |
 | [15](15-prompting-seedream.md) | Seedream 5.0 Pro 프롬프트 | 火山方舟 공식 · 렌더링 DOM 재검증 |
+| [16](16-kling3-video-official.md) | **Kling 3.0 영상 — base vs Omni · 파라미터 · 공식 프롬프트** (2026-09-14) | kling.ai 가이드 · fal/Alibaba/WaveSpeed 스키마 |
+| [17](17-kling3-i2v-field.md) | **Kling 3.0 i2v 실측 — 실패 유형 · 프롬프트 패턴** (2026-09-14) | AA 리더보드 · Curious Refuge · 2.6 실측 |
 
 ---
 

@@ -1,0 +1,150 @@
+{
+  "id": "s04_web_draft_t02",
+  "scene": "v2/s04-c5-일지초안6.7초",
+  "device": "web",
+  "action": "draft",
+  "take": "t02",
+  "captured_at": "2026-09-14T03:26:54.145Z",
+  "spec_version": 8,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/15050142-2c1c-468d-afa7-99888df23c1f?session=d5e31c34-25db-4de9-81fb-8bfb72a295ad",
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 537,
+      "appended": 565,
+      "dupped": 36,
+      "notReady": 0,
+      "ticks": 565,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c45-draft.mjs",
+    "sha256": "0e9fbb1396e4131b5be65738bf4faec4d49f7efc0240379cd7f30aafd4101bbf"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.2,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 녹음은 있고 일지는 비어 있다"
+    },
+    {
+      "t": 2.8,
+      "kind": "click",
+      "target": "button:has-text(\"일지 초안 생성\")",
+      "note": "일지 초안 생성"
+    },
+    {
+      "t": 5.54,
+      "kind": "until",
+      "target": "text=초안으로 채웠어요",
+      "note": "전사 분석 중… → 칸이 채워졌다 (+2.6s)"
+    },
+    {
+      "t": 6.24,
+      "kind": "beat",
+      "target": "",
+      "note": "채워진 일지 — 상담 목표 · 진행 내용"
+    },
+    {
+      "t": 7.23,
+      "kind": "scroll",
+      "target": "textarea[placeholder=\"다음 상담 내용을 작성해주세요\"]",
+      "note": "다음 상담 내용까지 한 번에"
+    },
+    {
+      "t": 8.23,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 8.23,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.2,
+      "note": "초안 생성 → 빈 칸이 채워진다",
+      "end": 5.54
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "회기 시각이 새벽 01:00으로 보이던 것 교정(16:00 KST)",
+  "result": {
+    "file": "raw/s04_web_draft_t02.mov",
+    "duration": 9.42,
+    "ok": true,
+    "error": null
+  }
+}

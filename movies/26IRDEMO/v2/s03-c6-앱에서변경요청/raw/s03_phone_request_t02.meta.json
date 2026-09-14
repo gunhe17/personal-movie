@@ -1,0 +1,184 @@
+{
+  "id": "s03_phone_request_t02",
+  "scene": "v2/s03-c6-앱에서변경요청",
+  "device": "phone",
+  "action": "request",
+  "take": "t02",
+  "captured_at": "2026-09-13T18:12:56.311Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 512,
+      "appended": 1746,
+      "dupped": 1254,
+      "notReady": 0,
+      "ticks": 1746,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c36-request.mjs",
+    "sha256": "dedfab3cbd31563d4ae01b9a4de93793a64fbeed95225b9203d309902fe1fec0"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "앱 홈 — 다가오는 회기"
+    },
+    {
+      "t": 5.43,
+      "kind": "tap",
+      "target": "일정",
+      "note": "일정 탭"
+    },
+    {
+      "t": 7.53,
+      "kind": "beat",
+      "target": "",
+      "note": "9월 달력"
+    },
+    {
+      "t": 8.55,
+      "kind": "tap",
+      "target": "9월 18일",
+      "note": "회기가 있는 날"
+    },
+    {
+      "t": 10.48,
+      "kind": "tap",
+      "target": "201,718.8333435058594",
+      "note": "그 회기"
+    },
+    {
+      "t": 12.59,
+      "kind": "beat",
+      "target": "",
+      "note": "확정된 일정"
+    },
+    {
+      "t": 13.44,
+      "kind": "tap",
+      "target": "일정 변경 요청",
+      "note": "일정 변경 요청"
+    },
+    {
+      "t": 15.27,
+      "kind": "tap",
+      "target": "9월 22일",
+      "note": "화요일로"
+    },
+    {
+      "t": 17.05,
+      "kind": "swipe",
+      "target": "200,700→200,450",
+      "note": "시간 목록을 올린다"
+    },
+    {
+      "t": 18.92,
+      "kind": "tap",
+      "target": "17:00",
+      "note": "오후 5시"
+    },
+    {
+      "t": 20.79,
+      "kind": "tap",
+      "target": "변경 요청",
+      "note": "변경 요청"
+    },
+    {
+      "t": 22.89,
+      "kind": "beat",
+      "target": "",
+      "note": "기존 9월 18일 16:00 → 변경 9월 22일 17:00"
+    },
+    {
+      "t": 23.68,
+      "kind": "tap",
+      "target": "이 시간으로 요청하기",
+      "note": "요청 보냄"
+    },
+    {
+      "t": 26.09,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 26.09,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 12.59,
+      "note": "변경 요청 → 확인까지",
+      "end": 24.59
+    }
+  ],
+  "result": {
+    "file": "raw/s03_phone_request_t02.mov",
+    "duration": 29.1,
+    "ok": true,
+    "error": null
+  },
+  "copied_from": "v2/s03-일정/raw/s03_phone_request_t02"
+}

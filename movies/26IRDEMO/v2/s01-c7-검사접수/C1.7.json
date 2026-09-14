@@ -1,7 +1,11 @@
 {
   "stage": "imac",
-  "size": [1920, 1080],
+  "size": [3840, 2160],
   "fps": 30,
-  "screen": "../src/C1.8_s01_web_intake_t07.mov",
-  "width": 0.70
+  "screen": "raw/s01_web_intake_t01.mov",
+  "steps": { "dir": "../_assets/steps/S1-우리", "head": "00_in.mov", "hold": "01.png" },
+  "start": 1.9,
+  "duration": 16.5,
+  "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45,
+  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

@@ -1,0 +1,42 @@
+{
+  "scene": "s02-c2-반응기록",
+  "cut": "C2.2",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:42:02.438Z",
+      "generationId": "01a09f48-4bf4-7dec-938a-db5001e267c4",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:c716c348e4ff",
+      "prompt": "Locked-off tripod shot. The index finger of the lower hand slides down one ruled column of the sheet at natural speed; the upper hand stays resting on the sheet over the keyboard. The monitor screen at the top edge stays dark, the keycaps stay smooth and unmarked and the sheet stays as it is. Everything else remains still and the light stays constant.",
+      "file": "t1/s02-c2-반응기록_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId b23a295f-f6e0-41fa-8cab-3832ec2fb8ac · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.83) · 아래 손 검지가 괘선을 따라 조금 내려감 · 위 손 고정 · 모니터 화면 어두움 · 종이 인쇄 줄 변화 없음"
+    }
+  ],
+  "pick": {
+    "from": "t1/s02-c2-반응기록_t1.mp4",
+    "out": "C2.2_ai.mp4",
+    "length": 4,
+    "fps": 30,
+    "steps": "S2-기존 2 (01-02.mov → 02.png)"
+  }
+}

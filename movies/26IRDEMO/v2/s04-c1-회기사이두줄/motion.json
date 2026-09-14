@@ -1,0 +1,42 @@
+{
+  "scene": "s04-c1-회기사이두줄",
+  "cut": "C4.1",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T10:13:27.468Z",
+      "generationId": "01a09f65-3d9b-7522-80c4-736cfb3039d2",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:756c7439f337",
+      "prompt": "Locked-off tripod shot. The pen tip travels a short way to the right along one ruled line at natural speed and stops; the fingers around the barrel keep the same grip and the forearm propping the notebook stays where it is. The page keeps only the two faint marks already on it and its ruled lines. Everything else remains still and the light stays constant.",
+      "file": "t1/s04-c1-회기사이두줄_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 760f148a-883d-4d46-8913-8c2d3a7b368a · modelId 3146",
+      "verdict": "채택 — t1 채택 — 손가락·관절 정상, 펜 그립 유지, 카메라 고정(문틀 수직선 부동), 조명 일정, 좌측 하단 카피 여백 끝까지 비어 있음. 종이에는 첫 프레임의 필기 낙서가 펜 끝을 따라 자연스럽게 이어질 뿐 새 글자·활자는 없다. SSIM 첫프레임↔f0 0.874 · f0↔끝 0.840"
+    }
+  ],
+  "pick": {
+    "from": "t1/s04-c1-회기사이두줄_t1.mp4",
+    "out": "C4.1_ai.mp4",
+    "length": 3,
+    "fps": 30,
+    "steps": "S4-기존 1 (00_in.mov → 01.png)"
+  }
+}

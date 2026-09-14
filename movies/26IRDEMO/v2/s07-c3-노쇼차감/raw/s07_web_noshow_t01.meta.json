@@ -1,0 +1,180 @@
+{
+  "id": "s07_web_noshow_t01",
+  "scene": "v2/s07-c3-노쇼차감",
+  "device": "web",
+  "action": "noshow",
+  "take": "t01",
+  "captured_at": "2026-09-14T03:14:13.932Z",
+  "spec_version": 8,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/8bd4b76f-b057-4e9e-b462-f124abd0a5de?session=ca73e0de-0000-4000-8000-000000000173",
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 190,
+      "appended": 592,
+      "dupped": 405,
+      "notReady": 0,
+      "ticks": 592,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c73-noshow.mjs",
+    "sha256": "9127ba34e5647e42ea9ac2f32a18948fdb90e14c5b59d84ec3f3cf4a7fe1f4e5"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 어제 13회기, 출결 미확인"
+    },
+    {
+      "t": 2.73,
+      "kind": "click",
+      "target": "button:has-text(\"노쇼했어요\")",
+      "note": "노쇼로 표시"
+    },
+    {
+      "t": 3.17,
+      "kind": "until",
+      "target": "textarea[placeholder=\"사유를 입력해주세요\"]",
+      "note": "노쇼 모달 — 사유 + 회기 차감 (+0.3s)"
+    },
+    {
+      "t": 3.77,
+      "kind": "modal",
+      "target": "",
+      "note": "사유와 차감이 한 자리에"
+    },
+    {
+      "t": 5.68,
+      "kind": "type",
+      "target": "textarea[placeholder=\"사유를 입력해주세요\"]",
+      "note": "노쇼 사유 입력"
+    },
+    {
+      "t": 6.21,
+      "kind": "hover",
+      "target": "[aria-label=\"회기 차감 여부\"]",
+      "note": "회기 차감 — 이번 노쇼를 남은 회기 1회 사용으로 처리해요"
+    },
+    {
+      "t": 6.69,
+      "kind": "click",
+      "target": "[aria-label=\"회기 차감 여부\"]",
+      "note": "회기 차감 켜기"
+    },
+    {
+      "t": 7.36,
+      "kind": "click",
+      "target": "getByRole('button', { name: '변경' }).last()",
+      "note": "변경"
+    },
+    {
+      "t": 7.8,
+      "kind": "until",
+      "target": "text=연락 없이 미참석",
+      "note": "노쇼 사유가 회기 기록에 남았다 (+0.3s)"
+    },
+    {
+      "t": 8.06,
+      "kind": "until",
+      "target": "text=회기 차감",
+      "note": "회기 차감 배지 (+0.3s)"
+    },
+    {
+      "t": 8.66,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝 — 잠긴 회기에 사유와 차감이 함께 남아 있다"
+    },
+    {
+      "t": 8.66,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 6.86,
+      "note": "사유 + 차감 → 변경 → 회기 기록에 남는다",
+      "end": 8.06
+    }
+  ],
+  "retake_of": "v1/s09-회기정산 s09_web_noshow_t03",
+  "retake_reason": "SPEC v8 재촬영 · 회기를 12회기 축에 맞춤(13회기 9/13 노쇼)",
+  "result": {
+    "file": "raw/s07_web_noshow_t01.mov",
+    "duration": 9.87,
+    "ok": true,
+    "error": null
+  }
+}

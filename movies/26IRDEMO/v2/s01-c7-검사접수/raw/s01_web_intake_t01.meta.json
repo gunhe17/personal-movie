@@ -1,0 +1,208 @@
+{
+  "id": "s01_web_intake_t01",
+  "scene": "v2/s01-c7-검사접수",
+  "device": "web",
+  "action": "intake",
+  "take": "t01",
+  "captured_at": "2026-09-14T02:22:59.701Z",
+  "spec_version": 8,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 828,
+      "appended": 1150,
+      "dupped": 343,
+      "notReady": 0,
+      "ticks": 1150,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14b.json",
+    "sha256": "0efaff6a5b476d8b6be49b3e595c8392f3443ae1564afa04dafb8192bebf1797"
+  },
+  "script": {
+    "file": "_scripts/s01-intake.mjs",
+    "sha256": "c2a8bed632654b28fd60e962cac19c241f382e4ce79064593924c80a9db1be85"
+  },
+  "stt": null,
+  "mock": {
+    "file": "_mocks/s01-intake.json",
+    "sha256": "0059543ac121d749654a84b222515fffce63f36e0c206feafa13d3218e917d09",
+    "title": "s01 접수 — 통화 중 한 번의 요청으로 단체 검사 접수",
+    "turns": 1
+  },
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.22,
+      "kind": "beat",
+      "target": "",
+      "note": "에이전트 화면"
+    },
+    {
+      "t": 6.19,
+      "kind": "type",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "통화 중 요청 — 한 번에"
+    },
+    {
+      "t": 6.42,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 10.21,
+      "kind": "until",
+      "target": "text=접수 진행",
+      "note": "폼으로 갈아끼워진다 (+3.6s)"
+    },
+    {
+      "t": 10.56,
+      "kind": "hold",
+      "target": "350",
+      "note": "폼 도착 — 짧게"
+    },
+    {
+      "t": 11.24,
+      "kind": "click",
+      "target": "button:has-text(\"로르샤흐\")",
+      "note": "로르샤흐(투사·대면) → s02 실시"
+    },
+    {
+      "t": 11.9,
+      "kind": "click",
+      "target": "button:has-text(\"집-나무-사람\")",
+      "note": "HTP(투사·대면) → s03 배터리"
+    },
+    {
+      "t": 12.57,
+      "kind": "click",
+      "target": "button:has-text(\"문장완성검사\")",
+      "note": "SCT(투사·대면) → s03 배터리"
+    },
+    {
+      "t": 13.23,
+      "kind": "click",
+      "target": "button:has-text(\"스마트폰중독검사\")",
+      "note": "스마트폰중독검사(온라인) → s04 바로링크"
+    },
+    {
+      "t": 14.1,
+      "kind": "beat",
+      "target": "",
+      "note": "접수 진행 3/3 — 버튼이 살아난다"
+    },
+    {
+      "t": 15.43,
+      "kind": "scroll",
+      "target": "text=대표 검사자로 지정돼요",
+      "note": "한 번에 맨 밑까지 — 명단 · 기관 · 담당자"
+    },
+    {
+      "t": 16.59,
+      "kind": "click",
+      "target": "role=button[name=\"등록\"]",
+      "note": "등록 — 내담자 3명이 실제로 생성된다"
+    },
+    {
+      "t": 17.38,
+      "kind": "until",
+      "target": "text=검사 현황",
+      "note": "검사 현황에 새 케이스 (+0.6s)"
+    },
+    {
+      "t": 17.98,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 17.98,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 6.6,
+      "note": "한 마디 → 검사 접수 폼 · 기관·명단이 얹힌다",
+      "end": 10.21
+    },
+    {
+      "start": 15.83,
+      "note": "등록 → 검사 현황",
+      "end": 17.38
+    }
+  ],
+  "retake_of": "v1/s01-접수 t07",
+  "retake_reason": "v2 재촬영 — 프롬프트 입력부터 담는다 · SPEC v8(커서·클릭 빠르게, 스크롤 목표까지 한 번에)",
+  "result": {
+    "file": "raw/s01_web_intake_t01.mov",
+    "duration": 19.17,
+    "ok": true,
+    "error": null
+  }
+}

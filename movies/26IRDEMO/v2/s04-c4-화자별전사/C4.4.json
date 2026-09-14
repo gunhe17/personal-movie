@@ -1,7 +1,11 @@
 {
   "stage": "imac",
-  "size": [1920, 1080],
+  "size": [3840, 2160],
   "fps": 30,
-  "screen": "../src/C4.5_s06_web_fieldnote_t02.mov",
-  "width": 0.70
+  "screen": "raw/s04_web_fieldnote_t03.mov",
+  "steps": { "dir": "../_assets/steps/S4-우리", "head": "01-02.mov", "hold": "02.png" },
+  "start": 2.0,
+  "duration": 6.6,
+  "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45,
+  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

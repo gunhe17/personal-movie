@@ -1,0 +1,42 @@
+{
+  "scene": "s04-c2-밤9시40분",
+  "cut": "C4.2",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T10:13:35.813Z",
+      "generationId": "01a09f65-5e5b-7a9e-b464-c7e0beadb91a",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:b53e5f1f0118",
+      "prompt": "Locked-off tripod shot. The fingers resting on the closed notebook curl in slightly and settle back down in one slow, tired movement at natural speed; the wrists stay flat on the table and the other hand stays where it is. The laptop screen stays dark, the notebook stays closed and the pen stays lying still beside it. Everything else remains still and the light stays constant.",
+      "file": "t1/s04-c2-밤9시40분_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 8c81ac02-c1b5-4cf2-9205-efc62d207e6d · modelId 3146",
+      "verdict": "채택 — 손가락 4개·관절 정상, 노트북 화면 끝까지 검정, 배경 차분 이미지가 평탄해 카메라 이동 없음, 휘도 55.9→56.5로 플리커 없음, 되감기 없음. 시작↔끝 SSIM 0.907 / 첫프레임↔0s 0.817"
+    }
+  ],
+  "pick": {
+    "from": "t1/s04-c2-밤9시40분_t1.mp4",
+    "out": "C4.2_ai.mp4",
+    "length": 4,
+    "fps": 30,
+    "steps": "S4-기존 2 (01-02.mov → 02.png → 99_out.mov)"
+  }
+}

@@ -1,11 +1,11 @@
 {
   "stage": "phone",
-  "size": [1920, 1080],
+  "size": [3840, 2160],
   "fps": 30,
-  "screen": "../src/C5.6_s05_phone_arrive_t02.mov",
-  "phoneH": 86,
-  "statusH": 0,
-  "homeH": 0,
-  "screenBg": "#000000",
-  "shotRatio": 0.46
+  "screen": "raw/s05_phone_arrive_t02.mov",
+  "steps": { "dir": "../_assets/steps/S5-우리", "head": "01-02.mov", "hold": "02.png", "tail": "99_out.mov" },
+  "start": 11.2,
+  "duration": 9.4,
+  "phoneH": 82.446, "top": 9.5, "statusH": 0, "homeH": 0, "screenBg": "transparent", "shotRatio": 0.459954, "screenRadius": 6.8,
+  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

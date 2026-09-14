@@ -1,0 +1,90 @@
+{
+  "scene": "s03-c4-전화둘부재중하나",
+  "cut": "C3.4",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:41:57.667Z",
+      "generationId": "01a09f48-753e-7ca8-92ed-96db1f9c4de5",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:5b72687e88df",
+      "prompt": "Locked-off tripod shot. The hand lifts the grey handset a few more centimetres up off its cradle at natural speed, the coiled cord following; the other hand stays resting on the desk beside the pen. The keypad stays blank. Everything else remains still and the light stays constant.",
+      "file": "t1/s03-c4-전화둘부재중하나_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 4869ebd4-7e96-4ddf-b60a-2d0bcfc0f746 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.87) · 수화기를 들어 프레임 오른쪽 위로(통화) · 얼굴 유입 없음 · 다른 손·펜·본체 고정"
+    },
+    {
+      "take": 2,
+      "at": "2026-09-14T10:09:21.724Z",
+      "generationId": "01a09f61-1249-77c3-978d-33f45499c30e",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:5b72687e88df",
+      "prompt": "Locked-off tripod shot. The hand lifts the grey handset off its cradle and raises it slowly toward the top right edge of the frame over the whole shot, the coiled cord following; the other hand stays resting on the desk beside the pen. The keypad stays blank. Everything else remains still and the light stays constant.",
+      "file": "t2/s03-c4-전화둘부재중하나_t2.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId c97b78c9-d281-4da6-89d6-a539040a3f51 · modelId 3146",
+      "verdict": null
+    },
+    {
+      "take": 3,
+      "at": "2026-09-14T10:14:59.093Z",
+      "generationId": "01a09f66-9f46-7765-911f-2c02a83c7bc9",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:5b72687e88df",
+      "prompt": "Locked-off tripod shot. The hand lifts the grey handset off its cradle and raises it slowly toward the top right edge of the frame over the whole shot, the coiled cord following; the other hand stays resting on the desk beside the pen. The telephone base and its keypad stay exactly as they are, the keypad blank and the cradle empty. Everything else remains still and the light stays constant.",
+      "file": "t3/s03-c4-전화둘부재중하나_t3.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId cb06dcd5-2c80-463a-bfb1-f02550fe7001 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과(경미) — 5초판 · 본체·키패드 유지(t2의 형태 변형 해소) · 수화기가 샷 전체에 걸쳐 천천히 상승 · 수화기 자리에 둥근 받침 모양이 드러남 · SSIM 0.87"
+    }
+  ],
+  "pick": {
+    "from": "t3/s03-c4-전화둘부재중하나_t3.mp4",
+    "out": "C3.4_ai.mp4",
+    "length": 5,
+    "fps": 30,
+    "steps": "S3-기존 3 (02-03.mov → 03.png → 99_out.mov)"
+  }
+}

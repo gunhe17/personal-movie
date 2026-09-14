@@ -1,0 +1,38 @@
+[
+ {
+  "scene": "S3",
+  "scene_title": "일정",
+  "id": "C3.1",
+  "name": "상담 진행",
+  "length": "3.0s",
+  "kind": "ai",
+  "tags": [
+   "AI",
+   "none"
+  ],
+  "stage": "none",
+  "v1take": null,
+  "flow": "① 상담 중 — 폰은 엎어져 있다",
+  "situation": "상담실 매트. 어른 손이 블록 탑에 하나를 얹고, 아이 손이 다음 블록을 집는다. 무릎 옆에 엎어진 폰.",
+  "caption": "기존 · 수요일 10시, 상담 중",
+  "segment": null,
+  "check": null,
+  "source": null,
+  "asset": null,
+  "move": null,
+  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA tight low shot across a soft grey play mat in a small counselling room. From the right edge exactly one adult hand and forearm in a grey cardigan sleeve enter, placing a plain wooden block onto a small tower; at the far left edge a child's small hand reaches for the next block, only the hand. Beside the adult's knee a slim dark phone lies face-down on the mat. The moment of a session in progress. Warm, attentive, unposed.\n\nFG: the face-down phone, slightly below centre. MG: the adult hand and the block tower, occupying the right third. BG: a low shelf of plain boxes and a plain wall, softly defocused.\n\nLight: even daylight from a window on the right, soft; the left side of the mat falls into gentle shade.\n\nComposition: rule of thirds. The tower and the adult hand fill the right third; the lower left quadrant is calm bare mat, left clear for copy added later. The torso stays above the top edge of the frame.\n\nAngle: low three-quarter, just above mat height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingertips setting the block. Set to 50mm, medium depth of field so the shelf stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: forty minutes that belong to the child.\n\nThe mat is plain and unmarked, the phone a uniform dark slab lying face-down, the blocks plain wood free of print, every surface clean and free of lettering.",
+  "case": {
+   "인물 · 시각": "상담사 정상담 · 실장 박접수 · 보호자 이수진 · 수요일 10:00 → 12:30",
+   "흐름": "상담 중 → 보호자 문자 \"목요일 4시 못 가요\" → 실장이 상담사에게 카톡으로 빈 시간을 묻는다(수업 중, 두 시간 뒤 답) → 보호자에게 전화, 부재중, 다시 전화 → 화요일 5시로 다시 쓴다",
+   "이 A가 말하는 것": "변경 한 건에 사람 셋이 두 시간 반 동안 서로를 기다린다 — 그 사이 상담사는 상담 중이다.",
+   "B로 이음새": "A의 마지막 컷(다시 쓰는 손)에서 B 첫 컷(앱의 변경 요청 화면)으로 — 같은 요청, 손 대신 버튼."
+  },
+  "steps": {
+   "track": "S3-기존",
+   "step": 1,
+   "label": "상담 진행",
+   "head": "00_in.mov",
+   "hold": "01.png"
+  }
+ }
+]

@@ -1,5 +1,14 @@
 DONE — C1.9 "보호자 폰에 뜬 그 서식" 촬영·무대 완료. 제품 결함 둘 다 해소(서명은 연출하지 않는다).
 
+## 2026-09-14 11:2x 재촬영 (SPEC v8) — s01 C1.7·C1.8·C1.9
+
+- 테이크: `v2/s01-c7-검사접수/raw/s01_web_intake_t01` 99.9% · `v2/s01-c8-내담자에게서식전달/raw/s01_web_formsend_t01` 99.5% · `v2/s01-c9-보호자휴대폰에서식/raw/s01_phone_formfill_t01` 100% · 시드 `_seed/saas-2026-09-14b.json`
+- C1.7은 프롬프트 입력부터 담는다. C1.9는 **원본 위에서 몇 칸만 채우고 제출하지 않는다**(목록 폴백 삭제)
+- 무대: 각 폴더의 `C1.7.json`·`C1.8.json`(iMac v2 규격) · `C1.9.json` — 촬영본을 `start`·`duration`으로 직접 잘라 쓴다
+- **함정 ① API가 픽스를 안 싣고 있었다.** 3502 uvicorn이 9/10부터 떠 있어 `guardian_phone` 픽스가 없었다 → 전송 수신자 0명(`form_sends` 0). 재기동으로 해소
+- **함정 ② `nohup`은 `DYLD_*`를 지운다**(SIP) → WeasyPrint `libgobject` 로드 실패로 API가 안 뜬다. 셸에서 export 후 python을 직접 띄운다
+- **함정 ③ `.env`가 `S3_BUCKET_ENABLED=true`(imomtae.dev)다.** 서식 원본 PNG는 `/tmp/saas-storage`라 폰 화면 이미지가 404. 촬영용 API는 `S3_BUCKET_ENABLED=false MESSAGING_DRY_RUN=true DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib`로 띄운다(`.env`는 안 고쳤다)
+
 # c19-formsend — C1.9 보호자 폰에 뜬 그 서식
 
 갱신: 2026-09-14 새벽 · 앞 기록은 `screen-pipeline.md` §C1.9

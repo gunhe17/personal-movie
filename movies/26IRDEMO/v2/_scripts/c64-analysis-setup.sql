@@ -75,6 +75,11 @@ begin
   where cs.schedule_id = s.id and cs.counseling_case_id = v_case_id and cs.session_number = 3;
   update counseling_sessions set session_number = 12
   where counseling_case_id = v_case_id and session_number = 3;
+  -- 12회기 날짜를 박는다 — 시드의 3회기는 '지금' 기준 상대 날짜라 재시드한 날에 따라 9/7이 되기도 한다(2026-09-14 실측).
+  -- C5.5·C6.5 setup이 `start = 2026-09-06 10:00`으로 이 회기를 찾고, 고정 본문의 날짜도 9/6이다.
+  update schedules s set start = date '2026-09-06' + time '10:00', "end" = date '2026-09-06' + time '10:50'
+  from counseling_sessions cs
+  where cs.schedule_id = s.id and cs.counseling_case_id = v_case_id and cs.session_number = 12;
 
   -- ── 3~11회기를 만든다 ─────────────────────────────────────────────────────
   for i in 3..11 loop

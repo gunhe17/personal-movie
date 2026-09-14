@@ -20,4 +20,4 @@ Overall vibe: the fourth call about the same Thursday.
 
 The calendar cells are empty and unmarked, the wall plain and unbranded, every surface clean and free of lettering.
 
-<!-- 참조 묶음: 벽걸이 종이 달력 클로즈업 — s03-c2-달력에서지운다 와 같은 무대 -->
+<!-- 참조 묶음: 벽걸이 종이 달력 클로즈업 — _dropped/s03-c2-달력에서지운다 와 같은 무대 -->

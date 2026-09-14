@@ -20,4 +20,4 @@ Overall vibe: routine, ordinary, a little ashamed.
 
 The bench surface is bare and unmarked, the wall plain and unbranded, the backpack plain canvas free of print, the recorder's face smooth apart from one round button and one light, every surface clean and free of lettering.
 
-<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c1-아이가나온다 · s05-c2-10분 와 같은 무대 -->
+<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문 · s05-c1-아이가나온다 · s05-c2-10분 와 같은 무대 -->

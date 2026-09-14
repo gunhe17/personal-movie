@@ -1,11 +1,11 @@
 {
-  "stage": "phone",
-  "size": [1920, 1080],
+  "stage": "imac",
+  "size": [3840, 2160],
   "fps": 30,
-  "screen": "../src/C7.5_s07_phone_remaining_t01.mov",
-  "phoneH": 86,
-  "statusH": 0,
-  "homeH": 0,
-  "screenBg": "#000000",
-  "shotRatio": 0.46
+  "screen": "raw/s07_web_noshow_t01.mov",
+  "steps": { "dir": "../_assets/steps/S7-우리", "head": "00_in.mov", "hold": "01.png" },
+  "start": 1.9,
+  "duration": 7.8,
+  "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45,
+  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

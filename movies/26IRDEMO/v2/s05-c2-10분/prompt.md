@@ -20,4 +20,4 @@ Overall vibe: today went well, that is all there is time for.
 
 The wall is plain and unbranded, the folder plain and free of print, every surface clean and free of lettering.
 
-<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c1-아이가나온다 · s05-c3-녹음기를끈다 와 같은 무대 -->
+<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문 · s05-c1-아이가나온다 · s05-c3-녹음기를끈다 와 같은 무대 -->

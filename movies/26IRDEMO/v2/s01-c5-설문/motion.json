@@ -1,0 +1,42 @@
+{
+  "scene": "s01-c5-설문",
+  "cut": "C1.5",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T08:00:11.434Z",
+      "generationId": "01a09eeb-8afd-7e36-a90d-91513076ff3f",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:27ded813e464",
+      "prompt": "Locked-off tripod shot. The pen tip makes one small check mark inside a box on the sheet at natural speed; the hand steadying the clipboard stays still. The sheet stays blank apart from that single check mark and its faint ruled boxes. The empty bench remains still and the window light stays constant.",
+      "file": "t1/s01-c5-설문_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 5cf4894a-7238-43f8-82ba-414ce23210d5 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.85) · 짧은 획 2~3개(글자 아님) · 3.0s까지 선명, 끝 0.5s 손 블러 → 앞 3초 사용"
+    }
+  ],
+  "pick": {
+    "from": "t1/s01-c5-설문_t1.mp4",
+    "out": "C1.5_ai.mp4",
+    "length": 3,
+    "fps": 30,
+    "steps": "S1-기존 3 (02-03.mov → 03.png)"
+  }
+}

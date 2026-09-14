@@ -18,7 +18,9 @@ import { fileURLToPath } from 'node:url'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEMO = path.resolve(HERE, '../..')
 const API = process.env.CAP_API ?? 'http://localhost:3502/api/v1'
-const GUARDIAN = { name: '이수진', phone: '010-3000-0001', email: 'guardian.lee@mindscope.com' }
+// 이메일은 CAP_GUARDIAN_EMAIL로 바꿀 수 있다 — `c37-approve-setup.sql`이 같은 전화번호로 `guardian.leesujin@…` 계정을 먼저 만들면
+// signup이 409(이미 사용 중인 전화번호)라 그 계정으로 로그인해야 한다(2026-09-14 실측).
+const GUARDIAN = { name: '이수진', phone: '010-3000-0001', email: process.env.CAP_GUARDIAN_EMAIL ?? 'guardian.lee@mindscope.com' }
 
 const pw = process.env.CAP_PASSWORD
 if (!pw) { console.error('CAP_PASSWORD 환경변수가 필요하다 (_state/accounts.json의 password)'); process.exit(1) }

@@ -1,0 +1,42 @@
+{
+  "scene": "s01-c3-컴퓨터입력",
+  "cut": "C1.3",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T08:00:45.981Z",
+      "generationId": "01a09eeb-8613-7099-b72f-e110b05369c7",
+      "credits": 600,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 6
+      },
+      "firstFrame": "first-frame.png sha256:50c990be1c6d",
+      "prompt": "Locked-off tripod shot. The fingers of both hands press the keys in a steady, unhurried typing rhythm at natural speed; the wrists stay low and level above the keyboard. The keycaps stay smooth and unmarked, the monitor stays beyond the top edge of the frame and the notebook page stays blank apart from its faint ruled lines. Everything else remains still and the light stays constant.",
+      "file": "t1/s01-c3-컴퓨터입력_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 6.04,
+        "audio": false
+      },
+      "note": "assetId 43b9bb44-4f2e-4b07-9019-955732c9606c · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.85) · 손가락 정상 · 모니터 프레임 밖 유지 · 키캡 글자 없음"
+    }
+  ],
+  "pick": {
+    "from": "t1/s01-c3-컴퓨터입력_t1.mp4",
+    "out": "C1.3_ai.mp4",
+    "length": 5,
+    "fps": 30,
+    "steps": "S1-기존 2 (01-02.mov → 02.png)"
+  }
+}

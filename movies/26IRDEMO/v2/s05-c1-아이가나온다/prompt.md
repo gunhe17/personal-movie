@@ -20,4 +20,4 @@ Overall vibe: four fifty in the afternoon.
 
 The floor is plain and unmarked, the door plain and unbranded, the shoe plain, every surface clean and free of lettering.
 
-<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c2-10분 · s05-c3-녹음기를끈다 와 같은 무대 -->
+<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문 · s05-c2-10분 · s05-c3-녹음기를끈다 와 같은 무대 -->

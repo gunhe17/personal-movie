@@ -1,0 +1,114 @@
+{
+  "scene": "s03-c3-답이늦다",
+  "cut": "C3.3",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:41:26.311Z",
+      "generationId": "01a09f48-64cc-749e-90fc-e6052d0e1332",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:ca587542aab4",
+      "prompt": "Locked-off tripod shot. The thumbs hover over the dark screen while both hands tilt the phone slightly closer in one small restless movement at natural speed. The phone screen stays dark, everything else remains still and the light stays constant.",
+      "file": "t1/s03-c3-답이늦다_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 87782f3d-fce4-4657-95cc-c296895bece2 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 3초 안에서 화면 어두움 유지 · 손이 폰을 조금 기울임 · 끝 0.5s에 손이 크게 움직여 SSIM 0.78(컷 밖)"
+    },
+    {
+      "take": 2,
+      "at": "2026-09-14T10:09:02.930Z",
+      "generationId": "01a09f60-e757-7a96-96da-d12b32fd29fb",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:ca587542aab4",
+      "prompt": "Locked-off tripod shot. The thumbs hover over the dark screen while both hands tilt the phone slightly closer in one small restless movement at natural speed, then keep holding it in the same place. The phone screen stays dark, everything else remains still and the light stays constant.",
+      "file": "t2/s03-c3-답이늦다_t2.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 70a26d08-0445-4f06-bfd8-3bbc170d2665 · modelId 3146",
+      "verdict": null
+    },
+    {
+      "take": 3,
+      "at": "2026-09-14T10:14:49.161Z",
+      "generationId": "01a09f66-8c83-7069-9192-d91d65a453ba",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:ca587542aab4",
+      "prompt": "Locked-off tripod shot. The thumbs rest just above the dark screen while both hands keep holding the phone in the same place; only a small restless tilt of the wrists at natural speed. The phone screen stays dark from the first frame to the last, an unlit slab with no glow. Everything else remains still and the light stays constant.",
+      "file": "t3/s03-c3-답이늦다_t3.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 2a1af4c0-04f2-48be-afb9-f48f75563188 · modelId 3146",
+      "verdict": "채택 — 5초판 잠정 채택(t3) — 2.5s 부근 화면이 한 번 번쩍임(t2보다 줄었으나 남음) · 손·카메라·배경은 안정(SSIM 0.89) · t4 결과가 나으면 교체"
+    },
+    {
+      "take": 4,
+      "at": "2026-09-14T10:20:06.064Z",
+      "generationId": "01a09f6b-8ffd-7584-9209-e68c63625587",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:ca587542aab4",
+      "prompt": "Locked-off tripod shot. Both hands keep holding the phone in the same place with the thumbs resting on its side edges, away from the screen; only a small restless tilt of the wrists at natural speed. The phone screen stays dark for the whole shot and the only light in the frame comes from the window. Everything else remains still and the light stays constant.",
+      "file": "t4/s03-c3-답이늦다_t4.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 95a8264f-dd2f-4521-aa99-5d6a4df3798a · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 5초판 · 화면 번쩍임 해소(t2 여러 번 · t3 1회 → t4 0) · 엄지를 화면에서 떼고 '유일한 빛은 창' 문장 추가 · 손·카메라 안정(SSIM 0.84)"
+    }
+  ],
+  "pick": {
+    "from": "t4/s03-c3-답이늦다_t4.mp4",
+    "out": "C3.3_ai.mp4",
+    "length": 5,
+    "fps": 30,
+    "steps": "S3-기존 2 (01-02.mov → 02.png)"
+  }
+}

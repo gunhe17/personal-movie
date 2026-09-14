@@ -39,6 +39,14 @@ where v.name = '아동비전형성지원서비스'
   );
 
 -- ② 파생 본문 고정 (llm-stub이 그대로 받아쓴다)
+-- 리허설이 남긴 파생본을 지운다 — 남아 있으면 모달이 "채워진" 상태로 열려 빈칸 → 채워짐이 안 보인다(2026-09-14 실측).
+delete from counseling_note_derivations
+where counseling_session_id in (
+  select cs.id from counseling_sessions cs
+  join counseling_cases cc on cc.id = cs.counseling_case_id and cc.case_code = 'C00002'
+  where cs.deleted_at is null and cs.session_number = 12
+);
+
 delete from production_ai_configs
 where module = 'counseling' and pipeline_step = 'note_derive_form';
 

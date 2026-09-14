@@ -1,10 +1,16 @@
 {
   "stage": "phone",
-  "size": [1920, 1080],
+  "size": [3840, 2160],
   "fps": 30,
-  "screen": "../src/C1.9_s01_phone_formfill_t01.mov",
+  "screen": "raw/s01_phone_formfill_t01.mov",
+  "steps": { "dir": "../_assets/steps/S1-우리", "head": "02-03.mov", "hold": "03.png", "tail": "99_out.mov" },
+  "start": 1.9,
+  "duration": 8.3,
   "phoneH": 86,
-  "statusH": 0,
-  "homeH": 0,
-  "screenBg": "#f9fafb"
+  "top": 9.5,
+  "statusH": 4,
+  "homeH": 3,
+  "screenBg": "#f5f5f7",
+  "homeBg": "#fdfdfd",
+  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

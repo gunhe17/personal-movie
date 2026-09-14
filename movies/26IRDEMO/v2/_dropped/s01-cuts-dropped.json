@@ -1,0 +1,75 @@
+[
+ {
+  "scene": "S1",
+  "scene_title": "접수 · 서류 · 바로링크",
+  "id": "C1.2",
+  "name": "카카오톡 명단",
+  "length": "3.0s",
+  "kind": "asset",
+  "tags": [
+   "PNG 자산 · 편집 삽입",
+   "none"
+  ],
+  "stage": "none",
+  "v1take": null,
+  "flow": "② 단체 유입 — 지역아동센터에서 카카오톡으로 명단 사진이 온다",
+  "situation": "AI 영상이 아니다. 카카오톡 목 대화 컴포넌트(센터 선생님 → \"이번 달 검사 신청 명단이에요\" + 열두 명 명단 사진 + \"사진으로 보내드려서 죄송해요\")를 PNG로 뽑아 두었다. 편집에서 프레임 우측에 얹는다. 이름은 전부 지어낸 것(CAST 셋 + 아홉).",
+  "caption": "기존 · 열두 명 명단은 사진으로 온다",
+  "segment": null,
+  "check": null,
+  "source": null,
+  "asset": "movies/26IRDEMO/v2/s01-c2-카카오톡명단/kakao-명단.png (1960×3000 @2x · 투명 배경) · 원본 HTML 같은 폴더",
+  "move": null,
+  "prompt": null,
+  "case": {
+   "인물 · 시각": "실장 박접수 · 보호자 이수진 · 월요일 09:10 → 검사 전 주 → 검사 당일",
+   "흐름": "전화 → 카카오톡으로 명단 사진 → 컴퓨터에 한 명씩 입력 → 기록지·동의서 문자로 보내고 사진으로 회수해 출력 → 검사 전 주, 보호자가 설문만 쓰러 한 번 → 검사 당일 다시 출력해 상담사에게",
+   "이 A가 말하는 것": "고객 정보는 도착한 순간 이미 디지털인데, 이 센터에서는 사람이 그것을 네 번 옮긴다. 종이 한 장은 여섯 번 손을 거치고, 설문 한 장 때문에 보호자가 한 번 더 온다.",
+   "B로 이음새": "A의 마지막 컷(종이를 건네는 손)에서 B 첫 컷(접수 화면)으로 — 종이 대신 한 마디. 그 종이는 B 마지막 컷에서 보호자 휴대폰에 뜬다."
+  },
+  "steps": {
+   "track": "S1-기존",
+   "step": 2,
+   "label": "카카오톡 명단",
+   "head": "01-02.mov",
+   "hold": "02.png"
+  }
+ },
+ {
+  "scene": "S1",
+  "scene_title": "접수 · 서류 · 바로링크",
+  "id": "C1.6",
+  "name": "검사 당일, 재출력",
+  "length": "3.0s",
+  "kind": "ai",
+  "tags": [
+   "AI",
+   "none"
+  ],
+  "stage": "none",
+  "v1take": null,
+  "flow": "⑥ 검사 당일 그 종이를 다시 출력해 상담사 손에 쥐여 준다",
+  "situation": "카운터 너머로 종이 한 장을 건네는 두 쌍의 손.",
+  "caption": "기존 · 검사 당일, 다시 출력해 건넨다 — 손을 여섯 번 거친 종이",
+  "segment": null,
+  "check": null,
+  "source": null,
+  "asset": null,
+  "move": null,
+  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA reception counter in a small child-counselling centre. Two pairs of hands enter from the right edge: one pair, in a grey cardigan, holds out a single plain sheet with faint ruled boxes across the counter; the other pair, in a pale shirt, reaches to take it. The moment of the handover. Routine, courteous, unposed.\n\nFG: the counter edge, slightly below centre. MG: the sheet between the two pairs of hands, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.\n\nLight: cool morning daylight from a window on the right, soft; the left side of the desk falls into gentle shade.\n\nComposition: rule of thirds. The sheet and the hands fill the right third; the lower left quadrant is calm bare counter, left clear for copy added later.\n\nAngle: eye-level, just above counter height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the sheet edge between the fingers. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the fifth pair of hands on the same page.\n\nThe counter surface is bare and unmarked, the sheet plain with faint ruled boxes and free of print, every surface clean and free of lettering.",
+  "case": {
+   "인물 · 시각": "실장 박접수 · 보호자 이수진 · 월요일 09:10 → 검사 전 주 → 검사 당일",
+   "흐름": "전화 → 카카오톡으로 명단 사진 → 컴퓨터에 한 명씩 입력 → 기록지·동의서 문자로 보내고 사진으로 회수해 출력 → 검사 전 주, 보호자가 설문만 쓰러 한 번 → 검사 당일 다시 출력해 상담사에게",
+   "이 A가 말하는 것": "고객 정보는 도착한 순간 이미 디지털인데, 이 센터에서는 사람이 그것을 네 번 옮긴다. 종이 한 장은 여섯 번 손을 거치고, 설문 한 장 때문에 보호자가 한 번 더 온다.",
+   "B로 이음새": "A의 마지막 컷(종이를 건네는 손)에서 B 첫 컷(접수 화면)으로 — 종이 대신 한 마디. 그 종이는 B 마지막 컷에서 보호자 휴대폰에 뜬다."
+  },
+  "steps": {
+   "track": "S1-기존",
+   "step": 6,
+   "label": "당일 재출력",
+   "head": "05-06.mov",
+   "hold": "06.png",
+   "tail": "99_out.mov"
+  }
+ }
+]

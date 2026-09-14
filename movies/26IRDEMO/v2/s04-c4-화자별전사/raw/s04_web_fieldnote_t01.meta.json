@@ -1,0 +1,162 @@
+{
+  "id": "s04_web_fieldnote_t01",
+  "scene": "v2/s04-c4-화자별전사",
+  "device": "web",
+  "action": "fieldnote",
+  "take": "t01",
+  "captured_at": "2026-09-14T03:12:07.783Z",
+  "spec_version": 8,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/schedule/field-notes/068d9c09-2291-4b9a-895d-8b9bc4548681",
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 349,
+      "appended": 530,
+      "dupped": 189,
+      "notReady": 0,
+      "ticks": 530,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c44-fieldnote.mjs",
+    "sha256": "38ef2bd77104e67065a0bd7cd836a0ef276efae5cc5ab864e22c4ccaa79a6092"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 1.79,
+      "kind": "until",
+      "target": "text=C00003",
+      "note": "필드노트 — 30분 · 회기에 연결됨 (+0.3s)"
+    },
+    {
+      "t": 2.07,
+      "kind": "until",
+      "target": "text=개인상담",
+      "note": "회기 카드 — 윤도현 · 만 12세 (+0.3s)"
+    },
+    {
+      "t": 2.77,
+      "kind": "beat",
+      "target": "",
+      "note": "누가 언제 남긴 기록인지가 화면에 있다"
+    },
+    {
+      "t": 3.16,
+      "kind": "hover",
+      "target": "button:has-text(\"도현아, 지난번 검사 때\")",
+      "note": "첫 발화 — 화자가 이름으로 갈린다"
+    },
+    {
+      "t": 3.48,
+      "kind": "hover",
+      "target": "text=13.2초 침묵",
+      "note": "0:41 — 대답 전 13.2초 침묵까지 남는다"
+    },
+    {
+      "t": 5.92,
+      "kind": "scroll",
+      "target": "text=잠이 잘 안 와요",
+      "note": "2:17 · 3:01 · 17:22가 한 화면에"
+    },
+    {
+      "t": 7.02,
+      "kind": "beat",
+      "target": "",
+      "note": "\"그냥 제가 참으면 되니까요\" 바로 아래가 17:22"
+    },
+    {
+      "t": 7.62,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 7.62,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 2.77,
+      "note": "화자 · 시각 → 한 번에 회기 후반까지",
+      "end": 7.02
+    }
+  ],
+  "retake_of": "v1/s06-필드노트 s06_web_fieldnote_t02",
+  "retake_reason": "SPEC v8 재촬영 · reveal 다섯 번 → 목표 하나로 한 번에",
+  "result": {
+    "file": "raw/s04_web_fieldnote_t01.mov",
+    "duration": 8.83,
+    "ok": true,
+    "error": null
+  }
+}

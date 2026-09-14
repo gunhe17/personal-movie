@@ -1,0 +1,137 @@
+{
+  "id": "s04_phone_record_t02",
+  "scene": "v2/s04-c3-녹음",
+  "device": "phone",
+  "action": "record",
+  "take": "t02",
+  "captured_at": "2026-09-14T03:59:03.907Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.app.dev",
+    "url": null,
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "2964900F-E9FC-4EB4-B58F-4C0349E448E1",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 331,
+      "appended": 850,
+      "dupped": 521,
+      "notReady": 0,
+      "ticks": 850,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c43-record.mjs",
+    "sha256": "a7a4df5f59acc83fb9d4b27fa559cb7ef7b8dbf47120a62e06a805e28b886fc3"
+  },
+  "steps": [
+    {
+      "t": 3.01,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "홈 — 정상담님 · 다음 일정 16:00 윤도현"
+    },
+    {
+      "t": 4.99,
+      "kind": "tap",
+      "target": "필드노트 홈 열기",
+      "note": "필드노트 홈"
+    },
+    {
+      "t": 7.09,
+      "kind": "beat",
+      "target": "",
+      "note": "오늘 기록할 일정 1건 — 윤도현 16:00"
+    },
+    {
+      "t": 7.86,
+      "kind": "tap",
+      "target": "바로 녹음",
+      "note": "바로 녹음"
+    },
+    {
+      "t": 9.96,
+      "kind": "beat",
+      "target": "",
+      "note": "기록할 상담 — 윤도현 개인상담"
+    },
+    {
+      "t": 11.16,
+      "kind": "hold",
+      "target": "1200",
+      "note": "끝"
+    },
+    {
+      "t": 11.16,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.21,
+      "note": "필드노트 → 오늘 그 회기 → 녹음",
+      "end": 9.96
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "녹음 시트의 김영희 검사가 23:00으로 보이던 것 교정(AC0001 2회기 10:00 KST)",
+  "result": {
+    "file": "raw/s04_phone_record_t02.mov",
+    "duration": 14.17,
+    "ok": true,
+    "error": null
+  }
+}

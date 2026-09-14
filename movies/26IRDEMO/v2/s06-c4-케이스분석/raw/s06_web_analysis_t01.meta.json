@@ -1,0 +1,186 @@
+{
+  "id": "s06_web_analysis_t01",
+  "scene": "v2/s06-c4-케이스분석",
+  "device": "web",
+  "action": "analysis",
+  "take": "t01",
+  "captured_at": "2026-09-14T03:13:38.454Z",
+  "spec_version": 8,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/8bd4b76f-b057-4e9e-b462-f124abd0a5de",
+    "env": "local",
+    "commit": "0726987"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 471,
+      "appended": 988,
+      "dupped": 522,
+      "notReady": 0,
+      "ticks": 988,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c64-analysis.mjs",
+    "sha256": "bee6997751a41498133fa4bde15b171cce7b704a478fe4dc26e9639446a00e17"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "케이스 — 끝난 회기 열둘"
+    },
+    {
+      "t": 2.97,
+      "kind": "click",
+      "target": "button:has-text(\"AI 경과 분석\")",
+      "note": "AI 경과 분석"
+    },
+    {
+      "t": 3.74,
+      "kind": "modal",
+      "target": "",
+      "note": "경과 분석 — 아직 없다"
+    },
+    {
+      "t": 4.25,
+      "kind": "click",
+      "target": "button:has-text(\"경과 분석 실행\")",
+      "note": "경과 분석 실행"
+    },
+    {
+      "t": 5.03,
+      "kind": "modal",
+      "target": "",
+      "note": "범위 선택 · 비용 확인"
+    },
+    {
+      "t": 5.53,
+      "kind": "click",
+      "target": "button:has-text(\"분석 실행\") >> nth=-1",
+      "note": "분석 실행"
+    },
+    {
+      "t": 11.33,
+      "kind": "until",
+      "target": "text=전환점",
+      "note": "분석 중… → 리포트 (+5.6s)"
+    },
+    {
+      "t": 12.03,
+      "kind": "beat",
+      "target": "",
+      "note": "열두 회기가 한 화면으로"
+    },
+    {
+      "t": 12.35,
+      "kind": "hover",
+      "target": "[data-cap=\"chip7\"]",
+      "note": "근거 — 7회기"
+    },
+    {
+      "t": 13.05,
+      "kind": "beat",
+      "target": "",
+      "note": "모든 판단에 회기 번호"
+    },
+    {
+      "t": 14.25,
+      "kind": "scroll",
+      "target": "text=개입 기법과 반응",
+      "note": "다음 섹션 — 개입 기법과 반응"
+    },
+    {
+      "t": 15.26,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 15.26,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 3.74,
+      "note": "분석 실행 → 리포트가 선다 (생성 소요는 노컷)",
+      "end": 11.33
+    }
+  ],
+  "retake_of": "v2/s06-증명 s06_web_analysis_t01",
+  "retake_reason": "SPEC v8 재촬영 · scroll(560) → 목표 섹션으로 · 근거 칩을 리포트 안으로 좁힘",
+  "result": {
+    "file": "raw/s06_web_analysis_t01.mov",
+    "duration": 16.47,
+    "ok": true,
+    "error": null
+  }
+}

@@ -6,7 +6,14 @@ v1은 실제 서비스 화면을 촬영해 만들었다. **v2는 첫 프레임�
 ```
 _research/   조사 (12편). 무엇을 근거로 무엇을 정했는지
 _lab/        시험. 01 = 첫 프레임 모델 선정
-sNN-이름/    장면별 첫 프레임 — prompt.md · meta.json · rN/ · first-frame.png
+_production/ cuts.json(정본 샷리스트) · storyboard.html · briefs · status
+_assets/     여러 컷에 걸치는 자산 — steps/(씬 상단 절차 표시줄)
+sNN-cN-이름/ 컷 폴더 — 스토리보드 컷 번호와 1:1 (s01-c9 = C1.9)
+             AI 컷: prompt.md · meta.json · rN/ · first-frame.png
+                    영상: motion.md · motion.json · tN/ · CN.N_ai.mp4 (frame-to-video 채택본)
+             무대 컷: CN.N_무대.mp4 · CN.N.json(spec)
+sNN-이름/    촬영 원본 raw/ · stills/ — 컷 번호가 없다 (촬영 규칙상 옮기지 않는다)
+_dropped/    내린 컷 (첫 프레임 폴더 · 목업)
 ```
 
 **첫 프레임을 만드는 것은 [`first-frame` 스킬](../../../.claude/skills/first-frame/SKILL.md)이다.**
@@ -20,6 +27,7 @@ sNN-이름/    장면별 첫 프레임 — prompt.md · meta.json · rN/ · firs
 | 확정 근거 | [_lab/01-model-bakeoff/DECISION.md](_lab/01-model-bakeoff/DECISION.md) |
 | 프롬프트 문법 | 같은 문서 §확정된 프롬프트 문법 |
 | 도구 | `first-frame` 스킬 · Artlist MCP(`.claude/skills/artlist/`) |
+| **영상 모델** | **Kling 3.0 base** `modelGroupId 349` · Pro 1080p · 무음 · 끝 프레임 없음 — [`frame-to-video` 스킬](../../../.claude/skills/frame-to-video/SKILL.md) · 근거 [_research/16](_research/16-kling3-video-official.md) · [17](_research/17-kling3-i2v-field.md) |
 
 ## 읽는 순서
 

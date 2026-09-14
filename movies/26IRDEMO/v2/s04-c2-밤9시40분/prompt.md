@@ -20,4 +20,4 @@ Overall vibe: late, quiet, the seventh of seven.
 
 The table surface is bare and unmarked, the notebook cover plain and unbranded, the laptop screen a uniform dark surface, every object clean and free of lettering.
 
-<!-- 참조 묶음: 밤 식탁 · 화면 꺼진 노트북 — s04-c3-세번째와네번째 와 같은 무대 -->
+<!-- 참조 묶음: 밤 식탁 · 화면 꺼진 노트북 — _dropped/s04-c3-세번째와네번째 와 같은 무대 -->

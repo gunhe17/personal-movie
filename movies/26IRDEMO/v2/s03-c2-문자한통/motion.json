@@ -1,0 +1,90 @@
+{
+  "scene": "s03-c2-문자한통",
+  "cut": "C3.2",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:41:36.203Z",
+      "generationId": "01a09f48-60e5-7a3d-89d1-fe16f0d439aa",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:c5f4e3eeaacd",
+      "prompt": "Locked-off tripod shot. The fingers close around the phone and lift it a few centimetres off the desk at natural speed, keeping it flat; the pen beside it stays still. The phone screen stays dark. Everything else remains still and the light stays constant.",
+      "file": "t1/s03-c2-문자한통_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 282e2d13-6e16-4f1e-b83a-7eeabfeb868a · modelId 3146",
+      "verdict": null
+    },
+    {
+      "take": 2,
+      "at": "2026-09-14T09:47:34.014Z",
+      "generationId": "01a09f4d-c243-7d9a-a756-1c39dc0636a1",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:c5f4e3eeaacd",
+      "prompt": "Locked-off tripod shot. The fingertips press lightly on the phone and draw it a few centimetres toward the right edge of the frame at natural speed, keeping it flat on the desk; the pen beside it stays still. The phone stays a single thin dark slab and its screen stays dark. Everything else remains still and the light stays constant.",
+      "file": "t2/s03-c2-문자한통_t2.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 0d0fa541-1fb6-4748-bf40-7dd7e1f0abc2 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과(경미) — t1 탈락(2s에 화면 켜짐 · 폰이 두 겹으로 두꺼워짐) 뒤 프롬프트를 '들지 말고 책상 위에서 끌기'로 · 화면 어두움 유지 · 폰 한 장 유지 · 손이 잠깐 떴다 다시 잡음"
+    },
+    {
+      "take": 3,
+      "at": "2026-09-14T10:08:27.976Z",
+      "generationId": "01a09f60-7d38-7dbd-90f0-9c85e41f331a",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:c5f4e3eeaacd",
+      "prompt": "Locked-off tripod shot. The fingertips press lightly on the phone and draw it a few centimetres toward the right edge of the frame at natural speed, keeping it flat on the desk; the pen beside it stays still. The phone stays a single thin dark slab and its screen stays dark. Everything else remains still and the light stays constant.",
+      "file": "t3/s03-c2-문자한통_t3.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 229db0e0-2fb9-4230-8de8-ab4f24772796 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 5초판 · 화면 어두움 유지 · 폰 한 장 유지 · 손이 폰을 오른쪽으로 천천히 끌어옴(SSIM 0.74)"
+    }
+  ],
+  "pick": {
+    "from": "t3/s03-c2-문자한통_t3.mp4",
+    "out": "C3.2_ai.mp4",
+    "length": 5,
+    "fps": 30,
+    "steps": "S3-기존 1 (00_in.mov → 01.png)"
+  }
+}

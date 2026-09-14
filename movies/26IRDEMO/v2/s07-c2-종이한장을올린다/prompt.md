@@ -20,4 +20,4 @@ Overall vibe: a month of work, on a slip of paper.
 
 The desk surface is bare and unmarked, the slip blank, the notebook plain and unbranded, every surface clean and free of lettering.
 
-<!-- 참조 묶음: 원장 책상 — s07-c3-두번째형광펜 와 같은 무대 -->
+<!-- 참조 묶음: 원장 책상 — s08-c1-두번째형광펜 와 같은 무대 -->

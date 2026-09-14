@@ -1,0 +1,42 @@
+{
+  "scene": "s02-c1-검사진행",
+  "cut": "C2.1",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:41:09.463Z",
+      "generationId": "01a09f48-3c51-72ff-b31a-63d0d6fcbefe",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:bbe2ae766173",
+      "prompt": "Locked-off tripod shot. The thumb presses the stopwatch button once at natural speed; the hand holding the pencil stays steady above the sheet, and the small hand beside the wooden blocks stays resting on the table. The sheet stays blank apart from its faint ruled boxes. Everything else remains still and the light stays constant.",
+      "file": "t1/s02-c1-검사진행_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": "assetId 74411693-f1df-4620-9aec-0582fc3ea59c · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.88) · 엄지·손목 작은 동작 · 연필 손·아이 손·블록 고정"
+    }
+  ],
+  "pick": {
+    "from": "t1/s02-c1-검사진행_t1.mp4",
+    "out": "C2.1_ai.mp4",
+    "length": 3,
+    "fps": 30,
+    "steps": "S2-기존 1 (00_in.mov → 01.png)"
+  }
+}

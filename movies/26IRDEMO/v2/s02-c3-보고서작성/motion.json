@@ -1,0 +1,42 @@
+{
+  "scene": "s02-c3-보고서작성",
+  "cut": "C2.3",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T09:41:38.572Z",
+      "generationId": "01a09f48-757e-77c2-819b-72129e1824ef",
+      "credits": 500,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 5
+      },
+      "firstFrame": "first-frame.png sha256:cb6da1adb910",
+      "prompt": "Locked-off tripod shot. The fingers resting on the closed manual lift slightly and settle back down in one slow, tired movement; the other hand stays resting on the laptop keyboard. The laptop screen stays dark, the coffee cup and the desk lamp remain still and the lamp light stays constant.",
+      "file": "t1/s02-c3-보고서작성_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 5.04,
+        "audio": false
+      },
+      "note": "assetId 4cf95229-6a43-4511-a8de-b1f97fbf0d43 · modelId 3146",
+      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.88) · 매뉴얼 위 손가락이 들렸다 내려앉음 · 노트북 화면 어두움 유지 · 컵·스탠드 고정"
+    }
+  ],
+  "pick": {
+    "from": "t1/s02-c3-보고서작성_t1.mp4",
+    "out": "C2.3_ai.mp4",
+    "length": 4,
+    "fps": 30,
+    "steps": "S2-기존 3 (02-03.mov → 03.png → 99_out.mov)"
+  }
+}
