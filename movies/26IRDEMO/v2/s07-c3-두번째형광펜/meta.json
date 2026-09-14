@@ -1,0 +1,34 @@
+{
+  "scene": "s07-c3-두번째형광펜",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T18:06:21.936Z",
+      "generationId": "01a09bf1-5359-7458-8b64-a63d5e1279ad",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA director's desk seen from slightly above. Four thick stacks of paper sit clipped at the corner, their pages softly out of focus so any print reads only as an even grey texture. A woman's hands enter from the right edge; one hand sets down a spent highlighter with its cap off, the other draws a fresh one from a cup. Small blank pastel sticky tabs bristle from the top stack. The moment before the next page. Weary, methodical, unposed.\n\nFG: the spent highlighter, slightly below centre. MG: the hands and the top stack, occupying the right third. BG: the other stacks and a plain wall, softly defocused.\n\nLight: a warm desk lamp from the upper right and cool daylight from the left window, low; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The stacks and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fresh highlighter between the fingers. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the second highlighter of the same announcement.\n\nThe desk surface is bare and unmarked, the pages an even grey texture free of legible print, the sticky tabs blank, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 원장 책상 — s07-c2-종이한장을올린다 와 같은 무대 -->\n",
+      "files": [
+        "r1/s07-c3-두번째형광펜_r1_01.png",
+        "r1/s07-c3-두번째형광펜_r1_02.png",
+        "r1/s07-c3-두번째형광펜_r1_03.png",
+        "r1/s07-c3-두번째형광펜_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s07-c3-두번째형광펜_r1_03.png — 클립 뭉치+형광펜 두 자루, 글자 0"
+    }
+  ],
+  "pick": {
+    "from": "r1/s07-c3-두번째형광펜_r1_03.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

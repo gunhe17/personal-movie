@@ -1,0 +1,34 @@
+{
+  "scene": "s05-c2-10분",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:51:33.163Z",
+      "generationId": "01a09be3-0e31-7d55-854f-e0ee7119cc47",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA waiting room in a small child-counselling centre, framed at waist height. Two adults stand facing each other on the right: only their hands and midsections are in frame, one pair of hands folded holding a small folder, the other pair gesturing gently. Neither face is in frame, both heads above the top edge. The moment of the ten-minute talk. Polite, brief, unposed.\n\nFG: a bench corner, slightly below centre. MG: the two pairs of hands, occupying the right third. BG: a plain wall and a low shelf, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side falls into gentle shade.\n\nComposition: rule of thirds. The two pairs of hands fill the right third; the lower left quadrant is calm bare bench and plain wall, left clear for copy added later.\n\nAngle: eye-level at waist height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the gesturing hand. Set to 50mm, medium depth of field so the background stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: today went well, that is all there is time for.\n\nThe wall is plain and unbranded, the folder plain and free of print, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c1-아이가나온다 · s05-c3-녹음기를끈다 와 같은 무대 -->\n",
+      "files": [
+        "r1/s05-c2-10분_r1_01.png",
+        "r1/s05-c2-10분_r1_02.png",
+        "r1/s05-c2-10분_r1_03.png",
+        "r1/s05-c2-10분_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s05-c2-10분_r1_04.png — 허리 높이 손과 파일. 1·2는 남성 얼굴"
+    }
+  ],
+  "pick": {
+    "from": "r1/s05-c2-10분_r1_04.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

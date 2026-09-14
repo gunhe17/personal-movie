@@ -17,7 +17,8 @@ node .claude/skills/motion-stage/scripts/render.mjs --selftest     # 무대 둘 
 | `icons` | 아이콘이 올라와 흐르다 빠지고, 얼굴이 평온→부담으로 바뀐다 | `examples/icons-s01.json` |
 | `imac` | 파란색 중심 그라디언트 + 반투명 도트 위에 글라스 iMac. `screen`에 촬영본을 끼운다 | `movies/26IRDEMO/s01-접수/mockup/s01_web_intake_t08_imac.json` |
 | `wipe` | **전환.** 여덟 기하를 **루마 매트**(`matte:true` → mp4) 또는 **RGBA 오버레이**(ProRes 4444)로. `shape`는 도형이 회전·이동·성장해 화면이 된다 | `movies/26IRDEMO/_motion/transitions/*.json` · 데모 `index.html` |
-| `logo` | **로고 인트로.** 흰 마크 등장 → 한 번 튐 → 끝없이 커지며 창 안이 배경 무늬로 바뀌어 배경이 된다. `logo`에 SVG 경로 | `_motion/transitions/logo-intro.json` · 마크 `_motion/brand/mindscope-mark.svg` |
+| `logo` | **로고 인트로.** 흰 마크 등장 → 한 번 튐 → 끝없이 커지며 창 안이 배경 무늬로 바뀌어 배경이 된다. `logo`에 SVG 경로. `copy` 한 줄을 앞에 세우려면 `copyAt`·`copyOut`·`logoAt` | `_motion/transitions/logo-intro.json` · 마크 `_motion/brand/mindscope-mark.svg` |
+| `cells` | **검은 지면에 칸이 차례로 켜진다.** 목차 컷용. `cells` 이름 배열 · `at` 첫 칸 · `beat` 간격 · `late` 반 박자 미룰 칸(1부터) · `rise` | `movies/26IRDEMO/v2/_mockups/spec/C0.1.json` |
 | `cards` | **로샤 자료를 3D 카드로.** 검사 카드(card-N.png) · 영역 기록지(areas/card-N.json의 D 영역을 카드 열 장 위에) · 점수계열 기록지(표). `assets`·`areas`는 마인드봄 소스의 폴더(spec 기준 상대경로). `marks:4`면 영역 대신 **붉은 동그라미 네 군데**(`markSeed` 고정 — 재렌더해도 같은 자리). `ground:"transparent"`면 배경 없는 PNG, `pose`로 세 장의 기울기를 맞춘다. 카드를 크게 뽑을 땐 `ref`(기준 폭)를 주면 글자·여백이 통째로 확대된다. `duration`이 있으면 카드가 아래에서 떠오른다 | `movies/26IRDEMO/s02-검사실시/mockup/*.json` |
 | `imac` + `pull` | **카메라 풀백.** 풀프레임 UI에서 뒤로 빠지며 iMac과 배경이 드러난다 (container transform 역방향). 프레임마다 화면을 갈아 끼우므로 느리다(1080p 2.2s ≈ 4분) | `s01-접수/mockup/s01_web_intake_t08_pull.json` |
 

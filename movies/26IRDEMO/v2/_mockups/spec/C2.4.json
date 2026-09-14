@@ -1,0 +1,7 @@
+{
+  "stage": "imac",
+  "size": [1920, 1080],
+  "fps": 30,
+  "screen": "../src/C2.4_s03_web_aireview_t10.mov",
+  "width": 0.70
+}

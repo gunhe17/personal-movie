@@ -35,7 +35,8 @@ export function lint(text) {
   const warn = []
   const body = text.replace(/<!--[\s\S]*?-->/g, '')
 
-  if (/<!--/.test(text)) bad.push('템플릿 주석이 남아 있다')
+  // 참조 묶음 주석만 통과시킨다 — 같은 무대를 쓰는 컷을 prompt.md 옆에 적어 두는 자리다
+  if (/<!--(?!\s*참조 묶음:)/.test(text)) bad.push('템플릿 주석이 남아 있다')
   const slot = body.match(/<[^<>\n]{1,60}>/)
   if (slot) bad.push(`슬롯이 안 채워졌다: ${slot[0]}`)
 
@@ -103,7 +104,7 @@ function cmdCheck(scene) {
 async function fetchTo(src, dest) {
   if (/^https?:/.test(src)) {
     const res = await fetch(src)
-    if (!res.ok) die(`${res.status} ${src}`)
+    if (!res.ok) throw new Error(`${res.status} ${src}`)
     fs.writeFileSync(dest, Buffer.from(await res.arrayBuffer()))
   } else {
     if (!fs.existsSync(src)) die(`없다: ${src}`)
@@ -149,10 +150,16 @@ async function cmdSave(scene, args) {
 
   fs.mkdirSync(dir, { recursive: true })
   const files = []
-  for (const [i, src] of srcs.entries()) {
-    const dest = path.join(dir, `${scene}_r${round}_${String(i + 1).padStart(2, '0')}.png`)
-    await fetchTo(src, dest)
-    files.push(dest)
+  try {
+    for (const [i, src] of srcs.entries()) {
+      const dest = path.join(dir, `${scene}_r${round}_${String(i + 1).padStart(2, '0')}.png`)
+      await fetchTo(src, dest)
+      files.push(dest)
+    }
+  } catch (e) {
+    // 반쯤 받은 폴더를 남기면 다음 save 가 "r1 있음"으로 건너뛴다 — 통째로 치운다
+    fs.rmSync(dir, { recursive: true, force: true })
+    die(`내려받기 실패 — r${round} 폴더를 지웠다. 다시 실행: ${e?.cause?.code ?? e?.message ?? e}`)
   }
   sheet(dir, files)
   web(dir, files)
@@ -244,6 +251,7 @@ function selftest() {
 
   assert(lint(base('Composition: x. No visible words or logos.')).bad.some((b) => b.includes('부정문')), '부정문을 못 잡았다')
   assert(lint('<주체와 동작>').bad.some((b) => b.includes('슬롯')), '빈 슬롯을 못 잡았다')
+  assert(!lint('<!-- 참조 묶음: s01-c2-x 와 같은 무대 -->').bad.some((b) => b.includes('템플릿 주석')), '참조 묶음 주석을 오탐했다')
   assert(lint('a'.repeat(3000)).bad.some((b) => b.includes('상한')), '2500자 상한을 못 잡았다')
   ok('selftest 통과')
 }

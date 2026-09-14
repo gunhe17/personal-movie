@@ -1,0 +1,162 @@
+{
+  "id": "s07_web_voucherask_t01",
+  "scene": "v2/s07-정산",
+  "device": "web",
+  "action": "voucherask",
+  "take": "t01",
+  "captured_at": "2026-09-13T17:47:42.766Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/agent",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 260,
+      "appended": 712,
+      "dupped": 511,
+      "notReady": 0,
+      "ticks": 712,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c76-voucher.mjs",
+    "sha256": "d38b7d19a097c7884ce72599ccf78c2bca1cc6473ffea0258ead0a692446e8f2"
+  },
+  "stt": null,
+  "mock": {
+    "file": "_mocks/c76-voucher.json",
+    "sha256": "e49066df93f869e34f2879b8cad3a80cd1278672061c26cb50b13e57784581a9",
+    "title": "C7.6 바우처 단가 문답 — 공고는 AI가 읽고, 물으면 답한다",
+    "turns": 1
+  },
+  "steps": [
+    {
+      "t": 1.51,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.23,
+      "kind": "beat",
+      "target": "",
+      "note": "에이전트 화면"
+    },
+    {
+      "t": 4.45,
+      "kind": "type",
+      "target": "textarea[placeholder=\"무엇이든 물어보세요\"]",
+      "note": "한 줄 질문"
+    },
+    {
+      "t": 4.72,
+      "kind": "key",
+      "target": "Enter",
+      "note": "전송"
+    },
+    {
+      "t": 8.11,
+      "kind": "until",
+      "target": "text=바우처 관리",
+      "note": "답이 끝나고 화면이 바뀐다 (+3.1s)"
+    },
+    {
+      "t": 8.81,
+      "kind": "beat",
+      "target": "",
+      "note": "바우처 관리 — 센터가 취급하는 것"
+    },
+    {
+      "t": 9.66,
+      "kind": "click",
+      "target": "text=우리아이심리지원서비스 >> nth=0",
+      "note": "그 바우처"
+    },
+    {
+      "t": 10.16,
+      "kind": "until",
+      "target": "text=160,000원",
+      "note": "단가 160,000원 · 기본 회기 12회 (+0.3s)"
+    },
+    {
+      "t": 10.77,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 10.77,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.96,
+      "note": "질문 → 단가 · 회기수 → 바우처 화면",
+      "end": 8.11
+    }
+  ],
+  "result": {
+    "file": "raw/s07_web_voucherask_t01.mov",
+    "duration": 11.87,
+    "ok": true,
+    "error": null
+  }
+}

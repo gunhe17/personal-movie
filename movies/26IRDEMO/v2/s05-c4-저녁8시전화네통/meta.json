@@ -1,0 +1,74 @@
+{
+  "scene": "s05-c4-저녁8시전화네통",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:55:00.653Z",
+      "generationId": "01a09be7-4c10-7fe9-985d-289f17280ad3",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk in a small centre office after hours. A woman's hands enter from the right edge; one hand holds the handset of a plain grey desk phone, the other hovers a fingertip over the keypad. Beside the phone four small plain sticky notes are lined up in a row, blank pastel squares. The moment before the first number. Tired, dutiful, unposed.\n\nFG: the sticky notes, slightly below centre. MG: the hands and the desk phone, occupying the right third. BG: a plain wall and a shelf edge, softly defocused, the window beyond already dark.\n\nLight: a warm desk lamp from the upper right and a cooler ceiling light overhead; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The phone and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingertip over the keypad. Set to 50mm, medium depth of field so the shelf edge stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the end of a long working day, four calls to go.\n\nThe desk surface is bare and unmarked, the sticky notes blank, the phone plain and unbranded, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 센터 상담사 책상(야간) — s06-c1-열두장을넘긴다 · s06-c2-기억으로요약 · s06-c3-양식세장 · s07-c1-세는손가락 와 같은 무대 -->\n",
+      "files": [
+        "r1/s05-c4-저녁8시전화네통_r1_01.png",
+        "r1/s05-c4-저녁8시전화네통_r1_02.png",
+        "r1/s05-c4-저녁8시전화네통_r1_03.png",
+        "r1/s05-c4-저녁8시전화네통_r1_04.png"
+      ],
+      "note": null,
+      "verdict": null
+    },
+    {
+      "round": 2,
+      "at": "2026-09-13T18:29:42.097Z",
+      "generationId": "01a09c07-11b2-7edc-b98f-4491662c382a",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk in a small centre office after hours, a tight tabletop shot. The telephone base sits below the bottom edge of the frame; only the plain grey handset and its coiled cord enter the frame, held in a woman's right hand lifted a little above the desk. Her left hand rests beside four small blank pastel sticky notes lined up in a row. The moment before the first number. Tired, dutiful, unposed.\n\nFG: the sticky notes, slightly below centre. MG: the two hands and the handset, occupying the right third. BG: a plain wall and a shelf edge, softly defocused, the window beyond already dark.\n\nLight: a warm desk lamp from the upper right and a cooler ceiling light overhead; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The handset and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later. The torso stays above the top edge of the frame.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingers around the handset. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the end of a long working day, four calls to go.\n\nThe desk surface is bare and unmarked, the sticky notes blank, the handset plain and unbranded, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 센터 상담사 책상(야간) — s06-c1-열두장을넘긴다 · s06-c2-기억으로요약 · s06-c3-양식세장 · s07-c1-세는손가락 와 같은 무대 -->\n",
+      "files": [
+        "r2/s05-c4-저녁8시전화네통_r2_01.png",
+        "r2/s05-c4-저녁8시전화네통_r2_02.png",
+        "r2/s05-c4-저녁8시전화네통_r2_03.png",
+        "r2/s05-c4-저녁8시전화네통_r2_04.png"
+      ],
+      "note": null,
+      "verdict": null
+    },
+    {
+      "round": 3,
+      "at": "2026-09-13T18:34:32.196Z",
+      "generationId": "01a09c0b-27d4-76e6-9cc5-168741537a22",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA tight tabletop shot of a counsellor's desk in a small centre office after hours. From the right edge a single hand and forearm in a grey cardigan sleeve enter, holding a plain grey telephone handset a little above the desk, its coiled cord trailing down out of the bottom of the frame. Beside the hand four small blank pastel sticky notes lie in a row. The far side of the desk is empty; behind it stands a plain wall and a dark window. Everything else is out of frame. The moment before the first number. Tired, dutiful, unposed.\n\nFG: the sticky notes, slightly below centre. MG: the hand and the handset, occupying the right third. BG: the empty far side of the desk, a plain wall and a dark window, softly defocused.\n\nLight: a warm desk lamp from the upper right and a cooler ceiling light overhead; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The handset and the hand fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later. The torso stays above the top edge of the frame.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingers around the handset. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the end of a long working day, four calls to go.\n\nThe desk surface is bare and unmarked, the sticky notes blank, the handset plain and unbranded, the far side of the desk empty, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 센터 상담사 책상(야간) — s06-c1-열두장을넘긴다 · s06-c2-기억으로요약 · s06-c3-양식세장 · s07-c1-세는손가락 와 같은 무대 -->\n",
+      "files": [
+        "r3/s05-c4-저녁8시전화네통_r3_01.png",
+        "r3/s05-c4-저녁8시전화네통_r3_02.png",
+        "r3/s05-c4-저녁8시전화네통_r3_03.png",
+        "r3/s05-c4-저녁8시전화네통_r3_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r3/s05-c4-저녁8시전화네통_r3_03.png — r3: 사람 명사 제거 → 얼굴 0/4. 수화기·빈 포스트잇, 키패드 프레임 밖"
+    }
+  ],
+  "pick": {
+    "from": "r3/s05-c4-저녁8시전화네통_r3_03.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

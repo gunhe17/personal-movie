@@ -29,7 +29,7 @@ for (const k of ['scene', 'action']) if (!args[k]) die(`--${k} 필요`)
 const device = 'phone'
 const { sceneDir, rawDir, stillDir } = sceneDirs(args.scene)
 const seed = args.dry ? { file: null, sha256: null } : seedInfo(args.seed ?? die('--seed 필요 (시험이면 --dry)'))
-const sceneNo = args.scene.split('-')[0]
+const sceneNo = path.basename(args.scene).split('-')[0]   // v2는 'v2/s05-보호자'처럼 하위 경로로 온다 — 파일명엔 폴더명만 쓴다
 const take = nextTake(rawDir, sceneNo, device, args.action)
 const id = `${sceneNo}_${device}_${args.action}_${take}`
 

@@ -1,0 +1,54 @@
+{
+  "scene": "s03-c1-문자한통",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:34:37.662Z",
+      "generationId": "01a09bd4-9779-752c-88da-b383b85a349c",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA reception desk seen from slightly above. A woman's hand enters from the right edge, picking up a plain dark phone from the desk, its screen a uniform dark slab turned away from the camera. A pen and a paper wall calendar lie further back, softly out of focus. The moment the message arrives. Ordinary, unposed.\n\nFG: the pen, slightly below centre. MG: the hand and the phone, occupying the right third. BG: the calendar and a plain wall, softly defocused.\n\nLight: cool morning daylight from a window on the right, soft; the left side of the desk falls into gentle shade.\n\nComposition: rule of thirds. The phone and the hand fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingers around the phone. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: one message, before the calls.\n\nThe desk surface is bare and unmarked, the phone a uniform dark slab, the calendar cells empty, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 접수 데스크 · 카운터 — s01-c1-전화한통 · s01-c2-같은것을CRM에 · s01-c3-명단은사진으로온다 · s01-c6-검사당일다시출력 · s03-c3-답이늦다 · s03-c4-전화둘부재중하나 와 같은 무대 -->\n",
+      "files": [
+        "r1/s03-c1-문자한통_r1_01.png",
+        "r1/s03-c1-문자한통_r1_02.png",
+        "r1/s03-c1-문자한통_r1_03.png",
+        "r1/s03-c1-문자한통_r1_04.png"
+      ],
+      "note": null,
+      "verdict": null
+    },
+    {
+      "round": 2,
+      "at": "2026-09-13T18:26:34.356Z",
+      "generationId": "01a09c04-35d7-73aa-9d8d-b33779357b07",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA reception desk seen from slightly above, a tight tabletop shot. A slim dark mobile phone lies face-down on the bare desk; exactly one hand enters from the right edge, fingers just closing on the phone to lift it. A pen lies beside it. The wall behind is plain. The moment the message arrives. Ordinary, unposed.\n\nFG: the pen, slightly below centre. MG: the hand and the face-down phone, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.\n\nLight: cool daylight from a window on the right, soft; the left side of the desk falls into gentle shade.\n\nComposition: rule of thirds. The phone and the hand fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later. The torso stays above the top edge of the frame.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingers closing on the phone. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: one message, before the calls.\n\nThe desk surface is bare and unmarked, the phone a uniform dark slab lying face-down, the wall plain and unbranded, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 접수 데스크 · 카운터 — s01-c1-전화한통 · s01-c2-같은것을CRM에 · s01-c3-명단은사진으로온다 · s01-c6-검사당일다시출력 · s03-c3-답이늦다 · s03-c4-전화둘부재중하나 와 같은 무대 -->\n",
+      "files": [
+        "r2/s03-c1-문자한통_r2_01.png",
+        "r2/s03-c1-문자한통_r2_02.png",
+        "r2/s03-c1-문자한통_r2_03.png",
+        "r2/s03-c1-문자한통_r2_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r2/s03-c1-문자한통_r2_03.png — r2: 엎어진 폰 집는 손, 펜. 2번은 얼굴"
+    }
+  ],
+  "pick": {
+    "from": "r2/s03-c1-문자한통_r2_03.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

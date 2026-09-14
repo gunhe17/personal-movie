@@ -1,0 +1,34 @@
+{
+  "scene": "s02-c2-새벽3시지난파일을복사해",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:33:02.144Z",
+      "generationId": "01a09bd2-d8c5-7939-91b7-7a8374453955",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA small home desk at night, seen from slightly above. A woman's hands enter from the right edge, one hand pressing her temple, the other resting on a closed thick hardbound manual. A laptop sits open with its screen dark, an unlit matte slab. A cold cup of coffee. The moment before she starts again. Tired, still, unposed.\n\nFG: the coffee cup, slightly below centre. MG: the hands, the manual and the dark laptop, occupying the right third. BG: a plain wall and the edge of a curtain, softly defocused.\n\nLight: a single warm desk lamp from the upper right, low and pooled; the left side of the desk falls into deep shade.\n\nComposition: rule of thirds. The laptop and the hands fill the right third; the lower left quadrant is calm bare desk in shadow, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the knuckles pressing the temple. Set to 50mm, medium depth of field so the laptop edge stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the middle of the night, ordinary, worn.\n\nThe desk surface is bare and unmarked, the manual cover plain cloth free of print, the laptop screen a uniform dark surface, every object clean and free of lettering.\n",
+      "files": [
+        "r1/s02-c2-새벽3시지난파일을복사해_r1_01.png",
+        "r1/s02-c2-새벽3시지난파일을복사해_r1_02.png",
+        "r1/s02-c2-새벽3시지난파일을복사해_r1_03.png",
+        "r1/s02-c2-새벽3시지난파일을복사해_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s02-c2-새벽3시지난파일을복사해_r1_02.png — 노트북 완전 소등, 인쇄 글자 0, 좌 2/3 어두운 빈 책상 — 자막 자리"
+    }
+  ],
+  "pick": {
+    "from": "r1/s02-c2-새벽3시지난파일을복사해_r1_02.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

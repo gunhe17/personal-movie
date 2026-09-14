@@ -9,10 +9,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
           mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%)}
 .grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;
   background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent .9px);background-size:.55cqw .55cqw}
+/* 한 줄 카피 — spec.copy 가 있을 때만. 로고가 오기 전 지면에 홀로 선다 */
+.copy{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 12cqw;
+  text-align:center;font-family:'Apple SD Gothic Neo','Pretendard',system-ui,sans-serif;
+  font-weight:600;font-size:3.1cqw;letter-spacing:-.02em;line-height:1.5;color:#fff;opacity:0}
 #win{position:absolute;inset:0;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
 </style>
 <div id="stage">
   <div class="layer" id="ground"></div>
+  <div class="copy" id="copy"></div>
   <div class="layer" id="full"></div>
   <div id="win"><div class="layer" id="white"></div><div class="layer" id="pattern"></div></div>
 </div>
@@ -36,7 +41,9 @@ const S = { ...{
   logoSvg:null,             // render.mjs가 spec.logo 파일을 읽어 넣는다. 없으면 아래 대역 마크
   logoW:0.20,               // 등장 시 로고 폭 (무대 폭 비율)
   cover:16,                 // 끝 크기 = 등장 크기 × cover (로고 실루엣이 화면을 다 덮을 만큼)
-  pop:0.62, hold:0.45, grow:1.5, tail:0.4   // 구간(초): 튀며 등장 · 숨 · 끝없이 커짐 · 배경 정착
+  pop:0.62, hold:0.45, grow:1.5, tail:0.4,  // 구간(초): 튀며 등장 · 숨 · 끝없이 커짐 · 배경 정착
+  copy:null, copyAt:0.4, copyOut:6.2,       // 한 줄 카피 — 들어오는 시각 · 나가는 시각
+  logoAt:0                                  // 로고 순서가 시작되는 시각 (카피를 앞에 둘 때 민다)
 }, ...(SPEC || {}) };
 
 /* 대역 마크 — 실제 로고 SVG가 없을 때만. 원 + M. 실제 로고를 spec.logo 로 준다. */
@@ -53,6 +60,8 @@ function patternHTML(){
 const ground = document.getElementById('ground'), full = document.getElementById('full'),
       win = document.getElementById('win'), white = document.getElementById('white'), pattern = document.getElementById('pattern');
 ground.style.background = S.ground0;
+const copyEl = document.getElementById('copy');
+if (S.copy) copyEl.textContent = S.copy; else copyEl.style.display = 'none';
 full.style.background = S.ground; full.innerHTML = patternHTML(); full.style.opacity = 0;      // 마지막에 창 없이 전체
 pattern.style.background = S.ground; pattern.innerHTML = patternHTML(); pattern.style.opacity = 0;
 white.style.background = '#fff';
@@ -69,7 +78,9 @@ function popScale(u){
   return 0.96 + 0.04 * smooth((u - 0.80) / 0.20);
 }
 
-function render(t){
+function render(tAbs){
+  const t = tAbs - S.logoAt;
+  if (S.copy) copyEl.style.opacity = (smooth((tAbs - S.copyAt) / 0.7) * (1 - smooth((tAbs - S.copyOut) / 0.5))).toFixed(4);
   const W = innerWidth, w0 = S.logoW * W;
   const t1 = S.pop, t2 = t1 + S.hold, t3 = t2 + S.grow;
   let scale, mix = 0, fullOp = 0;

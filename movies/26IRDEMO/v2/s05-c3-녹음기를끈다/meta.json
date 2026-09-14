@@ -1,0 +1,54 @@
+{
+  "scene": "s05-c3-녹음기를끈다",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:53:25.942Z",
+      "generationId": "01a09be5-99c8-75b6-9fc3-617ef9955f5c",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA tight tabletop shot on the same worn wooden bench in the waiting room of a small child-counselling centre. Only a woman's hands and forearms enter the frame from the right edge; one thumb rests on the single button of a small grey voice recorder inside the inner pocket of a child's plain canvas backpack, its red light still on. The moment before the light goes out. Quiet, practised, unposed.\n\nFG: the backpack pocket and the thumb on the recorder, occupying the right third. MG: the pale bench surface. BG: a plain wall and the edge of a cloth chair, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side of the bench falls into gentle shade.\n\nComposition: rule of thirds. The backpack and the hands fill the right third; the lower left quadrant is calm bare bench and plain wall, left clear for copy added later.\n\nAngle: high three-quarter, just above bench height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the thumb and the red light. Set to 50mm, medium depth of field so the chair behind stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: routine, ordinary, a little ashamed.\n\nThe bench surface is bare and unmarked, the wall plain and unbranded, the backpack plain canvas free of print, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c1-아이가나온다 · s05-c2-10분 와 같은 무대 -->\n",
+      "files": [
+        "r1/s05-c3-녹음기를끈다_r1_01.png",
+        "r1/s05-c3-녹음기를끈다_r1_02.png",
+        "r1/s05-c3-녹음기를끈다_r1_03.png",
+        "r1/s05-c3-녹음기를끈다_r1_04.png"
+      ],
+      "note": null,
+      "verdict": null
+    },
+    {
+      "round": 2,
+      "at": "2026-09-13T18:28:10.286Z",
+      "generationId": "01a09c05-a5b1-7e4b-a8b5-93387a1585f4",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA tight tabletop shot on a worn wooden bench in the waiting room of a small child-counselling centre. Exactly one hand, a woman's right hand, enters from the right edge; its thumb rests on the single round button of a small grey voice recorder inside the open inner pocket of a child's plain canvas backpack. The recorder's face is smooth with one round button and one small red light, still on. The other hand is out of frame. The moment before the light goes out. Quiet, practised, unposed.\n\nFG: the backpack pocket and the thumb on the recorder, occupying the right third. MG: the pale bench surface. BG: a plain wall and the edge of a cloth chair, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side falls into gentle shade.\n\nComposition: rule of thirds. The backpack and the hand fill the right third; the lower left quadrant is calm bare bench and plain wall, left clear for copy added later. The torso stays above the top edge of the frame.\n\nAngle: high three-quarter, just above bench height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the thumb and the red light. Set to 50mm, medium depth of field so the background stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: routine, ordinary, a little ashamed.\n\nThe bench surface is bare and unmarked, the wall plain and unbranded, the backpack plain canvas free of print, the recorder's face smooth apart from one round button and one light, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c1-아이가나온다 · s05-c2-10분 와 같은 무대 -->\n",
+      "files": [
+        "r2/s05-c3-녹음기를끈다_r2_01.png",
+        "r2/s05-c3-녹음기를끈다_r2_02.png",
+        "r2/s05-c3-녹음기를끈다_r2_03.png",
+        "r2/s05-c3-녹음기를끈다_r2_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r2/s05-c3-녹음기를끈다_r2_03.png — r2: 가방 주머니 속 녹음기, 빨간 불, 손 하나. 2번은 안테나"
+    }
+  ],
+  "pick": {
+    "from": "r2/s05-c3-녹음기를끈다_r2_03.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

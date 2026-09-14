@@ -1,0 +1,284 @@
+{
+  "id": "s01_phone_formfill_t01",
+  "scene": "v2/s01-접수서류",
+  "device": "phone",
+  "action": "formfill",
+  "take": "t01",
+  "captured_at": "2026-09-13T18:54:24.426Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/forms/fill/a9956380-2989-4348-8112-bac1028be64b",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 1630,
+      "appended": 1728,
+      "dupped": 111,
+      "notReady": 0,
+      "ticks": 1728,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c19-formfill.mjs",
+    "sha256": "dabd41dfe6583527c76ecd62a83481b7e9628ea96d27e60acd08f4d302eff9ea"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "문자로 온 링크 — 4자리 인증"
+    },
+    {
+      "t": 3.17,
+      "kind": "type",
+      "target": "input[inputmode=\"numeric\"]",
+      "note": "인증코드"
+    },
+    {
+      "t": 4.08,
+      "kind": "click",
+      "target": "button:has-text(\"확인\")",
+      "note": "확인"
+    },
+    {
+      "t": 4.59,
+      "kind": "until",
+      "target": "text=사전기록지",
+      "note": "그 서식이 폰에 떴다 (+0.3s)"
+    },
+    {
+      "t": 5.29,
+      "kind": "beat",
+      "target": "",
+      "note": "원본 그대로 — 스캔한 그 종이"
+    },
+    {
+      "t": 6.04,
+      "kind": "click",
+      "target": "button:has-text(\"목록으로 보기\")",
+      "note": "목록으로 보기"
+    },
+    {
+      "t": 6.56,
+      "kind": "until",
+      "target": "xpath=//p[contains(text(),\"아동 성명\")]",
+      "note": "작성 화면 (+0.3s)"
+    },
+    {
+      "t": 7.25,
+      "kind": "type",
+      "target": "xpath=//p[contains(text(),\"아동 성명\")]/following-sibling::input",
+      "note": "이하준"
+    },
+    {
+      "t": 8.19,
+      "kind": "type",
+      "target": "xpath=//p[contains(text(),\"생년월일\")]/following-sibling::input",
+      "note": "2016-09-22"
+    },
+    {
+      "t": 9.11,
+      "kind": "scroll",
+      "target": "-140"
+    },
+    {
+      "t": 9.56,
+      "kind": "reveal",
+      "target": "xpath=//p[contains(text(),\"보호자 성명\")]",
+      "note": "보호자"
+    },
+    {
+      "t": 10.96,
+      "kind": "type",
+      "target": "xpath=//p[contains(text(),\"보호자 성명\")]/following-sibling::input",
+      "note": "이수진"
+    },
+    {
+      "t": 12.31,
+      "kind": "type",
+      "target": "xpath=//p[contains(text(),\"연락처\")]/following-sibling::input",
+      "note": "연락처"
+    },
+    {
+      "t": 12.93,
+      "kind": "scroll",
+      "target": "115"
+    },
+    {
+      "t": 13.38,
+      "kind": "reveal",
+      "target": "xpath=//p[contains(text(),\"주호소\")]",
+      "note": "주호소"
+    },
+    {
+      "t": 16.05,
+      "kind": "type",
+      "target": "xpath=//p[contains(text(),\"주호소\")]/following-sibling::textarea",
+      "note": "주호소"
+    },
+    {
+      "t": 16.78,
+      "kind": "scroll",
+      "target": "231"
+    },
+    {
+      "t": 17.23,
+      "kind": "reveal",
+      "target": "xpath=//p[contains(text(),\"염려되는 영역\")]",
+      "note": "염려되는 영역"
+    },
+    {
+      "t": 18.59,
+      "kind": "click",
+      "target": "xpath=//label[.//span[text()=\"정서·불안\"]]",
+      "note": "정서·불안"
+    },
+    {
+      "t": 19.48,
+      "kind": "click",
+      "target": "xpath=//label[.//span[text()=\"또래관계\"]]",
+      "note": "또래관계"
+    },
+    {
+      "t": 20.37,
+      "kind": "click",
+      "target": "xpath=//label[.//span[text()=\"수면\"]]",
+      "note": "수면"
+    },
+    {
+      "t": 21.01,
+      "kind": "scroll",
+      "target": "86"
+    },
+    {
+      "t": 21.46,
+      "kind": "reveal",
+      "target": "xpath=//p[contains(text(),\"이전 상담·치료 경험\")]",
+      "note": "이전 상담 경험"
+    },
+    {
+      "t": 22.81,
+      "kind": "click",
+      "target": "xpath=//label[.//span[text()=\"없음\"]]",
+      "note": "없음"
+    },
+    {
+      "t": 23.61,
+      "kind": "scroll",
+      "target": "334"
+    },
+    {
+      "t": 24.06,
+      "kind": "reveal",
+      "target": "xpath=//p[contains(text(),\"개인정보 수집·이용 동의\")]",
+      "note": "동의"
+    },
+    {
+      "t": 25.43,
+      "kind": "click",
+      "target": "xpath=//label[.//span[text()=\"동의합니다\"]]",
+      "note": "동의합니다"
+    },
+    {
+      "t": 26.33,
+      "kind": "click",
+      "target": "button:has-text(\"제출하기\")",
+      "note": "제출하기"
+    },
+    {
+      "t": 26.84,
+      "kind": "until",
+      "target": "text=제출이 완료되었어요",
+      "note": "제출됨 (+0.3s)"
+    },
+    {
+      "t": 27.64,
+      "kind": "hold",
+      "target": "800",
+      "note": "끝"
+    },
+    {
+      "t": 27.64,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 6.56,
+      "note": "보호자가 폰에서 채운다 → 제출",
+      "end": 26.84
+    }
+  ],
+  "result": {
+    "file": "raw/s01_phone_formfill_t01.mov",
+    "duration": 28.8,
+    "ok": true,
+    "error": null
+  }
+}

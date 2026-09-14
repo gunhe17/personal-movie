@@ -43,7 +43,7 @@ const rawDir = path.join(sceneDir, 'raw'), stillDir = path.join(sceneDir, 'still
 fs.mkdirSync(rawDir, { recursive: true }); fs.mkdirSync(stillDir, { recursive: true })
 if (!args.dry) { need('seed'); if (!fs.existsSync(path.join(DEMO_ROOT, args.seed))) die(`시드 없음: ${args.seed} — 촬영 전에 _seed/에 박제할 것`) }
 
-const sceneNo = args.scene.split('-')[0]
+const sceneNo = path.basename(args.scene).split('-')[0]   // v2는 'v2/s05-보호자'처럼 하위 경로로 온다 — 파일명엔 폴더명만 쓴다
 const take = args.manual ? takeFromName(args.manual) : nextTake(rawDir, sceneNo, args.device, args.action)
 const id = `${sceneNo}_${args.device}_${args.action}_${take}`
 const appCommit = gitShort(APP_ROOT)

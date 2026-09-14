@@ -1,0 +1,183 @@
+{
+  "id": "s05_web_share_t02",
+  "scene": "v2/s05-보호자",
+  "device": "web",
+  "action": "share",
+  "take": "t02",
+  "captured_at": "2026-09-13T18:20:50.175Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/dbadac06-6f87-468b-afbf-2eabababc2ee?session=4b185d51-21c1-4fe9-b0a0-77964afab1b3",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 754,
+      "appended": 788,
+      "dupped": 66,
+      "notReady": 0,
+      "ticks": 788,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c55-share.mjs",
+    "sha256": "5404e92dc7ad0b44e628d2ec162fc8fd39542bd81c3ab10228d54c4e0ca55f27"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 상담사가 쓴 임상 일지"
+    },
+    {
+      "t": 3.08,
+      "kind": "hover",
+      "target": "textarea[placeholder=\"진행 내용을 작성해주세요\"]",
+      "note": "원문 — K-CBCL T 68 · F93.8 R/O"
+    },
+    {
+      "t": 3.78,
+      "kind": "beat",
+      "target": "",
+      "note": "진단 표기와 점수가 원문에는 있다"
+    },
+    {
+      "t": 4.86,
+      "kind": "click",
+      "target": "button:has-text(\"내담자에게 전달\")",
+      "note": "내담자에게 전달"
+    },
+    {
+      "t": 5.7,
+      "kind": "modal",
+      "target": "",
+      "note": "전달문 모달 — 좌 원문 / 우 전달문"
+    },
+    {
+      "t": 6.73,
+      "kind": "click",
+      "target": "button:has-text(\"이 일지로 전달문 만들기\")",
+      "note": "이 일지로 전달문 만들기"
+    },
+    {
+      "t": 7.24,
+      "kind": "until",
+      "target": "text=전달문을 만들었어요",
+      "note": "만드는 중… → 전달문이 섰다 (+0.3s)"
+    },
+    {
+      "t": 8.21,
+      "kind": "click",
+      "target": "textarea[placeholder^=\"내담자·보호자에게 전할 내용\"]",
+      "note": "전달문 본문"
+    },
+    {
+      "t": 9.98,
+      "kind": "beat",
+      "target": "",
+      "note": "상담사가 한 줄 더한다"
+    },
+    {
+      "t": 10.81,
+      "kind": "click",
+      "target": "button:has-text(\"전달하기\")",
+      "note": "전달하기"
+    },
+    {
+      "t": 11.46,
+      "kind": "until",
+      "target": "text=전달했어요",
+      "note": "전달됨 — 앱 알림이 함께 나갔다 (+0.4s)"
+    },
+    {
+      "t": 12.06,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 12.06,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 5.71,
+      "note": "만들기 → 오른쪽이 채워진다",
+      "end": 7.24
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "덧쓴 한 줄이 문단 한가운데에 끼어 문장이 깨졌다(h.type이 요소 가운데를 클릭한다) — 캐럿을 본문 끝으로 옮기고 다시",
+  "result": {
+    "file": "raw/s05_web_share_t02.mov",
+    "duration": 13.13,
+    "ok": true,
+    "error": null
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "s06_web_derive_t01",
+  "scene": "v2/s06-증명",
+  "device": "web",
+  "action": "derive",
+  "take": "t01",
+  "captured_at": "2026-09-14T00:13:00.458Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/dbadac06-6f87-468b-afbf-2eabababc2ee?session=4b185d51-21c1-4fe9-b0a0-77964afab1b3",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 593,
+      "appended": 622,
+      "dupped": 37,
+      "notReady": 0,
+      "ticks": 622,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c65-derive.mjs",
+    "sha256": "62588f26fd795161b7d23e31136d7aa5d035e738f788bd9ea9597992d772a7c6"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "회기 상세 — 확정된 일지"
+    },
+    {
+      "t": 3.08,
+      "kind": "hover",
+      "target": "textarea[placeholder=\"진행 내용을 작성해주세요\"]",
+      "note": "원문 — 이 문장이 옮겨진다"
+    },
+    {
+      "t": 3.93,
+      "kind": "click",
+      "target": "button:has-text(\"제출 서류 초안 작성\")",
+      "note": "제출 서류 초안 작성"
+    },
+    {
+      "t": 4.78,
+      "kind": "modal",
+      "target": "",
+      "note": "제출 서류 모달 — 좌 일지 / 우 바우처 양식(빈칸)"
+    },
+    {
+      "t": 5.8,
+      "kind": "click",
+      "target": "button:has-text(\"이 일지로 양식 채우기\")",
+      "note": "이 일지로 양식 채우기"
+    },
+    {
+      "t": 6.39,
+      "kind": "until",
+      "target": "text=회기 내용",
+      "note": "옮기는 중… → 양식이 섰다 (+0.4s)"
+    },
+    {
+      "t": 7.09,
+      "kind": "beat",
+      "target": "",
+      "note": "일지 옆에 양식이 채워진 채 선다"
+    },
+    {
+      "t": 7.51,
+      "kind": "hover",
+      "target": "text=역할놀이에서 자신감 있게 참여 >> nth=0",
+      "note": "일지의 그 문장"
+    },
+    {
+      "t": 7.98,
+      "kind": "hover",
+      "target": "text=역할놀이에서 자신감 있게 참여 >> nth=1",
+      "note": "양식의 같은 문장"
+    },
+    {
+      "t": 8.53,
+      "kind": "hover",
+      "target": "text=역할놀이에서 자신감 있게 참여 >> nth=0",
+      "note": "다시 일지 — 같은 문장"
+    },
+    {
+      "t": 9.23,
+      "kind": "hold",
+      "target": "700",
+      "note": "끝"
+    },
+    {
+      "t": 9.23,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.78,
+      "note": "양식 채우기 → 오른쪽이 채워진 채 선다 (생성 소요는 노컷)",
+      "end": 6.39
+    }
+  ],
+  "result": {
+    "file": "raw/s06_web_derive_t01.mov",
+    "duration": 10.37,
+    "ok": true,
+    "error": null
+  }
+}

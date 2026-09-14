@@ -1,0 +1,88 @@
+{
+  "id": "s03_phone_request_t01",
+  "scene": "v2/s03-일정",
+  "device": "phone",
+  "action": "request",
+  "take": "t01",
+  "captured_at": "2026-09-13T18:11:56.334Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 68,
+      "appended": 181,
+      "dupped": 113,
+      "notReady": 0,
+      "ticks": 181,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c36-request.mjs",
+    "sha256": "74e4d2a0a6ceb346f3ea17f746c444e02ba3c16fdcff5176f424516462442991"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    }
+  ],
+  "nocut": [],
+  "result": {
+    "file": "raw/s03_phone_request_t01.mov",
+    "duration": 3.02,
+    "ok": false,
+    "error": "Cannot read properties of undefined (reading 'beat')"
+  }
+}

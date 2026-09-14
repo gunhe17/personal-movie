@@ -1,0 +1,7 @@
+{
+  "stage": "imac",
+  "size": [1920, 1080],
+  "fps": 30,
+  "screen": "../src/C1.8_s01_web_intake_t07.mov",
+  "width": 0.70
+}

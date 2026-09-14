@@ -1,0 +1,161 @@
+{
+  "id": "s05_phone_arrive_t02",
+  "scene": "v2/s05-보호자",
+  "device": "phone",
+  "action": "arrive",
+  "take": "t02",
+  "captured_at": "2026-09-13T18:21:57.694Z",
+  "spec_version": 1,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 330,
+      "appended": 1287,
+      "dupped": 959,
+      "notReady": 0,
+      "ticks": 1287,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 900,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 900,
+    "beat": 1200
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c56-arrive.mjs",
+    "sha256": "468159ae3cc436a31c687b436668f1aa0eab941ab22756348b2693be793c5724"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 4.21,
+      "kind": "beat",
+      "target": "",
+      "note": "앱 홈"
+    },
+    {
+      "t": 5.49,
+      "kind": "tap",
+      "target": "케어보드",
+      "note": "케어보드 탭"
+    },
+    {
+      "t": 7.3,
+      "kind": "tap",
+      "target": "진행중인 활동",
+      "note": "진행중인 활동"
+    },
+    {
+      "t": 9.4,
+      "kind": "beat",
+      "target": "",
+      "note": "놀이치료 12/16회"
+    },
+    {
+      "t": 9.98,
+      "kind": "tap",
+      "target": "200,441",
+      "note": "자세히 보기"
+    },
+    {
+      "t": 12.09,
+      "kind": "beat",
+      "target": "",
+      "note": "상담 기록 목록"
+    },
+    {
+      "t": 13.04,
+      "kind": "tap",
+      "target": "201,850.3332901000977",
+      "note": "12회기 — 상담 내용 보기"
+    },
+    {
+      "t": 15.14,
+      "kind": "beat",
+      "target": "",
+      "note": "센터가 전해온 글"
+    },
+    {
+      "t": 16.03,
+      "kind": "swipe",
+      "target": "200,700→200,430",
+      "note": "끝까지 읽는다"
+    },
+    {
+      "t": 18.43,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 18.43,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 12.09,
+      "note": "그 회기의 글이 열린다",
+      "end": 16.94
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "t01은 C5.5 t01의 깨진 문장을 그대로 받았다 — C5.5 t02의 공유문으로 다시",
+  "result": {
+    "file": "raw/s05_phone_arrive_t02.mov",
+    "duration": 21.45,
+    "ok": true,
+    "error": null
+  }
+}

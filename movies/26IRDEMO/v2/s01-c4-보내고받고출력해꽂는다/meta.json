@@ -1,0 +1,34 @@
+{
+  "scene": "s01-c4-보내고받고출력해꽂는다",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:26:09.020Z",
+      "generationId": "01a09bcc-cf29-7218-830e-dee003730a37",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA small office corner with a desktop printer. A woman's hands enter from the right edge, lifting a single sheet of plain white paper from the printer tray toward an open ring binder already thick with identical sheets. The sheets carry only faint ruled boxes, unprinted. The moment before it is filed. Routine, unposed.\n\nFG: the open binder, slightly below centre. MG: the hands and the sheet, occupying the right third. BG: the printer and a plain wall, softly defocused.\n\nLight: flat cool office light from above; the left side of the desk falls into gentle shade.\n\nComposition: rule of thirds. The binder and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the sheet edge between the fingers. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the twentieth copy of the same page.\n\nThe desk surface is bare and unmarked, every sheet plain white with faint ruled boxes and free of print, the binder plain and unbranded, every surface clean and free of lettering.\n",
+      "files": [
+        "r1/s01-c4-보내고받고출력해꽂는다_r1_01.png",
+        "r1/s01-c4-보내고받고출력해꽂는다_r1_02.png",
+        "r1/s01-c4-보내고받고출력해꽂는다_r1_03.png",
+        "r1/s01-c4-보내고받고출력해꽂는다_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s01-c4-보내고받고출력해꽂는다_r1_04.png — 괘선만 있는 서식, 프린터 무지, 손가락 정상 — 넷 중 유일하게 인쇄 글자 없음"
+    }
+  ],
+  "pick": {
+    "from": "r1/s01-c4-보내고받고출력해꽂는다_r1_04.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

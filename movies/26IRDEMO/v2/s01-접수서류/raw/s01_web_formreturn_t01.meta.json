@@ -1,0 +1,138 @@
+{
+  "id": "s01_web_formreturn_t01",
+  "scene": "v2/s01-접수서류",
+  "device": "web",
+  "action": "formreturn",
+  "take": "t01",
+  "captured_at": "2026-09-13T18:54:54.328Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/center/form-templates/f0c17000-0000-4000-8000-000000000017",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 427,
+      "appended": 448,
+      "dupped": 54,
+      "notReady": 0,
+      "ticks": 448,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c19-formreturn.mjs",
+    "sha256": "80d1fc8a1614f61bc37275b6de0b0d1810851a2b59fba949d75080ca9f47d25d"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "서식 상세"
+    },
+    {
+      "t": 3.15,
+      "kind": "scroll",
+      "target": "338"
+    },
+    {
+      "t": 3.6,
+      "kind": "reveal",
+      "target": "text=발급 내역",
+      "note": "발급 내역"
+    },
+    {
+      "t": 4.57,
+      "kind": "until",
+      "target": "text=작성완료",
+      "note": "돌아왔다 (+0.3s)"
+    },
+    {
+      "t": 5.14,
+      "kind": "hover",
+      "target": "text=작성완료",
+      "note": "그 줄"
+    },
+    {
+      "t": 6.34,
+      "kind": "hold",
+      "target": "1200",
+      "note": "끝"
+    },
+    {
+      "t": 6.34,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [],
+  "result": {
+    "file": "raw/s01_web_formreturn_t01.mov",
+    "duration": 7.47,
+    "ok": true,
+    "error": null
+  }
+}

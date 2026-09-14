@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>칸이 차례로 켜진다</title>
+<!--
+  검은 지면에 칸이 나란히 놓이고 하나씩 켜진다. 목차 컷(C0.1)용.
+  cards.html이 로샤 자료 전용이라 그것과 섞지 않는다 — 여기는 글자 칸뿐이다.
+  칸 이름·간격·반 박자 지연은 전부 spec으로 준다. 전역 render(t) 규약(CDP 캡처).
+-->
+<style>
+:root{ --f-b:'Apple SD Gothic Neo','Pretendard',system-ui,sans-serif; --f-m:'SF Mono',ui-monospace,monospace }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+.stage{position:relative;width:100vw;height:100vh;overflow:hidden;container-type:size;font-family:var(--f-b)}
+.row{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:1.1cqw}
+.cell{position:relative;width:11.2cqw;height:15.5cqw;border-radius:1.1cqw;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:1.1cqw}
+.cell .box{position:absolute;inset:0;border-radius:inherit}
+.cell .n{position:relative;font-family:var(--f-m);font-size:.85cqw;letter-spacing:.24em}
+.cell .t{position:relative;font-size:1.55cqw;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.cell .bar{position:absolute;left:2.4cqw;right:2.4cqw;bottom:2.6cqw;height:.16cqw;border-radius:.1cqw}
+</style>
+<div class="stage" id="stage"><div class="row" id="row"></div></div>
+<script>
+const SPEC = /*__SPEC__*/ null;
+const S = { ...{
+  ground:'#0B0E14',
+  accent:'#2F6BFF',
+  cells:['접수','검사','일정','회기 기록','보호자','증명','정산'],
+  at:1.0,        // 첫 칸이 켜지는 시각
+  beat:1.2,      // 칸 사이 간격
+  late:5,        // 이 칸(1부터)부터 반 박자 늦다
+  rise:0.45      // 켜지는 데 걸리는 시간
+}, ...(SPEC || {}) };
+
+const stage = document.getElementById('stage'), row = document.getElementById('row');
+stage.style.background = S.ground;
+const els = S.cells.map((name, i) => {
+  const d = document.createElement('div'); d.className = 'cell';
+  d.innerHTML = `<div class="box"></div><div class="n">${String(i + 1).padStart(2,'0')}</div>`
+              + `<div class="t">${name}</div><div class="bar"></div>`;
+  row.appendChild(d);
+  return { box: d.querySelector('.box'), n: d.querySelector('.n'), t: d.querySelector('.t'), bar: d.querySelector('.bar') };
+});
+// 켜지는 시각 — S.late 번째부터 반 박자(beat/2) 뒤로 밀린다
+const on = S.cells.map((_, i) => S.at + i * S.beat + (i + 1 >= S.late ? S.beat / 2 : 0));
+
+const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const smooth = u => { u = clamp(u); return u * u * (3 - 2 * u); };
+const mix = (a, b, p) => a + (b - a) * p;
+
+function render(t){
+  els.forEach((e, i) => {
+    const p = smooth((t - on[i]) / S.rise);
+    e.box.style.background = `rgba(255,255,255,${mix(.035,.085,p).toFixed(4)})`;
+    e.box.style.boxShadow = `inset 0 0 0 ${mix(.08,.14,p).toFixed(3)}cqw rgba(255,255,255,${mix(.08,.34,p).toFixed(3)}),`
+                          + `0 0 ${(p*4).toFixed(2)}cqw rgba(47,107,255,${(p*.28).toFixed(3)})`;
+    e.n.style.color = `rgba(255,255,255,${mix(.20,.55,p).toFixed(3)})`;
+    e.t.style.color = `rgba(255,255,255,${mix(.28,1,p).toFixed(3)})`;
+    e.bar.style.background = S.accent;
+    e.bar.style.opacity = p.toFixed(3);
+    e.bar.style.transform = `scaleX(${p.toFixed(3)})`;
+  });
+}
+render(parseFloat(new URLSearchParams(location.search).get('t') || '0'));
+</script>

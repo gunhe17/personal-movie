@@ -1,0 +1,34 @@
+{
+  "scene": "s01-c2-같은것을CRM에",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:22:21.122Z",
+      "generationId": "01a09bc9-4f84-7233-9a92-cafdf560391f",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA reception desk seen from slightly above. A woman's hands enter from the right edge, typing on a pale keyboard; beside the keyboard an open notebook lies with its page softly out of focus, ruled lines reduced to faint grey. The monitor sits beyond the top edge of the frame, only its stand visible. The moment of typing what was just written by hand. Hurried, unposed.\n\nFG: the notebook edge, slightly below centre. MG: the hands and the keyboard, occupying the right third. BG: the monitor stand and a plain wall, softly defocused.\n\nLight: cool morning daylight from a window on the right, soft; the left side of the desk falls into gentle shade.\n\nComposition: rule of thirds. The keyboard and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the knuckles over the keys. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the same words, a second time.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, every object clean and free of lettering.\n\n<!-- 참조 묶음: 접수 데스크 · 카운터 — s01-c1-전화한통 · s01-c3-명단은사진으로온다 · s01-c6-검사당일다시출력 · s03-c1-문자한통 · s03-c3-답이늦다 · s03-c4-전화둘부재중하나 와 같은 무대 -->\n",
+      "files": [
+        "r1/s01-c2-같은것을CRM에_r1_01.png",
+        "r1/s01-c2-같은것을CRM에_r1_02.png",
+        "r1/s01-c2-같은것을CRM에_r1_03.png",
+        "r1/s01-c2-같은것을CRM에_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s01-c2-같은것을CRM에_r1_02.png — 키캡·수첩 모두 무지, 좌측 절반 빈 책상, 손 관절 정상"
+    }
+  ],
+  "pick": {
+    "from": "r1/s01-c2-같은것을CRM에_r1_02.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

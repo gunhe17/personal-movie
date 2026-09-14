@@ -1,0 +1,34 @@
+{
+  "scene": "s06-c1-열두장을넘긴다",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:56:29.403Z",
+      "generationId": "01a09be8-b894-79de-ac6d-2c33ec80fa5b",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk at night seen from slightly above. A woman's hands enter from the right edge, turning through a thick ring binder of plain sheets, each carrying only faint ruled boxes, while a blank sheet of paper and a pen wait beside it. The moment before the twelfth page. Patient, searching, unposed.\n\nFG: the blank sheet and the pen, slightly below centre. MG: the hands and the open binder, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.\n\nLight: a warm desk lamp from the upper right; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The binder and the hands fill the right third; the lower left quadrant is calm bare desk in shade, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingertips on the page edge. Set to 50mm, medium depth of field so the shelf edge stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: looking for the week something changed.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, the binder plain and unbranded, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 센터 상담사 책상(야간) — s05-c4-저녁8시전화네통 · s06-c2-기억으로요약 · s06-c3-양식세장 · s07-c1-세는손가락 와 같은 무대 -->\n",
+      "files": [
+        "r1/s06-c1-열두장을넘긴다_r1_01.png",
+        "r1/s06-c1-열두장을넘긴다_r1_02.png",
+        "r1/s06-c1-열두장을넘긴다_r1_03.png",
+        "r1/s06-c1-열두장을넘긴다_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s06-c1-열두장을넘긴다_r1_02.png — 일지 페이지가 괘선뿐, 빈 A4+펜, 좌 2/3 어둠 — 자막 자리"
+    }
+  ],
+  "pick": {
+    "from": "r1/s06-c1-열두장을넘긴다_r1_02.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "id": "s01_web_formsend_t01",
+  "scene": "v2/s01-접수서류",
+  "device": "web",
+  "action": "formsend",
+  "take": "t01",
+  "captured_at": "2026-09-13T18:53:31.864Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/center/form-templates/f0c17000-0000-4000-8000-000000000017",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 688,
+      "appended": 722,
+      "dupped": 43,
+      "notReady": 0,
+      "ticks": 722,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c19-formsend.mjs",
+    "sha256": "f075bb002b9a8a8f9d6ef5f96649f7a8c01061d397abf78fe291d07f9b352d63"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.52,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.23,
+      "kind": "beat",
+      "target": "",
+      "note": "서식 상세 — 발급 내역"
+    },
+    {
+      "t": 3.06,
+      "kind": "click",
+      "target": "button:has-text(\"발급\")",
+      "note": "발급"
+    },
+    {
+      "t": 3.91,
+      "kind": "modal",
+      "target": "",
+      "note": "작성 요청 — 받는 사람과 문자 내용"
+    },
+    {
+      "t": 4.82,
+      "kind": "click",
+      "target": "input[placeholder*=\"검색\"]",
+      "note": "받는 사람"
+    },
+    {
+      "t": 5.77,
+      "kind": "type",
+      "target": "input[placeholder*=\"검색\"]",
+      "note": "이하준"
+    },
+    {
+      "t": 6.26,
+      "kind": "until",
+      "target": "button:has-text(\"2016-09-22\")",
+      "note": "검색 결과 (+0.3s)"
+    },
+    {
+      "t": 6.94,
+      "kind": "click",
+      "target": "button:has-text(\"2016-09-22\")",
+      "note": "이하준 선택"
+    },
+    {
+      "t": 7.84,
+      "kind": "click",
+      "target": "button:has-text(\"적용\")",
+      "note": "적용"
+    },
+    {
+      "t": 8.78,
+      "kind": "beat",
+      "target": "",
+      "note": "보호자 연락처가 따라붙는다"
+    },
+    {
+      "t": 9.56,
+      "kind": "click",
+      "target": "getByRole('button', { name: '전송', exact: true })",
+      "note": "전송"
+    },
+    {
+      "t": 10.07,
+      "kind": "until",
+      "target": "text=작성 요청을 전송했습니다",
+      "note": "전송됨 (+0.3s)"
+    },
+    {
+      "t": 10.34,
+      "kind": "until",
+      "target": "text=미작성",
+      "note": "발급 내역 — 아직 미작성 (+0.3s)"
+    },
+    {
+      "t": 10.94,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 10.94,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 8.79,
+      "note": "전송 → 발급 내역에 한 줄",
+      "end": 10.34
+    }
+  ],
+  "result": {
+    "file": "raw/s01_web_formsend_t01.mov",
+    "duration": 12.03,
+    "ok": true,
+    "error": null
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "scene": "s05-c1-아이가나온다",
+  "model": {
+    "name": "Kling o3",
+    "modelGroupId": 354,
+    "modelId": 2189
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "at": "2026-09-13T17:48:45.636Z",
+      "generationId": "01a09be1-6dc9-76d6-8b41-4e0450e11fa0",
+      "credits": 100,
+      "settings": {
+        "aspect_ratio": "16:9",
+        "resolution": "2K",
+        "num_images": 4
+      },
+      "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA waiting room in a small child-counselling centre. A plain door stands half open on the right; below its edge a small child's sneaker steps out onto the floor, only the shoe and the hem of trousers. From the left of frame a woman's hands rise from a bench, reaching. The moment the session ends. Warm, ordinary, unposed.\n\nFG: the bench edge, slightly below centre. MG: the door edge and the small shoe, occupying the right third. BG: a plain wall and a low shelf, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side falls into gentle shade.\n\nComposition: rule of thirds. The door and the small shoe fill the right third; the lower left quadrant is calm bare floor, left clear for copy added later.\n\nAngle: low three-quarter, just above floor height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the small shoe on the threshold. Set to 50mm, medium depth of field so the background stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: four fifty in the afternoon.\n\nThe floor is plain and unmarked, the door plain and unbranded, the shoe plain, every surface clean and free of lettering.\n\n<!-- 참조 묶음: 대기실 벤치 — s01-c5-설문쓰러한번 · s05-c2-10분 · s05-c3-녹음기를끈다 와 같은 무대 -->\n",
+      "files": [
+        "r1/s05-c1-아이가나온다_r1_01.png",
+        "r1/s05-c1-아이가나온다_r1_02.png",
+        "r1/s05-c1-아이가나온다_r1_03.png",
+        "r1/s05-c1-아이가나온다_r1_04.png"
+      ],
+      "note": null,
+      "verdict": "채택 r1/s05-c1-아이가나온다_r1_04.png — 문턱 운동화 + 일어서는 손, 얼굴 0"
+    }
+  ],
+  "pick": {
+    "from": "r1/s05-c1-아이가나온다_r1_04.png",
+    "out": "first-frame.png (1920×1080)"
+  }
+}

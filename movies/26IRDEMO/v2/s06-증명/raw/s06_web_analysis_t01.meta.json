@@ -1,0 +1,181 @@
+{
+  "id": "s06_web_analysis_t01",
+  "scene": "v2/s06-증명",
+  "device": "web",
+  "action": "analysis",
+  "take": "t01",
+  "captured_at": "2026-09-13T17:39:01.163Z",
+  "spec_version": 7,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/counseling/status/dbadac06-6f87-468b-afbf-2eabababc2ee",
+    "env": "local",
+    "commit": "477edeb"
+  },
+  "viewport": {
+    "profile": "web",
+    "css": [
+      1600,
+      900
+    ],
+    "dpr": 2,
+    "pixels": [
+      3200,
+      1800
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "sckcap 합성 (NSCursor 이미지 · OS 커서 미사용)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 1600,
+      "h": 900
+    },
+    "stats": {
+      "received": 480,
+      "appended": 1035,
+      "dupped": 584,
+      "notReady": 0,
+      "ticks": 1035,
+      "fps": 60,
+      "size": [
+        3200,
+        1800
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 180,
+    "movePerPx": 0.3,
+    "moveMax": 460,
+    "moveSteps": 22,
+    "move": 420,
+    "preClick": 140,
+    "postClick": 240,
+    "type": 40,
+    "afterType": 220,
+    "scrollFrame": 16,
+    "afterScroll": 450,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14.json",
+    "sha256": "2bfdf7ce09b1d82cfa39846ecc1ed0100c20b3fa68fff37aa24bb4f58a23a77c"
+  },
+  "script": {
+    "file": "v2/_scripts/c64-analysis.mjs",
+    "sha256": "a97baa541a879e7a1be340fb19da8cfc250401f1d1900479630e6e3deb351784"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "케이스 — 끝난 회기 열둘"
+    },
+    {
+      "t": 3.34,
+      "kind": "click",
+      "target": "button:has-text(\"AI 경과 분석\")",
+      "note": "AI 경과 분석"
+    },
+    {
+      "t": 4.18,
+      "kind": "modal",
+      "target": "",
+      "note": "경과 분석 — 아직 없다"
+    },
+    {
+      "t": 5.01,
+      "kind": "click",
+      "target": "button:has-text(\"경과 분석 실행\")",
+      "note": "경과 분석 실행"
+    },
+    {
+      "t": 5.86,
+      "kind": "modal",
+      "target": "",
+      "note": "범위 선택 · 비용 확인"
+    },
+    {
+      "t": 6.65,
+      "kind": "click",
+      "target": "button:has-text(\"분석 실행\") >> nth=-1",
+      "note": "분석 실행"
+    },
+    {
+      "t": 12.53,
+      "kind": "until",
+      "target": "text=전환점",
+      "note": "분석 중… → 리포트 (+5.6s)"
+    },
+    {
+      "t": 13.23,
+      "kind": "beat",
+      "target": "",
+      "note": "열두 회기가 한 화면으로"
+    },
+    {
+      "t": 13.66,
+      "kind": "hover",
+      "target": "button:has-text(\"7회기\") >> nth=0",
+      "note": "근거 — 7회기"
+    },
+    {
+      "t": 14.36,
+      "kind": "beat",
+      "target": "",
+      "note": "모든 판단에 회기 번호"
+    },
+    {
+      "t": 15.05,
+      "kind": "scroll",
+      "target": "560",
+      "note": "아래로 이어지는 리포트"
+    },
+    {
+      "t": 16.11,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 16.11,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.18,
+      "note": "분석 실행 → 리포트가 선다 (생성 소요는 노컷)",
+      "end": 12.53
+    }
+  ],
+  "result": {
+    "file": "raw/s06_web_analysis_t01.mov",
+    "duration": 17.25,
+    "ok": true,
+    "error": null
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "api": "http://localhost:3502/api/v1",
+  "email": "guardian.lee@mindscope.com",
+  "name": "이수진",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNGE4NzUzMTctZDA0Ny00MDQwLTllZjAtMmE0N2I2NTQyZmNjIiwicGVyc29uX2lkIjoiNzk4YjQzMDgtNWRhOS00ODg0LTljNDYtMjExNGNjMWE2ZmU2IiwiZW1haWwiOiJndWFyZGlhbi5sZWVAbWluZHNjb3BlLmNvbSIsInRva2VuX3ZlcnNpb24iOjIsImFjY291bnRfdG9rZW5fdmVyc2lvbiI6MCwiYXVkIjoiY2xpZW50X2FwcCIsImV4cCI6MTc4OTMyNDUxN30.yP6Z34AQPlodCl9LZdiznWTX_8CcEP_CL3Ar78eh5AA",
+  "refresh_token": "US8XxJQyUefjxCp21eZHx4Qm-5qgKlY4ffb_x2_5Hd4",
+  "me": {
+    "account": {
+      "id": "4a875317-d047-4040-9ef0-2a47b6542fcc",
+      "email": "guardian.lee@mindscope.com"
+    },
+    "person": {
+      "id": "798b4308-5da9-4884-9c46-2114cc1a6fe6",
+      "name": "이수진",
+      "phone": "010-3000-0001"
+    },
+    "family": {
+      "id": "e7cced3e-918f-4921-9ad0-1b7cab786d19"
+    },
+    "profiles": [
+      {
+        "id": "a2df4247-1df2-4c43-ae9c-38bd6e5d9317",
+        "display_name": "이하준",
+        "relation": "child",
+        "birth_date": "2016-09-22",
+        "gender": "male",
+        "image_url": null,
+        "is_linked": true
+      }
+    ],
+    "links": [
+      {
+        "id": "6e3b27ba-01c4-477f-8b25-dd3904b389b4",
+        "profile_id": "a2df4247-1df2-4c43-ae9c-38bd6e5d9317",
+        "center_id": "ced96f9b-989a-49fe-a550-e11f40aa6062",
+        "center_name": "마인드스코프 아동심리상담센터",
+        "center_phone": "02-1234-5678",
+        "center_logo_url": null,
+        "client_id": "2fbf4ffe-c8f6-46dc-9c60-20a28df2afd7",
+        "status": "active",
+        "linked_at": "2026-09-13T18:04:43.162914"
+      }
+    ]
+  }
+}

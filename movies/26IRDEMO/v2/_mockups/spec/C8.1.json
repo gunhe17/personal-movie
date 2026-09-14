@@ -1,0 +1,18 @@
+{
+  "stage": "logo",
+  "logo": "../../../_motion/brand/mindscope-mark.svg",
+  "size": [1920, 1080],
+  "fps": 30,
+  "duration": 9.0,
+  "ground0": "#0B0E14",
+  "copy": "상담사가 아이를 돌보고, 마인드스코프가 상담사를 돌봅니다",
+  "copyAt": 0.5,
+  "copyOut": 6.6,
+  "logoAt": 7.0,
+  "logoW": 0.16,
+  "cover": 18,
+  "pop": 0.5,
+  "hold": 0.3,
+  "grow": 1.0,
+  "tail": 0.2
+}

@@ -117,6 +117,17 @@ movies/26IRDEMO/v2/sNN-이름/
 > 여백은 장식이 아니다. **생성 프레임에 글자를 넣지 않고 `motion-stage`로 한글을 얹는 것**이
 > 이 파이프라인의 전제라, 자막 자리가 안 비면 전제가 무너진다.
 
+### 첫 배치(26컷 · 33회 생성)에서 확인된 것 — 프롬프트를 쓸 때 이것부터
+
+| 실패 | 확률 | 원인 | 처방 |
+|---|---|---|---|
+| **얼굴이 들어온다** | 8/26컷 | 사람을 가리키는 명사·부위 — `a woman's hand`, `to her ear`, 어깨·상반신, 책상 맞은편 | **사람 명사를 쓰지 않는다.** `a single hand and forearm in a grey sleeve enter from the right edge`. 맞은편은 `the far side of the desk is empty, a plain wall behind it`. `The torso stays above the top edge of the frame` 한 줄을 Composition 끝에 붙인다 |
+| **글자·숫자가 그려진다** | 6/26컷 | 원래 글자가 있는 소품 — 달력 · 키패드 · 키캡 · 지침서 · 양식 라벨 · 인쇄물 | 배제절(`free of print`)은 **종이 본문에만** 먹고 라벨·키캡·키패드엔 안 먹는다. 그 면을 **프레임 밖으로** 빼거나(`the telephone base sits below the bottom edge`) **무지 형태로 재정의**한다(`smooth unmarked keycaps` · `empty cells bounded only by thin grey lines` · 달력은 네 칸만 꽉 채우는 타이트 크롭) |
+| **손이 둘로 늘거나 역할이 섞인다** | 3/26컷 | `Only hands and forearms enter…`는 개수를 못 잠근다 | **손을 센다.** `Exactly one hand … the other hand is out of frame` / `Exactly two hands: the right hand …, the left hand …` |
+| 몸통·소매가 여백을 먹는다 | 4/26컷 | 주체 우측 · 여백 좌하단은 지켰는데 상반신이 넘어옴 | 위의 `torso stays above the top edge` |
+
+세 줄로: **사람 명사 금지 · 글자 소품은 프레임 밖 · 손은 센다.** 이 셋을 지킨 r2·r3는 얼굴 0/4 · 글자 0/4였다.
+
 ### 아직 처방이 없는 것
 
 - **나이가 위로 나온다.** 랩은 `in her forties`라 썼는데 넷 다 그보다 위였다.
