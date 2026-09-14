@@ -1,0 +1,42 @@
+{
+  "scene": "s05-c7-양식세장",
+  "cut": "C5.7",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T13:50:09.279Z",
+      "generationId": "01a0a029-ab50-7b44-abfe-80a3c9e73eee",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:9d06065312f8",
+      "prompt": "Locked-off tripod shot. The pen tip travels a short distance down one ruled box on the middle sheet and leaves one small tick mark at natural speed; the wrist stays resting on the desk and the fingers keep their grip. The three sheets stay exactly as they are, their printed rules and boxes unchanged apart from that single mark. Everything else remains still and the light stays constant.",
+      "file": "t1/s05-c7-양식세장_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": null,
+      "verdict": "채택 — t1 채택 · Locked-off · 카메라 고정 확인"
+    }
+  ],
+  "pick": {
+    "from": "t1/s05-c7-양식세장_t1-5s.mp4",
+    "out": "C5.7_ai.mp4",
+    "length": 5,
+    "fps": 30,
+    "steps": "S5-기존 3 (02-03.mov → 03.png → 99_out.mov)"
+  }
+}

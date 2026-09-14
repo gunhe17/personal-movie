@@ -17,8 +17,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, FlatList, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RecordingScreen } from '@/features/field-note/components/RecordingScreen';
+import { ProcessingScreen } from '@/features/field-note/components/ProcessingScreen';
 import type { RecordingTimelineItem } from '@/features/field-note/useRecordingTimeline';
 import type { RecordingHandlers } from '@/features/field-note/useRecordingHandlers';
+import type { ProcessingStatus, ProcessingStep } from '@/features/field-note/types';
 
 /**
  * 대본 — at: 화면에 나타나는 시각(초), seconds: **회기 안의 시각**(초).
@@ -26,11 +28,26 @@ import type { RecordingHandlers } from '@/features/field-note/useRecordingHandle
  * 화면의 경과 타이머는 이 값을 따라간다 — 안 그러면 "00:14 녹음 중인데 전사는 03:34"처럼 어긋난다.
  */
 const SCRIPT: { at: number; seconds: number; text: string }[] = [
-  { at: 1.6, seconds: 41, text: '…네. 근데 별로 안 해요, 딱히 할 말이 없어서.' },
-  { at: 5.0, seconds: 137, text: '이런 것도 말해도 돼요?' },
-  { at: 8.6, seconds: 181, text: '말하면 걱정하잖아요. 그냥 제가 참으면 되니까요.' },
-  { at: 12.4, seconds: 214, text: '잠이 잘 안 와요. 한 2~3주 됐어요.' },
+  { at: 0.8, seconds: 41, text: '…네. 근데 별로 안 해요, 딱히 할 말이 없어서.' },
+  { at: 2.0, seconds: 137, text: '이런 것도 말해도 돼요?' },
+  { at: 3.2, seconds: 181, text: '말하면 걱정하잖아요. 그냥 제가 참으면 되니까요.' },
+  { at: 4.4, seconds: 214, text: '잠이 잘 안 와요. 한 2~3주 됐어요.' },
 ];
+
+/**
+ * 종료 뒤 파이프라인 — `at`은 '녹음 종료'를 누른 뒤의 초.
+ * **제품이 실제로 도는 단계만 쓴다**: `executor.py`의 `_PIPELINE_STEPS = [TRANSCRIBING, REFINING]`.
+ * 요약·상담일지 초안은 파이프라인에 없고 상세 화면에서 온디맨드라, 여기서도 돌리지 않는다
+ * (ProcessingScreen의 스텝퍼도 두 단계만 그린다 — 넣으면 영원히 '대기'로 남는다).
+ */
+const PIPELINE: { at: number; step: ProcessingStep }[] = [
+  { at: 0.0, step: 'transcribing' },
+  { at: 1.2, step: 'refining' },
+];
+const PIPELINE_DONE_AT = 2.6;
+
+/** 좌상단 표기 — 시트에서 고른 그 회기(오늘 16:00 윤도현 C00003 1회기) */
+const SESSION_INFO = '윤도현 · 개인상담 1회기';
 
 /** 첫 줄이 뜨기 조금 전부터 시작한다 — 녹음은 이미 몇 분째 돌고 있다 */
 const START_SECONDS = SCRIPT[0].seconds - 6;
@@ -43,6 +60,11 @@ export default function FieldNoteDemoScreen() {
   const [elapsed, setElapsed] = useState(START_SECONDS);
   const [timeline, setTimeline] = useState<RecordingTimelineItem[]>([]);
   const [memoText, setMemoText] = useState('');
+  // 녹음 → (종료 시트) → 정리. 제품의 RecordingHost가 상태로 넘기는 그 전환을 대본으로 흘린다.
+  const [phase, setPhase] = useState<'recording' | 'processing'>('recording');
+  const [stopSheet, setStopSheet] = useState<'normal' | 'short' | null>(null);
+  const [step, setStep] = useState<ProcessingStep>(null);
+  const [status, setStatus] = useState<ProcessingStatus>('processing');
 
   // 파형 — 제품의 WaveformBars가 매 프레임 읽는 값이다. 말하는 듯한 진폭을 흘린다.
   const meteringRef = useRef(-40);
@@ -51,6 +73,7 @@ export default function FieldNoteDemoScreen() {
   const memoInputRef = useRef<TextInput | null>(null);
 
   useEffect(() => {
+    if (phase !== 'recording') return;
     const timer = setInterval(() => setElapsed((v) => v + 1), 1000);
 
     // 진폭: 말–쉼이 번갈아 드는 모양. dBFS라 -60(무음) ~ -8(큰 소리) 사이를 쓴다.
@@ -94,7 +117,18 @@ export default function FieldNoteDemoScreen() {
       blink.stop();
       timeouts.forEach(clearTimeout);
     };
-  }, [recOpacity]);
+  }, [recOpacity, phase]);
+
+  // 종료 뒤 — 제품의 폴링이 processing_step을 갈아 끼우는 그 자리
+  useEffect(() => {
+    if (phase !== 'processing') return;
+    const ts = PIPELINE.map((s) => setTimeout(() => setStep(s.step), s.at * 1000));
+    const done = setTimeout(() => setStatus('completed'), PIPELINE_DONE_AT * 1000);
+    return () => {
+      ts.forEach(clearTimeout);
+      clearTimeout(done);
+    };
+  }, [phase]);
 
   // 새 줄이 붙으면 끝으로 — 제품의 RecordingHost가 하는 것과 같다
   useEffect(() => {
@@ -108,9 +142,12 @@ export default function FieldNoteDemoScreen() {
         handleStart: noop,
         handlePause: noop,
         handleResume: noop,
-        handleStop: noop,
-        handleStopSheetClose: noop,
-        handleStopConfirm: noop,
+        handleStop: async () => setStopSheet('normal'),
+        handleStopSheetClose: async () => setStopSheet(null),
+        handleStopConfirm: async () => {
+          setStopSheet(null);
+          setPhase('processing');
+        },
         handleStopSaveOnly: noop,
         handleStopDelete: noop,
         handleStartAdditional: noop,
@@ -124,19 +161,31 @@ export default function FieldNoteDemoScreen() {
         showMemo: false,
         setShowMemo: () => {},
         memoInputRef,
-        stopSheet: null,
-        setStopSheet: () => {},
+        stopSheet,
+        setStopSheet,
         recommendationText: null,
         showRecommendation: false,
         setShowRecommendation: () => {},
         recentMemo: null,
       }) as unknown as RecordingHandlers,
-    [memoText]
+    [memoText, stopSheet]
   );
+
+  if (phase === 'processing') {
+    return (
+      <ProcessingScreen
+        sessionInfo={SESSION_INFO}
+        processingStatus={status}
+        processingStep={step}
+        isQuickMode={false}
+        onBack={() => router.back()}
+      />
+    );
+  }
 
   return (
     <RecordingScreen
-      sessionInfo="윤도현 · 개인상담 1회기"
+      sessionInfo={SESSION_INFO}
       isQuickMode={false}
       isRecording
       isPaused={false}

@@ -1,7 +1,13 @@
 // SPEC — 촬영 규격의 정본. 러너(capture.mjs)와 리허설(scene-prep)이 같은 값을 본다.
 // 바꾸면 version을 올리고 .claude/rules/capture.md와 SKILL.md를 같이 고친다.
 export const SPEC = {
-  version: 8,
+  // v9 — 상수는 하나도 안 바뀌었다. 바뀐 것은 둘이다.
+  //   ① **폰 프로파일은 커서를 안 그린다.** 폰 모양 화면에 데스크톱 화살표가 떠 있으면 편에서 튄다.
+  //      누른 자리는 시뮬레이터 컷과 똑같이 무대(motion-stage)가 탭 링으로 그린다.
+  //   ② **click 마크가 좌표(x·y, CSS px)를 들고, 시각이 누르는 순간이다**(mousedown~up의 가운데).
+  //      전엔 좌표를 버리고 시각을 누른 뒤에 적었다 — 그러면 링을 그릴 수도 없고, 그려도 늦게 핀다.
+  //      촬영본 픽셀 = CSS px × viewport.dpr (폰 프로파일 3 · web 2).
+  version: 9,
   viewport: { width: 1600, height: 900, dpr: 2 },           // CSS px · 16:9 · 캡처 3200×1800 (프로파일 web과 같다)
   park: { x: 1576, y: 876 },                                // 커서 대기 위치 — 우하단, 툴팁을 띄우는 요소가 없는 곳
   // v7 — **폰으로 여는 웹 화면**을 위한 프로파일. `--profile phone`으로 고른다.

@@ -179,6 +179,59 @@ async function encodeSequence(dir, spec, out, { inFps = null, shutter = 1, alpha
     out], { maxBuffer: 1 << 26 });
 }
 
+/** 탭 링 — 촬영본 좌표에 흰 원이 퍼지며 사라진다. 시뮬레이터의 회색 점은 4K 무대 안에서 안 보인다(실측).
+    spec.taps: 마크 배열 `[{t,x,y}]` 또는 **촬영 meta 경로**(문자열). meta를 주면 누른 마크와 배율을 거기서 읽는다.
+    누른 마크는 폰(시뮬레이터)의 `tap`과 웹(폰 프로파일)의 `click` 둘 다다 — 폰 모양 화면끼리 표시를 통일한다.
+    좌표 단위는 기기 논리 좌표(폰은 idb 포인트 · 웹은 CSS px)이고, 촬영본 픽셀로 옮기는 배율은
+    `capture.pxPerPoint`(폰 2) 또는 `viewport.dpr`(폰 프로파일 웹 3)다. **무대가 배율을 손으로 받지 않는다** —
+    tapRadius가 논리 좌표(pt)라 두 기기의 화면 폭(402pt · 390pt)이 같은 만큼 링도 화면에서 같은 크기로 보인다. */
+async function readTaps(spec, specDir){
+  let taps = spec.taps, scale = spec.tapScale ?? 2;
+  if (typeof taps === 'string'){
+    const meta = JSON.parse(await readFile(path.resolve(specDir, taps), 'utf8'));
+    scale = spec.tapScale ?? meta.capture?.pxPerPoint ?? meta.viewport?.dpr ?? 2;
+    taps = (meta.steps ?? []).filter(m => (m.kind === 'tap' || m.kind === 'click') && m.x != null);
+  }
+  // 링도 같은 배율로 굽는다 — scale을 같이 돌려준다(전엔 ringClip이 2로 하드코딩해 dpr 3에서 링만 2/3 크기였다)
+  return { scale, taps: (taps ?? []).map(m => ({ t: m.t - (spec.start ?? 0), x: m.x * scale, y: m.y * scale })) };   // start만큼 당겨 클립 시간으로
+}
+
+/** 링 한 번의 애니메이션을 straight-RGBA 원본 프레임으로 굽는다 — 링은 다 같으니 한 파일을 탭마다 다시 연다.
+    **절제가 기본이다** — 손끝만 한 원이 한 번 퍼지고 처음부터 옅어진다. 눌렀다는 걸 알아챌 만큼만.
+    흰 띠 양옆에 잉크색 테를 두른다: 흰 시트에서도, 어두운 녹음 화면에서도 같은 원이 보여야 한다(흰 원만 그리면 밝은 화면에서 사라진다). */
+async function ringClip(dir, spec, fps, scale){
+  const R = (spec.tapRadius ?? 24) * scale;                 // 끝 반지름(포인트). 24pt → 지름 48pt = 화면 폭(402pt)의 12%
+  const dur = spec.tapDur ?? 0.34;                          // postTap(450ms)보다 짧다 — 화면이 바뀌기 전에 끝난다
+  const aW0 = spec.tapOpacity ?? 0.62;                      // 흰 띠 최대 알파 (컷마다 조절)
+  const th = (spec.tapWidth ?? 2) * scale, halo = 1.25 * scale;   // 흰 띠 두께 · 바깥 잉크 테
+  const n = Math.max(2, Math.round(dur * fps));
+  const S = Math.ceil(R) * 2 + 8, c = (S - 1) / 2;
+  const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const buf = Buffer.alloc(S * S * 4 * n);
+  for (let f = 0; f < n; f++){
+    const p = f / (n - 1), e = 1 - (1 - p) ** 3;            // ease-out — 빠르게 퍼지고 천천히 선다
+    const r = R * (0.35 + 0.65 * e), fade = 1 - p;          // 처음부터 서서히 옅어진다 (가운데 점은 없다 — 링만으로 읽힌다)
+    const base = f * S * S * 4;
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++){
+      const d = Math.hypot(x - c, y - c), dr = Math.abs(d - r);
+      const aW = clamp(th / 2 + .5 - dr) * aW0 * fade;
+      const aD = clamp(th / 2 + halo + .5 - dr) * aW0 * .8 * fade;
+      const a = aW + (1 - aW) * aD;
+      const i = base + (y * S + x) * 4;
+      if (a > 0){
+        const mix = a === 0 ? 0 : (1 - aW) * aD / a;         // 잉크가 차지하는 몫
+        buf[i] = Math.round(255 * (1 - mix) + 0x0E * mix);
+        buf[i + 1] = Math.round(255 * (1 - mix) + 0x1B * mix);
+        buf[i + 2] = Math.round(255 * (1 - mix) + 0x2E * mix);
+        buf[i + 3] = Math.round(a * 255);
+      }
+    }
+  }
+  const file = path.join(dir, 'ring.rgba');
+  await writeFile(file, buf);
+  return { file, S, n };
+}
+
 /** 디퍼런스 매트 합성 — 흑/백 무대 두 장에서 정확한 알파를 뽑아 영상 위에 얹는다. ffmpeg 한 번. */
 async function compose(black, white, screen, rect, spec, out){
   const [w, h] = spec.size;
@@ -187,10 +240,10 @@ async function compose(black, white, screen, rect, spec, out){
   await mkdir(path.dirname(out), { recursive: true });
   // 가장자리 안티에일리어싱을 덮으려 촬영본을 사방 1px 크게 얹는다(ov). 그런데 촬영본 크기가 화면 슬롯과 **정확히 같으면**
   // 그 1px 확대가 804→806 리샘플이 되어 1:1이 깨진다(C3.6 4K 실측 PSNR 24dB). 그때는 확대 없이 그대로 얹는다.
-  let ov = 1;
+  let ov = 1, sw = null, sh = null;
   if (isVideo || /\.(png|jpe?g)$/i.test(screen)) {
     const { stdout: dim } = await run('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', screen]);
-    const [sw, sh] = dim.trim().split(',').map(Number);
+    [sw, sh] = dim.trim().split(',').map(Number);
     if (sw === rect.w && sh === rect.h) ov = 0;
   }
   const filter =
@@ -201,13 +254,35 @@ async function compose(black, white, screen, rect, spec, out){
     `[0:v]scale=${rect.w + ov * 2}:${rect.h + ov * 2}:force_original_aspect_ratio=increase:flags=lanczos,` +
     `crop=${rect.w + ov * 2}:${rect.h + ov * 2},setsar=1[sv];` +
     `color=c=black:s=${w}x${h}:r=${spec.fps}:d=${dur}[base];` +
-    `[base][sv]overlay=${rect.x - ov}:${rect.y - ov}:shortest=1[u];` +
-    `[u][fg]overlay=0:0:format=auto[o]`;
+    `[base][sv]overlay=${rect.x - ov}:${rect.y - ov}:shortest=1[u]`;
   // 절차 표시줄(steps) — head는 0초부터, hold는 head 뒤에서 tail 앞까지, tail은 끝에. 전부 무대 위 전면 알파 레이어.
   // mov는 ProRes 4444(곱한 알파로 구웠다), png는 straight — overlay의 alpha 모드를 각각 맞춘다(안 맞추면 테두리가 어둡다).
   const L = Object.fromEntries((spec.stepLayers ?? []).map(l => [l.k, l.file]));
   const hd = L.head ? await probeDuration(L.head) : 0, tl = L.tail ? await probeDuration(L.tail) : 0;
-  const extra = []; let top = '[o]', n = 3, layers = '';
+  const extra = []; let top = '[u]', n = 3, layers = '';
+
+  // ── 탭 링 ── 촬영본 픽셀 → 무대 좌표는 **눈이 아니라 계산**이다.
+  // 위 오버레이가 촬영본을 `scale=…:force_original_aspect_ratio=increase` + crop(=cover)로 슬롯에 앉힌다.
+  // 같은 식을 그대로 푼다: 배율 f, crop이 잘라낸 만큼을 빼면 촬영본 (0,0)이 무대 어디인지 나온다.
+  const { taps: allTaps, scale: tapScale } = await readTaps(spec, spec.specDir);
+  const taps = allTaps.filter(p => p.t >= 0 && p.t < dur);
+  if (taps.length && sw){
+    const bw = rect.w + ov * 2, bh = rect.h + ov * 2;
+    const f = Math.max(bw / sw, bh / sh);
+    const ox = (rect.x - ov) - (sw * f - bw) / 2, oy = (rect.y - ov) - (sh * f - bh) / 2;
+    const ring = await ringClip(path.dirname(black), spec, spec.fps, tapScale);
+    const RS = Math.round(ring.S * f);
+    for (const tp of taps){
+      extra.push('-f', 'rawvideo', '-pixel_format', 'rgba', '-video_size', `${ring.S}x${ring.S}`, '-framerate', String(spec.fps), '-i', ring.file);
+      const cx = Math.round(ox + tp.x * f - RS / 2), cy = Math.round(oy + tp.y * f - RS / 2);
+      layers += `;[${n}:v]scale=${RS}:${RS}:flags=lanczos,tpad=start_duration=${tp.t.toFixed(3)}:start_mode=add:color=black@0[r${n}]` +
+                `;${top}[r${n}]overlay=${cx}:${cy}:eof_action=pass:repeatlast=0:format=auto[q${n}]`;
+      top = `[q${n}]`; n++;
+    }
+    console.error(`  탭 링 ${taps.length}개 · 논리좌표→촬영본 ${tapScale} · 촬영본→무대 ${f.toFixed(4)} · 지름 ${(2 * (spec.tapRadius ?? 24) * tapScale * f).toFixed(0)}px`);
+  }
+  layers += `;${top}[fg]overlay=0:0:format=auto[o]`;
+  top = '[o]';
   const layer = (args, alpha) => {
     extra.push(...args);
     // 절차 표시줄 자산은 1920×1080이다 — 무대가 그보다 크면(4K) 무대 크기로 늘려 얹는다(안 늘리면 왼쪽 위 1/4에 작게 붙는다)
@@ -232,7 +307,7 @@ async function compose(black, white, screen, rect, spec, out){
 async function render(specPath, opts = {}){
   if (!existsSync(CHROME)) die(`Google Chrome이 없다: ${CHROME}`);
   const raw = JSON.parse(await readFile(specPath, 'utf8'));
-  const spec = { ...DEFAULTS, ...raw };
+  const spec = { ...DEFAULTS, ...raw, specDir: path.dirname(path.resolve(specPath)) };
   if (opts.fps) spec.fps = opts.fps;
   const stage = opts.stage || raw.stage || 'icons';
   let still = !spec.duration;
@@ -260,7 +335,11 @@ async function render(specPath, opts = {}){
   const shutter = Math.max(1, Number(spec.shutter ?? 1) | 0);
   if (screen && spec.pull) still = false;
   const ext = screen ? '.mp4' : still ? '.png' : (alpha ? '.mov' : '.mp4');
-  const out = path.resolve(opts.out || raw.out || specPath.replace(/\.json$/, ext));
+  // --out은 지금 있는 자리 기준, spec의 out은 **spec 파일 자리 기준**이다 — spec 안의 다른 경로(screen·taps·steps.dir)와 같은 규칙이라야
+  // 어느 폴더에서 돌려도 같은 데로 나간다(CWD 기준으로 풀었더니 v2/ 루트에 떨어졌다).
+  const out = opts.out ? path.resolve(opts.out)
+    : raw.out ? path.resolve(spec.specDir, raw.out)
+    : path.resolve(specPath.replace(/\.json$/, ext));
 
   const dir = await mkdtemp(path.join(tmpdir(), 'stage-'));
   try {
@@ -328,8 +407,18 @@ async function selftest(){
   const c = path.join(dir, 'c.json');
   await writeFile(c, JSON.stringify({ size: [960, 540], duration: 1, fps: 12, screen: 'b.png' }));
   assert.ok(existsSync(await render(c, { stage: 'imac', out: path.join(dir, 'c.mp4') })));
+  // ④ 폰 무대 · 탭 링 — 링이 실제로 픽셀을 바꾸는지까지 본다(없으면 탭 없는 판과 똑같이 나온다)
+  const base = { stage: 'phone', size: [480, 270], fps: 12, screen: 'b.png', duration: 1,
+    statusH: 0, homeH: 0, screenBg: 'transparent', shotRatio: 960 / 540, screenRadius: 6.8 };
+  const d0 = path.join(dir, 'd0.json'), d1 = path.join(dir, 'd1.json');
+  await writeFile(d0, JSON.stringify(base));
+  await writeFile(d1, JSON.stringify({ ...base, taps: [{ t: 0.2, x: 240, y: 135 }], tapScale: 2, tapRadius: 30 }));
+  const v0 = await render(d0, { out: path.join(dir, 'd0.mp4') }), v1 = await render(d1, { out: path.join(dir, 'd1.mp4') });
+  const psnr = await run('ffmpeg', ['-hide_banner', '-i', v1, '-i', v0, '-lavfi', 'psnr', '-f', 'null', '-'])
+    .then(r => Number(r.stderr.match(/average:([\d.]+|inf)/)?.[1] ?? NaN));
+  assert.ok(psnr < 60, `탭 링이 화면을 안 바꿨다 (PSNR ${psnr})`);
   await rm(dir, { recursive: true, force: true });
-  console.error('✓ selftest 통과 — 무대 둘 · 스틸 · 영상 · 합성');
+  console.error(`✓ selftest 통과 — 무대 셋 · 스틸 · 영상 · 합성 · 탭 링(PSNR ${psnr})`);
 }
 
 const argv = process.argv.slice(2);

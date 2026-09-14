@@ -107,6 +107,10 @@ export function RecordingScreen({
           <Pressable
             style={styles.dismissArea}
             onPress={() => Keyboard.dismiss()}
+            // 키보드만 내리는 껍데기다 — 접근성 요소로 잡히면 배지·타이머·정지 버튼·전사가
+            // 통째로 한 덩어리 라벨이 되어(VoiceOver가 한 번에 다 읽고, 정지 버튼에 초점이 안 간다)
+            // 안쪽 버튼들이 개별로 선택되지 않는다. 껍데기는 트리에서 빠진다.
+            accessible={false}
           >
           {/* main area — upper (centered content) */}
           <View style={styles.main}>
@@ -139,6 +143,8 @@ export function RecordingScreen({
                 onPress={handlers.handleStop}
                 style={styles.stopBtn}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="녹음 멈춤"
               >
                 <View style={styles.stopInner} />
               </TouchableOpacity>

@@ -1,0 +1,80 @@
+# S7 정산
+
+## 사례 (A 기존 흐름)
+- **인물 · 시각**: 상담사 정상담 → 원장 김원장 · 월말 오후
+- **흐름**: 수첩의 회기 표시를 손가락으로 센다 → 종이에 적어 원장 책상에 올린다 (이 숫자로 급여) → 원장은 엑셀에서 잔여를 차감하고 월말에 대조
+- **이 A가 말하는 것**: 한 달의 일이 접힌 종이 한 장이 되어 사장 책상에 오른다.
+- **B로 이음새**: A의 접힌 종이(회기 수)가 B에서 화면의 잔여 숫자가 된다 — 세지 않아도 이미 맞는.
+
+## C7.1 세는 손가락 — 3.0s · ai · AI · none
+- flow: ① 월말 — 수첩의 회기 표시를 센다
+- situation: 수첩의 짧은 연필 표시들을 손가락으로 짚어 가며 센다. 옆 종이에 적을 펜.
+- caption: 기존 · 월말. 회기 표시를 손가락으로 센다
+
+```prompt
+Documentary photograph aesthetic, unretouched, fine film grain.
+
+A counsellor's desk at the end of the month, seen from slightly above. A woman's hands enter from the right edge; the index finger of one hand rests on a page of short pencil tally strokes in an open notebook, the other hand holds a pen over a small plain slip of paper. The moment before the count is written down. Careful, a little resentful, unposed.
+
+FG: the slip of paper, slightly below centre. MG: the hands and the notebook, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.
+
+Light: cool daylight from a window on the right, soft; the left side of the desk falls into gentle shade.
+
+Composition: rule of thirds. The notebook and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.
+
+Angle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.
+
+Focus: hard focus on the fingertip on the tally strokes. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.
+
+Tone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.
+
+The subject reads clearly against the background in tone and value.
+
+Overall vibe: counting what should already be known.
+
+The desk surface is bare and unmarked, the notebook page carrying only short pencil strokes, the slip of paper blank, every surface clean and free of lettering.
+```
+
+## C7.2 종이 한 장을 올린다 — 3.0s · ai · AI · none
+- flow: ② 적어서 원장 책상에 — 이 숫자로 급여가 정해진다
+- situation: 원장 책상 모서리에 접힌 종이 한 장을 올려놓는 손.
+- caption: 기존 · 37회기, 검사 4건 — 이 숫자로 급여가 정해진다
+
+```prompt
+Documentary photograph aesthetic, unretouched, fine film grain.
+
+A director's desk seen from slightly above. A woman's hand enters from the right edge, placing a small folded slip of plain paper on the corner of the desk beside a closed plain notebook. The moment of handing in the count. Quiet, dutiful, unposed.
+
+FG: the notebook corner, slightly below centre. MG: the hand and the folded slip, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.
+
+Light: cool morning daylight from a window on the right, soft; the left side of the desk falls into gentle shade.
+
+Composition: rule of thirds. The slip and the hand fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.
+
+Angle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.
+
+Focus: hard focus on the folded edge of the slip. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.
+
+Tone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.
+
+The subject reads clearly against the background in tone and value.
+
+Overall vibe: a month of work, on a slip of paper.
+
+The desk surface is bare and unmarked, the slip blank, the notebook plain and unbranded, every surface clean and free of lettering.
+```
+
+## C7.3 노쇼 → 차감 — 10.0s · v1 · AI 무대 · v1 s09_web_noshow_t03 · imac
+- flow: ①②가 사라진다 — 회기 처리가 곧 집계
+- situation: 노쇼 → 사유 입력 → 회기 차감 → 잠긴 회기에 사유와 배지. 노컷 7.88–9.63.
+- caption: 세지 않아도 맞는 숫자
+- segment: 1.9–12.2
+- v1take: s09_web_noshow_t03
+
+## C7.4 잔여 — 4.8s · new · AI 무대 · 신규 화면 · phone
+- flow: 보호자 쪽에서도 같은 숫자
+- situation: 내담자 앱 바우처 탭 — 잔여 회기가 이미 맞다.
+- caption: 없음
+- check: 소진 반영 화면 동작
+- segment: 5.24–10.04
+- source: v2/s07-c4-잔여/raw/s07_phone_remaining_t05.mov (12.23s · 드롭0 · SPEC_PHONE v5 · 탭 시각 = 손가락이 닿은 때) · 노컷 5.76–7.72 · v2/_scripts/c75-remaining.mjs → s07-c4-잔여/C7.4_phone.mp4 (5.24–10.04 · 4.8s · 탭 링 1)

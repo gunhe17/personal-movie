@@ -1,0 +1,106 @@
+{
+  "id": "s03_phone_request_t05",
+  "scene": "v2/s03-c6-앱에서변경요청",
+  "device": "phone",
+  "action": "request",
+  "take": "t05",
+  "captured_at": "2026-09-14T20:50:44.400Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "0a30ffc"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "pxPerPoint": 2,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 90,
+      "appended": 316,
+      "dupped": 227,
+      "notReady": 0,
+      "ticks": 316,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 600,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 800,
+    "beat": 800,
+    "settle": 300
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-15.json",
+    "sha256": "3aa6c12f03ca2b2f10c7e6a646b8118a98a93f51cb57565134e700aea154d20b"
+  },
+  "script": {
+    "file": "v2/_scripts/c36-request-v2.mjs",
+    "sha256": "d67bd81a94d632ccdfe302b23d1bbab6f3f6b12e5234b1e46135a5f6861a6ba2"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 3.8,
+      "kind": "beat",
+      "target": "",
+      "note": "앱 홈 — 다가오는 회기"
+    },
+    {
+      "t": 4.33,
+      "kind": "tap",
+      "target": "일정",
+      "note": "일정 탭",
+      "x": 57.7,
+      "y": 83
+    }
+  ],
+  "nocut": [],
+  "retake_of": "t04",
+  "retake_reason": "t04는 전환 구간이 굶었다(화면 push 0.5초에 고유 프레임 4 · t03은 12). 흐름·스크립트 동일.",
+  "result": {
+    "file": "raw/s03_phone_request_t05.mov",
+    "duration": 5.27,
+    "ok": false,
+    "error": "요소 없음: 9월 18일"
+  }
+}

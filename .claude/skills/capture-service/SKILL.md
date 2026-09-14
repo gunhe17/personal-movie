@@ -18,13 +18,28 @@ description: 마인드스코프 서비스 화면을 영상으로 촬영한다. �
 | 웹 뷰포트 | **1600×900 CSS px · DPR 2 → 3200×1800 픽셀 · 16:9** | 최종 프레임과 비율 일치. 1.67×까지 펀치인해도 1080p 이상 |
 | **폰-웹 뷰포트 (v7)** | **`--profile phone` · 390×844 CSS px · DPR 3 → 1170×2532** | 제품이 폰을 상정하고 만든 **공개 웹 화면**(바로링크 `/verify-link`)용. 그 페이지는 `max-width 440px` 가운데 정렬이라 1600×900으로 찍으면 3/4가 흰 여백이고 크롭하면 해상도가 준다. 세로로 찍어 motion-stage 폰 목업에 끼운다. **네이티브 앱이 아니다** — 앱은 `capture-phone.mjs`(시뮬레이터 · 804×1748). 기본은 `web`이라 아홉 장면의 규격은 안 바뀐다. meta에 `viewport.profile`로 남는다 |
 | 테마 | light 고정 | |
-| 커서 | **sckcap이 프레임에 합성** — `NSCursor`의 진짜 커서 이미지(arrow · ibeam · pointer). 좌표는 러너가 stdin `m <x> <y> <shape>`로 흘린다 | v2의 페이지 안 오버레이는 결함이 셋이었다 — 내비게이션마다 좌상단으로 튀고, CSS transition 80ms만큼 늦고, 모양이 화살표 하나로 고정. 캡처러가 그리면 셋 다 없다. 모양은 대상 요소의 `getComputedStyle().cursor`에서 정한다. OS 커서는 여전히 안 건드린다 |
+| 커서 | **sckcap이 프레임에 합성** — `NSCursor`의 진짜 커서 이미지(arrow · ibeam · pointer). 좌표는 러너가 stdin `m <x> <y> <shape>`로 흘린다. **`--profile phone`이면 안 그린다(v9)** — 폰 모양 화면의 데스크톱 화살표는 시뮬레이터 컷과 안 맞는다. 그 대신 `click` 마크의 좌표로 무대가 탭 링을 그린다 | v2의 페이지 안 오버레이는 결함이 셋이었다 — 내비게이션마다 좌상단으로 튀고, CSS transition 80ms만큼 늦고, 모양이 화살표 하나로 고정. 캡처러가 그리면 셋 다 없다. 모양은 대상 요소의 `getComputedStyle().cursor`에서 정한다. OS 커서는 여전히 안 건드린다 |
 | 오디오 | 없음 | 사운드는 편집에서 |
 | 폰 (시뮬레이터) | **`capture-phone.mjs`** — 같은 sckcap을 **창 모드**로: Simulator 창 하나를 잡고 타이틀바 52pt를 뺀다 · iPhone 17 Pro · **베젤 off · 터치 표시 on · Point Accurate(스케일 1.0)** → **804×1748px** · 60fps CFR | 웹과 같은 엔진이라 드롭 0·다른 창 무관. 터치 원이 창 안에 그려져 캡처된다. Pixel Accurate(1206×2622)는 이 모니터 높이(1260pt)를 넘어 불가 — 1080p 프레임 안의 폰엔 804px면 충분 |
 | 폰 조작 | **idb** (`brew tap facebook/fb && brew install idb-companion && python3 -m pip install fb-idb`) — 접근성 라벨로 요소를 찾아 탭 · 스와이프 · 입력. 설치 전엔 `--manual`(사람이 조작, 엔진만 녹화) | Playwright가 폰을 못 만진다. Maestro는 Java가 필요해 차선 |
-| 폰 타이밍 (SPEC_PHONE **v2**) | preTap 400(**라벨 조회 시간 포함**) · postTap 600 · swipe 500 · afterSwipe 800 · beat 800 · lead/tail 3000 | 탭은 커서 이동이 없어 웹보다 짧고, RN 화면 전환 애니메이션 뒤를 기다린다. **v2에서 줄였다**(v1 postTap 900 · afterSwipe 900 · beat 1200, 조회 시간이 preTap 밖) — v1은 탭 사이가 약 2초라 탭이 여럿인 컷(C3.6)이 느렸다 |
+| 폰 타이밍 (SPEC_PHONE **v5**) | preTap 400(**라벨 조회 시간 포함**) · postTap 600 · swipe 500 · afterSwipe 800 · beat 800 · **settle 300** · lead/tail 3000 | 탭은 커서 이동이 없어 웹보다 짧고, RN 화면 전환 애니메이션 뒤를 기다린다. **v5에서 상수는 안 바뀌었다** — 바뀐 것은 둘이다. ① **탭 마크 시각이 손가락이 닿은 때다.** `idb ui tap`은 0.15~0.3초 걸리는데 v4까지는 호출이 **끝난 뒤**에 적어서, 무대가 그린 탭 링이 이미 바뀐 다음 화면 위에 폈다(s04 t04 실측: 시트가 뜬 0.17초 뒤). 이제 호출 앞뒤의 가운데를 적는다(오차 한 프레임 안). ② 완료 로그가 받은 프레임을 **초당으로** 같이 찍는다(`sck=331(26.9/s)`) — 아래 프레임 검사와 같이 읽는다. `settle 300`은 짧아 보였지만 그대로 뒀다 — 실측으로 접근성 라벨은 전환 애니메이션이 **끝난 뒤** 뜬다(시트가 선 지 약 0.9초). **v4에서 탭 좌표를 남긴다** — `steps[]`의 `tap`·`swipe` 마크가 `target`(라벨) 옆에 실제로 누른 자리를 `x`·`y`(swipe는 `x2`·`y2`까지)로 들고, `capture.pxPerPoint`(=2)가 그 포인트를 촬영본 픽셀로 옮긴다. 그 둘이 없으면 motion-stage가 탭 링을 그릴 수 없다(라벨만으로는 자리를 모른다). **v3에서 `settle`을 더했다**(`p.until`이 라벨을 만난 뒤 화면이 자리 잡는 시간). **v2에서 줄였다**(v1 postTap 900 · afterSwipe 900 · beat 1200, 조회 시간이 preTap 밖) — v1은 탭 사이가 약 2초라 탭이 여럿인 컷(C3.6)이 느렸다 |
 | 목 에이전트 | **`--mock _mocks/sNN-*.json`** — 제품의 `mock-capture` 스크립트를 `sessionStorage['agent-mock:v2']`에 걸고 시작. 다음 턴은 `h.key('F9')`, `/agent` 화면이면 사람이 전송할 때 흘러나온다 | LLM을 부르지 않아 크레딧을 안 쓰고 매 테이크의 대사·prefill이 같다. 도구는 제품 배선(`handlePageToolCall`)을 그대로 타므로 화면 동작은 진짜다 |
 | 실기기 (s06) | iOS 화면 기록 · AirDrop → raw/ · `capture.mjs --manual`로 meta 등록 | 마이크가 필요한 필드노트만 |
+
+### v9에서 바뀐 것 (2026-09-15) — 폰 프로파일의 커서와 클릭 마크
+
+**상수는 하나도 안 바뀌었다.** 아홉 장면의 web 테이크는 v8과 그대로 섞인다.
+
+1. **`--profile phone`은 커서를 안 그린다.** 러너가 sckcap에 `--cursor off`를 넘기고 meta `capture.cursor`에도 그렇게 적힌다.
+   폰 컷 다섯 중 넷은 시뮬레이터라 탭 링이 있는데 C1.9(폰 프로파일 웹)만 데스크톱 화살표가 구워져 있었다 — 편에서 튄다.
+   **web 프로파일은 그대로 `on`이다.**
+2. **`click` 마크가 좌표를 들고, 시각이 누르는 순간이다.** `steps[]`의 `click`에 `x`·`y`(CSS px)가 붙고,
+   `t`는 `mousedown`~`mouseup`의 가운데다. 전엔 `center()`로 구한 좌표를 버리고 눌린 **뒤에** 적었다 —
+   그러면 무대가 링을 그릴 수도 없고, 그려도 늦게 핀다(폰 SPEC_PHONE v5와 같은 문제).
+   **`target`은 한 글자도 안 바꿨다** — 필드가 는 것뿐이라 기존 meta를 읽는 도구는 아무것도 안 깨진다.
+3. **배율은 `viewport.dpr`다**(폰 프로파일 3 · web 2). 폰 meta의 `capture.pxPerPoint`(2)에 대응한다 —
+   motion-stage `taps`가 `capture.pxPerPoint ?? viewport.dpr`로 읽으므로 **무대가 배율을 손으로 받지 않는다.**
+   `tapRadius`는 논리 좌표(pt)라 시뮬레이터(402pt 폭)와 폰 프로파일 웹(390pt 폭)에서 링이 같은 크기로 보인다(실측 둘 다 무대 지름 96px).
 
 ### 타이밍 (ms) — **흐름을 알아보는 최소 길이** (v8)
 
@@ -108,16 +123,30 @@ v2 테이크와 섞을 수 없다 — 커서 렌더와 크롭 기준이 다르�
    실측: s01 t10은 88%였다(`mds`가 방금 만든 `node_modules`를 색인 중) — 같은 조건에서 부하가 가라앉은 뒤 찍은 t11이 98.7%, t12가 99.7%.
    **촬영 전에 `ps -Ao %cpu,comm -r | head`로 `mds`·빌드·인덱싱이 도는지 본다.** 정상 테이크는 98~99%다(나머지는 캡처 시작 오프셋).
    그 다음 meta의 `steps[].t`로 순간을 찾아 본다. 재촬영은 스크립트를 고치고 다시 5 — 이전 테이크는 지우지 않는다. `--retake-of t01 --reason "…"`로 사유를 남긴다.
+6-1. **폰은 전환 구간의 고유 프레임을 센다.** 폰 테이크는 `notReady 0`이고 길이도 맞는데 **움직임만 끊길 수 있다** —
+   시뮬레이터가 굶으면 sckcap이 없는 프레임을 복제로 채우기 때문이다(60fps 파일인데 실제 변화는 몇 장뿐).
+   `sck=N(X/s)`는 **바뀐 프레임 수**라 정지 화면이 긴 컷은 원래 낮다 — 임계값으로 가르지 말고 **탭·전환 구간**을 직접 센다:
+
+   ```bash
+   ffmpeg -v error -ss <탭 시각> -t 0.5 -i raw/....mov -vf mpdecimate -fps_mode vfr \
+     -f rawvideo -pix_fmt gray -s 40x80 - | wc -c | awk '{print $1/3200}'   # 고유 프레임
+   ```
+
+   화면 전환 0.5초에 **고유 프레임이 10 미만이면 버린다**(정상은 20~30). 실측: s04 `record_t04`는 녹음 화면에서
+   초당 2.7장이었고 같은 장면 `t03`은 56.7장이었다 — 그 t04가 "툭툭 끊긴다"의 정체였다.
+   아니면 그 구간을 `-vf tile=30x1`로 한 장에 펼쳐 눈으로 본다(전환이 한두 프레임에 끝나 있으면 굶은 것이다).
+
 7. **폰(시뮬레이터)** — 전제: 내담자 앱 dev 빌드가 시뮬레이터에 설치돼 있고(`kr.mindscope.client.dev`, `npx expo run:ios` — `ios/`가 없어 prebuild부터), Simulator 설정이 SPEC(베젤 off · 터치 표시 · 스케일 1.0)이다. 러너가 설정을 검사해 다르면 경고한다.
    - 보정: `node capture-phone.mjs --scene s05-일정 --action request --udid booted --app kr.mindscope.client.dev --calibrate` → `stills/calibrate-phone.png`, 캡처/기기 비율 일치 확인.
      `--out <경로>`를 주면 그 파일로 나간다 — 기존 보정본을 안 덮는다. 무대가 어느 화면에 섰는지 볼 때 쓴다(`--url`로 딥링크를 같이 주면 이동 후 한 장).
    - 촬영: `--script _scripts/s05-phone-request.mjs`(템플릿 `_template-phone.mjs`, idb 필요) 또는 `--manual --seconds 25`(사람이 조작). 결과는 웹과 같은 meta·manifest.
+   - 폰 스크립트는 `export default async function steps(p)` 하나. `p` — `tap(라벨, note)` `type(text, note)` `swipe(x1,y1,x2,y2, note)` `scrollUp(note)` `home(note)` **`until(라벨, note[, timeout])`** `beat(note)` `hold(ms, note)` `nocutStart(note)`/`nocutEnd()`. **`until`은 웹 `h.until`과 같은 계약이다** — 접근성 트리(`idb ui describe-all`)에 그 라벨이 뜰 때까지 폴링하고, 뜨면 `settle`만큼만 더 두고 마크에 경과 `(+N.Ns)`를 남기며, 안 뜨면 던진다. 화면 전환·제품이 도는 시간은 `hold`가 아니라 이걸로 기다린다. 라벨은 `tap`과 같은 규칙(문자열=전체 일치, 부분 일치는 RegExp).
    - s04·s05처럼 웹과 폰이 오가는 장면은 두 러너를 **동시에** 시작한다 — 각 meta의 `captured_at`과 첫 조작 `t`로 정렬한다.
 8. **실기기 (s06)** — iOS 화면 기록 → AirDrop → `raw/`에 넣고 `node capture.mjs --manual raw/s06_device_fieldnote_t01.mov --scene s06-필드노트 --device device --action fieldnote --seed _seed/x.json` → meta + manifest.
 
 ## meta.json이 담는 것 (수정본 제작용)
 
-`id` · `scene/device/action/take` · `captured_at` · `app{url, env, commit}` — 어느 UI 버전이었나 · `viewport` · `capture{tool, fps, codec, rect_pt, stats{received, appended, dupped, notReady}}` — `appended`가 `ticks`와 같고 `notReady`가 0이면 드롭 없음 · `timing` — 그 테이크에 실제 적용된 상수 · `seed` · `script{file, sha256}` — 같은 조작을 다시 돌릴 수 있게 · `mock{file, sha256, title, turns}` — 목 에이전트를 썼다면 어느 대본이었나 · `steps[]{t, kind, target, note}` — 캡처 시작 기준 초 단위, 편집자가 순간을 찾는 색인 · `nocut[]` · `retake_of/reason` · `result{file, duration}`.
+`id` · `scene/device/action/take` · `captured_at` · `app{url, env, commit}` — 어느 UI 버전이었나 · `viewport` · `capture{tool, fps, codec, rect_pt, stats{received, appended, dupped, notReady}}` — `appended`가 `ticks`와 같고 `notReady`가 0이면 드롭 없음 · `timing` — 그 테이크에 실제 적용된 상수 · `seed` · `script{file, sha256}` — 같은 조작을 다시 돌릴 수 있게 · `mock{file, sha256, title, turns}` — 목 에이전트를 썼다면 어느 대본이었나 · `steps[]{t, kind, target, note, x, y}` — 캡처 시작 기준 초 단위, 편집자가 순간을 찾는 색인. 웹의 `click`은 누른 자리를 `x`·`y`(CSS px)로 들고 `t`가 **누르는 순간**이다(v9) — 배율은 `viewport.dpr`. 폰의 `tap`·`swipe`는 누른 자리(idb 포인트)를 `x`·`y`로 같이 들고(swipe는 끝점 `x2`·`y2`), `capture.pxPerPoint`로 촬영본 픽셀로 옮긴다 — motion-stage 폰 무대의 `taps`가 이 파일을 그대로 읽는다 · `nocut[]` · `retake_of/reason` · `result{file, duration}`.
 
 같은 `script.sha256` + 같은 `seed` + 같은 `app.commit`(+ 목을 썼다면 같은 `mock.sha256`)이면 테이크는 교체 가능하다. 셋 중 하나라도 다르면 수정본이다.
 

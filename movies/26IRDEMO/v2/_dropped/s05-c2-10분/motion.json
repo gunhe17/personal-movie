@@ -1,0 +1,42 @@
+{
+  "scene": "s05-c2-10분",
+  "cut": "C5.2",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T13:49:50.559Z",
+      "generationId": "01a0a028-2f7b-717b-b9ff-045fa1ac32df",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:1c3521b36a78",
+      "prompt": "Locked-off tripod shot. The open hand turns over once and settles, the fingers spreading slightly at natural speed; the wrist stays at the same height. The other pair of hands keeps its hold on the slim folder and stays exactly where it is. The folder stays closed and its cover stays plain. Everything else remains still and the light stays constant.",
+      "file": "t1/s05-c2-10분_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": null,
+      "verdict": "채택 — t1 채택 · Locked-off · 카메라 고정 확인"
+    }
+  ],
+  "pick": {
+    "from": "t1/s05-c2-10분_t1.mp4",
+    "out": "C5.2_ai.mp4",
+    "length": 3,
+    "fps": 30,
+    "steps": "S5-기존 2 (01-02.mov → 02.png)"
+  }
+}

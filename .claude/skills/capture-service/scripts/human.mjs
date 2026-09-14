@@ -12,8 +12,10 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
   emit()
   const marks = []
   const nocut = []
-  const mark = (kind, target, note) =>
-    marks.push({ t: +clock.now().toFixed(2), kind, target: String(target ?? ''), ...(note ? { note } : {}) })
+  // v9: phone.mjs와 같은 계약 — target(셀렉터)은 그대로 두고 필드만 는다.
+  //   xy는 실제로 누른 자리(CSS px), at은 마크 시각. 촬영본 픽셀과의 배율은 meta의 viewport.dpr.
+  const mark = (kind, target, note, xy, at) =>
+    marks.push({ t: +(at ?? clock.now()).toFixed(2), kind, target: String(target ?? ''), ...(note ? { note } : {}), ...xy })
 
   async function moveTo(x, y, nextShape = 'arrow') {
     const sx = pos.x, sy = pos.y
@@ -127,8 +129,11 @@ export function human(page, T, clock, park = { x: 40, y: 40 }, send = null) {
       const { x, y } = await center(sel)
       await moveTo(x, y, await shapeAt(x, y))
       await sleep(T.preClick)
+      // v9: 시각은 **누르는 순간**이다 — 앞뒤의 가운데. 눌린 뒤에 적으면 무대가 그린 탭 링이
+      //     이미 바뀐 화면 위에 핀다(폰 SPEC v5에서 실측으로 확인된 문제와 같은 것).
+      const t0 = clock.now()
       await page.mouse.down(); await sleep(90); await page.mouse.up()
-      mark('click', sel, note)
+      mark('click', sel, note, { x: +x.toFixed(1), y: +y.toFixed(1) }, (t0 + clock.now()) / 2)
       await sleep(T.postClick)
     },
     async type(sel, text, note) {

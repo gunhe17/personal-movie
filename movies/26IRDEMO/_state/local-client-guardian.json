@@ -2,8 +2,8 @@
   "api": "http://localhost:3502/api/v1",
   "email": "guardian.lee@mindscope.com",
   "name": "이수진",
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNGE4NzUzMTctZDA0Ny00MDQwLTllZjAtMmE0N2I2NTQyZmNjIiwicGVyc29uX2lkIjoiNzk4YjQzMDgtNWRhOS00ODg0LTljNDYtMjExNGNjMWE2ZmU2IiwiZW1haWwiOiJndWFyZGlhbi5sZWVAbWluZHNjb3BlLmNvbSIsInRva2VuX3ZlcnNpb24iOjIsImFjY291bnRfdG9rZW5fdmVyc2lvbiI6MCwiYXVkIjoiY2xpZW50X2FwcCIsImV4cCI6MTc4OTMyNDUxN30.yP6Z34AQPlodCl9LZdiznWTX_8CcEP_CL3Ar78eh5AA",
-  "refresh_token": "US8XxJQyUefjxCp21eZHx4Qm-5qgKlY4ffb_x2_5Hd4",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNGE4NzUzMTctZDA0Ny00MDQwLTllZjAtMmE0N2I2NTQyZmNjIiwicGVyc29uX2lkIjoiNzk4YjQzMDgtNWRhOS00ODg0LTljNDYtMjExNGNjMWE2ZmU2IiwiZW1haWwiOiJndWFyZGlhbi5sZWVAbWluZHNjb3BlLmNvbSIsInRva2VuX3ZlcnNpb24iOjIsImFjY291bnRfdG9rZW5fdmVyc2lvbiI6MCwiYXVkIjoiY2xpZW50X2FwcCIsImV4cCI6MTc4OTQyMDQwNn0.en_OgBHBf8I-4GfEiyk2CMBWTy6oFD6rlAdTH3XsEdo",
+  "refresh_token": "R3c6ioCfwA-sTl35Zcjl7mYfHHZSbLGyZXviUBSfJfw",
   "me": {
     "account": {
       "id": "4a875317-d047-4040-9ef0-2a47b6542fcc",

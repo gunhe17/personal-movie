@@ -1,0 +1,186 @@
+{
+  "id": "s01_phone_formfill_t02",
+  "scene": "v2/s01-c9-보호자휴대폰에서식",
+  "device": "phone",
+  "action": "formfill",
+  "take": "t02",
+  "captured_at": "2026-09-14T20:15:48.115Z",
+  "spec_version": 9,
+  "captured_by": "skill:capture-service",
+  "app": {
+    "url": "http://localhost:3503/forms/fill/2b4f9181-5d02-4c13-8d46-67dab9300033",
+    "env": "local",
+    "commit": "f833893"
+  },
+  "viewport": {
+    "profile": "phone",
+    "css": [
+      390,
+      844
+    ],
+    "dpr": 3,
+    "pixels": [
+      1170,
+      2532
+    ],
+    "theme": "light"
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 필터)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 40000000,
+    "cursor": "없음 (폰 프로파일 — 누른 자리는 무대가 탭 링으로 그린다)",
+    "audio": false,
+    "mode": "window",
+    "chrome_pt": 87,
+    "rect_pt": {
+      "x": 0,
+      "y": 87,
+      "w": 390,
+      "h": 844
+    },
+    "stats": {
+      "received": 133,
+      "appended": 667,
+      "dupped": 536,
+      "notReady": 0,
+      "ticks": 667,
+      "fps": 60,
+      "size": [
+        1170,
+        2532
+      ]
+    }
+  },
+  "timing": {
+    "lead": 1500,
+    "tail": 1200,
+    "moveMin": 110,
+    "movePerPx": 0.18,
+    "moveMax": 300,
+    "moveSteps": 16,
+    "move": 280,
+    "preClick": 80,
+    "postClick": 170,
+    "type": 40,
+    "afterType": 220,
+    "scrollMin": 380,
+    "scrollPerPx": 0.5,
+    "scrollMax": 900,
+    "scrollFrame": 16,
+    "afterScroll": 400,
+    "beat": 700,
+    "modal": 600,
+    "settle": 260
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-15.json",
+    "sha256": "3aa6c12f03ca2b2f10c7e6a646b8118a98a93f51cb57565134e700aea154d20b"
+  },
+  "script": {
+    "file": "v2/_scripts/c19-formfill.mjs",
+    "sha256": "6a3218f1eb652c5f447d785c4c82d5a76e0fc05c8c606d68bc57aa6a36ae8d25"
+  },
+  "stt": null,
+  "mock": null,
+  "steps": [
+    {
+      "t": 1.5,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 2.21,
+      "kind": "beat",
+      "target": "",
+      "note": "문자로 온 링크 — 4자리 인증"
+    },
+    {
+      "t": 2.92,
+      "kind": "type",
+      "target": "input[inputmode=\"numeric\"]",
+      "note": "인증코드"
+    },
+    {
+      "t": 3.61,
+      "kind": "click",
+      "target": "button:has-text(\"확인\")",
+      "note": "확인",
+      "x": 195,
+      "y": 497.5
+    },
+    {
+      "t": 4.18,
+      "kind": "until",
+      "target": "img[alt=\"서식 1쪽\"]",
+      "note": "스캔한 그 종이가 폰에 떴다 (+0.3s)"
+    },
+    {
+      "t": 4.71,
+      "kind": "type",
+      "target": "[title=\"아동 성명\"] input",
+      "note": "이하준"
+    },
+    {
+      "t": 5.52,
+      "kind": "type",
+      "target": "[title=\"생년월일\"] input",
+      "note": "2016-09-22"
+    },
+    {
+      "t": 6.52,
+      "kind": "type",
+      "target": "[title=\"보호자 성명\"] input",
+      "note": "이수진"
+    },
+    {
+      "t": 7.73,
+      "kind": "type",
+      "target": "[title=\"연락처\"] input",
+      "note": "연락처"
+    },
+    {
+      "t": 8.4,
+      "kind": "click",
+      "target": "xpath=(//div[@title=\"염려되는 영역\"])[1]/button",
+      "note": "정서·불안",
+      "x": 75.8,
+      "y": 395.8
+    },
+    {
+      "t": 9.09,
+      "kind": "click",
+      "target": "xpath=(//div[@title=\"염려되는 영역\"])[3]/button",
+      "note": "또래관계",
+      "x": 173.5,
+      "y": 395.8
+    },
+    {
+      "t": 9.91,
+      "kind": "hold",
+      "target": "600",
+      "note": "끝"
+    },
+    {
+      "t": 9.91,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 4.18,
+      "note": "종이 위 칸을 폰에서 채운다",
+      "end": 9.31
+    }
+  ],
+  "retake_of": "t01",
+  "retake_reason": "폰 컷인데 데스크톱 마우스 화살표가 프레임에 구워져 있었다 — SPEC v9: 폰 프로파일 커서 off · click 좌표/시각을 남겨 무대가 탭 링을 그린다",
+  "result": {
+    "file": "raw/s01_phone_formfill_t02.mov",
+    "duration": 11.12,
+    "ok": true,
+    "error": null
+  }
+}

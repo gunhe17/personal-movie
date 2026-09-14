@@ -1,0 +1,143 @@
+{
+  "id": "s07_phone_remaining_t05",
+  "scene": "v2/s07-c4-잔여",
+  "device": "phone",
+  "action": "remaining",
+  "take": "t05",
+  "captured_at": "2026-09-14T14:44:34.503Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "d037ccd"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "pxPerPoint": 2,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 124,
+      "appended": 734,
+      "dupped": 613,
+      "notReady": 0,
+      "ticks": 734,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 600,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 800,
+    "beat": 800,
+    "settle": 300
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c75-remaining.mjs",
+    "sha256": "ccff08f7d1ab243aff0729d2f5b36010df26a1c0fd12c63194ac499ae9915326"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 3.8,
+      "kind": "beat",
+      "target": "",
+      "note": "앱 홈"
+    },
+    {
+      "t": 4.28,
+      "kind": "tap",
+      "target": "마이",
+      "note": "마이 탭",
+      "x": 340.2,
+      "y": 803.8
+    },
+    {
+      "t": 5.76,
+      "kind": "beat",
+      "target": "",
+      "note": "이수진님 · 자녀 이하준"
+    },
+    {
+      "t": 6.24,
+      "kind": "tap",
+      "target": "바우처",
+      "note": "바우처",
+      "x": 157.5,
+      "y": 477.8
+    },
+    {
+      "t": 7.72,
+      "kind": "beat",
+      "target": "",
+      "note": "9 / 12회 — 9회 남았어요"
+    },
+    {
+      "t": 9.22,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 9.22,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 5.76,
+      "note": "바우처 → 잔여 회기",
+      "end": 7.72
+    }
+  ],
+  "retake_of": "t04",
+  "retake_reason": "t03·t04는 전문가 앱이 같은 시뮬레이터에서 같이 돌아 프레임이 굶었다 — 내리고 다시",
+  "result": {
+    "file": "raw/s07_phone_remaining_t05.mov",
+    "duration": 12.23,
+    "ok": true,
+    "error": null
+  }
+}
