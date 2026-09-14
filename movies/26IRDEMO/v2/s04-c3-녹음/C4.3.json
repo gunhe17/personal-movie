@@ -1,13 +1,29 @@
 {
-  "stage": "phone",
-  "out": "C4.3_phone.mp4",
-  "size": [3840, 2160],
-  "fps": 30,
-  "screen": "raw/s04_phone_record_t05.mov",
-  "steps": { "dir": "../_assets/steps/S4-우리", "head": "00_in.mov", "hold": "01.png" },
-  "start": 4.86,
-  "duration": 13.4,
-  "taps": "raw/s04_phone_record_t05.meta.json",
-  "phoneH": 82.446, "top": 9.5, "statusH": 0, "homeH": 0, "screenBg": "transparent", "shotRatio": 0.459954, "screenRadius": 6.8,
-  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
+ "stage": "phone",
+ "out": "C4.3_phone.mp4",
+ "size": [
+  3840,
+  2160
+ ],
+ "fps": 30,
+ "screen": "raw/s04_phone_record_t05.mov",
+ "steps": {
+  "dir": "../_assets/steps/S4-우리",
+  "head": "00_in.mov",
+  "hold": "01.png"
+ },
+ "start": 4.86,
+ "duration": 13.4,
+ "taps": "raw/s04_phone_record_t05.meta.json",
+ "phoneH": 82.446,
+ "top": 9.5,
+ "statusH": 0,
+ "homeH": 0,
+ "screenBg": "transparent",
+ "shotRatio": 0.459954,
+ "screenRadius": 6.8,
+ "shade": [
+  "rgba(47,107,255,.22)",
+  "rgba(38,86,222,.55)"
+ ]
 }

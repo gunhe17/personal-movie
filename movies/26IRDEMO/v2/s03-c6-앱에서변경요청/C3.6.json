@@ -1,11 +1,13 @@
 {
   "stage": "phone",
+  "out": "C3.6_phone.mp4",
   "size": [3840, 2160],
   "fps": 30,
-  "screen": "raw/s03_phone_request_t03.mov",
+  "screen": "raw/s03_phone_request_t09.mov",
   "steps": { "dir": "../_assets/steps/S3-우리", "head": "00_in.mov", "hold": "01.png" },
-  "start": 7.8,
+  "start": 7.87,
   "duration": 9.3,
+  "taps": "raw/s03_phone_request_t09.meta.json",
   "phoneH": 82.446, "top": 9.5, "statusH": 0, "homeH": 0, "screenBg": "transparent", "shotRatio": 0.459954, "screenRadius": 6.8,
   "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
 }

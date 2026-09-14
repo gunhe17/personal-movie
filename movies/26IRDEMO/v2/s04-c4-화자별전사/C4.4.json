@@ -1,11 +1,26 @@
 {
-  "stage": "imac",
-  "size": [3840, 2160],
-  "fps": 30,
-  "screen": "raw/s04_web_fieldnote_t03.mov",
-  "steps": { "dir": "../_assets/steps/S4-우리", "head": "01-02.mov", "hold": "02.png" },
-  "start": 4.7,
-  "duration": 4.0,
-  "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45,
-  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
+ "stage": "imac",
+ "size": [
+  3840,
+  2160
+ ],
+ "fps": 30,
+ "screen": "raw/s04_web_fieldnote_t03.mov",
+ "steps": {
+  "dir": "../_assets/steps/S4-우리",
+  "head": "01-02.mov",
+  "hold": "02.png"
+ },
+ "start": 4.7,
+ "duration": 4.0,
+ "right": 0.2,
+ "width": 0.78,
+ "top": 5.6,
+ "bezel": 0.55,
+ "chin": 3.4,
+ "stand": 0.45,
+ "shade": [
+  "rgba(47,107,255,.22)",
+  "rgba(38,86,222,.55)"
+ ]
 }
