@@ -1,0 +1,191 @@
+{
+  "id": "s05_phone_arrive_t05",
+  "scene": "v2/s05-c6-도착",
+  "device": "phone",
+  "action": "arrive",
+  "take": "t05",
+  "captured_at": "2026-09-14T14:43:43.698Z",
+  "spec_version": 5,
+  "captured_by": "skill:capture-service (phone)",
+  "app": {
+    "bundle_id": "kr.mindscope.client.dev",
+    "url": null,
+    "env": "local",
+    "commit": "d037ccd"
+  },
+  "viewport": {
+    "simulator": "iPhone 17 Pro",
+    "udid": "F6685208-9C34-4057-AAAC-71D26601D555",
+    "device_px": [
+      1206,
+      2622
+    ],
+    "pixels": [
+      804,
+      1748
+    ],
+    "scale": "point-accurate (창 pt × 2)",
+    "theme": null
+  },
+  "capture": {
+    "tool": "sckcap (ScreenCaptureKit, 창 모드)",
+    "fps": 60,
+    "codec": "h264",
+    "bitrate": 20000000,
+    "cursor": "simulator touch indicator",
+    "audio": false,
+    "pxPerPoint": 2,
+    "simulator_prefs": {
+      "showChrome": false,
+      "showSingleTouches": true,
+      "scale": 1,
+      "trimTopPt": 52
+    },
+    "stats": {
+      "received": 456,
+      "appended": 1191,
+      "dupped": 740,
+      "notReady": 0,
+      "ticks": 1191,
+      "fps": 60,
+      "size": [
+        804,
+        1748
+      ]
+    }
+  },
+  "timing": {
+    "lead": 3000,
+    "tail": 3000,
+    "preTap": 400,
+    "postTap": 600,
+    "afterType": 400,
+    "swipe": 500,
+    "afterSwipe": 800,
+    "beat": 800,
+    "settle": 300
+  },
+  "seed": {
+    "file": "_seed/saas-2026-09-14c.json",
+    "sha256": "be9b9e983301e1937de53c60c796ff958741970230503b53c11719a87a1fa8a2"
+  },
+  "script": {
+    "file": "v2/_scripts/c56-arrive.mjs",
+    "sha256": "a1e9cb895ed5e2ba1324b015915b850e27fdc7d4cb1ce22daf53ab27f2dcc8a4"
+  },
+  "steps": [
+    {
+      "t": 3,
+      "kind": "lead-end",
+      "target": ""
+    },
+    {
+      "t": 3.8,
+      "kind": "beat",
+      "target": "",
+      "note": "앱 홈"
+    },
+    {
+      "t": 4.29,
+      "kind": "tap",
+      "target": "케어보드",
+      "note": "케어보드 탭",
+      "x": 270.5,
+      "y": 803.8
+    },
+    {
+      "t": 5.47,
+      "kind": "tap",
+      "target": "진행중인 활동",
+      "note": "진행중인 활동",
+      "x": 186.2,
+      "y": 127.7
+    },
+    {
+      "t": 6.98,
+      "kind": "beat",
+      "target": "",
+      "note": "놀이치료 12/16회"
+    },
+    {
+      "t": 7.47,
+      "kind": "tap",
+      "target": "200,441",
+      "note": "자세히 보기",
+      "x": 200,
+      "y": 441
+    },
+    {
+      "t": 8.96,
+      "kind": "beat",
+      "target": "",
+      "note": "상담 기록 목록 — 14회기 예정 · 13회기 취소 · 12회기 완료"
+    },
+    {
+      "t": 9.78,
+      "kind": "swipe",
+      "target": "200,700→200,450",
+      "note": "12회기까지 올린다",
+      "x": 200,
+      "y": 700,
+      "x2": 200,
+      "y2": 450
+    },
+    {
+      "t": 11.78,
+      "kind": "hold",
+      "target": "1200",
+      "note": "목록이 멈춘다"
+    },
+    {
+      "t": 12.27,
+      "kind": "tap",
+      "target": "201,393.33329010009766",
+      "note": "12회기 — 상담 내용 보기",
+      "x": 201,
+      "y": 393.3
+    },
+    {
+      "t": 13.75,
+      "kind": "beat",
+      "target": "",
+      "note": "센터가 전해온 글"
+    },
+    {
+      "t": 14.54,
+      "kind": "swipe",
+      "target": "200,700→200,430",
+      "note": "끝까지 읽는다",
+      "x": 200,
+      "y": 700,
+      "x2": 200,
+      "y2": 430
+    },
+    {
+      "t": 16.84,
+      "kind": "hold",
+      "target": "1500",
+      "note": "끝"
+    },
+    {
+      "t": 16.84,
+      "kind": "steps-end",
+      "target": ""
+    }
+  ],
+  "nocut": [
+    {
+      "start": 11.78,
+      "note": "그 회기의 글이 열린다",
+      "end": 15.35
+    }
+  ],
+  "retake_of": "t04",
+  "retake_reason": "t04는 시뮬레이터가 굶어 스크롤이 안 그려졌다(고유 프레임 51/20초) — 전문가 앱을 내리고 다시",
+  "result": {
+    "file": "raw/s05_phone_arrive_t05.mov",
+    "duration": 19.85,
+    "ok": true,
+    "error": null
+  }
+}

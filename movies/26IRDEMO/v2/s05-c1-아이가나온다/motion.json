@@ -1,0 +1,42 @@
+{
+  "scene": "s05-c1-아이가나온다",
+  "cut": "C5.1",
+  "model": {
+    "name": "Kling v3 Pro (1080) - No Audio - I2V [Kling direct]",
+    "modelGroupId": 349,
+    "modelId": 3146
+  },
+  "takes": [
+    {
+      "take": 1,
+      "at": "2026-09-14T13:49:22.409Z",
+      "generationId": "01a0a028-0efa-7591-bfa7-2ebc758cb58a",
+      "credits": 400,
+      "settings": {
+        "resolution": "pro",
+        "aspect_ratio": "16:9",
+        "generate_audio": false,
+        "duration": 4
+      },
+      "firstFrame": "first-frame.png sha256:679361a0ae9d",
+      "prompt": "Locked-off tripod shot. The small sneaker completes its step across the threshold and settles flat on the floor at natural speed; the trouser hem swings once and falls still. The hands resting on the bench edge keep their place. The floor stays plain and unmarked, and the door stays open exactly as wide as it is. Everything else remains still and the light stays constant.",
+      "file": "t1/s05-c1-아이가나온다_t1.mp4",
+      "probe": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "duration": 4.04,
+        "audio": false
+      },
+      "note": null,
+      "verdict": "채택 — 절차 표시줄 3단계로 재합성"
+    }
+  ],
+  "pick": {
+    "from": "t1/s05-c1-아이가나온다_t1.mp4",
+    "out": "C5.1_ai.mp4",
+    "length": 3,
+    "fps": 30,
+    "steps": "S5-기존 1 (00_in.mov → 01.png)"
+  }
+}

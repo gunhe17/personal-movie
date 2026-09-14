@@ -1334,14 +1334,6 @@ export default function FieldNoteHomeScreen() {
   const [targetSheetVisible, setTargetSheetVisible] = useState(false);
 
   const onRecord = () => {
-    // 촬영용 분기 — `바로 녹음`이 데모 녹음 화면으로 간다(26IRDEMO).
-    // 시뮬레이터에는 회기에 붙일 오디오도, 전사할 사람의 말도 없어서 진짜 경로로는
-    // 화면이 `전사 중…`에서 멈춘다. 이 한 줄이 있으면 **탭 → 녹음 → 전사**가 한 흐름으로 선다.
-    // `EXPO_PUBLIC_FIELDNOTE_DEMO=1`로 빌드했을 때만 열린다 — 운영 빌드에는 없는 길이다.
-    if (process.env.EXPO_PUBLIC_FIELDNOTE_DEMO === "1") {
-      router.push("/(main)/field-note/demo");
-      return;
-    }
     if (recording) fab.openSheet();
     else setTargetSheetVisible(true);
   };
@@ -1355,6 +1347,16 @@ export default function FieldNoteHomeScreen() {
     const sid = sc.id;
     if (!sid) return;
     const who = clientLabel(sc.client_names);
+    // 촬영용 분기 — 회기를 고르면 데모 녹음 화면으로 간다(26IRDEMO C4.3).
+    // 시뮬레이터에는 회기에 붙일 오디오도, 전사할 사람의 말도 없어서 진짜 경로로는
+    // 화면이 `전사 중…`에서 멈춘다. 이 한 줄이 있으면 **회기 선택 → 녹음 → 전사 → 정리**가
+    // 한 흐름으로 선다. 갈림길을 시트 뒤에 둬서 제품의 진짜 진입(바로 녹음 → 연결 선택 시트)은 그대로 찍힌다.
+    // `EXPO_PUBLIC_FIELDNOTE_DEMO=1`로 빌드했을 때만 열린다 — 운영 빌드에는 없는 길이다.
+    if (process.env.EXPO_PUBLIC_FIELDNOTE_DEMO === "1") {
+      setTargetSheetVisible(false);
+      router.push("/(main)/field-note/demo");
+      return;
+    }
     // 선택 시점 표기 컨텍스트 — 녹음 시작 후에도 좌상단에 그대로 보존(쿼리 재조회 불필요).
     const ctx: RecordingContext = {
       client: who,

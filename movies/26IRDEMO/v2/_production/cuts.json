@@ -757,7 +757,7 @@
   "scene_title": "회기 기록",
   "id": "C4.3",
   "name": "녹음",
-  "length": "7.9s",
+  "length": "13.4s",
   "kind": "new",
   "tags": [
    "AI 무대",
@@ -767,11 +767,11 @@
   "stage": "phone",
   "v1take": null,
   "flow": "①의 그 10분에 수첩 대신 녹음 버튼",
-  "situation": "전문가 앱 — 홈 \"다음 일정 16:00 윤도현\" → 필드노트 홈(오늘 기록할 일정 1건) → 바로 녹음 → 기록할 회기 선택 시트. C4.4 · C4.5와 같은 회기(오늘 16:00).",
+  "situation": "전문가 앱 — 필드노트 홈(오늘 기록할 일정 2건 · 16:00 윤도현) → 바로 녹음 → 연결 선택 시트에서 그 회기 → 녹음 화면. 말이 그 자리에서 전사 버블로 선다(0:41 · 2:17 · 3:01) → 종료 → 음성 전사 · AI 보정 → \"정리가 완료되었어요\". C4.4 · C4.5와 같은 회기(오늘 16:00).",
   "caption": "없음",
-  "segment": "3.9–11.8",
+  "segment": "4.86–18.26",
   "check": null,
-  "source": "v2/s04-c3-녹음/raw/s04_phone_record_t02.mov (14.17s · 오늘 16:00 윤도현) · 노컷 4.21–9.96 · v2/_scripts/c43-record.mjs → s04-c3-녹음/C4.3_phone.mp4 (3.9–11.8 · 7.9s)",
+  "source": "v2/s04-c3-녹음/raw/s04_phone_record_t05.mov (21.6s · 드롭0 · SPEC_PHONE v5 · 탭 시각 = 손가락이 닿은 때) · 노컷 3.80–11.66 · 11.66–17.82 · v2/_scripts/c43-record.mjs → s04-c3-녹음/C4.3_phone.mp4 (4.86–18.26 · 13.4s · 탭 링 4)",
   "asset": null,
   "move": null,
   "prompt": null,
@@ -794,7 +794,7 @@
   "scene_title": "회기 기록",
   "id": "C4.4",
   "name": "화자별 전사",
-  "length": "6.6s",
+  "length": "4.0s",
   "kind": "new",
   "tags": [
    "AI 무대",
@@ -804,11 +804,11 @@
   "stage": "imac",
   "v1take": null,
   "flow": "회기 안의 말이 원본이 된다",
-  "situation": "웹 — 화자별 대화에 분 단위 타임스탬프. 한 번의 스크롤로 3:01 → 3:10 → 17:22가 한 화면에 선다.",
+  "situation": "웹 — 화자별 대화에 분 단위 타임스탬프. 스크롤이 멎으며 3:01 → 3:10 → 17:22가 한 화면에 선다. 그 한 화면만 남긴다(C4.3이 길어져 겹치지 않게).",
   "caption": "하루 6~8회기",
-  "segment": "2.0–8.6",
+  "segment": "4.7–8.7",
   "check": null,
-  "source": "v2/s04-c4-화자별전사/raw/s04_web_fieldnote_t03.mov (8.98s · SPEC v8) · 노컷 2.77–7.24 · v2/_scripts/c44-fieldnote.mjs → s04-c4-화자별전사/C4.4_imac.mp4 (2.0–8.6 · 6.6s)",
+  "source": "v2/s04-c4-화자별전사/raw/s04_web_fieldnote_t03.mov (8.98s · SPEC v8) · 노컷 2.77–7.24 · v2/_scripts/c44-fieldnote.mjs → s04-c4-화자별전사/C4.4_imac.mp4 (4.7–8.7 · 4.0s · 재촬영 아님, 구간만 다시 잡았다)",
   "asset": null,
   "move": null,
   "prompt": null,
@@ -830,7 +830,7 @@
   "scene": "S4",
   "scene_title": "회기 기록",
   "id": "C4.5",
-  "name": "일지 초안",
+  "name": "일지 초안 — 6.7초",
   "length": "7.3s",
   "kind": "new",
   "tags": [
@@ -877,7 +877,7 @@
   ],
   "stage": "none",
   "v1take": null,
-  "flow": "① 16:50, 회기 끝",
+  "flow": "① 16:50, 회기 끝 — 보호자는 대기실에 있다",
   "situation": "반쯤 열린 상담실 문, 문턱을 넘는 작은 운동화 한 짝. 벤치에서 일어서는 보호자의 손. 얼굴 없음.",
   "caption": "기존 · 16시 50분, 회기가 끝난다",
   "segment": null,
@@ -887,10 +887,10 @@
   "move": null,
   "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA waiting room in a small child-counselling centre. A plain door stands half open on the right; below its edge a small child's sneaker steps out onto the floor, only the shoe and the hem of trousers. From the left of frame a woman's hands rise from a bench, reaching. The moment the session ends. Warm, ordinary, unposed.\n\nFG: the bench edge, slightly below centre. MG: the door edge and the small shoe, occupying the right third. BG: a plain wall and a low shelf, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side falls into gentle shade.\n\nComposition: rule of thirds. The door and the small shoe fill the right third; the lower left quadrant is calm bare floor, left clear for copy added later.\n\nAngle: low three-quarter, just above floor height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the small shoe on the threshold. Set to 50mm, medium depth of field so the background stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: four fifty in the afternoon.\n\nThe floor is plain and unmarked, the door plain and unbranded, the shoe plain, every surface clean and free of lettering.",
   "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
    "track": "S5-기존",
@@ -903,45 +903,9 @@
  {
   "scene": "S5",
   "scene_title": "보호자 ★ 클라이맥스",
-  "id": "C5.2",
-  "name": "10분",
-  "length": "3.0s",
-  "kind": "ai",
-  "tags": [
-   "AI",
-   "none"
-  ],
-  "stage": "none",
-  "v1take": null,
-  "flow": "② 상담사가 서서 10분 — 다음 아이 준비 사이에",
-  "situation": "허리 높이 프레임. 마주 선 두 사람의 손만 — 한쪽은 얇은 파일을 쥐고, 한쪽은 가볍게 손짓. 얼굴은 프레임 위.",
-  "caption": "기존 · \"오늘 잘했어요, 블록 놀이 했고요\" — 10분",
-  "segment": null,
-  "check": null,
-  "source": null,
-  "asset": null,
-  "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA waiting room in a small child-counselling centre, framed at waist height. Two adults stand facing each other on the right: only their hands and midsections are in frame, one pair of hands folded holding a small folder, the other pair gesturing gently. Neither face is in frame, both heads above the top edge. The moment of the ten-minute talk. Polite, brief, unposed.\n\nFG: a bench corner, slightly below centre. MG: the two pairs of hands, occupying the right third. BG: a plain wall and a low shelf, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side falls into gentle shade.\n\nComposition: rule of thirds. The two pairs of hands fill the right third; the lower left quadrant is calm bare bench and plain wall, left clear for copy added later.\n\nAngle: eye-level at waist height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the gesturing hand. Set to 50mm, medium depth of field so the background stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: today went well, that is all there is time for.\n\nThe wall is plain and unbranded, the folder plain and free of print, every surface clean and free of lettering.",
-  "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
-  },
-  "steps": {
-   "track": "S5-기존",
-   "step": 2,
-   "label": "선 채로 설명",
-   "head": "01-02.mov",
-   "hold": "02.png"
-  }
- },
- {
-  "scene": "S5",
-  "scene_title": "보호자 ★ 클라이맥스",
   "id": "C5.3",
   "name": "녹음기를 끈다",
-  "length": "3.0s",
+  "length": "5.0s",
   "kind": "ai",
   "tags": [
    "AI",
@@ -949,9 +913,9 @@
   ],
   "stage": "none",
   "v1take": null,
-  "flow": "③ 보호자가 가방을 받아 안주머니 녹음기를 끈다",
+  "flow": "② 10분의 설명조차 없는 날, 보호자는 녹음기를 넣는다",
   "situation": "대기실 벤치. 가방 안주머니 속 녹음기의 버튼 위 엄지. 빨간 불이 꺼지기 직전.",
-  "caption": "기존 · 가방을 받아 녹음기를 끈다 — 열에 예닐곱",
+  "caption": "기존 · 설명조차 없는 날에는 — 가방 속 녹음기",
   "segment": null,
   "check": null,
   "source": null,
@@ -959,25 +923,25 @@
   "move": null,
   "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA tight tabletop shot on the same worn wooden bench in the waiting room of a small child-counselling centre. Only a woman's hands and forearms enter the frame from the right edge; one thumb rests on the single button of a small grey voice recorder inside the inner pocket of a child's plain canvas backpack, its red light still on. The moment before the light goes out. Quiet, practised, unposed.\n\nFG: the backpack pocket and the thumb on the recorder, occupying the right third. MG: the pale bench surface. BG: a plain wall and the edge of a cloth chair, softly defocused.\n\nLight: cool afternoon daylight from a window on the right, soft and flat; the left side of the bench falls into gentle shade.\n\nComposition: rule of thirds. The backpack and the hands fill the right third; the lower left quadrant is calm bare bench and plain wall, left clear for copy added later.\n\nAngle: high three-quarter, just above bench height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the thumb and the red light. Set to 50mm, medium depth of field so the chair behind stays readable during a slow push in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: routine, ordinary, a little ashamed.\n\nThe bench surface is bare and unmarked, the wall plain and unbranded, the backpack plain canvas free of print, every surface clean and free of lettering.",
   "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
    "track": "S5-기존",
-   "step": 3,
+   "step": 2,
    "label": "보호자 녹음",
-   "head": "02-03.mov",
-   "hold": "03.png"
+   "head": "01-02.mov",
+   "hold": "02.png"
   }
  },
  {
   "scene": "S5",
   "scene_title": "보호자 ★ 클라이맥스",
-  "id": "C5.4",
-  "name": "저녁 8시, 전화 네 통",
-  "length": "3.0s",
+  "id": "C5.7",
+  "name": "양식 세 장",
+  "length": "5.0s",
   "kind": "ai",
   "tags": [
    "AI",
@@ -985,27 +949,27 @@
   ],
   "stage": "none",
   "v1take": null,
-  "flow": "④ 못 만난 부모에게는 저녁에 몰아서 전화",
-  "situation": "상담사 책상, 저녁. 수화기를 든 손, 옆에 빈 포스트잇 네 장.",
-  "caption": "기존 · 못 만난 부모에게는 저녁 8시에 전화 네 통",
+  "flow": "③ 회기가 끝나도 상담사는 같은 기록을 양식마다 다시 쓴다",
+  "situation": "책상 위 빈 양식 세 장 나란히 — 칸 모양만 서로 다르다. 손이 두 번째 장의 같은 칸을 쓰고 있다.",
+  "caption": "기존 · 같은 12회기를 제출 양식에 다시",
   "segment": null,
   "check": null,
   "source": null,
   "asset": null,
   "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk in a small centre office after hours. A woman's hands enter from the right edge; one hand holds the handset of a plain grey desk phone, the other hovers a fingertip over the keypad. Beside the phone four small plain sticky notes are lined up in a row, blank pastel squares. The moment before the first number. Tired, dutiful, unposed.\n\nFG: the sticky notes, slightly below centre. MG: the hands and the desk phone, occupying the right third. BG: a plain wall and a shelf edge, softly defocused, the window beyond already dark.\n\nLight: a warm desk lamp from the upper right and a cooler ceiling light overhead; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The phone and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingertip over the keypad. Set to 50mm, medium depth of field so the shelf edge stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the end of a long working day, four calls to go.\n\nThe desk surface is bare and unmarked, the sticky notes blank, the phone plain and unbranded, every surface clean and free of lettering.",
+  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk at night seen from above. Three plain sheets lie side by side, each carrying only faint ruled boxes in a different layout, unprinted. A woman's hands enter from the right edge, writing with a pen in a box on the middle sheet while the left hand holds the first sheet flat beside it. The moment before the same sentence again. Weary, unposed.\n\nFG: the first sheet's edge, slightly below centre. MG: the hands and the middle sheet, occupying the right third. BG: the third sheet and a plain wall, softly defocused.\n\nLight: a warm desk lamp from the upper right; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The hands and the middle sheet fill the right third; the lower left quadrant is calm bare desk in shade, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the pen tip in the box. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the same twelve sessions, a third time.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, every surface clean and free of lettering.",
   "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
    "track": "S5-기존",
-   "step": 4,
-   "label": "저녁 전화",
-   "head": "03-04.mov",
-   "hold": "04.png",
+   "step": 3,
+   "label": "양식 재작성",
+   "head": "02-03.mov",
+   "hold": "03.png",
    "tail": "99_out.mov"
   }
  },
@@ -1023,7 +987,7 @@
   ],
   "stage": "imac",
   "v1take": null,
-  "flow": "②의 10분이 글이 된다 — 임상 원문이 아니라 옮긴 글, 발행은 상담사가",
+  "flow": "② 보호자에게 전달 — 임상 원문이 아니라 옮긴 글, 발행은 상담사가",
   "situation": "확정된 일지 옆에 보호자용 공유문이 선다. 커서가 원문의 진단명 자리를 지나 공유문에서 그 자리가 비어 있는 것을 보여준다. 한 줄 고친다. \"발행\".",
   "caption": "진단명도 점수도 없이, 원문에 없는 말은 쓰지 않고 → 발행은 상담사가",
   "segment": "1.9–10.3",
@@ -1033,15 +997,15 @@
   "move": null,
   "prompt": null,
   "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
    "track": "S5-우리",
    "step": 1,
-   "label": "공유문 검토 · 발행",
+   "label": "보호자에게 전달",
    "head": "00_in.mov",
    "hold": "01.png"
   }
@@ -1060,180 +1024,32 @@
   ],
   "stage": "phone",
   "v1take": null,
-  "flow": "③④가 사라진다 — 못 온 부모도, 온 부모도 같은 글을 받는다",
+  "flow": "②의 나머지 절반 — 전달하면 보호자 앱에서 바로 본다",
   "situation": "내담자 앱. 케어보드 → 진행중인 활동 → 상담 기록(14회기 예정 · 13회기 취소 · 12회기 완료) → 12회기 상담 내용 보기 — C5.5가 전달한 그 글. 스크롤 한 번.",
-  "caption": "받아본 적 없던 것이 도착한다",
-  "segment": "11.2–20.6",
+  "caption": "전달하면, 그 글을 보호자가 앱에서 본다",
+  "segment": "8.56–17.96",
   "check": null,
-  "source": "v2/s05-c6-도착/raw/s05_phone_arrive_t02.mov (23.35s · 현재 데이터) · 노컷 14.29–18.84 · v2/_scripts/c56-arrive.mjs → s05-c6-도착/C5.6_phone.mp4 (11.2–20.6 · 9.4s)",
+  "source": "v2/s05-c6-도착/raw/s05_phone_arrive_t05.mov (19.85s · 드롭0 · SPEC_PHONE v5 · 탭 시각 = 손가락이 닿은 때) · 노컷 11.78–15.35 · v2/_scripts/c56-arrive.mjs → s05-c6-도착/C5.6_phone.mp4 (8.56–17.96 · 9.4s · 탭 링 1)",
   "asset": null,
   "move": null,
   "prompt": null,
   "case": {
-   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 20:00 상담사 책상",
-   "흐름": "회기가 끝나고 아이가 나온다 → 상담사가 서서 10분 \"오늘 잘했어요, 블록 놀이 했고요\" → 보호자는 가방을 받아 안주머니 녹음기를 끈다 → 옆 방 아이는 활동보조사가 데려와 부모가 없다 → 상담사는 저녁 8시에 몰아서 전화 네 통",
-   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 10분의 말이다. 그래서 몰래 기록하고, 못 온 부모에게는 상담사의 저녁이 전화로 채워진다. 센터가 일지를 안 주는 이유는 전부 맞다 — 그래서 아무도 못 받는다.",
-   "B로 이음새": "A의 10분(②)이 B의 공유문 화면이 된다 — 말로 하던 것이 글로. 도착 컷에서 씬을 닫는다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
    "track": "S5-우리",
-   "step": 2,
-   "label": "보호자 도착",
-   "head": "01-02.mov",
-   "hold": "02.png",
-   "tail": "99_out.mov"
-  }
- },
- {
-  "scene": "S6",
-  "scene_title": "증명 · 슈퍼비전",
-  "id": "C6.1",
-  "name": "열두 장을 넘긴다",
-  "length": "4.0s",
-  "kind": "ai",
-  "tags": [
-   "AI",
-   "none"
-  ],
-  "stage": "none",
-  "v1take": null,
-  "flow": "① 파일철의 일지 열두 장을 처음부터",
-  "situation": "밤. 파일철의 일지 열두 장을 넘기는 손. 옆에 빈 A4와 펜.",
-  "caption": "기존 · 슈퍼비전 전날 밤. 12회기를 처음부터 다시 읽는다",
-  "segment": null,
-  "check": null,
-  "source": null,
-  "asset": null,
-  "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk at night seen from slightly above. A woman's hands enter from the right edge, turning through a thick ring binder of plain sheets, each carrying only faint ruled boxes, while a blank sheet of paper and a pen wait beside it. The moment before the twelfth page. Patient, searching, unposed.\n\nFG: the blank sheet and the pen, slightly below centre. MG: the hands and the open binder, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.\n\nLight: a warm desk lamp from the upper right; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The binder and the hands fill the right third; the lower left quadrant is calm bare desk in shade, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fingertips on the page edge. Set to 50mm, medium depth of field so the shelf edge stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: looking for the week something changed.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, the binder plain and unbranded, every surface clean and free of lettering.",
-  "case": {
-   "인물 · 시각": "상담사 정상담 · 슈퍼비전 전날 22:00",
-   "흐름": "파일철에서 12회기 일지를 처음부터 다시 읽는다 → 언제 무엇이 달라졌는지 기억으로 찾아 A4 한 장에 요약한다 → 같은 주 바우처 마감, 같은 12회기를 다른 양식에 다시 친다",
-   "이 A가 말하는 것": "답은 이미 열두 장 안에 있는데, 그것을 한 장으로 만드는 일이 사람의 밤이다.",
-   "B로 이음새": "A의 빈 A4(요약을 쓰려는 손)가 B에서 케이스 분석 화면이 된다 — 근거 회기 번호가 달린 채. 그 일지가 C6.5에서 바우처 양식으로 옮겨진다."
-  },
-  "steps": {
-   "track": "S6-기존",
    "step": 1,
-   "label": "일지 넘기기",
-   "head": "00_in.mov",
+   "label": "보호자에게 전달",
    "hold": "01.png"
   }
  },
  {
-  "scene": "S6",
-  "scene_title": "증명 · 슈퍼비전",
-  "id": "C6.2",
-  "name": "기억으로 요약",
-  "length": "3.0s",
-  "kind": "ai",
-  "tags": [
-   "AI",
-   "none"
-  ],
-  "stage": "none",
-  "v1take": null,
-  "flow": "② 언제 달라졌는지 기억으로 찾아 한 장에 쓴다",
-  "situation": "같은 책상. 빈 A4에 펜을 대는 손, 옆에 펼쳐진 파일철.",
-  "caption": "기존 · 언제 달라졌는지, 기억으로 찾아 한 장에",
-  "segment": null,
-  "check": null,
-  "source": null,
-  "asset": null,
-  "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk at night seen from above. A woman's hands enter from the right edge, writing with a pen on a blank sheet of paper; beside it a thick ring binder lies open with plain sheets carrying only faint ruled boxes. The moment of writing from memory what the pages should already say. Weary, unposed.\n\nFG: the open binder, slightly below centre. MG: the hands and the blank sheet, occupying the right third. BG: a plain wall and a shelf edge, softly defocused.\n\nLight: a warm desk lamp from the upper right; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The sheet and the hands fill the right third; the lower left quadrant is calm bare desk in shade, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the pen tip. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: which week did it change.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, every object clean and free of lettering.",
-  "case": {
-   "인물 · 시각": "상담사 정상담 · 슈퍼비전 전날 22:00",
-   "흐름": "파일철에서 12회기 일지를 처음부터 다시 읽는다 → 언제 무엇이 달라졌는지 기억으로 찾아 A4 한 장에 요약한다 → 같은 주 바우처 마감, 같은 12회기를 다른 양식에 다시 친다",
-   "이 A가 말하는 것": "답은 이미 열두 장 안에 있는데, 그것을 한 장으로 만드는 일이 사람의 밤이다.",
-   "B로 이음새": "A의 빈 A4(요약을 쓰려는 손)가 B에서 케이스 분석 화면이 된다 — 근거 회기 번호가 달린 채. 그 일지가 C6.5에서 바우처 양식으로 옮겨진다."
-  },
-  "steps": {
-   "track": "S6-기존",
-   "step": 2,
-   "label": "기억으로 요약",
-   "head": "01-02.mov",
-   "hold": "02.png"
-  }
- },
- {
-  "scene": "S6",
-  "scene_title": "증명 · 슈퍼비전",
-  "id": "C6.3",
-  "name": "양식 세 장",
-  "length": "3.0s",
-  "kind": "ai",
-  "tags": [
-   "AI",
-   "none"
-  ],
-  "stage": "none",
-  "v1take": null,
-  "flow": "③ (결정) 같은 12회기를 바우처·소속센터 양식에 다시",
-  "situation": "책상 위 빈 양식 세 장 나란히 — 칸 모양만 서로 다르다. 손이 두 번째 장의 같은 칸을 쓰고 있다.",
-  "caption": "기존 · 같은 12회기를 세 가지 양식에",
-  "segment": null,
-  "check": null,
-  "source": null,
-  "asset": null,
-  "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA counsellor's desk at night seen from above. Three plain sheets lie side by side, each carrying only faint ruled boxes in a different layout, unprinted. A woman's hands enter from the right edge, writing with a pen in a box on the middle sheet while the left hand holds the first sheet flat beside it. The moment before the same sentence again. Weary, unposed.\n\nFG: the first sheet's edge, slightly below centre. MG: the hands and the middle sheet, occupying the right third. BG: the third sheet and a plain wall, softly defocused.\n\nLight: a warm desk lamp from the upper right; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The hands and the middle sheet fill the right third; the lower left quadrant is calm bare desk in shade, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the pen tip in the box. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the same twelve sessions, a third time.\n\nThe desk surface is bare and unmarked, every sheet plain with faint ruled boxes and free of print, every surface clean and free of lettering.",
-  "case": {
-   "인물 · 시각": "상담사 정상담 · 슈퍼비전 전날 22:00",
-   "흐름": "파일철에서 12회기 일지를 처음부터 다시 읽는다 → 언제 무엇이 달라졌는지 기억으로 찾아 A4 한 장에 요약한다 → 같은 주 바우처 마감, 같은 12회기를 다른 양식에 다시 친다",
-   "이 A가 말하는 것": "답은 이미 열두 장 안에 있는데, 그것을 한 장으로 만드는 일이 사람의 밤이다.",
-   "B로 이음새": "A의 빈 A4(요약을 쓰려는 손)가 B에서 케이스 분석 화면이 된다 — 근거 회기 번호가 달린 채. 그 일지가 C6.5에서 바우처 양식으로 옮겨진다."
-  },
-  "steps": {
-   "track": "S6-기존",
-   "step": 3,
-   "label": "양식 재작성",
-   "head": "02-03.mov",
-   "hold": "03.png",
-   "tail": "99_out.mov"
-  }
- },
- {
-  "scene": "S6",
-  "scene_title": "증명 · 슈퍼비전",
-  "id": "C6.4",
-  "name": "케이스 분석",
-  "length": "14.3s",
-  "kind": "new",
-  "tags": [
-   "AI 무대",
-   "신규 화면",
-   "imac"
-  ],
-  "stage": "imac",
-  "v1take": null,
-  "flow": "①②가 사라진다 — 열두 장이 한 화면이 되고, 판단마다 회기 번호",
-  "situation": "케이스 → 분석 생성 → 변화 흐름 · 전환점 · 슈퍼비전 방향. 커서가 \"7회기\"라는 근거 번호 하나를 짚는다.",
-  "caption": "모든 판단에 회기 번호가 달린다",
-  "segment": "1.9–16.2",
-  "check": "목 대본. 생성 소요는 노컷",
-  "source": "v2/s06-c4-케이스분석/raw/s06_web_analysis_t01.mov (16.47s · SPEC v8) · 노컷 3.74–11.33 · v2/_scripts/c64-analysis.mjs → s06-c4-케이스분석/C6.4_imac.mp4 (1.9–16.2 · 14.3s)",
-  "asset": null,
-  "move": null,
-  "prompt": null,
-  "case": {
-   "인물 · 시각": "상담사 정상담 · 슈퍼비전 전날 22:00",
-   "흐름": "파일철에서 12회기 일지를 처음부터 다시 읽는다 → 언제 무엇이 달라졌는지 기억으로 찾아 A4 한 장에 요약한다 → 같은 주 바우처 마감, 같은 12회기를 다른 양식에 다시 친다",
-   "이 A가 말하는 것": "답은 이미 열두 장 안에 있는데, 그것을 한 장으로 만드는 일이 사람의 밤이다.",
-   "B로 이음새": "A의 빈 A4(요약을 쓰려는 손)가 B에서 케이스 분석 화면이 된다 — 근거 회기 번호가 달린 채. 그 일지가 C6.5에서 바우처 양식으로 옮겨진다."
-  },
-  "steps": {
-   "track": "S6-우리",
-   "step": 1,
-   "label": "케이스 분석",
-   "head": "00_in.mov",
-   "hold": "01.png"
-  }
- },
- {
-  "scene": "S6",
-  "scene_title": "증명 · 슈퍼비전",
-  "id": "C6.5",
+  "scene": "S5",
+  "scene_title": "보호자 ★ 클라이맥스",
+  "id": "C5.8",
   "name": "제출 서류 파생",
   "length": "4.0s",
   "kind": "new",
@@ -1244,25 +1060,25 @@
   ],
   "stage": "imac",
   "v1take": null,
-  "flow": "③이 사라진다 — 결정 시",
+  "flow": "④가 사라진다 — 같은 일지가 바우처 증빙 양식의 칸으로",
   "situation": "확정 일지 옆에 바우처 양식이 채워진 채 선다. 커서가 두 문서의 같은 문장을 오간다.",
-  "caption": "같은 일지에서, 제출처마다",
+  "caption": "바우처 증빙 양식에 맞게, 같은 일지가 칸으로 채워진다",
   "segment": "4.4–8.4",
   "check": null,
-  "source": "v2/s06-c5-제출서류파생/raw/s06_web_derive_t01.mov (8.58s · SPEC v8) · 노컷 3.86–5.03 · v2/_scripts/c65-derive.mjs → s06-c5-제출서류파생/C6.5_imac.mp4 (4.4–8.4 · 4.0s)",
+  "source": "v2/s05-c8-제출서류파생/raw/s06_web_derive_t01.mov (8.58s · SPEC v8) · 노컷 3.86–5.03 · v2/_scripts/c65-derive.mjs → s05-c8-제출서류파생/C5.8_imac.mp4 (4.4–8.4 · 4.0s) · 촬영본 파일명은 S6 시절 그대로(촬영 규칙 4)",
   "asset": null,
   "move": null,
   "prompt": null,
   "case": {
-   "인물 · 시각": "상담사 정상담 · 슈퍼비전 전날 22:00",
-   "흐름": "파일철에서 12회기 일지를 처음부터 다시 읽는다 → 언제 무엇이 달라졌는지 기억으로 찾아 A4 한 장에 요약한다 → 같은 주 바우처 마감, 같은 12회기를 다른 양식에 다시 친다",
-   "이 A가 말하는 것": "답은 이미 열두 장 안에 있는데, 그것을 한 장으로 만드는 일이 사람의 밤이다.",
-   "B로 이음새": "A의 빈 A4(요약을 쓰려는 손)가 B에서 케이스 분석 화면이 된다 — 근거 회기 번호가 달린 채. 그 일지가 C6.5에서 바우처 양식으로 옮겨진다."
+   "인물 · 시각": "보호자 이수진 · 상담사 정상담 · 16:50 대기실 → 그날 저녁 상담사 책상",
+   "흐름": "회기가 끝나고 아이가 나온다 → 그날 어떤 일이 있었는지는 전해지지 않는다 → 보호자는 가방에 녹음기를 넣는다 → 한편 상담사는 같은 회기를 제출 양식에 다시 친다",
+   "이 A가 말하는 것": "고객이 산 것은 50분인데 받는 것은 대기실의 10분이고, 그마저 없는 날이 있다. 그래서 녹음기가 가방에 들어간다. 한편 같은 회기가 제출처 양식에 다시 쓰인다 — 받는 쪽은 못 받고, 쓰는 쪽은 계속 쓴다.",
+   "B로 이음새": "보호자로 열고 보호자로 닫는다 — 말로 전해지지 않던 것이 B에서 공유문이 되고, 전달하면 그 글이 보호자 앱에 뜬다(C5.6). 녹음기가 필요 없어지는 자리다. 그 다음 한 컷에서 넓어진다: 같은 일지가 바우처 증빙 양식으로도 채워진다(C5.8)."
   },
   "steps": {
-   "track": "S6-우리",
+   "track": "S5-우리",
    "step": 2,
-   "label": "제출 서류 파생",
+   "label": "증빙 양식 채움",
    "head": "01-02.mov",
    "hold": "02.png",
    "tail": "99_out.mov"
@@ -1395,9 +1211,9 @@
   "flow": "보호자 쪽에서도 같은 숫자",
   "situation": "내담자 앱 바우처 탭 — 잔여 회기가 이미 맞다.",
   "caption": "없음",
-  "segment": "7.4–12.2",
-  "check": null,
-  "source": "v2/s07-c4-잔여/raw/s07_phone_remaining_t01.mov (15.03s) → s07-c4-잔여/C7.4_phone.mp4 (7.4–12.2 · 4.8s)",
+  "segment": "5.24–10.04",
+  "check": "소진 반영 화면 동작",
+  "source": "v2/s07-c4-잔여/raw/s07_phone_remaining_t05.mov (12.23s · 드롭0 · SPEC_PHONE v5 · 탭 시각 = 손가락이 닿은 때) · 노컷 5.76–7.72 · v2/_scripts/c75-remaining.mjs → s07-c4-잔여/C7.4_phone.mp4 (5.24–10.04 · 4.8s · 탭 링 1)",
   "asset": null,
   "move": null,
   "prompt": null,
@@ -1413,81 +1229,6 @@
    "label": "잔여 확인",
    "head": "01-02.mov",
    "hold": "02.png",
-   "tail": "99_out.mov"
-  }
- },
- {
-  "scene": "S8",
-  "scene_title": "바우처 문서",
-  "id": "C8.1",
-  "name": "두 번째 형광펜",
-  "length": "4.0s",
-  "kind": "ai",
-  "tags": [
-   "AI",
-   "none"
-  ],
-  "stage": "none",
-  "v1take": null,
-  "flow": "① 원장 책상 — 공고 네 종을 형광펜으로 읽어 단가·조건·서류를 엑셀에",
-  "situation": "두꺼운 문서 뭉치 넷, 클립. 형광펜이 닳아 두 번째를 꺼내는 손. 페이지는 회색 결로만.",
-  "caption": "기존 · 수백 페이지 공고, 센터마다 각자 읽는다",
-  "segment": null,
-  "check": null,
-  "source": null,
-  "asset": null,
-  "move": null,
-  "prompt": "Documentary photograph aesthetic, unretouched, fine film grain.\n\nA director's desk seen from slightly above. Four thick stacks of paper sit clipped at the corner, their pages softly out of focus so any print reads only as an even grey texture. A woman's hands enter from the right edge; one hand sets down a spent highlighter with its cap off, the other draws a fresh one from a cup. Small blank pastel sticky tabs bristle from the top stack. The moment before the next page. Weary, methodical, unposed.\n\nFG: the spent highlighter, slightly below centre. MG: the hands and the top stack, occupying the right third. BG: the other stacks and a plain wall, softly defocused.\n\nLight: a warm desk lamp from the upper right and cool daylight from the left window, low; the left side of the desk falls into shade.\n\nComposition: rule of thirds. The stacks and the hands fill the right third; the lower left quadrant is calm bare desk, left clear for copy added later.\n\nAngle: high three-quarter, just above desk height, with comfortable margin around the subject on all sides.\n\nFocus: hard focus on the fresh highlighter between the fingers. Set to 50mm, medium depth of field so the background stays readable during a slow dolly in.\n\nTone: Low Saturation Gray palette, muted grey-green and warm beige. Natural skin texture with visible pores, matte skin with no shine, believable proportions and natural hands.\n\nThe subject reads clearly against the background in tone and value.\n\nOverall vibe: the second highlighter of the same announcement.\n\nThe desk surface is bare and unmarked, the pages an even grey texture free of legible print, the sticky tabs blank, every surface clean and free of lettering.",
-  "case": {
-   "인물 · 시각": "원장 김원장 · 원장 책상",
-   "흐름": "올해 공고 네 종 프린트, 형광펜으로 단가·조건·제출서류를 골라 엑셀에 옮긴다 — 바우처마다 반복",
-   "이 A가 말하는 것": "사업의 단가와 조건이 기계가 읽을 수 없는 문서로 배포되고, 센터 1,800곳이 각자 같은 것을 손으로 해독한다.",
-   "B로 이음새": "A의 형광펜(닳아서 두 번째)이 B에서 에이전트 질문 한 줄이 된다 — 읽는 대신 묻는다."
-  },
-  "steps": {
-   "track": "S8-기존",
-   "step": 1,
-   "label": "공고 읽고 정리",
-   "head": "00_in.mov",
-   "hold": "01.png",
-   "tail": "99_out.mov"
-  }
- },
- {
-  "scene": "S8",
-  "scene_title": "바우처 문서",
-  "id": "C8.2",
-  "name": "\"이 바우처 단가가 얼마죠?\"",
-  "length": "8.2s",
-  "kind": "new",
-  "tags": [
-   "AI 무대",
-   "신규 화면",
-   "imac"
-  ],
-  "stage": "imac",
-  "v1take": null,
-  "flow": "①이 사라진다 — 공고는 한 번 읽히고, 물으면 답한다",
-  "situation": "에이전트 채팅에 한 줄 → 단가 · 회기수 답 → 바우처 화면으로 이동. 답 도착은 노컷.",
-  "caption": "공고는 AI가 읽고, 물어보면 답한다",
-  "segment": "1.9–10.1",
-  "check": "목 대본. 추출 화면은 운영자용이라 찍지 않는다",
-  "source": "v2/s08-c2-이바우처단가가얼마죠/raw/s08_web_voucherask_t01.mov (10.37s · SPEC v8) · 노컷 4.35–6.92 · v2/_scripts/c76-voucher.mjs → s08-c2-이바우처단가가얼마죠/C8.2_imac.mp4 (1.9–10.1 · 8.2s)",
-  "asset": null,
-  "move": null,
-  "prompt": null,
-  "case": {
-   "인물 · 시각": "원장 김원장 · 원장 책상",
-   "흐름": "올해 공고 네 종 프린트, 형광펜으로 단가·조건·제출서류를 골라 엑셀에 옮긴다 — 바우처마다 반복",
-   "이 A가 말하는 것": "사업의 단가와 조건이 기계가 읽을 수 없는 문서로 배포되고, 센터 1,800곳이 각자 같은 것을 손으로 해독한다.",
-   "B로 이음새": "A의 형광펜(닳아서 두 번째)이 B에서 에이전트 질문 한 줄이 된다 — 읽는 대신 묻는다."
-  },
-  "steps": {
-   "track": "S8-우리",
-   "step": 1,
-   "label": "단가 질문",
-   "head": "00_in.mov",
-   "hold": "01.png",
    "tail": "99_out.mov"
   }
  },
