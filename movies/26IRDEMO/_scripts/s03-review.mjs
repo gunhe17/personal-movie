@@ -10,12 +10,6 @@
 // 드래그 앤 드롭은 **실기능**이다 — 왼쪽 자료는 윤도현의 실제 검사 결과이고, 놓은 자리에
 // 제품 코드(`placeCaretAtPoint` → `insertMaterial`)가 표를 넣는다. 클릭 삽입과 같은 경로다.
 // 표를 고른 이유: HTP 그림은 666×942px라 900px 뷰포트에 안 잡혔다(t05~t07). SCT '영역별 점수 요약'은 5행이라 한 화면에 앉고, 4) 자기개념이 인용하는 바로 그 점수다.
-/** 표를 뷰포트 가운데로 올릴 거리. reveal이 하던 계산을 그대로 하되 뒤에 `beat`를 안 붙인다. */
-async function tableDy(page) {
-  const box = await page.locator('.rpt-table').first().boundingBox()
-  return box ? Math.round(box.y + box.height / 2 - 450) : 0
-}
-
 export default async function steps(page, h) {
   await h.beat('종합보고서 편집기 — A4 지면 그대로')
 
@@ -37,7 +31,8 @@ export default async function steps(page, h) {
   await h.until('.rpt-table', '놓은 자리에 표가 앉는다')
   // 스크롤 뒤에 `beat`를 붙이지 않는다 — t09는 `reveal`의 0.7초와 다음 `beat` 0.7초가 붙어
   // 1.4초가 통째로 멈춰 있었다. 멈춤은 **상태가 바뀌는 순간**(사이드바 `첨부됨`) 하나에만 준다.
-  await h.scroll(await tableDy(page), '표가 지면에 들어왔다')
+  // v8 규칙 — 거리를 손으로 재지 않고 목표(표)까지 한 번에. 스크롤러는 scrollTo가 찾는다.
+  await h.scrollTo('.rpt-table', '표가 지면에 들어왔다', 'center')
   await h.beat('사이드바 자료에는 첨부됨 표시가 붙는다')
   h.nocutEnd()
 

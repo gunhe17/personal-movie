@@ -310,8 +310,10 @@
       }))
     }
 
-    const start = scheduleDetail.start ? new Date(scheduleDetail.start) : null
-    const end = scheduleDetail.end ? new Date(scheduleDetail.end) : null
+    // 서버는 naive UTC 문자열을 내려준다. `new Date(naive)`는 브라우저 로컬(KST)로 읽어 formatUtcToKst의 +9h가 상쇄된다
+    // (회기 화면은 16:00인데 여기만 07:00으로 보였다) — 문자열 그대로 넘겨 parseAsUtc가 UTC로 읽게 한다.
+    const start: string | null = scheduleDetail.start ?? null
+    const end: string | null = scheduleDetail.end ?? null
 
     return {
       caseId: linkedSession.caseId,
@@ -325,7 +327,7 @@
     }
   })
 
-  function formatScheduleRange(start: Date | null, end: Date | null): string {
+  function formatScheduleRange(start: Date | string | null, end: Date | string | null): string {
     if (!start) return ''
     const startLabel = formatUtcToKst(start, 'YYYY-MM-DD (d) HH:mm')
     if (!end) return startLabel

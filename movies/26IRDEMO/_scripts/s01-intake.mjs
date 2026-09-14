@@ -32,20 +32,10 @@ export default async function steps(page, h) {
   await h.click('button:has-text("스마트폰중독검사")', '스마트폰중독검사(온라인) → s04 바로링크')
   await h.beat('접수 진행 3/3 — 버튼이 살아난다')
 
-  // ③ 위쪽을 다 봤으니 한 번에 맨 밑까지 내린다 — 명단 · 기관 · 담당자가 채워진 것이 한 흐름으로 지나간다.
-  //    reveal(요소를 중앙으로)을 두 번 하던 것을 한 번의 스크롤로 바꿨다. 거리가 멀어도 h.scroll은
-  //    moveMax(460ms) 안에서 끝난다 — 길어지는 것은 시간이 아니라 프레임당 델타다.
-  //    폼은 document가 아니라 안쪽 div가 스크롤한다(`overflow-y-auto` · 실측 1265/726) —
-  //    document.scrollingElement로 재면 0이 나온다. 명단에서 스크롤 조상을 거슬러 올라가 남은 거리를 잰다.
-  const dy = await page.locator('text=총 3명').first().evaluate((n) => {
-    for (let el = n.parentElement; el; el = el.parentElement) {
-      const o = getComputedStyle(el).overflowY
-      if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight + 4)
-        return Math.max(0, el.scrollHeight - el.clientHeight - el.scrollTop)
-    }
-    return 0
-  })
-  await h.scroll(dy, '한 번에 맨 밑까지 — 명단 · 기관 · 담당자')
+  // ③ 위쪽을 다 봤으니 목표(맨 아래 담당자 칸)까지 한 번에 내린다 — 명단 · 기관 · 담당자가 한 흐름으로 지나간다(v8 scrollTo).
+  //    폼은 안쪽 div가 스크롤한다(`overflow-y-auto` · 실측 1265/726) — scrollTo가 스크롤러를 찾아 남은 거리로 자른다.
+  //    `등록` 버튼은 스크롤러 밖 고정 바에 있어 목표가 못 된다(리허설 실측: "이미 보인다").
+  await h.scrollTo('text=대표 검사자로 지정돼요', '한 번에 맨 밑까지 — 명단 · 기관 · 담당자', 'end')
 
   h.nocutStart('등록 → 검사 현황')
   await h.click('role=button[name="등록"]', '등록 — 내담자 3명이 실제로 생성된다')
