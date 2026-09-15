@@ -29,7 +29,7 @@
         "audio": false
       },
       "note": "assetId 74411693-f1df-4620-9aec-0582fc3ea59c · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.88) · 엄지·손목 작은 동작 · 연필 손·아이 손·블록 고정"
+      "verdict": "채택"
     }
   ],
   "pick": {

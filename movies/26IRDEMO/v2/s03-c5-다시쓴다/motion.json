@@ -53,7 +53,7 @@
         "audio": false
       },
       "note": "assetId ee08e436-def2-44dc-af55-96dbb154ee8d · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과(경미) — 5초판 · 글자 없음 · 연필 끝이 자국 위에 닿아 머묾 · 연필 끝 자리에 짙은 얼룩이 생겨 커짐 · 첫 프레임 대비 약간 크롭(0.73)"
+      "verdict": "채택"
     }
   ],
   "pick": {
@@ -61,6 +61,6 @@
     "out": "C3.5_ai.mp4",
     "length": 5,
     "fps": 30,
-    "steps": "없음"
+    "steps": "S3-기존 3 (02-03.mov → 03.png → 99_out.mov)"
   }
 }

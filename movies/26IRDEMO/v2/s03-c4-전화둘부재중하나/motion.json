@@ -77,7 +77,7 @@
         "audio": false
       },
       "note": "assetId cb06dcd5-2c80-463a-bfb1-f02550fe7001 · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과(경미) — 5초판 · 본체·키패드 유지(t2의 형태 변형 해소) · 수화기가 샷 전체에 걸쳐 천천히 상승 · 수화기 자리에 둥근 받침 모양이 드러남 · SSIM 0.87"
+      "verdict": "채택"
     }
   ],
   "pick": {
@@ -85,6 +85,6 @@
     "out": "C3.4_ai.mp4",
     "length": 5,
     "fps": 30,
-    "steps": "S3-기존 3 (02-03.mov → 03.png → 99_out.mov)"
+    "steps": "S3-기존 2 (02.png)"
   }
 }

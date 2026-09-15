@@ -317,6 +317,7 @@ async function render(specPath, opts = {}){
     if (!existsSync(lp)) die(`logo 파일이 없다: ${lp}`);
     spec.logoSvg = await readFile(lp, 'utf8');
   }
+  if (raw.bgImage) spec.bgImage = 'file://' + path.resolve(path.dirname(specPath), raw.bgImage);  // toc 무대: 배경 이미지 한 장
   if (raw.assets) spec.assets = 'file://' + path.resolve(path.dirname(specPath), raw.assets);   // cards 무대: 이미지 폴더
   if (raw.areas){                                                // cards 무대: file:// 페이지는 fetch가 안 되므로 JSON을 spec에 넣는다
     const d = path.resolve(path.dirname(specPath), raw.areas);

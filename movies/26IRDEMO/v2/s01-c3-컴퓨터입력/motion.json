@@ -29,13 +29,13 @@
         "audio": false
       },
       "note": "assetId 43b9bb44-4f2e-4b07-9019-955732c9606c · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.85) · 손가락 정상 · 모니터 프레임 밖 유지 · 키캡 글자 없음"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t1/s01-c3-컴퓨터입력_t1.mp4",
     "out": "C1.3_ai.mp4",
-    "length": 5,
+    "length": 4.5,
     "fps": 30,
     "steps": "S1-기존 2 (01-02.mov → 02.png)"
   }

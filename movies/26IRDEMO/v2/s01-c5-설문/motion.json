@@ -29,13 +29,13 @@
         "audio": false
       },
       "note": "assetId 5cf4894a-7238-43f8-82ba-414ce23210d5 · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.85) · 짧은 획 2~3개(글자 아님) · 3.0s까지 선명, 끝 0.5s 손 블러 → 앞 3초 사용"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t1/s01-c5-설문_t1.mp4",
     "out": "C1.5_ai.mp4",
-    "length": 3,
+    "length": 3.75,
     "fps": 30,
     "steps": "S1-기존 3 (02-03.mov → 03.png)"
   }

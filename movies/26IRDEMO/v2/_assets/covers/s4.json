@@ -1,0 +1,23 @@
+{
+ "stage": "cover",
+ "size": [
+  1920,
+  1080
+ ],
+ "fps": 30,
+ "duration": 4.2,
+ "bgImage": "../../../_motion/bg.png",
+ "wasLabel": "기존",
+ "nowLabel": "우리",
+ "index": "04",
+ "name": "상담 및 일지 작성",
+ "feature": "필드노트",
+ "was": [],
+ "now": [
+  "상담 기록",
+  "일지 작성"
+ ],
+ "drop": [],
+ "comment": "약 <b>30분</b> 단축!",
+ "sub": "기억에 기대 쓰던 일지가, 상담 중 녹음에서 초안으로 나온다"
+}

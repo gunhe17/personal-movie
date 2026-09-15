@@ -1,11 +1,1 @@
-{
-  "stage": "imac",
-  "size": [3840, 2160],
-  "fps": 30,
-  "screen": "raw/s05_web_share_t01.mov",
-  "steps": { "dir": "../_assets/steps/S5-우리", "head": "00_in.mov", "hold": "01.png" },
-  "start": 1.9,
-  "duration": 8.4,
-  "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45,
-  "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"]
-}
+{"stage": "imac", "size": [3840, 2160], "fps": 30, "screen": "raw/s05_web_share_t01.mov", "steps": {"dir": "../_assets/steps/S5-우리", "head": "00_in.mov", "hold": "01.png"}, "start": 1.9, "duration": 8.4, "right": 0.2, "width": 0.78, "top": 5.6, "bezel": 0.55, "chin": 3.4, "stand": 0.45, "shade": ["rgba(47,107,255,.22)", "rgba(38,86,222,.55)"], "out": "C5.5_imac.mp4"}

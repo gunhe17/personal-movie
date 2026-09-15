@@ -29,13 +29,13 @@
         "audio": false
       },
       "note": "assetId ca66c371-030c-4198-9ce4-56b28530ae41 · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과(경미) — 끝으로 약한 줌 · 프린터 버튼에 판독 불가 기호 · 종이가 링 위에 얹힘 · 괘선 종이 글자 없음(SSIM 0.81)"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t1/s01-c4-출력_t1.mp4",
     "out": "C1.4_ai.mp4",
-    "length": 3,
+    "length": 3.75,
     "fps": 30,
     "steps": "S1-기존 4 (03-04.mov → 04.png → 99_out.mov)"
   }

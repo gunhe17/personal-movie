@@ -1,0 +1,280 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>씬 표지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;500;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--
+  씬 표지. 목차(toc.html)가 약속한 것을 이 자리에서 증명한다 —
+  기존 표시줄과 우리 표시줄을 위아래로 놓고, 빠지는 칸에 줄을 긋는다.
+  두 바의 바깥 폭이 같아서 칸이 적은 쪽의 칸이 더 크다 — 그게 곧 단축이다.
+  바·점·구분선은 steps.html, 배경과 여백 체계는 toc.html과 같다.
+  전역 render(t) 규약(CDP 캡처). ?t= 로 한 프레임, ?play 로 재생.
+-->
+<style>
+:root{ --f-b:'Apple SD Gothic Neo','Pretendard','Gothic A1',system-ui,sans-serif;
+       --f-m:'SF Mono','IBM Plex Mono',ui-monospace,monospace }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+.stage{position:relative;width:100vw;height:100vh;overflow:hidden;container-type:size;
+  font-family:var(--f-b);color:#FFFFFF;background:#DCE7F7;
+  --edge:5cqw; --k:1.75; --ts:0 .13cqw .7cqw rgba(6,18,46,.55)}
+
+.blob{position:absolute;border-radius:50%;filter:blur(9cqw)}
+.lscrim{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(90deg,rgba(10,26,66,.40),rgba(10,26,66,.13) 26%,rgba(10,26,66,0) 44%)}
+.dots{position:absolute;inset:0;
+  -webkit-mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%);
+          mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%)}
+.grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;
+  background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent .9px);background-size:.55cqw .55cqw}
+
+/* ── 제목 블록 ── */
+.head{position:absolute;left:var(--edge);top:calc(var(--edge) + 3cqw);z-index:3}
+.ix{font-family:var(--f-m);font-size:1.15cqw;letter-spacing:.24em;color:rgba(255,255,255,.75);
+  text-shadow:var(--ts);display:block}
+.nm{font-size:5.2cqw;font-weight:800;letter-spacing:-.045em;line-height:1.1;margin:.7cqw 0 0;
+  color:#FFFFFF;text-shadow:var(--ts);white-space:nowrap}
+.sub{margin-top:1.1cqw;font-size:1.34cqw;font-weight:500;letter-spacing:-.025em;
+  color:rgba(255,255,255,.92);text-shadow:var(--ts);white-space:nowrap}
+.ft{display:inline-flex;align-items:center;gap:.5cqw;margin-top:1.1cqw;
+  font-size:1.32cqw;font-weight:700;letter-spacing:-.02em;color:#FFFFFF;
+  padding:.55cqw 1.2cqw;border-radius:99cqw;background:#2F6BFF;
+  box-shadow:0 .35cqw 1cqw rgba(24,60,150,.34)}
+
+/* ── 두 트랙 ── */
+/* 제목 아래 남는 자리의 한가운데 — 아래에 여백을 남겨 바닥에 붙지 않는다 */
+.tracks{position:absolute;left:var(--edge);right:var(--edge);top:22cqw;bottom:10cqw;
+  z-index:2;display:flex;flex-direction:column;justify-content:center;gap:1.6cqw}
+.track{display:grid;grid-template-columns:5.2cqw minmax(0,1fr) 15.5cqw;align-items:center;gap:1.6cqw}
+/* solo — 스텝이 줄지 않는 씬(04·05). 트랙 하나만 놓고 comment가 그 자리를 대신 짊어진다 */
+.solo .track{grid-template-columns:5.2cqw minmax(0,1fr) 25cqw}
+.solo .cm{font-size:2cqw;padding:.85cqw 1.7cqw}
+.solo .cm b{font-size:2.5cqw}
+.tl{font-family:var(--f-m);font-size:1.02cqw;letter-spacing:.18em;text-align:right;
+  color:rgba(255,255,255,.8);text-shadow:var(--ts)}
+
+.bar{display:flex;align-items:center;width:100%;gap:calc(.3cqw * var(--k));
+  padding:calc(.36cqw * var(--k));border-radius:99cqw;background:#FFFFFF;transform-origin:50% 50%;
+  box-shadow:inset 0 0 0 .07cqw rgba(25,30,33,.10), 0 .5cqw 1.8cqw rgba(25,30,33,.20)}
+/* 기존 트랙은 한 겹 물러나 있다 — 흰 바를 반투명으로 두고 글자를 옅게 */
+.was .bar{background:rgba(255,255,255,.62);box-shadow:inset 0 0 0 .07cqw rgba(25,30,33,.08), 0 .35cqw 1.2cqw rgba(25,30,33,.12)}
+.was .itm{color:rgba(25,30,33,.5)}
+
+.itm{position:relative;flex:1 1 0;min-width:0;display:flex;align-items:center;gap:calc(.5cqw * var(--k));
+  padding:calc(.5cqw * var(--k)) calc(.55cqw * var(--k)) calc(.5cqw * var(--k)) calc(.5cqw * var(--k));
+  font-size:calc(.98cqw * var(--k));font-weight:600;letter-spacing:-.015em;
+  color:rgba(25,30,33,.62);white-space:nowrap;overflow:hidden;border-radius:99cqw}
+.dot{flex:0 0 auto;width:calc(1.35cqw * var(--k));height:calc(1.35cqw * var(--k));border-radius:50%;
+  display:grid;place-items:center;font-family:var(--f-m);font-size:calc(.66cqw * var(--k));
+  background:rgba(25,30,33,.07);color:rgba(25,30,33,.55)}
+.sep{flex:0 0 auto;width:calc(.6cqw * var(--k));height:calc(.08cqw * var(--k));background:rgba(25,30,33,.16)}
+/* 빠지는 칸 — 글자 위에만 줄이 그어진다 */
+.lb{position:relative;display:inline-block;white-space:nowrap}
+.strike{position:absolute;left:-.15cqw;right:-.15cqw;top:50%;height:.14cqw;
+  background:rgba(25,30,33,.62);transform-origin:0 50%;border-radius:.1cqw}
+
+/* ── 속을 여는 두 판 — 스텝이 줄지 않는 씬(04·05)용 ──────────────
+   detail: 칸 속의 내용물이 기존 → 우리로 바뀌는 것을 칩 두 줄로
+   derive: 한 칸에서 여러 장이 파생되는 것을 1 → N 브래킷으로 */
+.has-detail .tracks{top:25cqw;bottom:auto;height:7cqw;justify-content:flex-start}
+
+/* basis — 칸마다 "무엇에 기대어 만들어지는가"를 아래에 붙인다.
+   녹음 → 상담 기록 → 일지 작성. 두 부품이 이어져서 시간이 준다는 것을 줄기로 보인다 */
+.basis{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;z-index:3}
+.bwrap{position:absolute;transform:translateX(-50%)}
+.bstem{position:absolute;left:50%;top:0;width:.16cqw;height:2.6cqw;
+  background:rgba(255,255,255,.6);transform-origin:50% 0}
+.bcard{position:absolute;left:50%;top:2.6cqw;transform:translateX(-50%);
+  width:max-content;max-width:30cqw;padding:.85cqw 1.3cqw;border-radius:.9cqw;background:#FFFFFF;
+  box-shadow:0 .5cqw 1.6cqw rgba(25,30,33,.20);transform-origin:50% 0}
+.bcard b{display:block;font-size:1.24cqw;font-weight:700;letter-spacing:-.025em;color:#0E1B2E;white-space:nowrap}
+.bcard i{display:block;font-style:normal;margin-top:.4cqw;font-size:1.05cqw;font-weight:500;
+  color:rgba(14,27,46,.6);white-space:nowrap}
+
+/* derive — 한 칸에서 N장이 뻗는다 */
+.derive{position:absolute;left:var(--edge);right:var(--edge);top:32.5cqw;z-index:3;height:20cqw}
+.dnote{position:absolute;left:6.8cqw;top:-1.2cqw;display:inline-block;font-size:1.32cqw;font-weight:700;
+  color:rgba(255,255,255,.9);text-shadow:var(--ts)}
+.dnote .strike{left:-.15cqw;right:-.15cqw;background:rgba(255,255,255,.8);height:.12cqw}
+.stem{position:absolute;left:var(--stemX,62%);top:-4cqw;width:.16cqw;height:6.3cqw;
+  background:rgba(255,255,255,.6);transform-origin:50% 0}
+.rail{position:absolute;left:11cqw;right:11cqw;top:2.3cqw;height:.16cqw;
+  background:rgba(255,255,255,.6);transform-origin:50% 50%}
+.docs{position:absolute;left:0;right:0;top:4.2cqw;display:flex;justify-content:center;gap:1.6cqw}
+.doc{width:13.4cqw;padding:1.1cqw 1.2cqw 1.3cqw;border-radius:.9cqw;background:#FFFFFF;
+  box-shadow:0 .5cqw 1.6cqw rgba(25,30,33,.20);transform-origin:50% 0}
+.doc b{display:block;font-size:1.18cqw;font-weight:700;letter-spacing:-.025em;color:#0E1B2E}
+.doc i{display:block;font-style:normal;margin-top:.55cqw;height:.26cqw;border-radius:.2cqw;
+  background:rgba(25,30,33,.14)}
+.doc i+i{margin-top:.38cqw;width:72%}
+
+.cm{justify-self:start;display:inline-flex;align-items:baseline;gap:.45cqw;
+  font-size:1.42cqw;font-weight:700;letter-spacing:-.02em;white-space:nowrap;color:#FFFFFF;
+  padding:.62cqw 1.3cqw;border-radius:99cqw;font-variant-numeric:tabular-nums;
+  background:#2F6BFF;box-shadow:0 .35cqw 1cqw rgba(24,60,150,.34);transform-origin:0% 50%}
+.cm b{font-weight:900;font-size:1.7cqw;letter-spacing:-.03em}
+</style>
+<div class="stage" id="stage"></div>
+<script>
+const SPEC = /*__SPEC__*/ null;
+const S = { ...{
+  ground:'#DCE7F7', dots:1.5, dotOpacity:.5,
+  blobs:[
+    { c:'#2F6BFF', o:.55, w:78, x:-8,  y:-26, from:'left,top' },
+    { c:'#6FC2F5', o:.62, w:56, x:-6,  y:-14, from:'right,top' },
+    { c:'#FFFFFF', o:.55, w:46, x:34,  y:6,   from:'left,top' },
+    { c:'#94A6FF', o:.55, w:62, x:22,  y:-32, from:'left,bottom' },
+    { c:'#C7B4F2', o:.55, w:40, x:6,   y:-16, from:'right,bottom' },
+    { c:'#F3C3DC', o:.40, w:30, x:-4,  y:2,   from:'left,bottom' }
+  ],
+  index:'01', name:'내담자 등록 및 접수', feature:'바로링크',
+  wasLabel:'기존', nowLabel:'우리',
+  was:[], now:[], drop:[], comment:'',
+  // 타임라인 (초)
+  t:{ headAt:0, headDur:.7, ftAt:.55, ftDur:.45,
+      wasAt:1.0, barDur:.55, strikeAt:1.8, strikeDur:.5,
+      nowAt:2.4, cmAt:3.1, cmDur:.45, soloCmAt:2.0,
+      subAt:.85, subDur:.5,
+      basisAt:2.2, basisStep:1.0, basisCmAt:4.4,
+      deriveAt:2.0, docStep:.2, deriveCmAt:5.1 },
+  duration:4.2, fps:30
+}, ...(SPEC || {}) };
+
+const stage = document.getElementById('stage');
+stage.style.background = S.ground;
+
+let bg = '<div id="bg" style="position:absolute;inset:0">';
+if (S.bgImage){
+  bg += `<div style="position:absolute;inset:0;background:url('${S.bgImage}') center/cover no-repeat"></div>`;
+} else {
+  for (const b of S.blobs){
+    const [ax, ay] = b.from.split(',');
+    bg += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`;
+  }
+  bg += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div>`;
+}
+bg += '<div class="lscrim"></div></div>';
+
+const drop = new Set(S.drop);
+const barHtml = (steps, marks) => steps.map((name, j) =>
+  `${j ? '<span class="sep"></span>' : ''}<span class="itm">
+    <span class="dot">${j + 1}</span><span class="lb">${name}${marks && drop.has(j) ? '<span class="strike"></span>' : ''}</span></span>`).join('');
+
+const solo = S.was.length === 0;   // 기존이 비어 있으면 비교할 것이 없는 씬이다
+stage.innerHTML = `${bg}
+  <div class="head">
+    <span class="ix" id="ix">${S.index}</span>
+    <h1 class="nm" id="nm">${S.name}</h1>
+    <div><span class="ft" id="ft">${S.feature}</span></div>
+    ${S.sub ? `<p class="sub" id="sub">${S.sub}</p>` : ''}
+  </div>
+  <div class="tracks${solo ? ' solo' : ''}">
+    ${solo ? '' : `<div class="track was" id="tWas"><span class="tl">${S.wasLabel}</span>
+      <span class="bar">${barHtml(S.was, true)}</span><span></span></div>`}
+    <div class="track" id="tNow"><span class="tl">${S.nowLabel}</span>
+      <span class="bar">${barHtml(S.now, false)}</span>
+      <span class="cm" id="cm">${S.comment}</span></div>
+  </div>
+  ${S.basis ? `<div class="basis" id="basis">${S.basis.map((b,i)=>
+    `<div class="bwrap" data-at="${b.at}"><span class="bstem"></span>
+      <span class="bcard"><b>${b.text}</b>${b.note ? `<i>${b.note}</i>` : ''}</span></div>`).join('')}</div>` : ''}
+  ${S.derive ? `<div class="derive" id="derive">
+    <span class="dnote">${S.derive.note}<span class="strike"></span></span>
+    <span class="stem"></span><span class="rail"></span>
+    <div class="docs">${S.derive.items.map(n=>`<span class="doc"><b>${n}</b><i></i><i></i></span>`).join('')}</div>
+  </div>` : ''}`;
+if (S.basis || S.derive) document.getElementById('stage').classList.add('has-detail');
+
+const el = id => document.getElementById(id);
+const ix = el('ix'), nm = el('nm'), ft = el('ft'), cm = el('cm'), sub = el('sub');
+const tWas = el('tWas'), tNow = el('tNow');
+const strikes = [...stage.querySelectorAll('.bar .strike')];
+// basis — 칸 아래에 붙는 카드. 칸의 가로 한가운데에 맞춘다
+const basisEls = [...stage.querySelectorAll('.bwrap')].map(w => {
+  const cell = stage.querySelectorAll('.itm')[+w.dataset.at];
+  const c = cell.getBoundingClientRect(), b = cell.closest('.bar').getBoundingClientRect();
+  w.style.left = `${c.left + c.width / 2}px`;
+  w.style.top  = `${b.bottom + 4}px`;
+  return { el: w, stem: w.querySelector('.bstem'), card: w.querySelector('.bcard') };
+});
+const derive = el('derive');
+const dnote = derive && derive.querySelector('.dnote');
+const dnoteStrike = derive && derive.querySelector('.dnote .strike');
+const stem = derive && derive.querySelector('.stem');
+const rail = derive && derive.querySelector('.rail');
+const docs = derive ? [...derive.querySelectorAll('.doc')] : [];
+
+const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const seg = (t, at, dur) => clamp((t - at) / dur);
+const outCubic = u => 1 - Math.pow(1 - clamp(u), 3);
+
+/** 바 한 줄이 위로 뜨며 드는 모양 — steps.html 등장 모션과 같은 감각 */
+function riseBar(node, p){
+  node.style.opacity = p.toFixed(4);
+  node.style.transform = `translateY(${((1 - p) * .9).toFixed(3)}cqw) scale(${(0.962 + 0.038 * p).toFixed(4)})`;
+}
+
+function render(t){
+  const T = S.t;
+
+  const h = outCubic(seg(t, T.headAt, T.headDur));
+  ix.style.opacity = nm.style.opacity = h.toFixed(4);
+  ix.style.transform = nm.style.transform = `translateY(${((1 - h) * 1.2).toFixed(3)}cqw)`;
+
+  const f = outCubic(seg(t, T.ftAt, T.ftDur));
+  ft.style.opacity = f.toFixed(4);
+  ft.style.transform = `translateX(${((1 - f) * 1.6).toFixed(3)}cqw) scale(${(0.94 + 0.06 * f).toFixed(4)})`;
+
+  // 평범한 말로 된 한 줄 — 기능 이름 바로 뒤에 든다
+  if (sub){
+    const g = outCubic(seg(t, T.subAt, T.subDur));
+    sub.style.opacity = g.toFixed(4);
+    sub.style.transform = `translateY(${((1 - g) * .7).toFixed(3)}cqw)`;
+  }
+
+  if (tWas) riseBar(tWas, outCubic(seg(t, T.wasAt, T.barDur)));
+  riseBar(tNow, outCubic(seg(t, solo ? T.wasAt : T.nowAt, T.barDur)));
+
+  // 빠지는 칸에 줄이 그어진다 — 왼쪽에서 오른쪽으로
+  const sk = outCubic(seg(t, T.strikeAt, T.strikeDur));
+  strikes.forEach(s => { s.style.transform = `scaleX(${sk.toFixed(4)})`; });
+
+  const cmWhen = S.basis ? T.basisCmAt : S.derive ? T.deriveCmAt : solo ? T.soloCmAt : T.cmAt;
+  const q = outCubic(seg(t, cmWhen, T.cmDur));
+  cm.style.opacity = q.toFixed(4);
+  cm.style.transform = `translateX(${((1 - q) * 2.2).toFixed(3)}cqw) scale(${(0.94 + 0.06 * q).toFixed(4)})`;
+
+  // basis — 칸에서 줄기가 내려오고 그 끝에 재료가 붙는다. 왼쪽 칸이 먼저, 그다음 오른쪽 칸
+  basisEls.forEach((b, k) => {
+    const at = T.basisAt + k * T.basisStep;
+    b.stem.style.transform = `scaleY(${outCubic(seg(t, at, .3)).toFixed(4)})`;
+    const p2 = outCubic(seg(t, at + .22, T.barDur));
+    b.card.style.opacity = p2.toFixed(4);
+    b.card.style.transform = `translateX(-50%) translateY(${((1 - p2) * 1).toFixed(3)}cqw) scale(${(0.94 + 0.06 * p2).toFixed(4)})`;
+  });
+
+  // 파생 — 문장에 줄이 그어지고, 줄기와 가로대가 뻗고, 장이 한 장씩 내려온다
+  if (derive){
+    const n0 = outCubic(seg(t, T.deriveAt, T.barDur));
+    dnote.style.opacity = n0.toFixed(4);
+    dnote.style.transform = `translateY(${((1 - n0) * .8).toFixed(3)}cqw)`;
+    dnoteStrike.style.transform = `scaleX(${outCubic(seg(t, T.deriveAt + .5, T.strikeDur)).toFixed(4)})`;
+    stem.style.transform = `scaleY(${outCubic(seg(t, T.deriveAt + .9, .35)).toFixed(4)})`;
+    rail.style.transform = `scaleX(${outCubic(seg(t, T.deriveAt + 1.2, .45)).toFixed(4)})`;
+    docs.forEach((d, k) => {
+      const p3 = outCubic(seg(t, T.deriveAt + 1.6 + k * T.docStep, T.barDur));
+      d.style.opacity = p3.toFixed(4);
+      d.style.transform = `translateY(${((1 - p3) * 1.4).toFixed(3)}cqw) scale(${(0.94 + 0.06 * p3).toFixed(4)})`;
+    });
+  }
+}
+window.render = render;
+
+const qs = new URLSearchParams(location.search);
+if (qs.has('play')){
+  const t0 = performance.now();
+  const loop = () => { render(((performance.now() - t0) / 1000) % S.duration); requestAnimationFrame(loop); };
+  loop();
+} else render(parseFloat(qs.get('t') || '0'));
+</script>

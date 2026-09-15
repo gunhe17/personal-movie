@@ -29,13 +29,13 @@
         "audio": false
       },
       "note": "assetId 4cf95229-6a43-4511-a8de-b1f97fbf0d43 · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.88) · 매뉴얼 위 손가락이 들렸다 내려앉음 · 노트북 화면 어두움 유지 · 컵·스탠드 고정"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t1/s02-c3-보고서작성_t1.mp4",
     "out": "C2.3_ai.mp4",
-    "length": 4,
+    "length": 3,
     "fps": 30,
     "steps": "S2-기존 3 (02-03.mov → 03.png → 99_out.mov)"
   }

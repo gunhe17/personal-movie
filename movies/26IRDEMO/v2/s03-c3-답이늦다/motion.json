@@ -101,13 +101,13 @@
         "audio": false
       },
       "note": "assetId 95a8264f-dd2f-4521-aa99-5d6a4df3798a · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 5초판 · 화면 번쩍임 해소(t2 여러 번 · t3 1회 → t4 0) · 엄지를 화면에서 떼고 '유일한 빛은 창' 문장 추가 · 손·카메라 안정(SSIM 0.84)"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t4/s03-c3-답이늦다_t4.mp4",
     "out": "C3.3_ai.mp4",
-    "length": 5,
+    "length": 4.5,
     "fps": 30,
     "steps": "S3-기존 2 (01-02.mov → 02.png)"
   }

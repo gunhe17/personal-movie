@@ -98,7 +98,7 @@
   "steps": {
    "track": "S1-기존",
    "step": 2,
-   "label": "컴퓨터 입력",
+   "label": "접수",
    "head": "01-02.mov",
    "hold": "02.png"
   },
@@ -141,7 +141,7 @@
   "steps": {
    "track": "S1-기존",
    "step": 3,
-   "label": "설문 방문",
+   "label": "검사 동의서",
    "head": "02-03.mov",
    "hold": "03.png"
   },
@@ -184,7 +184,7 @@
   "steps": {
    "track": "S1-기존",
    "step": 4,
-   "label": "출력 · 회수",
+   "label": "동의서 관리",
    "head": "03-04.mov",
    "hold": "04.png",
    "tail": "99_out.mov"
@@ -229,7 +229,7 @@
   "steps": {
    "track": "S1-우리",
    "step": 1,
-   "label": "검사 접수",
+   "label": "접수",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -272,7 +272,7 @@
   "steps": {
    "track": "S1-우리",
    "step": 2,
-   "label": "서식 전달",
+   "label": "검사동의서",
    "head": "01-02.mov",
    "hold": "02.png"
   },
@@ -315,7 +315,7 @@
   "steps": {
    "track": "S1-우리",
    "step": 3,
-   "label": "보호자 휴대폰",
+   "label": "동의서 관리",
    "head": "02-03.mov",
    "hold": "03.png",
    "tail": "99_out.mov"
@@ -400,7 +400,7 @@
   "steps": {
    "track": "S2-기존",
    "step": 2,
-   "label": "반응 기록",
+   "label": "결과 기록",
    "head": "01-02.mov",
    "hold": "02.png"
   },
@@ -488,7 +488,7 @@
   "steps": {
    "track": "S2-우리",
    "step": 1,
-   "label": "실시 · 채점",
+   "label": "검사 진행 및 결과 기록",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -531,7 +531,7 @@
   "steps": {
    "track": "S2-우리",
    "step": 2,
-   "label": "보고서 초안",
+   "label": "보고서 작성",
    "head": "01-02.mov",
    "hold": "02.png",
    "tail": "99_out.mov"
@@ -574,7 +574,7 @@
   "steps": {
    "track": "S3-기존",
    "step": 1,
-   "label": "문자 수신",
+   "label": "일정 변경 요청 발생",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -617,7 +617,7 @@
   "steps": {
    "track": "S3-기존",
    "step": 2,
-   "label": "빈 시간 확인",
+   "label": "시간 조율",
    "head": "01-02.mov",
    "hold": "02.png"
   },
@@ -659,11 +659,9 @@
   },
   "steps": {
    "track": "S3-기존",
-   "step": 3,
-   "label": "보호자 통화",
-   "head": "02-03.mov",
-   "hold": "03.png",
-   "tail": "99_out.mov"
+   "step": 2,
+   "label": "시간 조율",
+   "hold": "02.png"
   },
   "edit": {
    "len": 5.0,
@@ -700,7 +698,14 @@
    "이 A가 말하는 것": "변경 한 건에 사람 셋이 두 시간 반 동안 서로를 기다린다 — 그 사이 상담사는 상담 중이다.",
    "B로 이음새": "A의 마지막 컷(다시 쓰는 손)에서 B 첫 컷(앱의 변경 요청 화면)으로 — 같은 요청, 손 대신 버튼."
   },
-  "steps": null,
+  "steps": {
+   "track": "S3-기존",
+   "step": 3,
+   "label": "변동",
+   "head": "02-03.mov",
+   "hold": "03.png",
+   "tail": "99_out.mov"
+  },
   "edit": null
  },
  {
@@ -735,7 +740,7 @@
   "steps": {
    "track": "S3-우리",
    "step": 1,
-   "label": "변경 요청",
+   "label": "일정 변경 요청 발생",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -778,7 +783,7 @@
   "steps": {
    "track": "S3-우리",
    "step": 2,
-   "label": "겹침 확인 · 승인",
+   "label": "변동",
    "head": "01-02.mov",
    "hold": "02.png",
    "tail": "99_out.mov"
@@ -822,7 +827,7 @@
   "steps": {
    "track": "S4-기존",
    "step": 1,
-   "label": "수첩 메모",
+   "label": "상담 기록",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -864,7 +869,7 @@
   "steps": {
    "track": "S4-기존",
    "step": 2,
-   "label": "기억으로 일지",
+   "label": "일지 작성",
    "head": "01-02.mov",
    "hold": "02.png",
    "tail": "99_out.mov"
@@ -908,7 +913,7 @@
   "steps": {
    "track": "S4-우리",
    "step": 1,
-   "label": "녹음",
+   "label": "상담 기록",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -1037,7 +1042,7 @@
   "steps": {
    "track": "S5-기존",
    "step": 1,
-   "label": "회기 종료",
+   "label": "상담 회기 종료",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -1120,7 +1125,7 @@
   "steps": {
    "track": "S5-기존",
    "step": 3,
-   "label": "양식 재작성",
+   "label": "각 상담 양식 작성",
    "head": "02-03.mov",
    "hold": "03.png",
    "tail": "99_out.mov"
@@ -1164,7 +1169,7 @@
   "steps": {
    "track": "S5-우리",
    "step": 1,
-   "label": "보호자에게 전달",
+   "label": "상담 회기 종료",
    "head": "00_in.mov",
    "hold": "01.png"
   },
@@ -1208,7 +1213,7 @@
   "steps": {
    "track": "S5-우리",
    "step": 1,
-   "label": "보호자에게 전달",
+   "label": "상담 회기 종료",
    "hold": "01.png"
   },
   "edit": {
@@ -1251,7 +1256,7 @@
   "steps": {
    "track": "S5-우리",
    "step": 2,
-   "label": "증빙 양식 채움",
+   "label": "각 상담 양식 작성",
    "head": "01-02.mov",
    "hold": "02.png",
    "tail": "99_out.mov"

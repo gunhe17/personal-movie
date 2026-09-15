@@ -1,0 +1,220 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>절차 목차 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;500;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--
+  오프닝 목차 카드. 한 줄이 [순서 · 절차 이름 · 절차 표시줄 · comment] 네 열이다.
+  줄은 기존 스텝으로 떠서, 빠지는 칸이 접히고 남은 칸이 그 자리를 먹는다 — 그게 곧 "n step 단축"이다.
+  표시줄 폭은 100%로 고정이라(칸은 균등 분할) 칸이 빠져도 바깥 폭이 그대로다. 점 번호는 그때 다시 매겨진다.
+  배경 무늬는 imac.html · cards.html · logo.html과 같은 정의 — 바꾸면 넷 다 바꾼다.
+  여백은 --edge 하나로 좌·우·아래가 같고 줄 간격은 --gap 하나로 전부 같다.
+  전역 render(t) 규약(CDP 캡처). ?t= 로도 한 프레임을 고른다. ?play 를 붙이면 그냥 재생한다.
+-->
+<style>
+:root{ --f-b:'Apple SD Gothic Neo','Pretendard','Gothic A1',system-ui,sans-serif;
+       --f-m:'SF Mono','IBM Plex Mono',ui-monospace,monospace }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:transparent}
+.stage{position:relative;width:100vw;height:100vh;overflow:hidden;container-type:size;
+  font-family:var(--f-b);color:#FFFFFF;background:#DCE7F7;
+  /* 간격 체계 — 좌·우·아래가 --edge로 같고, 줄 사이는 예외 없이 --gap이다 */
+  --edge:5cqw; --gap:1.2cqw; --colgap:1.6cqw; --k:1.5;
+  --ts:0 .13cqw .7cqw rgba(6,18,46,.55)}
+
+.blob{position:absolute;border-radius:50%;filter:blur(9cqw)}
+.dots{position:absolute;inset:0;
+  -webkit-mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%);
+          mask-image:radial-gradient(120% 95% at 50% 45%,#000 35%,transparent 78%)}
+.lscrim{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(90deg,rgba(10,26,66,.40),rgba(10,26,66,.13) 26%,rgba(10,26,66,0) 44%)}
+.grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;
+  background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent .9px);background-size:.55cqw .55cqw}
+
+.ttl{position:absolute;left:var(--edge);top:calc(var(--edge) + 4.4cqw);z-index:3;margin:0;
+  font-size:2.7cqw;font-weight:800;letter-spacing:-.04em;line-height:1.12;white-space:nowrap;
+  color:#FFFFFF;text-shadow:var(--ts)}
+.ttl em{font-style:normal;font-weight:900}
+
+.list{position:absolute;left:0;right:0;top:16cqw;bottom:var(--edge);z-index:2;
+  display:flex;flex-direction:column;justify-content:center;gap:var(--gap);padding:0 var(--edge)}
+.row{display:grid;grid-template-columns:2.4cqw 15.4cqw minmax(0,1fr) 16.5cqw;
+  align-items:center;gap:var(--colgap)}
+
+.ix{font-family:var(--f-m);font-size:.92cqw;letter-spacing:.1em;text-align:right;
+  color:rgba(255,255,255,.8);font-variant-numeric:tabular-nums;text-shadow:var(--ts)}
+.nm{font-size:1.5cqw;font-weight:700;letter-spacing:-.035em;text-align:right;white-space:nowrap;
+  color:#FFFFFF;text-shadow:var(--ts)}
+
+/* 알약 바 — steps.html 그대로. 흰 바탕이라 이 안의 글자만 잉크다 */
+.bar{display:flex;align-items:center;width:100%;gap:calc(.3cqw * var(--k));
+  padding:calc(.36cqw * var(--k));border-radius:99cqw;background:#FFFFFF;
+  transform-origin:50% 50%;
+  box-shadow:inset 0 0 0 .07cqw rgba(25,30,33,.10), 0 .5cqw 1.8cqw rgba(25,30,33,.20)}
+.itm{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:calc(.5cqw * var(--k));
+  padding:calc(.5cqw * var(--k)) calc(.55cqw * var(--k)) calc(.5cqw * var(--k)) calc(.5cqw * var(--k));
+  font-size:calc(.98cqw * var(--k));font-weight:600;letter-spacing:-.015em;
+  color:rgba(25,30,33,.62);white-space:nowrap;overflow:hidden;border-radius:99cqw}
+.lb{position:relative;display:inline-grid}
+.lb>span{grid-area:1/1;white-space:nowrap}
+.dot{flex:0 0 auto;width:calc(1.35cqw * var(--k));height:calc(1.35cqw * var(--k));border-radius:50%;
+  display:grid;place-items:center;font-family:var(--f-m);font-size:calc(.66cqw * var(--k));
+  background:rgba(25,30,33,.07);color:rgba(25,30,33,.55)}
+.dot>span{grid-area:1/1}
+.sep{flex:0 0 auto;width:calc(.6cqw * var(--k));height:calc(.08cqw * var(--k));
+  background:rgba(25,30,33,.16)}
+
+/* comment — 다섯 줄이 같은 파랑이다. 무엇이 줄었는지는 칸이 접히는 것으로 이미 보였다 */
+.cm{justify-self:start;display:inline-flex;align-items:baseline;gap:.45cqw;
+  font-size:1.3cqw;font-weight:700;letter-spacing:-.02em;white-space:nowrap;color:#FFFFFF;
+  padding:.6cqw 1.25cqw;border-radius:99cqw;font-variant-numeric:tabular-nums;
+  background:#2F6BFF;box-shadow:0 .35cqw 1cqw rgba(24,60,150,.34);transform-origin:0% 50%}
+.cm b{font-weight:900;font-size:1.56cqw;letter-spacing:-.03em}
+</style>
+<div class="stage" id="stage"></div>
+<script>
+const SPEC = /*__SPEC__*/ null;
+const S = { ...{
+  ground:'#DCE7F7', dots:1.5, dotOpacity:.5,
+  blobs:[
+    { c:'#2F6BFF', o:.55, w:78, x:-8,  y:-26, from:'left,top' },
+    { c:'#6FC2F5', o:.62, w:56, x:-6,  y:-14, from:'right,top' },
+    { c:'#FFFFFF', o:.55, w:46, x:34,  y:6,   from:'left,top' },
+    { c:'#94A6FF', o:.55, w:62, x:22,  y:-32, from:'left,bottom' },
+    { c:'#C7B4F2', o:.55, w:40, x:6,   y:-16, from:'right,bottom' },
+    { c:'#F3C3DC', o:.40, w:30, x:-4,  y:2,   from:'left,bottom' }
+  ],
+  title:'마인드스코프의 <em>STEP 단축!</em>',
+  // rows[i] = { name, steps:[기존 칸], drop:[빠지는 칸 index], relabel:{i,text}, comment }
+  rows:[],
+  // 타임라인 — 이 값들이 카드의 전부다 (초)
+  // 행 단위 순차 — 한 행이 [기존으로 뜬다 → 절차가 생략된다 → 우측 comment] 를 마치면 다음 행이 같은 식으로
+  t:{ title:0, titleDur:1.1,
+      rowsAt:1.2, rowCycle:1.9, rowDur:.45,
+      cutLag:.75, cutDur:.5,
+      cmLag:1.3, cmDur:.45,
+      pulseLag:.3, pulseStep:.1, pulseDur:.5 },
+  duration:12, fps:30
+}, ...(SPEC || {}) };
+
+const stage = document.getElementById('stage');
+stage.style.background = S.ground;
+
+// 배경 — imac.html과 같은 순서: 블롭 → 점무늬 → 그레인
+let bg = '<div id="bg" style="position:absolute;inset:0">';
+if (S.bgImage){
+  // 구워둔 배경 한 장 — 블롭·점무늬·그레인이 이미 그 안에 있다
+  bg += `<div style="position:absolute;inset:0;background:url('${S.bgImage}') center/cover no-repeat"></div>`;
+} else {
+  for (const b of S.blobs){
+    const [ax, ay] = b.from.split(',');
+    bg += `<div class="blob" style="width:${b.w}cqw;height:${b.w}cqw;background:${b.c};opacity:${b.o};${ax}:${b.x}cqw;${ay}:${b.y}cqw"></div>`;
+  }
+  bg += `<div class="dots" style="opacity:${S.dotOpacity};background-image:radial-gradient(rgba(255,255,255,.55) 1.1px,transparent 1.2px);background-size:${S.dots}cqw ${S.dots}cqw"></div><div class="grain"></div>`;
+}
+bg += '<div class="lscrim"></div></div>';
+
+const pad = n => String(n).padStart(2, '0');
+const rowsHtml = S.rows.map((r, i) => {
+  const drop = new Set(r.drop || []);
+  let after = 0;                                   // 칸이 빠진 뒤의 번호
+  const cells = r.steps.map((name, j) => {
+    const gone = drop.has(j);
+    if (!gone) after++;
+    const to = (r.relabel && r.relabel.i === j) ? r.relabel.text : name;
+    return `${j ? `<span class="sep" data-sep="${j}"></span>` : ''}<span class="itm" data-cell="${j}"${gone ? ' data-gone="1"' : ''}>
+      <span class="dot"><span class="n0">${j + 1}</span><span class="n1">${gone ? j + 1 : after}</span></span>
+      <span class="lb"><span class="l0">${name}</span><span class="l1">${to}</span></span></span>`;
+  }).join('');
+  return `<div class="row" data-i="${i}">
+    <span class="ix">${pad(i + 1)}</span><span class="nm">${r.name}</span>
+    <span class="bar">${cells}</span>
+    <span class="cm">${r.comment}</span></div>`;
+}).join('');
+stage.innerHTML = `${bg}<p class="ttl" id="ttl">${S.title}</p><div class="list">${rowsHtml}</div>`;
+
+const ttlEl = document.getElementById('ttl');
+const rows = [...stage.querySelectorAll('.row')].map((el, i) => {
+  const cells = [...el.querySelectorAll('.itm')].map(c => {
+    const cs = getComputedStyle(c);
+    const n0 = c.querySelector('.n0'), n1 = c.querySelector('.n1');
+    const l0 = c.querySelector('.l0'), l1 = c.querySelector('.l1');
+    // 번호나 이름이 실제로 바뀌는 칸만 교차시킨다 — 안 바뀌는 칸까지 교차하면 다 같이 깜빡인다
+    const fades = n0.textContent !== n1.textContent || l0.textContent !== l1.textContent;
+    return { el: c, gone: c.dataset.gone === '1', fades,
+             padL: parseFloat(cs.paddingLeft), padR: parseFloat(cs.paddingRight),
+             gap: parseFloat(cs.gap) || 0,
+             n0, n1, l0, l1 };
+  });
+  const seps = [...el.querySelectorAll('.sep')].map(sp => ({ el: sp, w: parseFloat(getComputedStyle(sp).width) }));
+  const drop = new Set(S.rows[i].drop || []);
+  // 빠지는 칸 오른쪽의 구분선이 같이 접힌다 (첫 칸이 빠지면 그 다음 구분선)
+  seps.forEach((sp, k) => { sp.gone = drop.has(k + 1) || (drop.has(0) && k === 0); });
+  return { el, cells, seps, bar: el.querySelector('.bar'), ix: el.querySelector('.ix'),
+           nm: el.querySelector('.nm'), cm: el.querySelector('.cm'),
+           cuts: drop.size > 0, relabel: S.rows[i].relabel || null };
+});
+
+const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const seg = (t, at, dur) => clamp((t - at) / dur);
+const outCubic = u => 1 - Math.pow(1 - clamp(u), 3);
+const inOutCubic = u => { u = clamp(u); return u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3) / 2; };
+
+function render(t){
+  const T = S.t;
+  // 마지막 행의 comment가 끝난 뒤 한 번 뛴다
+  const pulseAt = T.rowsAt + (rows.length - 1) * T.rowCycle + T.cmLag + T.cmDur + T.pulseLag;
+
+  const a = outCubic(seg(t, T.title, T.titleDur));
+  ttlEl.style.opacity = a.toFixed(4);
+  ttlEl.style.transform = `translateY(${((1 - a) * 1.2).toFixed(3)}cqw)`;
+
+  rows.forEach((r, i) => {
+    const at = T.rowsAt + i * T.rowCycle;
+
+    // 줄 — 위로 뜨며 96.2% → 100% (steps.html 등장 모션과 같은 감각)
+    const p = outCubic(seg(t, at, T.rowDur));
+    const y = (1 - p) * .9;
+    r.bar.style.opacity = p.toFixed(4);
+    r.bar.style.transform = `translateY(${y.toFixed(3)}cqw) scale(${(0.962 + 0.038 * p).toFixed(4)})`;
+    r.ix.style.opacity = r.nm.style.opacity = p.toFixed(4);
+    r.ix.style.transform = r.nm.style.transform = `translateY(${y.toFixed(3)}cqw)`;
+
+    // 칸이 접힌다 — 빠지는 칸의 flex-grow가 0으로 가고 남은 칸이 그 폭을 먹는다
+    const c = inOutCubic(seg(t, at + T.cutLag, T.cutDur));
+    r.cells.forEach(cell => {
+      if (cell.gone){
+        cell.el.style.flexGrow = (1 - c).toFixed(4);
+        cell.el.style.opacity = (1 - clamp(c / .7)).toFixed(4);
+        cell.el.style.paddingLeft = `${(cell.padL * (1 - c)).toFixed(2)}px`;
+        cell.el.style.paddingRight = `${(cell.padR * (1 - c)).toFixed(2)}px`;
+        cell.el.style.gap = `${(cell.gap * (1 - c)).toFixed(2)}px`;
+      }
+      // 번호는 다시 매겨지고, 합쳐지는 칸은 이름이 바뀐다 — 합이 늘 1이라 빈 구간이 없다
+      const u = cell.fades ? clamp((c - .34) / .32) : 0;
+      cell.n0.style.opacity = (1 - u).toFixed(3); cell.n1.style.opacity = u.toFixed(3);
+      cell.l0.style.opacity = (1 - u).toFixed(3); cell.l1.style.opacity = u.toFixed(3);
+    });
+    r.seps.forEach(sp => { if (sp.gone){
+      sp.el.style.width = `${(sp.w * (1 - c)).toFixed(2)}px`;
+      sp.el.style.opacity = (1 - clamp(c / .7)).toFixed(3);
+    }});
+
+    // comment — 칸이 접힌 다음에 붙는다. 먼저 보여주고 그 다음에 말한다
+    const q = outCubic(seg(t, at + T.cmLag, T.cmDur));
+    const pu = Math.sin(Math.PI * seg(t, pulseAt + i * T.pulseStep, T.pulseDur));
+    r.cm.style.opacity = q.toFixed(4);
+    r.cm.style.transform =
+      `translateX(${((1 - q) * 2.2).toFixed(3)}cqw) scale(${(0.94 + 0.06 * q + 0.055 * inOutCubic(pu)).toFixed(4)})`;
+  });
+}
+window.render = render;
+
+const q = new URLSearchParams(location.search);
+if (q.has('play')){
+  const t0 = performance.now();
+  const loop = () => { render(((performance.now() - t0) / 1000) % S.duration); requestAnimationFrame(loop); };
+  loop();
+} else render(parseFloat(q.get('t') || '0'));
+</script>

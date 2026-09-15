@@ -29,13 +29,13 @@
         "audio": false
       },
       "note": "assetId b23a295f-f6e0-41fa-8cab-3832ec2fb8ac · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 카메라 고정(SSIM 0.83) · 아래 손 검지가 괘선을 따라 조금 내려감 · 위 손 고정 · 모니터 화면 어두움 · 종이 인쇄 줄 변화 없음"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t1/s02-c2-반응기록_t1.mp4",
     "out": "C2.2_ai.mp4",
-    "length": 4,
+    "length": 3,
     "fps": 30,
     "steps": "S2-기존 2 (01-02.mov → 02.png)"
   }

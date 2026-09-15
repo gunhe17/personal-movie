@@ -77,13 +77,13 @@
         "audio": false
       },
       "note": "assetId 229db0e0-2fb9-4230-8de8-ab4f24772796 · modelId 3146",
-      "verdict": "채택 — Claude 판정 통과 — 5초판 · 화면 어두움 유지 · 폰 한 장 유지 · 손이 폰을 오른쪽으로 천천히 끌어옴(SSIM 0.74)"
+      "verdict": "채택"
     }
   ],
   "pick": {
     "from": "t3/s03-c2-문자한통_t3.mp4",
     "out": "C3.2_ai.mp4",
-    "length": 5,
+    "length": 4.5,
     "fps": 30,
     "steps": "S3-기존 1 (00_in.mov → 01.png)"
   }
