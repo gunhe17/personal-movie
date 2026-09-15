@@ -1,0 +1,6 @@
+{
+  "stage": "imac",
+  "size": [3840, 2160],
+  "mac": false,
+  "out": "bg.png"
+}

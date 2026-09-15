@@ -56,6 +56,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent}
   border:.07cqw solid rgba(255,255,255,.62);
   box-shadow:0 .5cqw 1.4cqw rgba(16,38,80,.18)}
 .nostand .neck,.nostand .foot,.nostand .floor{display:none}
+.nomac .lay{display:none}   /* mac:false — 배경만 굽는다(빈 배경판) */
 .floor{width:calc(34cqw * var(--st,1));height:1.5cqw;margin:.7cqw auto 0;border-radius:50%;
   background:rgba(18,40,84,.22);filter:blur(1.1cqw)}
 
@@ -107,6 +108,7 @@ if (FILL) st.classList.add('matte', `matte-${FILL}`);
 st.style.setProperty('--sheen', S.sheen + 'deg');
 if (S.bezel != null) st.style.setProperty('--bz', S.bezel + 'cqw');   // 베젤 두께(cqw). 기본 1.05
 if (S.chin != null) st.style.setProperty('--chin', S.chin + 'cqw');   // 턱 높이(cqw). 기본 4.6
+if (S.mac === false) st.classList.add('nomac');                       // 배경만 (iMac·카피 없이)
 if (S.stand === false) st.classList.add('nostand');                   // 받침대(목·발·그림자)를 뺀다
 else if (typeof S.stand === 'number') st.style.setProperty('--st', S.stand);   // 받침대 배율. 1 = 원래 크기
 st.style.background = S.ground;
